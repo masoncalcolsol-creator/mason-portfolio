@@ -1,26 +1,250 @@
-@import "tailwindcss";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+* {
+  box-sizing: border-box;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  scroll-behavior: smooth;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  margin: 0;
+  background: #08090b;
+}
+
+.card {
+  border: 1px solid rgba(255,255,255,.1);
+  background: linear-gradient(180deg, rgba(255,255,255,.075), rgba(255,255,255,.035));
+  border-radius: 28px;
+  box-shadow: 0 30px 80px rgba(0,0,0,.35);
+  backdrop-filter: blur(16px);
+}
+
+.hero {
+  padding: clamp(28px, 5vw, 56px);
+}
+
+.hero h1 {
+  max-width: 900px;
+  font-size: clamp(44px, 7vw, 92px);
+  line-height: .9;
+  letter-spacing: -0.07em;
+  font-weight: 950;
+  margin: 28px 0 24px;
+}
+
+.lead {
+  max-width: 760px;
+  color: rgba(255,255,255,.72);
+  font-size: clamp(18px, 2vw, 24px);
+  line-height: 1.35;
+}
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  color: #fecaca;
+  border: 1px solid rgba(248,113,113,.25);
+  background: rgba(127,29,29,.22);
+  padding: 10px 14px;
+  border-radius: 999px;
+  font-weight: 800;
+  font-size: 13px;
+}
+
+.focus-box {
+  margin-top: 28px;
+  border-left: 3px solid #ef4444;
+  padding: 16px 18px;
+  background: rgba(0,0,0,.22);
+  border-radius: 18px;
+}
+
+.focus-box span {
+  display: block;
+  color: rgba(255,255,255,.45);
+  text-transform: uppercase;
+  letter-spacing: .22em;
+  font-size: 11px;
+  margin-bottom: 6px;
+}
+
+.focus-box strong {
+  display: block;
+  color: white;
+  font-size: 18px;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  border-radius: 999px;
+  padding: 13px 18px;
+  font-weight: 900;
+  text-decoration: none;
+  transition: transform .15s ease, opacity .15s ease, border-color .15s ease;
+}
+
+.btn:hover {
+  transform: translateY(-1px);
+}
+
+.btn.primary {
+  background: #ef4444;
+  color: white;
+  box-shadow: 0 16px 40px rgba(239,68,68,.25);
+}
+
+.btn.secondary {
+  border: 1px solid rgba(255,255,255,.18);
+  background: rgba(255,255,255,.08);
+  color: white;
+}
+
+.btn.ghost {
+  border: 1px solid rgba(255,255,255,.14);
+  background: rgba(255,255,255,.04);
+  color: white;
+}
+
+.btn.full {
+  width: 100%;
+}
+
+.qr-card {
+  padding: 28px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  text-align: center;
+}
+
+.qr-wrap {
+  margin: 0 auto 22px;
+  width: fit-content;
+  padding: 18px;
+  border-radius: 26px;
+  background: white;
+}
+
+.qr-card h2,
+.proof h2,
+.contact h2 {
+  font-size: 32px;
+  line-height: 1;
+  font-weight: 950;
+  letter-spacing: -0.04em;
+}
+
+.qr-card p,
+.project p,
+.proof p,
+.contact p {
+  color: rgba(255,255,255,.65);
+  line-height: 1.55;
+}
+
+.project {
+  padding: 24px;
+  min-height: 310px;
+  display: flex;
+  flex-direction: column;
+}
+
+.project-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.project-top span {
+  color: #fecaca;
+  font-size: 12px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: .13em;
+}
+
+.icon {
+  width: 48px;
+  height: 48px;
+  display: grid;
+  place-items: center;
+  border-radius: 16px;
+  background: rgba(239,68,68,.16);
+  color: #fecaca;
+}
+
+.icon svg {
+  width: 24px;
+  height: 24px;
+}
+
+.project h3 {
+  margin-top: 28px;
+  font-size: 30px;
+  font-weight: 950;
+  letter-spacing: -0.05em;
+}
+
+.project-link {
+  margin-top: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: #fecaca;
+  font-weight: 950;
+  text-decoration: none;
+}
+
+.proof {
+  padding: 28px;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 24px;
+}
+
+@media (min-width: 900px) {
+  .proof {
+    grid-template-columns: .9fr 1.1fr;
+    align-items: center;
+  }
+}
+
+.proof-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+.stat {
+  min-height: 110px;
+  border: 1px solid rgba(255,255,255,.1);
+  border-radius: 22px;
+  padding: 18px;
+  background: rgba(0,0,0,.2);
+}
+
+.stat strong {
+  display: block;
+  font-size: 24px;
+  font-weight: 950;
+}
+
+.stat span {
+  display: block;
+  margin-top: 8px;
+  color: rgba(255,255,255,.55);
+}
+
+.contact {
+  text-align: center;
+  padding: 56px 0 20px;
 }

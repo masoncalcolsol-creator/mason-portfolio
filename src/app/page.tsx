@@ -1,65 +1,232 @@
-import Image from "next/image";
+"use client";
 
-export default function Home() {
+import { useMemo } from "react";
+import { QRCodeSVG } from "qrcode.react";
+import {
+  ArrowRight,
+  Mail,
+  Phone,
+  ExternalLink,
+  ScanLine,
+  Trash2,
+  BriefcaseBusiness,
+  Sparkles,
+} from "lucide-react";
+
+const CONTACT_EMAIL = "Masoncalcolsol@gmail.com";
+const CONTACT_PHONE = "9097257741";
+
+const DEMO_LINKS = {
+  checkmate: "https://checkmate-mvp.vercel.app/",
+  trashpanda: "https://your-trash-panda-demo.vercel.app",
+  github: "https://github.com/YOUR_GITHUB",
+};
+
+const companyCopy: Record<string, { title: string; subtitle: string; focus: string }> = {
+  calcom: {
+    title: "Built for Cal.com-style product thinking.",
+    subtitle: "Scheduling is coordination. CHECKMATE, Trash Panda, and Glacier are coordination systems disguised as simple tools.",
+    focus: "Workflow deletion, UX clarity, and real-world chaos handling.",
+  },
+  stripe: {
+    title: "Built for payment-routing brains.",
+    subtitle: "CHECKMATE starts as receipt splitting, but the real system is itemized payment coordination.",
+    focus: "Consumer money movement, payment links, settlement flow, and trust.",
+  },
+  supabase: {
+    title: "Built like a Supabase-native builder would think.",
+    subtitle: "Fast MVPs, real persistence, public share links, row-level data models, and product loops.",
+    focus: "Backend-first demos that users can actually try.",
+  },
+  vercel: {
+    title: "Built for deploy-speed culture.",
+    subtitle: "Portfolio, demos, QR flows, and shareable app experiences built to ship fast and iterate faster.",
+    focus: "Frontend velocity, product polish, and live demo conversion.",
+  },
+};
+
+function getCompany() {
+  if (typeof window === "undefined") return "";
+  const params = new URLSearchParams(window.location.search);
+  return (params.get("company") || "").toLowerCase();
+}
+
+export default function Page() {
+  const company = getCompany();
+
+  const profile = companyCopy[company] || {
+    title: "I do not build apps. I replace broken systems.",
+    subtitle:
+      "Self-taught full-stack builder turning messy real-world workflows into usable software demos: receipts, documents, food crews, search, and data chaos.",
+    focus: "AI-assisted product engineering, workflow design, and full-stack MVP execution.",
+  };
+
+  const currentUrl = typeof window !== "undefined" ? window.location.href : "https://your-portfolio.vercel.app";
+
+  const qrUrl = useMemo(() => currentUrl, [currentUrl]);
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <main className="min-h-screen bg-[#08090b] text-white overflow-hidden">
+      <div className="fixed inset-0 pointer-events-none bg-[radial-gradient(circle_at_top_left,rgba(255,40,40,.18),transparent_35%),radial-gradient(circle_at_bottom_right,rgba(255,255,255,.08),transparent_30%)]" />
+
+      <section className="relative mx-auto max-w-7xl px-6 py-8 md:py-12">
+        <nav className="flex items-center justify-between border border-white/10 bg-white/[.03] rounded-3xl px-5 py-4 backdrop-blur">
+          <div>
+            <div className="text-sm uppercase tracking-[0.35em] text-red-300">NULLWORKS // PORTFOLIO</div>
+            <div className="text-xl font-black">Mason Perry</div>
+          </div>
+
+          <div className="hidden md:flex gap-3">
+            <a className="btn ghost" href={`mailto:${CONTACT_EMAIL}`}>
+              <Mail size={16} /> Email
+            </a>
+            <a className="btn ghost" href={`sms:${CONTACT_PHONE}`}>
+              <Phone size={16} /> Text
+            </a>
+          </div>
+        </nav>
+
+        <div className="grid lg:grid-cols-[1.25fr_.75fr] gap-6 mt-8">
+          <div className="card hero">
+            <div className="pill">
+              <Sparkles size={16} /> Built with AI, chaos, and unreasonable momentum
+            </div>
+
+            <h1>{profile.title}</h1>
+
+            <p className="lead">{profile.subtitle}</p>
+
+            <div className="focus-box">
+              <span>Current focus</span>
+              <strong>{profile.focus}</strong>
+            </div>
+
+            <div className="flex flex-wrap gap-3 mt-8">
+              <a className="btn primary" href={DEMO_LINKS.checkmate} target="_blank">
+                Try CHECKMATE <ArrowRight size={18} />
+              </a>
+              <a className="btn secondary" href="#projects">
+                View product stack
+              </a>
+            </div>
+          </div>
+
+          <div className="card qr-card">
+            <div className="qr-wrap">
+              <QRCodeSVG value={qrUrl} size={220} bgColor="#ffffff" fgColor="#08090b" />
+            </div>
+            <h2>Scan the portfolio</h2>
+            <p>
+              Phone-friendly demo path. No signup. No corporate hostage situation.
+            </p>
+            <a className="btn primary full" href={DEMO_LINKS.checkmate} target="_blank">
+              Launch demo <ExternalLink size={17} />
+            </a>
+          </div>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
+
+        <section id="projects" className="grid md:grid-cols-3 gap-5 mt-6">
+          <ProjectCard
+            icon={<ScanLine />}
+            title="CHECKMATE"
+            tag="Live demo priority"
+            body="Receipt scanner that turns OCR chaos into editable item bubbles, assigns people, calculates splits, and generates settlement-ready summaries."
+            link={DEMO_LINKS.checkmate}
+            cta="Try receipt demo"
+          />
+
+          <ProjectCard
+            icon={<Trash2 />}
+            title="TRASH PANDA"
+            tag="Data rescue system"
+            body="A legal/document chaos tool concept: upload messy PDFs, OCR everything, reorganize virtually, and turn dumpster-fire data into searchable structure."
+            link={DEMO_LINKS.trashpanda}
+            cta="View concept"
+          />
+
+          <ProjectCard
+            icon={<BriefcaseBusiness />}
+            title="POLYMORPHIC PORTFOLIO"
+            tag="This page"
+            body="Same builder, same proof, different lens per employer. Recruiters get a tailored landing page without needing a whole custom app per application."
+            link={`${currentUrl.split("?")[0]}?company=calcom`}
+            cta="See tailored version"
+          />
+        </section>
+
+        <section className="card proof mt-6">
+          <div>
+            <h2>Why this is different</h2>
+            <p>
+              Most applicants show tutorials. I show working systems built around real-world friction:
+              bad OCR, messy receipts, group payment behavior, chaotic documents, and human laziness.
+              Beautiful little disaster engines. Recruiter-safe wording, obviously.
+            </p>
+          </div>
+
+          <div className="proof-grid">
+            <Stat value="3+" label="active MVP systems" />
+            <Stat value="AI + Full Stack" label="build method" />
+            <Stat value="QR-first" label="demo strategy" />
+            <Stat value="Chaos → UI" label="core design pattern" />
+          </div>
+        </section>
+
+        <section className="contact">
+          <h2>Need someone who deletes broken workflows?</h2>
+          <p>Summon Mason. Dramatic? Yes. Memorable? Also yes.</p>
+
+          <div className="flex flex-wrap justify-center gap-3">
+            <a className="btn primary" href={`mailto:${CONTACT_EMAIL}?subject=Portfolio%20Demo%20Follow-up`}>
+              Summon by email <Mail size={17} />
+            </a>
+            <a className="btn secondary" href={`sms:${CONTACT_PHONE}`}>
+              Summon by text <Phone size={17} />
+            </a>
+          </div>
+        </section>
+      </section>
+    </main>
+  );
+}
+
+function ProjectCard({
+  icon,
+  title,
+  tag,
+  body,
+  link,
+  cta,
+}: {
+  icon: React.ReactNode;
+  title: string;
+  tag: string;
+  body: string;
+  link: string;
+  cta: string;
+}) {
+  return (
+    <article className="card project">
+      <div className="project-top">
+        <div className="icon">{icon}</div>
+        <span>{tag}</span>
+      </div>
+
+      <h3>{title}</h3>
+      <p>{body}</p>
+
+      <a className="project-link" href={link} target="_blank">
+        {cta} <ArrowRight size={16} />
+      </a>
+    </article>
+  );
+}
+
+function Stat({ value, label }: { value: string; label: string }) {
+  return (
+    <div className="stat">
+      <strong>{value}</strong>
+      <span>{label}</span>
     </div>
   );
 }
