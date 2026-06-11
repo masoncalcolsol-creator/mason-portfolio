@@ -8,9 +8,13 @@ import {
   Phone,
   ExternalLink,
   ScanLine,
-  Trash2,
   BriefcaseBusiness,
   Sparkles,
+  Music2,
+  Mountain,
+  FileSearch,
+  ClipboardCheck,
+  Radio,
 } from "lucide-react";
 
 const CONTACT_EMAIL = "Masoncalcolsol@gmail.com";
@@ -18,30 +22,34 @@ const CONTACT_PHONE = "9097257741";
 
 const DEMO_LINKS = {
   checkmate: "https://checkmate-mvp.vercel.app/",
-  trashpanda: "https://your-trash-panda-demo.vercel.app",
-  github: "https://github.com/YOUR_GITHUB",
+  anvilForge: "/anvil-song-forge",
+  ircode: "/ircode",
 };
 
 const companyCopy: Record<string, { title: string; subtitle: string; focus: string }> = {
   calcom: {
-    title: "Built for Cal.com-style product thinking.",
-    subtitle: "Scheduling is coordination. CHECKMATE, Trash Panda, and Glacier are coordination systems disguised as simple tools.",
-    focus: "Workflow deletion, UX clarity, and real-world chaos handling.",
+    title: "I turn messy coordination into usable workflows.",
+    subtitle:
+      "CHECKMATE, CUTSYNC, PAPERGOBLIN, and TAC OPS are all coordination systems: raw human intent in, structured action out.",
+    focus: "Scheduling-grade clarity, intake design, AI-assisted iteration, and operational UX.",
   },
   stripe: {
-    title: "Built for payment-routing brains.",
-    subtitle: "CHECKMATE starts as receipt splitting, but the real system is itemized payment coordination.",
-    focus: "Consumer money movement, payment links, settlement flow, and trust.",
+    title: "I build trust layers around messy money and messy humans.",
+    subtitle:
+      "CHECKMATE starts as receipt splitting, but the deeper product is itemized trust, structured settlement, and low-friction group payment behavior.",
+    focus: "Consumer finance UX, itemized data, proof states, and payment-ready workflows.",
   },
   supabase: {
-    title: "Built like a Supabase-native builder would think.",
-    subtitle: "Fast MVPs, real persistence, public share links, row-level data models, and product loops.",
-    focus: "Backend-first demos that users can actually try.",
+    title: "I build fast MVPs that create usable data trails.",
+    subtitle:
+      "My work turns intake, uploads, OCR, creative briefs, and field chaos into structured packets teams can actually use.",
+    focus: "Backend-shaped product thinking, AI-assisted systems, and database-friendly user flows.",
   },
   vercel: {
-    title: "Built for deploy-speed culture.",
-    subtitle: "Portfolio, demos, QR flows, and shareable app experiences built to ship fast and iterate faster.",
-    focus: "Frontend velocity, product polish, and live demo conversion.",
+    title: "I ship portfolio-grade product surfaces fast.",
+    subtitle:
+      "NULLWORKS ANVIL, CUTSYNC, CHECKMATE, and the IRCODE packet show the same pattern: live demos, fast iteration, clear user paths.",
+    focus: "Frontend velocity, deployment discipline, product storytelling, and demo conversion.",
   },
 };
 
@@ -55,24 +63,24 @@ export default function Page() {
   const company = getCompany();
 
   const profile = companyCopy[company] || {
-    title: "I do not build apps. I replace broken systems.",
+    title: "AI-assisted product builder turning chaos into shipped systems.",
     subtitle:
-      "Self-taught full-stack builder turning messy real-world workflows into usable software demos: receipts, documents, food crews, search, and data chaos.",
-    focus: "AI-assisted product engineering, workflow design, and full-stack MVP execution.",
+      "Founder/operator of NULLWORKS ANVIL and CUTSYNC. I build UX, OCR, creative-production, and operational-intelligence tools that convert messy human input into structured packets, usable interfaces, and finished assets.",
+    focus:
+      "AI-assisted product throughput: UX/UI, workflow automation, OCR, creative systems, and real-world ops software.",
   };
 
-  const currentUrl = typeof window !== "undefined" ? window.location.href : "https://your-portfolio.vercel.app";
-
+  const currentUrl = typeof window !== "undefined" ? window.location.href : "https://mason-portfolio-phi.vercel.app";
   const qrUrl = useMemo(() => currentUrl, [currentUrl]);
 
   return (
     <main className="min-h-screen bg-[#08090b] text-white overflow-hidden">
-      <div className="fixed inset-0 pointer-events-none bg-[radial-gradient(circle_at_top_left,rgba(255,40,40,.18),transparent_35%),radial-gradient(circle_at_bottom_right,rgba(255,255,255,.08),transparent_30%)]" />
+      <div className="fixed inset-0 pointer-events-none bg-[radial-gradient(circle_at_top_left,rgba(255,72,0,.22),transparent_34%),radial-gradient(circle_at_bottom_right,rgba(255,255,255,.08),transparent_32%)]" />
 
       <section className="relative mx-auto max-w-7xl px-6 py-8 md:py-12">
         <nav className="flex items-center justify-between border border-white/10 bg-white/[.03] rounded-3xl px-5 py-4 backdrop-blur">
           <div>
-            <div className="text-sm uppercase tracking-[0.35em] text-red-300">NULLWORKS // PORTFOLIO</div>
+            <div className="text-sm uppercase tracking-[0.35em] text-orange-300">NULLWORKS // ANVIL // CUTSYNC</div>
             <div className="text-xl font-black">Mason Perry</div>
           </div>
 
@@ -89,11 +97,10 @@ export default function Page() {
         <div className="grid lg:grid-cols-[1.25fr_.75fr] gap-6 mt-8">
           <div className="card hero">
             <div className="pill">
-              <Sparkles size={16} /> Built with AI, chaos, and unreasonable momentum
+              <Sparkles size={16} /> Transparent AI-assisted throughput, built in public
             </div>
 
             <h1>{profile.title}</h1>
-
             <p className="lead">{profile.subtitle}</p>
 
             <div className="focus-box">
@@ -101,9 +108,15 @@ export default function Page() {
               <strong>{profile.focus}</strong>
             </div>
 
+            <div className="grid md:grid-cols-3 gap-3 mt-8">
+              <MiniProof value="NULLWORKS ANVIL" label="AI music, creator packets, and custom-record workflow" />
+              <MiniProof value="CUTSYNC" label="30-sec reels, media briefs, and rapid creator content" />
+              <MiniProof value="Ops + OCR" label="PAPERGOBLIN, TAC OPS, CHECKMATE, USPS field systems" />
+            </div>
+
             <div className="flex flex-wrap gap-3 mt-8">
-              <a className="btn primary" href={DEMO_LINKS.checkmate} target="_blank">
-                Try CHECKMATE <ArrowRight size={18} />
+              <a className="btn primary" href={DEMO_LINKS.anvilForge}>
+                Try ANVIL Song Forge <ArrowRight size={18} />
               </a>
               <a className="btn secondary" href="#projects">
                 View product stack
@@ -117,76 +130,127 @@ export default function Page() {
             </div>
             <h2>Scan the portfolio</h2>
             <p>
-              Phone-friendly demo path. No signup. No corporate hostage situation.
+              Mobile-friendly proof of AI-assisted product throughput: creative systems, OCR workflows, ops tools, and deployable demos.
             </p>
-            <a className="btn primary full" href={DEMO_LINKS.checkmate} target="_blank">
-              Launch demo <ExternalLink size={17} />
+            <a className="btn primary full" href={DEMO_LINKS.anvilForge}>
+              Launch ANVIL Forge <ExternalLink size={17} />
             </a>
           </div>
         </div>
 
+        <section className="card proof mt-6">
+          <div>
+            <div className="pill"><Radio size={16} /> Active field + creative pilots</div>
+            <h2>Not tutorial projects. Real workflows with real users.</h2>
+            <p>
+              NULLWORKS ANVIL and CUTSYNC are built around live creator, media, and operations problems: custom music briefs, short-form action sports edits, OCR cleanup, field documentation, and messy data rescue.
+            </p>
+          </div>
+
+          <div className="proof-grid">
+            <Stat value="BBMR" label="Media/social workflow relationship with Lee Stockwell, Director of Media for Big Bear Mountain Resort." />
+            <Stat value="Pro DH" label="MTB race-content workflow direction for Clay Harper, founder/promoter of the Pro Downhill Series." />
+            <Stat value="ANVIL" label="Custom record and reel-production system: human references in, production-ready AI packets out." />
+            <Stat value="USPS Ops" label="OCR, equipment documentation, daily proof-of-work, and real-world maintenance intelligence." />
+          </div>
+        </section>
+
         <section id="projects" className="grid md:grid-cols-3 gap-5 mt-6">
+          <ProjectCard
+            icon={<Music2 />}
+            title="NULLWORKS ANVIL / CUTSYNC"
+            tag="Primary proof"
+            body="AI-assisted creative production system for songs, reels, creator packets, and custom records. It lets users describe music like humans, then translates references into production-ready prompts."
+            link={DEMO_LINKS.anvilForge}
+            cta="Open song forge"
+          />
+
+          <ProjectCard
+            icon={<Mountain />}
+            title="Action Sports Media Workflows"
+            tag="Active pilots"
+            body="Creator and resort-friendly workflow thinking for BBMR and Pro Downhill Series style content: race hype, short-form edits, sponsor-safe music, captions, and fast turnaround."
+            link={DEMO_LINKS.anvilForge}
+            cta="See the workflow"
+          />
+
           <ProjectCard
             icon={<ScanLine />}
             title="CHECKMATE"
-            tag="Live demo priority"
+            tag="Live demo"
             body="Receipt scanner that turns OCR chaos into editable item bubbles, assigns people, calculates splits, and generates settlement-ready summaries."
             link={DEMO_LINKS.checkmate}
             cta="Try receipt demo"
           />
 
           <ProjectCard
-            icon={<Trash2 />}
-            title="TRASH PANDA"
-            tag="Data rescue system"
-            body="A legal/document chaos tool concept: upload messy PDFs, OCR everything, reorganize virtually, and turn dumpster-fire data into searchable structure."
-            link={DEMO_LINKS.trashpanda}
-            cta="View concept"
+            icon={<FileSearch />}
+            title="PAPERGOBLIN"
+            tag="OCR + intake"
+            body="Friendly messy-document system for turning forms, PDFs, screenshots, and field notes into structured packets a human operator can review and act on."
+            link="#contact"
+            cta="Discuss concept"
+          />
+
+          <ProjectCard
+            icon={<ClipboardCheck />}
+            title="TAC OPS / OCR Recovery"
+            tag="Operational intelligence"
+            body="Physical-world exception handling for misroutes, damaged labels, package evidence, scanner data, and proof-of-work recovery workflows."
+            link="#contact"
+            cta="View ops direction"
           />
 
           <ProjectCard
             icon={<BriefcaseBusiness />}
-            title="POLYMORPHIC PORTFOLIO"
+            title="Polymorphic Portfolio"
             tag="This page"
-            body="Same builder, same proof, different lens per employer. Recruiters get a tailored landing page without needing a whole custom app per application."
-            link={`${currentUrl.split("?")[0]}?company=calcom`}
+            body="Same builder, same proof, different lens per employer. Recruiters get tailored product storytelling without needing a whole new app per application."
+            link={`${currentUrl.split("?")[0]}?company=vercel`}
             cta="See tailored version"
           />
         </section>
 
         <section className="card proof mt-6">
           <div>
-            <h2>Why this is different</h2>
+            <h2>The working pattern</h2>
             <p>
-              Most applicants show tutorials. I show working systems built around real-world friction:
-              bad OCR, messy receipts, group payment behavior, chaotic documents, and human laziness.
-              Beautiful little disaster engines. Recruiter-safe wording, obviously.
+              The throughline is simple: take messy human input, build the intake surface, structure the data, generate a useful packet, and make the next action obvious.
             </p>
           </div>
 
           <div className="proof-grid">
-            <Stat value="3+" label="active MVP systems" />
-            <Stat value="AI + Full Stack" label="build method" />
-            <Stat value="QR-first" label="demo strategy" />
-            <Stat value="Chaos → UI" label="core design pattern" />
+            <Stat value="Messy input" label="Voice notes, screenshots, receipts, media clips, package labels, client vibes" />
+            <Stat value="Structured packet" label="Clear fields, outputs, prompts, QA notes, and next actions" />
+            <Stat value="Human judgment" label="AI accelerates; Mason owns taste, product fit, and final delivery" />
+            <Stat value="Fast rails" label="First railroad tracks quickly, then refine, harden, and scale" />
           </div>
         </section>
 
-        <section className="contact">
-          <h2>Need someone who deletes broken workflows?</h2>
-          <p>Summon Mason. Dramatic? Yes. Memorable? Also yes.</p>
+        <section id="contact" className="contact">
+          <h2>Need a high-output builder for product chaos?</h2>
+          <p>Give me messy input, a real user problem, and permission to use modern tools transparently. I will turn it into a usable workflow fast.</p>
 
           <div className="flex flex-wrap justify-center gap-3">
             <a className="btn primary" href={`mailto:${CONTACT_EMAIL}?subject=Portfolio%20Demo%20Follow-up`}>
-              Summon by email <Mail size={17} />
+              Email Mason <Mail size={17} />
             </a>
             <a className="btn secondary" href={`sms:${CONTACT_PHONE}`}>
-              Summon by text <Phone size={17} />
+              Text Mason <Phone size={17} />
             </a>
           </div>
         </section>
       </section>
     </main>
+  );
+}
+
+function MiniProof({ value, label }: { value: string; label: string }) {
+  return (
+    <div className="stat min-h-[120px]">
+      <strong>{value}</strong>
+      <span>{label}</span>
+    </div>
   );
 }
 
@@ -205,6 +269,8 @@ function ProjectCard({
   link: string;
   cta: string;
 }) {
+  const external = link.startsWith("http");
+
   return (
     <article className="card project">
       <div className="project-top">
@@ -215,7 +281,7 @@ function ProjectCard({
       <h3>{title}</h3>
       <p>{body}</p>
 
-      <a className="project-link" href={link} target="_blank">
+      <a className="project-link" href={link} target={external ? "_blank" : undefined} rel={external ? "noreferrer" : undefined}>
         {cta} <ArrowRight size={16} />
       </a>
     </article>
