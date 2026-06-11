@@ -1,39 +1,88 @@
 ﻿"use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 const DESTINATION = "nullworks.ai@gmail.com";
+const STORAGE_KEY = "nullworks-anvil-song-forge-v1";
 
 const lanes = [
   {
-    title: "MTB Hype Reel",
-    tag: "Action Sports",
-    vibe: "Fast downhill edit, aggressive drums, distorted guitars, urgent rap-rock vocal energy, sponsor-safe action-sports pacing.",
+    title: "Gym Thrash",
+    tag: "Workout / Metal",
+    audio: "/genre-samples/gym-thrash.mp3",
+    vibe: "Fast gym thrash energy, razor guitars, aggressive drums, shouted hook, lifting-room violence.",
   },
   {
-    title: "Country Encore",
-    tag: "Mainstream Country",
-    vibe: "Big modern country concert closer, warm guitars, huge chorus, emotional crowd-sing ending.",
+    title: "Crew Rap Rock",
+    tag: "Creator / Team Hype",
+    audio: "/genre-samples/crew-rap-rock.mp3",
+    vibe: "Rowdy rap-rock team anthem, punchy drums, distorted guitars, chantable hook, short-form reel energy.",
   },
   {
-    title: "Workout Metal",
-    tag: "Gym / Pump",
-    vibe: "Heavy modern metalcore, thick low guitars, live drums, short shouted hook, gym-war energy.",
+    title: "Heartland Country",
+    tag: "Country / Event",
+    audio: "/genre-samples/heartland-country.mp3",
+    vibe: "Warm modern country, big emotional chorus, road-tested guitars, human story, event-ready finish.",
   },
   {
-    title: "Bluegrass Doom",
-    tag: "Roots / Cinematic",
-    vibe: "Appalachian acoustic instruments, family harmony, low dark electric guitar underneath, cinematic sadness.",
+    title: "Classic Rock Anthem",
+    tag: "Rock / Promo",
+    audio: "/genre-samples/classic-rock-anthem.mp3",
+    vibe: "Classic rock anthem energy, big guitars, live drums, bold chorus, clean commercial lift.",
   },
   {
-    title: "Firehouse Rap Rock",
-    tag: "Reels / PR",
-    vibe: "Public-safety hype reel, clean heroic energy, punchy rhythm, quick cuts, rowdy but PR-safe.",
+    title: "Doom Sludge Cello",
+    tag: "Heavy / Cinematic",
+    audio: "/genre-samples/doom-sludge-cello.mp3",
+    vibe: "Slow heavy doom/sludge weight with cello shadow, dark low-end, cinematic grit, emotional damage.",
   },
   {
-    title: "Lo-Fi Sad Dad",
-    tag: "Emotional",
-    vibe: "Warm bass, dusty groove, tired reflective mood, late-night emotional pacing.",
+    title: "Acoustic Memorial",
+    tag: "Emotional / Tribute",
+    audio: "/genre-samples/acoustic-memorial.mp3",
+    vibe: "Soft acoustic tribute, heartfelt vocal mood, gentle arrangement, memory-focused emotional pacing.",
+  },
+  {
+    title: "Ghost Western",
+    tag: "Western / Dark",
+    audio: "/genre-samples/ghost-western.mp3",
+    vibe: "Dusty ghost-western atmosphere, desert guitar, haunted rhythm, cinematic outlaw tension.",
+  },
+  {
+    title: "Lo-Fi Strange Life",
+    tag: "Lo-Fi / Reflective",
+    audio: "/genre-samples/lofi-strange-life.mp3",
+    vibe: "Lo-fi reflective groove, warm bass, tired human mood, strange-life narration, late-night pacing.",
+  },
+  {
+    title: "Modern Melodic Rap",
+    tag: "Rap / Modern",
+    audio: "/genre-samples/modern-melodic-rap.mp3",
+    vibe: "Modern melodic rap feel, polished drums, emotional vocal rhythm, clean hook-focused structure.",
+  },
+  {
+    title: "Neon Synthwave",
+    tag: "Synth / Retro",
+    audio: "/genre-samples/neon-synthwave.mp3",
+    vibe: "Neon synthwave pulse, retro night-drive atmosphere, glossy motion, cinematic digital glow.",
+  },
+  {
+    title: "Old School Hip-Hop",
+    tag: "Hip-Hop / Classic",
+    audio: "/genre-samples/old-school-hip-hop.mp3",
+    vibe: "Old-school hip-hop bounce, simple drums, confident flow pocket, classic sample-era attitude.",
+  },
+  {
+    title: "Pop Punk Memory",
+    tag: "Pop Punk / Nostalgia",
+    audio: "/genre-samples/pop-punk-memory.mp3",
+    vibe: "Pop-punk memory lane, bright guitars, energetic drums, nostalgic hook, youthful emotional lift.",
+  },
+  {
+    title: "Wedding Soul",
+    tag: "Soul / Celebration",
+    audio: "/genre-samples/wedding-soul.mp3",
+    vibe: "Warm wedding soul, romantic groove, smooth vocal energy, celebration-ready emotional polish.",
   },
 ];
 
@@ -69,6 +118,25 @@ function translateReferences(text: string) {
 export default function AnvilSongForgePage() {
   const [form, setForm] = useState<FormState>(initialForm);
   const [copied, setCopied] = useState(false);
+  const [saved, setSaved] = useState(false);
+
+  useEffect(() => {
+    const savedForm = window.localStorage.getItem(STORAGE_KEY);
+    if (savedForm) {
+      try {
+        setForm({ ...initialForm, ...JSON.parse(savedForm) });
+      } catch {
+        window.localStorage.removeItem(STORAGE_KEY);
+      }
+    }
+  }, []);
+
+  useEffect(() => {
+    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(form));
+    setSaved(true);
+    const timer = window.setTimeout(() => setSaved(false), 700);
+    return () => window.clearTimeout(timer);
+  }, [form]);
 
   const packet = useMemo(() => {
     const translated = translateReferences(form.references);
@@ -100,7 +168,10 @@ TARGET LENGTH
 ${form.length}
 
 ANVIL NOTE
-User can describe the sound using normal human reference language: artists, bands, songs, eras, scenes, emotions, or “make it feel like...” phrasing. ANVIL turns that into original production-safe style language, prompt structure, negative prompts, and a production packet.`;
+User can describe the sound using normal human reference language: artists, bands, songs, eras, scenes, emotions, or “make it feel like...” phrasing. ANVIL turns that into original production-safe style language, prompt structure, negative prompts, and a production packet.
+
+GOBLIN QA NOTE
+If this packet is vague, the goblin did not fail. The brief did. Feed it better references.`;
   }, [form]);
 
   const mailHref = `mailto:${DESTINATION}?subject=${encodeURIComponent(
@@ -122,19 +193,24 @@ User can describe the sound using normal human reference language: artists, band
     window.setTimeout(() => setCopied(false), 1300);
   }
 
+  function clearFields() {
+    setForm(initialForm);
+    window.localStorage.removeItem(STORAGE_KEY);
+  }
+
   return (
     <main className="forge-page">
       <style>{`
         .forge-page {
           min-height: 100vh;
-          color: #fff7ed;
+          color: #f8fafc;
           background:
-            radial-gradient(circle at 18% 8%, rgba(249, 115, 22, 0.28), transparent 34%),
-            radial-gradient(circle at 85% 18%, rgba(251, 191, 36, 0.12), transparent 28%),
-            linear-gradient(rgba(255,255,255,.028) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(255,255,255,.028) 1px, transparent 1px),
-            linear-gradient(180deg, #151922 0%, #090b10 52%, #040506 100%);
-          background-size: auto, auto, 44px 44px, 44px 44px, auto;
+            radial-gradient(circle at 82% 10%, rgba(34, 211, 238, 0.18), transparent 28%),
+            radial-gradient(circle at 18% 22%, rgba(99, 102, 241, 0.16), transparent 32%),
+            linear-gradient(rgba(255,255,255,.026) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(255,255,255,.026) 1px, transparent 1px),
+            linear-gradient(180deg, #020617 0%, #07111f 48%, #020617 100%);
+          background-size: auto, auto, 46px 46px, 46px 46px, auto;
           font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
           overflow-x: hidden;
         }
@@ -148,9 +224,12 @@ User can describe the sound using normal human reference language: artists, band
         .forge-nav,
         .forge-card,
         .lane-card {
-          border: 1px solid rgba(255, 247, 237, 0.11);
-          background: linear-gradient(180deg, rgba(255,255,255,.085), rgba(255,255,255,.035));
-          box-shadow: 0 28px 90px rgba(0,0,0,.45);
+          border: 1px solid rgba(148, 163, 184, 0.18);
+          background: linear-gradient(180deg, rgba(15, 23, 42, 0.88), rgba(2, 6, 23, 0.80));
+          box-shadow:
+            0 0 0 1px rgba(255,255,255,.035),
+            0 0 42px rgba(34, 211, 238, 0.10),
+            0 32px 90px rgba(0,0,0,.62);
           backdrop-filter: blur(18px);
         }
 
@@ -167,17 +246,17 @@ User can describe the sound using normal human reference language: artists, band
         .field-label,
         .lane-tag {
           text-transform: uppercase;
-          letter-spacing: .26em;
+          letter-spacing: .24em;
           font-weight: 900;
           font-size: 11px;
-          color: #fdba74;
+          color: #67e8f9;
         }
 
         .brand-title {
           margin-top: 4px;
           font-size: 24px;
           font-weight: 950;
-          letter-spacing: -.04em;
+          letter-spacing: -.035em;
         }
 
         .nav-link,
@@ -187,20 +266,20 @@ User can describe the sound using normal human reference language: artists, band
           justify-content: center;
           gap: 8px;
           border-radius: 999px;
-          border: 1px solid rgba(255,247,237,.14);
+          border: 1px solid rgba(148, 163, 184, 0.20);
           padding: 12px 16px;
-          color: #fff7ed;
+          color: #f8fafc;
           text-decoration: none;
           font-weight: 900;
-          background: rgba(255,255,255,.06);
+          background: rgba(15, 23, 42, 0.72);
           cursor: pointer;
         }
 
         .button.primary {
-          color: #111827;
-          border-color: rgba(251,146,60,.35);
-          background: linear-gradient(180deg, #fed7aa, #fb923c);
-          box-shadow: 0 18px 45px rgba(249,115,22,.22);
+          color: #020617;
+          border-color: rgba(34, 211, 238, 0.42);
+          background: linear-gradient(135deg, #22d3ee, #a78bfa);
+          box-shadow: 0 18px 48px rgba(34, 211, 238, 0.18);
         }
 
         .hero {
@@ -214,12 +293,12 @@ User can describe the sound using normal human reference language: artists, band
         .hero:after {
           content: "";
           position: absolute;
-          right: -90px;
-          top: -90px;
+          right: -120px;
+          top: -120px;
           width: 250px;
           height: 250px;
           border-radius: 999px;
-          background: rgba(249,115,22,.18);
+          background: radial-gradient(circle, rgba(34, 211, 238, 0.20), transparent 68%);
           filter: blur(2px);
         }
 
@@ -227,9 +306,9 @@ User can describe the sound using normal human reference language: artists, band
           display: inline-flex;
           align-items: center;
           gap: 8px;
-          border: 1px solid rgba(251,146,60,.25);
-          background: rgba(124,45,18,.28);
-          color: #fed7aa;
+          border: 1px solid rgba(34, 211, 238, 0.30);
+          background: rgba(8, 47, 73, 0.42);
+          color: #bae6fd;
           border-radius: 999px;
           padding: 10px 14px;
           font-size: 13px;
@@ -237,25 +316,26 @@ User can describe the sound using normal human reference language: artists, band
         }
 
         h1 {
-          max-width: 900px;
+          max-width: 860px;
           margin: 24px 0 18px;
-          font-size: clamp(44px, 7vw, 86px);
-          line-height: .9;
-          letter-spacing: -.075em;
-          font-weight: 950;
+          font-size: clamp(38px, 5.7vw, 72px);
+          line-height: 1.02;
+          letter-spacing: -.055em;
+          font-weight: 920;
+          text-wrap: balance;
         }
 
         .lead {
           max-width: 850px;
-          color: rgba(255,247,237,.72);
-          font-size: clamp(18px, 2vw, 23px);
-          line-height: 1.42;
+          color: rgba(226, 232, 240, 0.74);
+          font-size: clamp(17px, 1.8vw, 22px);
+          line-height: 1.5;
         }
 
         .focus {
           margin-top: 26px;
-          border-left: 3px solid #fb923c;
-          background: rgba(0,0,0,.24);
+          border-left: 3px solid #22d3ee;
+          background: rgba(2, 6, 23, 0.68);
           border-radius: 18px;
           padding: 16px 18px;
           max-width: 760px;
@@ -263,7 +343,7 @@ User can describe the sound using normal human reference language: artists, band
 
         .focus span {
           display: block;
-          color: rgba(255,247,237,.45);
+          color: rgba(186, 230, 253, 0.55);
           text-transform: uppercase;
           letter-spacing: .2em;
           font-size: 11px;
@@ -272,6 +352,12 @@ User can describe the sound using normal human reference language: artists, band
 
         .focus strong {
           font-size: 18px;
+        }
+
+        .save-note {
+          color: rgba(186, 230, 253, 0.74);
+          font-size: 13px;
+          font-weight: 800;
         }
 
         .lane-rail {
@@ -283,11 +369,11 @@ User can describe the sound using normal human reference language: artists, band
         }
 
         .lane-card {
-          min-width: 280px;
+          min-width: 290px;
           scroll-snap-align: start;
           border-radius: 26px;
           padding: 18px;
-          color: #fff7ed;
+          color: #f8fafc;
           text-align: left;
           cursor: pointer;
         }
@@ -297,13 +383,19 @@ User can describe the sound using normal human reference language: artists, band
           font-weight: 950;
         }
 
+        audio {
+          width: 100%;
+          margin-top: 14px;
+          accent-color: #22d3ee;
+        }
+
         .wave {
-          height: 58px;
-          margin: 16px 0;
-          padding: 10px 12px;
+          height: 44px;
+          margin: 14px 0;
+          padding: 8px 12px;
           border-radius: 16px;
-          border: 1px solid rgba(255,247,237,.1);
-          background: linear-gradient(90deg, rgba(249,115,22,.12), rgba(255,255,255,.07), rgba(249,115,22,.22));
+          border: 1px solid rgba(148, 163, 184, 0.16);
+          background: linear-gradient(90deg, rgba(34,211,238,.13), rgba(168,85,247,.12), rgba(249,115,22,.12));
           display: flex;
           align-items: end;
           gap: 4px;
@@ -312,11 +404,11 @@ User can describe the sound using normal human reference language: artists, band
         .wave span {
           width: 4px;
           border-radius: 999px;
-          background: rgba(253,186,116,.85);
+          background: linear-gradient(180deg, #f8fafc, #22d3ee);
         }
 
         .lane-card p {
-          color: rgba(255,247,237,.62);
+          color: rgba(226, 232, 240, 0.72);
           line-height: 1.45;
           font-size: 14px;
         }
@@ -344,11 +436,12 @@ User can describe the sound using normal human reference language: artists, band
         }
 
         input,
-        textarea {
+        textarea,
+        pre {
           width: 100%;
-          border: 1px solid rgba(255,247,237,.12);
-          background: rgba(255,255,255,.06);
-          color: #fff7ed;
+          border: 1px solid rgba(148, 163, 184, 0.18);
+          background: rgba(2, 6, 23, 0.62);
+          color: #f8fafc;
           border-radius: 18px;
           padding: 13px 14px;
           font: inherit;
@@ -357,8 +450,8 @@ User can describe the sound using normal human reference language: artists, band
 
         input:focus,
         textarea:focus {
-          border-color: rgba(251,146,60,.8);
-          box-shadow: 0 0 0 4px rgba(251,146,60,.14);
+          border-color: rgba(34, 211, 238, 0.82);
+          box-shadow: 0 0 0 4px rgba(34, 211, 238, 0.13);
         }
 
         textarea {
@@ -393,11 +486,7 @@ User can describe the sound using normal human reference language: artists, band
           margin: 0;
           max-height: 520px;
           overflow: auto;
-          border: 1px solid rgba(255,247,237,.10);
-          background: rgba(0,0,0,.36);
-          color: rgba(255,247,237,.76);
-          border-radius: 24px;
-          padding: 18px;
+          color: rgba(248,250,252,.78);
           font-size: 13px;
           line-height: 1.55;
         }
@@ -407,6 +496,7 @@ User can describe the sound using normal human reference language: artists, band
           flex-wrap: wrap;
           gap: 12px;
           margin-top: 16px;
+          align-items: center;
         }
 
         @media (max-width: 850px) {
@@ -417,6 +507,10 @@ User can describe the sound using normal human reference language: artists, band
 
           .output-head {
             display: grid;
+          }
+
+          h1 {
+            font-size: clamp(34px, 11vw, 52px);
           }
         }
       `}</style>
@@ -432,7 +526,7 @@ User can describe the sound using normal human reference language: artists, band
 
         <section className="forge-card hero">
           <div className="pill">✦ Speak human. We translate to production language.</div>
-          <h1>Describe the song the way normal people actually talk.</h1>
+          <h1>Describe the song like a normal person.</h1>
           <p className="lead">
             Use artists, bands, songs, eras, scenes, moods, and real-world context as shorthand. ANVIL converts messy human language into original production packets for AI music tools, reels, creators, and commercial-style assets.
           </p>
@@ -446,9 +540,10 @@ User can describe the sound using normal human reference language: artists, band
           {lanes.map((lane, index) => (
             <button className="lane-card" key={lane.title} onClick={() => useLane(lane.vibe)}>
               <div className="lane-title">♫ {lane.title}</div>
+              <audio controls preload="metadata" src={lane.audio} onClick={(event) => event.stopPropagation()} />
               <div className="wave">
                 {Array.from({ length: 24 }).map((_, bar) => (
-                  <span key={bar} style={{ height: `${10 + ((bar * 13 + index * 9) % 36)}px` }} />
+                  <span key={bar} style={{ height: `${10 + ((bar * 13 + index * 9) % 30)}px` }} />
                 ))}
               </div>
               <p>{lane.vibe}</p>
@@ -468,6 +563,11 @@ User can describe the sound using normal human reference language: artists, band
               <Field label="Use case" value={form.useCase} onChange={(value) => updateField("useCase", value)} placeholder="Reel, ad, anthem..." />
               <Field label="Clean / explicit" value={form.rating} onChange={(value) => updateField("rating", value)} placeholder="Clean or explicit" />
               <Field label="Length" value={form.length} onChange={(value) => updateField("length", value)} placeholder="30 seconds" />
+            </div>
+
+            <div className="actions">
+              <button className="button" type="button" onClick={clearFields}>Clear fields</button>
+              <span className="save-note">{saved ? "Saved. The goblin remembered." : "Auto-saves locally."}</span>
             </div>
           </form>
 
