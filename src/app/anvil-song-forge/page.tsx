@@ -119,6 +119,7 @@ export default function AnvilSongForgePage() {
   const [form, setForm] = useState<FormState>(initialForm);
   const [copied, setCopied] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [submitStatus, setSubmitStatus] = useState<"idle" | "sending" | "sent" | "error">("idle");
 
   useEffect(() => {
     const savedForm = window.localStorage.getItem(STORAGE_KEY);
@@ -197,6 +198,36 @@ If this packet is vague, the goblin did not fail. The brief did. Feed it better 
     setForm(initialForm);
     window.localStorage.removeItem(STORAGE_KEY);
   }
+
+  async function sendPacket() {
+    setSubmitStatus("sending");
+
+    try {
+      const response = await fetch("/api/anvil-forge", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          source: "mason-portfolio/anvil-song-forge",
+          destination: DESTINATION,
+          form,
+          packet
+        })
+      });
+
+      const data = await response.json();
+
+      if (!response.ok || !data.ok) {
+        throw new Error(data.error || "Packet submit failed");
+      }
+
+      setSubmitStatus("sent");
+    } catch {
+      setSubmitStatus("error");
+    }
+  }
+
 
   return (
     <main className="forge-page">
@@ -577,7 +608,7 @@ If this packet is vague, the goblin did not fail. The brief did. Feed it better 
                 <div className="pill">✦ Generated packet</div>
                 <h2>Prompt output</h2>
               </div>
-              <a className="button primary" href={mailHref}>Send packet</a>
+              <button className="button primary" type="button" onClick={sendPacket} disabled={submitStatus === "sending"}>{submitStatus === "sending" ? "Sending..." : submitStatus === "sent" ? "Sent" : "Send packet"}</button>
             </div>
 
             <pre>{packet}</pre>
@@ -586,7 +617,7 @@ If this packet is vague, the goblin did not fail. The brief did. Feed it better 
               <button className="button" onClick={copyPacket} type="button">
                 {copied ? "Copied" : "Copy packet"}
               </button>
-              <a className="button" href={mailHref}>Email to {DESTINATION}</a>
+              <span className="save-note">{submitStatus === "error" ? "Send failed. Backend goblin needs food." : submitStatus === "sent" ? "Packet sent to the forge." : `Submits through ANVIL backend to ${DESTINATION}`}</span>
             </div>
           </aside>
         </section>
