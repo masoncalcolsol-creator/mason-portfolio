@@ -1,298 +1,285 @@
-"use client";
-
-import { useMemo } from "react";
-import { QRCodeSVG } from "qrcode.react";
 import {
   ArrowRight,
-  Mail,
-  Phone,
-  ExternalLink,
-  ScanLine,
+  Boxes,
   BriefcaseBusiness,
-  Sparkles,
-  Music2,
-  Mountain,
+  ExternalLink,
+  Factory,
   FileSearch,
-  ClipboardCheck,
-  Radio,
+  Gauge,
+  GitBranch,
+  Github,
+  Mail,
+  Network,
+  ScanLine,
+  ShieldCheck,
+  Sparkles,
+  UserRoundCheck,
+  Workflow,
 } from "lucide-react";
 
-const CONTACT_EMAIL = "Masoncalcolsol@gmail.com";
-const CONTACT_PHONE = "9097257741";
-
-const DEMO_LINKS = {
-  checkmate: "https://checkmate-mvp.vercel.app/",
-  anvilForge: "/anvil-song-forge",
-  ircode: "/ircode",
-};
-
-const companyCopy: Record<string, { title: string; subtitle: string; focus: string }> = {
-  calcom: {
-    title: "I turn messy coordination into usable workflows.",
-    subtitle:
-      "CHECKMATE, CUTSYNC, PAPERGOBLIN, and TAC OPS are all coordination systems: raw human intent in, structured action out.",
-    focus: "Scheduling-grade clarity, intake design, AI-assisted iteration, and operational UX.",
+const systems = [
+  {
+    title: "LenderFlow / LENA",
+    tag: "Lending OI",
+    body: "A human-reviewed lender-fit and workflow system built from direct broker discovery. Structures lender appetite, exceptions, freshness, source receipts, and missing information without making lending decisions.",
+    href: "https://lf-lender-intake.vercel.app/",
+    icon: BriefcaseBusiness,
   },
-  stripe: {
-    title: "I build trust layers around messy money and messy humans.",
-    subtitle:
-      "CHECKMATE starts as receipt splitting, but the deeper product is itemized trust, structured settlement, and low-friction group payment behavior.",
-    focus: "Consumer finance UX, itemized data, proof states, and payment-ready workflows.",
+  {
+    title: "LegalFlow LF2 / KONRAN",
+    tag: "Evidence OI",
+    body: "Source-linked evidence search, derivative records, timeline reconstruction, and human-expert authority for complex legal-document workflows.",
+    href: "https://legalflow-lf2-beta.vercel.app/dashboard",
+    icon: FileSearch,
   },
-  supabase: {
-    title: "I build fast MVPs that create usable data trails.",
-    subtitle:
-      "My work turns intake, uploads, OCR, creative briefs, and field chaos into structured packets teams can actually use.",
-    focus: "Backend-shaped product thinking, AI-assisted systems, and database-friendly user flows.",
+  {
+    title: "PAPERGOBLIN",
+    tag: "OCR + intake OI",
+    body: "OCR intake, editable correction, validation, persistence, and reusable human-correction telemetry built as a functional prototype during an airline flight.",
+    href: "https://ori-intake-papergoblin.vercel.app/",
+    icon: ScanLine,
   },
-  vercel: {
-    title: "I ship portfolio-grade product surfaces fast.",
-    subtitle:
-      "NULLWORKS ANVIL, CUTSYNC, CHECKMATE, and the IRCODE packet show the same pattern: live demos, fast iteration, clear user paths.",
-    focus: "Frontend velocity, deployment discipline, product storytelling, and demo conversion.",
+  {
+    title: "ANVIL / CUTSYNC",
+    tag: "Production OI",
+    body: "Structured creative intake, media workflows, reusable production packets, versioning, licensing boundaries, and human review for high-output creative work.",
+    href: "https://anvil-custom-records.vercel.app/",
+    icon: Sparkles,
   },
-};
+];
 
-function getCompany() {
-  if (typeof window === "undefined") return "";
-  const params = new URLSearchParams(window.location.search);
-  return (params.get("company") || "").toLowerCase();
-}
+const services = [
+  {
+    title: "Personal OI SUITe",
+    body: "One command layer for projects, agents, sources, decisions, unfinished work, commitments, and personal operating continuity.",
+    icon: UserRoundCheck,
+  },
+  {
+    title: "Team OI SUITe",
+    body: "Visible ownership, scoped workrooms, AI-worker coordination, evidence, approval gates, continuity, and operating telemetry.",
+    icon: Network,
+  },
+  {
+    title: "Enterprise OI Control Layer",
+    body: "AI and tool inventory, governance, permissions, cross-functional routing, source traceability, auditability, and measurable value.",
+    icon: Factory,
+  },
+];
 
-export default function Page() {
-  const company = getCompany();
+const loop = [
+  ["Discover", "Sit with the expert and map the real workflow, exceptions, authority, evidence, delays, and informal knowledge."],
+  ["Structure", "Define work cells, ownership, context boundaries, routing, sources, review gates, continuity, and telemetry."],
+  ["Build", "Create the smallest useful dashboard, workflow, agent tools, data model, and human control surface."],
+  ["Verify", "Run real cases, preserve failures, expose uncertainty, compare to sources, and keep final authority human."],
+  ["Improve", "Measure cycle time, rework, errors, duplicate effort, recovered capacity, adoption, and business outcomes."],
+];
 
-  const profile = companyCopy[company] || {
-    title: "AI-assisted product builder turning chaos into shipped systems.",
-    subtitle:
-      "Founder/operator of NULLWORKS ANVIL and CUTSYNC. I build UX, OCR, creative-production, and operational-intelligence tools that convert messy human input into structured packets, usable interfaces, and finished assets.",
-    focus:
-      "AI-assisted product throughput: UX/UI, workflow automation, OCR, creative systems, and real-world ops software.",
-  };
-
-  const currentUrl = typeof window !== "undefined" ? window.location.href : "https://mason-portfolio-phi.vercel.app";
-  const qrUrl = useMemo(() => currentUrl, [currentUrl]);
-
+export default function HomePage() {
   return (
-    <main className="min-h-screen bg-[#08090b] text-white overflow-hidden">
-      <div className="fixed inset-0 pointer-events-none bg-[radial-gradient(circle_at_top_left,rgba(255,72,0,.22),transparent_34%),radial-gradient(circle_at_bottom_right,rgba(255,255,255,.08),transparent_32%)]" />
+    <main className="min-h-screen bg-[#f4efe4] text-[#19170f]">
+      <div className="pointer-events-none fixed inset-0 bg-[radial-gradient(circle_at_10%_0%,rgba(177,137,60,.15),transparent_35%),radial-gradient(circle_at_90%_18%,rgba(25,23,15,.08),transparent_30%)]" />
 
-      <section className="relative mx-auto max-w-7xl px-6 py-8 md:py-12">
-        <nav className="flex items-center justify-between border border-white/10 bg-white/[.03] rounded-3xl px-5 py-4 backdrop-blur">
+      <div className="relative mx-auto w-full max-w-[1180px] px-4 pb-20 pt-4 sm:px-6 sm:pt-6 lg:px-8">
+        <header className="flex items-center justify-between gap-4 rounded-[24px] border border-[#cdbb93] bg-[#fffaf0]/92 px-4 py-4 shadow-[0_20px_70px_rgba(49,39,20,.10)] backdrop-blur sm:px-6">
           <div>
-            <div className="text-sm uppercase tracking-[0.35em] text-orange-300">NULLWORKS // ANVIL // CUTSYNC</div>
-            <div className="text-xl font-black">Mason Perry</div>
+            <div className="text-[10px] font-black uppercase tracking-[0.28em] text-[#8c6927] sm:text-xs">NULLWORKS</div>
+            <div className="text-lg font-black tracking-[-0.03em] text-[#19170f]">Mason Perry</div>
           </div>
-
-          <div className="hidden md:flex gap-3">
-            <a className="btn ghost" href={`mailto:${CONTACT_EMAIL}`}>
-              <Mail size={16} /> Email
+          <div className="flex gap-2">
+            <a
+              href="https://github.com/masoncalcolsol-creator"
+              target="_blank"
+              rel="noreferrer"
+              className="hidden items-center gap-2 rounded-full border border-[#a98135] bg-[#fffaf0] px-4 py-3 text-sm font-black text-[#6f511f] no-underline sm:inline-flex"
+            >
+              <Github size={16} /> GitHub
             </a>
-            <a className="btn ghost" href={`sms:${CONTACT_PHONE}`}>
-              <Phone size={16} /> Text
+            <a
+              href="mailto:masoncalcolsol@gmail.com?subject=Operational%20Intelligence%20Systems%20Architecture"
+              className="inline-flex items-center gap-2 rounded-full bg-[#19170f] px-4 py-3 text-sm font-black text-[#fffaf0] no-underline"
+            >
+              <Mail size={16} /> Contact
             </a>
           </div>
-        </nav>
+        </header>
 
-        <div className="grid lg:grid-cols-[1.25fr_.75fr] gap-6 mt-8">
-          <div className="card hero">
-            <div className="pill">
-              <Sparkles size={16} /> Transparent AI-assisted throughput, built in public
+        <section className="mt-5 overflow-hidden rounded-[34px] border border-[#cdbb93] bg-[#fffaf0] shadow-[0_34px_110px_rgba(49,39,20,.14)]">
+          <div className="grid lg:grid-cols-[1.18fr_.82fr]">
+            <div className="p-6 sm:p-10 lg:p-14">
+              <div className="inline-flex items-center gap-2 rounded-full border border-[#b78b39]/35 bg-[#efe3ca] px-3 py-2 text-xs font-black uppercase tracking-[0.16em] text-[#76551d]">
+                <Workflow size={15} /> Operational Intelligence Systems Architect
+              </div>
+
+              <h1 className="mt-7 max-w-[820px] font-serif text-[48px] font-bold leading-[0.93] tracking-[-0.06em] sm:text-[72px] lg:text-[92px]">
+                I build the company around the AI.
+              </h1>
+
+              <p className="mt-7 max-w-[780px] text-lg font-medium leading-relaxed text-[#5e5543] sm:text-xl">
+                I help individuals and organizations turn disconnected AI tools, agents, expert knowledge, records, and workflows into a human-readable Operational Intelligence operating system.
+              </p>
+
+              <p className="mt-5 max-w-[780px] text-base leading-relaxed text-[#675d49] sm:text-lg">
+                The goal is not another chatbot. It is visible ownership, scoped workrooms, source-linked decisions, authority boundaries, review gates, continuity, telemetry, and final human control.
+              </p>
+
+              <div className="mt-8 flex flex-wrap gap-3">
+                <a href="/field-notes" className="inline-flex items-center gap-2 rounded-full bg-[#19170f] px-5 py-4 text-sm font-black text-[#fffaf0] no-underline">
+                  Read the OI Field Notes <ArrowRight size={17} />
+                </a>
+                <a href="#systems" className="inline-flex items-center gap-2 rounded-full border border-[#a98135] bg-[#fffaf0] px-5 py-4 text-sm font-black text-[#6f511f] no-underline">
+                  View working systems <Boxes size={17} />
+                </a>
+              </div>
+
+              <div className="mt-8 grid gap-3 sm:grid-cols-3">
+                <Proof value="Industrial" label="electronics, automation, logistics, OCR, controls, fault isolation" />
+                <Proof value="Applied AI" label="workflow discovery, full-stack prototypes, human-in-loop systems" />
+                <Proof value="OISA" label="orchestration, authority, continuity, telemetry, workflow compression" />
+              </div>
             </div>
 
-            <h1>{profile.title}</h1>
-            <p className="lead">{profile.subtitle}</p>
-
-            <div className="focus-box">
-              <span>Current focus</span>
-              <strong>{profile.focus}</strong>
-            </div>
-
-            <div className="grid md:grid-cols-3 gap-3 mt-8">
-              <MiniProof value="NULLWORKS ANVIL" label="AI music, creator packets, and custom-record workflow" />
-              <MiniProof value="CUTSYNC" label="30-sec reels, media briefs, and rapid creator content" />
-              <MiniProof value="Ops + OCR" label="PAPERGOBLIN, TAC OPS, CHECKMATE, USPS field systems" />
-            </div>
-
-            <div className="flex flex-wrap gap-3 mt-8">
-              <a className="btn primary" href={DEMO_LINKS.anvilForge}>
-                Try ANVIL Song Forge <ArrowRight size={18} />
+            <div className="border-t border-[#d7c8a8] bg-[#19170f] p-6 text-[#fffaf0] lg:border-l lg:border-t-0 lg:p-10">
+              <div className="text-xs font-black uppercase tracking-[0.24em] text-[#d7b96f]">The operating thesis</div>
+              <h2 className="mt-6 font-serif text-4xl font-bold leading-[1.02] tracking-[-0.05em] sm:text-5xl">
+                The AI engineer builds the worker. The OI architect builds the company.
+              </h2>
+              <p className="mt-6 text-base leading-relaxed text-[#d8cfbd]">
+                NULLWORKS evolved because a growing digital workforce exceeded one human&apos;s ability to mentally track ownership, context, duplication, handoffs, authority, failures, and unfinished work.
+              </p>
+              <blockquote className="mt-7 border-l-4 border-[#d7b96f] pl-5 font-serif text-2xl font-bold leading-tight text-[#fffaf0]">
+                I did not organize the agents because they needed managers. I organized them because I did.
+              </blockquote>
+              <a
+                href="/nullworks-company-structure-oisa.svg"
+                target="_blank"
+                rel="noreferrer"
+                className="mt-8 inline-flex items-center gap-2 rounded-full bg-[#d7b96f] px-5 py-4 text-sm font-black text-[#19170f] no-underline"
+              >
+                View NULLWORKS structure <ExternalLink size={16} />
               </a>
-              <a className="btn secondary" href="#projects">
-                View product stack
-              </a>
             </div>
           </div>
+        </section>
 
-          <div className="card qr-card">
-            <div className="qr-wrap">
-              <QRCodeSVG value={qrUrl} size={220} bgColor="#ffffff" fgColor="#08090b" />
+        <section className="mt-8 grid gap-4 md:grid-cols-3">
+          {services.map((service) => {
+            const Icon = service.icon;
+            return (
+              <article key={service.title} className="rounded-[28px] border border-[#cdbb93] bg-[#fffaf0] p-6 shadow-[0_18px_60px_rgba(49,39,20,.08)]">
+                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#19170f] text-[#d7b96f]">
+                  <Icon size={22} />
+                </div>
+                <h2 className="mt-6 text-2xl font-black tracking-[-0.04em]">{service.title}</h2>
+                <p className="mb-0 mt-3 text-sm leading-relaxed text-[#675d49] sm:text-base">{service.body}</p>
+              </article>
+            );
+          })}
+        </section>
+
+        <section id="systems" className="mt-10 scroll-mt-8">
+          <div className="max-w-[820px]">
+            <div className="text-xs font-black uppercase tracking-[0.24em] text-[#8c6927]">Selected systems</div>
+            <h2 className="mt-3 font-serif text-4xl font-bold tracking-[-0.05em] sm:text-6xl">Operational problems converted into working software.</h2>
+            <p className="mt-5 text-base leading-relaxed text-[#675d49] sm:text-lg">
+              Functional prototypes and live betas used to validate workflows, reduce uncertainty, preserve human review, and give specialist teams a working frame to harden, secure, scale, polish, and operate.
+            </p>
+          </div>
+
+          <div className="mt-7 grid gap-4 md:grid-cols-2">
+            {systems.map((system) => {
+              const Icon = system.icon;
+              return (
+                <article key={system.title} className="rounded-[28px] border border-[#cdbb93] bg-[#fffaf0] p-6 shadow-[0_18px_60px_rgba(49,39,20,.08)] sm:p-7">
+                  <div className="flex items-center justify-between gap-4">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#19170f] text-[#d7b96f]">
+                      <Icon size={22} />
+                    </div>
+                    <span className="text-xs font-black uppercase tracking-[0.18em] text-[#8c6927]">{system.tag}</span>
+                  </div>
+                  <h3 className="mt-6 text-2xl font-black tracking-[-0.04em] sm:text-3xl">{system.title}</h3>
+                  <p className="mt-3 text-sm leading-relaxed text-[#675d49] sm:text-base">{system.body}</p>
+                  <a href={system.href} target="_blank" rel="noreferrer" className="mt-6 inline-flex items-center gap-2 text-sm font-black text-[#76551d] no-underline">
+                    Open system <ExternalLink size={15} />
+                  </a>
+                </article>
+              );
+            })}
+          </div>
+        </section>
+
+        <section className="mt-10 overflow-hidden rounded-[34px] border border-[#19170f] bg-[#19170f] text-[#fffaf0] shadow-[0_30px_100px_rgba(25,23,15,.24)]">
+          <div className="p-6 sm:p-10 lg:p-12">
+            <div className="text-xs font-black uppercase tracking-[0.24em] text-[#d7b96f]">The OISA operating loop</div>
+            <h2 className="mt-4 max-w-[850px] font-serif text-4xl font-bold tracking-[-0.05em] sm:text-6xl">Discover → Structure → Build → Verify → Improve</h2>
+
+            <div className="mt-8 grid gap-4 lg:grid-cols-5">
+              {loop.map(([title, body], index) => (
+                <div key={title} className="rounded-[24px] border border-white/10 bg-white/[0.045] p-5">
+                  <div className="text-xs font-black uppercase tracking-[0.18em] text-[#d7b96f]">0{index + 1}</div>
+                  <h3 className="mt-3 text-xl font-black">{title}</h3>
+                  <p className="mb-0 mt-3 text-sm leading-relaxed text-[#d8cfbd]">{body}</p>
+                </div>
+              ))}
             </div>
-            <h2>Scan the portfolio</h2>
-            <p>
-              Mobile-friendly proof of AI-assisted product throughput: creative systems, OCR workflows, ops tools, and deployable demos.
-            </p>
-            <a className="btn primary full" href={DEMO_LINKS.anvilForge}>
-              Launch ANVIL Forge <ExternalLink size={17} />
-            </a>
           </div>
-        </div>
+        </section>
 
-        <section className="card proof mt-6">
-          <div>
-            <div className="pill"><Radio size={16} /> Active field + creative pilots</div>
-            <h2>Not tutorial projects. Real workflows with real users.</h2>
-            <p>
-              NULLWORKS ANVIL and CUTSYNC are built around live creator, media, and operations problems: custom music briefs, short-form action sports edits, OCR cleanup, field documentation, and messy data rescue.
+        <section className="mt-10 grid gap-4 lg:grid-cols-[1.1fr_.9fr]">
+          <div className="rounded-[30px] border border-[#cdbb93] bg-[#fffaf0] p-6 shadow-[0_20px_70px_rgba(49,39,20,.09)] sm:p-9">
+            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#efe3ca] text-[#8c6927]">
+              <ShieldCheck size={23} />
+            </div>
+            <h2 className="mt-6 font-serif text-4xl font-bold tracking-[-0.05em]">Human authority remains final.</h2>
+            <p className="mt-5 text-base leading-relaxed text-[#675d49] sm:text-lg">
+              AI may investigate, organize, retrieve, compare, draft, test, build, and recommend. Consequential action remains with the accountable expert. Sources, uncertainty, review status, permissions, and stop-the-line controls should be visible by design.
             </p>
           </div>
 
-          <div className="proof-grid">
-            <Stat value="BBMR" label="Media/social workflow relationship with Lee Stockwell, Director of Media for Big Bear Mountain Resort." />
-            <Stat value="Pro DH" label="MTB race-content workflow direction for Clay Harper, founder/promoter of the Pro Downhill Series." />
-            <Stat value="ANVIL" label="Custom record and reel-production system: human references in, production-ready AI packets out." />
-            <Stat value="USPS Ops" label="OCR, equipment documentation, daily proof-of-work, and real-world maintenance intelligence." />
-          </div>
-        </section>
-
-        <section id="projects" className="grid md:grid-cols-3 gap-5 mt-6">
-          <ProjectCard
-            icon={<Music2 />}
-            title="NULLWORKS ANVIL / CUTSYNC"
-            tag="Primary proof"
-            body="AI-assisted creative production system for songs, reels, creator packets, and custom records. It lets users describe music like humans, then translates references into production-ready prompts."
-            link={DEMO_LINKS.anvilForge}
-            cta="Open song forge"
-          />
-
-          <ProjectCard
-            icon={<Mountain />}
-            title="Action Sports Media Workflows"
-            tag="Active pilots"
-            body="Creator and resort-friendly workflow thinking for BBMR and Pro Downhill Series style content: race hype, short-form edits, sponsor-safe music, captions, and fast turnaround."
-            link={DEMO_LINKS.anvilForge}
-            cta="See the workflow"
-          />
-
-          <ProjectCard
-            icon={<ScanLine />}
-            title="CHECKMATE"
-            tag="Live demo"
-            body="Receipt scanner that turns OCR chaos into editable item bubbles, assigns people, calculates splits, and generates settlement-ready summaries."
-            link={DEMO_LINKS.checkmate}
-            cta="Try receipt demo"
-          />
-
-          <ProjectCard
-            icon={<FileSearch />}
-            title="PAPERGOBLIN"
-            tag="OCR + intake"
-            body="Friendly messy-document system for turning forms, PDFs, screenshots, and field notes into structured packets a human operator can review and act on."
-            link="#contact"
-            cta="Discuss concept"
-          />
-
-          <ProjectCard
-            icon={<ClipboardCheck />}
-            title="TAC OPS / OCR Recovery"
-            tag="Operational intelligence"
-            body="Physical-world exception handling for misroutes, damaged labels, package evidence, scanner data, and proof-of-work recovery workflows."
-            link="#contact"
-            cta="View ops direction"
-          />
-
-          <ProjectCard
-            icon={<BriefcaseBusiness />}
-            title="Polymorphic Portfolio"
-            tag="This page"
-            body="Same builder, same proof, different lens per employer. Recruiters get tailored product storytelling without needing a whole new app per application."
-            link={`${currentUrl.split("?")[0]}?company=vercel`}
-            cta="See tailored version"
-          />
-        </section>
-
-        <section className="card proof mt-6">
-          <div>
-            <h2>The working pattern</h2>
-            <p>
-              The throughline is simple: take messy human input, build the intake surface, structure the data, generate a useful packet, and make the next action obvious.
+          <div className="rounded-[30px] border border-[#cdbb93] bg-[#efe3ca] p-6 shadow-[0_20px_70px_rgba(49,39,20,.09)] sm:p-9">
+            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#19170f] text-[#d7b96f]">
+              <Gauge size={23} />
+            </div>
+            <h2 className="mt-6 font-serif text-4xl font-bold tracking-[-0.05em]">Measure the mess before claiming the compression.</h2>
+            <p className="mt-5 text-base leading-relaxed text-[#675d49] sm:text-lg">
+              Start with one real workflow and a defensible baseline. Measure searching, waiting, retyping, duplication, errors, corrections, handoffs, and cycle time. Then build, test, and show what changed.
             </p>
           </div>
+        </section>
 
-          <div className="proof-grid">
-            <Stat value="Messy input" label="Voice notes, screenshots, receipts, media clips, package labels, client vibes" />
-            <Stat value="Structured packet" label="Clear fields, outputs, prompts, QA notes, and next actions" />
-            <Stat value="Human judgment" label="AI accelerates; Mason owns taste, product fit, and final delivery" />
-            <Stat value="Fast rails" label="First railroad tracks quickly, then refine, harden, and scale" />
+        <section className="mt-10 rounded-[34px] border border-[#cdbb93] bg-[#fffaf0] p-6 text-center shadow-[0_24px_80px_rgba(49,39,20,.11)] sm:p-10">
+          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-[#19170f] text-[#d7b96f]">
+            <GitBranch size={25} />
+          </div>
+          <h2 className="mx-auto mt-6 max-w-[850px] font-serif text-4xl font-bold tracking-[-0.05em] sm:text-6xl">
+            Need a Toyota-style operating system for your AI workforce?
+          </h2>
+          <p className="mx-auto mt-5 max-w-[760px] text-base leading-relaxed text-[#675d49] sm:text-lg">
+            Give me one painful workflow, one willing expert, the sources needed to understand the work, and permission to measure reality honestly.
+          </p>
+          <div className="mt-7 flex flex-wrap justify-center gap-3">
+            <a href="mailto:masoncalcolsol@gmail.com?subject=OI%20Pilot%20Conversation" className="inline-flex items-center gap-2 rounded-full bg-[#19170f] px-5 py-4 text-sm font-black text-[#fffaf0] no-underline">
+              Start an OI pilot <ArrowRight size={17} />
+            </a>
+            <a href="/field-notes/horse-cart-to-toyota" className="inline-flex items-center gap-2 rounded-full border border-[#a98135] bg-[#fffaf0] px-5 py-4 text-sm font-black text-[#6f511f] no-underline">
+              Read the value model <ArrowRight size={17} />
+            </a>
           </div>
         </section>
 
-        <section id="contact" className="contact">
-          <h2>Need a high-output builder for product chaos?</h2>
-          <p>Give me messy input, a real user problem, and permission to use modern tools transparently. I will turn it into a usable workflow fast.</p>
-
-          <div className="flex flex-wrap justify-center gap-3">
-            <a className="btn primary" href={`mailto:${CONTACT_EMAIL}?subject=Portfolio%20Demo%20Follow-up`}>
-              Email Mason <Mail size={17} />
-            </a>
-            <a className="btn secondary" href={`sms:${CONTACT_PHONE}`}>
-              Text Mason <Phone size={17} />
-            </a>
-          </div>
-        </section>
-      </section>
+        <footer className="mt-8 rounded-[24px] border border-[#cdbb93] bg-[#fffaf0]/88 px-5 py-5 text-sm leading-relaxed text-[#675d49] sm:px-7">
+          <strong className="text-[#19170f]">Mason Perry</strong> — Founder, NULLWORKS · Operational Intelligence Systems Architect · Phoenix, Arizona
+          <div className="mt-2 text-xs text-[#776c56]">Views are Mason&apos;s own. Public architecture only. No customer, employer, or USPS confidential information is included.</div>
+        </footer>
+      </div>
     </main>
   );
 }
 
-function MiniProof({ value, label }: { value: string; label: string }) {
+function Proof({ value, label }: { value: string; label: string }) {
   return (
-    <div className="stat min-h-[120px]">
-      <strong>{value}</strong>
-      <span>{label}</span>
-    </div>
-  );
-}
-
-function ProjectCard({
-  icon,
-  title,
-  tag,
-  body,
-  link,
-  cta,
-}: {
-  icon: React.ReactNode;
-  title: string;
-  tag: string;
-  body: string;
-  link: string;
-  cta: string;
-}) {
-  const external = link.startsWith("http");
-
-  return (
-    <article className="card project">
-      <div className="project-top">
-        <div className="icon">{icon}</div>
-        <span>{tag}</span>
-      </div>
-
-      <h3>{title}</h3>
-      <p>{body}</p>
-
-      <a className="project-link" href={link} target={external ? "_blank" : undefined} rel={external ? "noreferrer" : undefined}>
-        {cta} <ArrowRight size={16} />
-      </a>
-    </article>
-  );
-}
-
-function Stat({ value, label }: { value: string; label: string }) {
-  return (
-    <div className="stat">
-      <strong>{value}</strong>
-      <span>{label}</span>
+    <div className="rounded-[20px] border border-[#d1c09c] bg-[#f3ead8] p-4">
+      <div className="text-xl font-black tracking-[-0.04em] text-[#19170f]">{value}</div>
+      <div className="mt-1 text-xs font-semibold leading-relaxed text-[#675d49]">{label}</div>
     </div>
   );
 }
