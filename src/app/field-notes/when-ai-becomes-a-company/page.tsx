@@ -20,7 +20,7 @@ export default function WhenAiBecomesACompanyPage() {
       </Lead>
 
       <P>
-        The model breaks when AI stops being an occasional assistant and becomes a digital workforce. Through NULLWORKS, I accumulated hundreds of active and archived work threads and a growing collection of specialized roles: research, implementation, continuity, quality review, security boundaries, public translation, artifact production, project coordination, and domain-specific workflow design.
+        The model breaks when AI stops being an occasional assistant and becomes a digital workforce. Through NULLWORKS, I accumulated hundreds of active and archived work threads and a growing collection of specialized roles across research, implementation, continuity, quality review, security boundaries, public translation, artifact production, project coordination, and domain-specific workflow design.
       </P>
 
       <P>
@@ -32,13 +32,13 @@ export default function WhenAiBecomesACompanyPage() {
       </Quote>
 
       <TruthBox>
-        The exact number of unique NULLWORKS agents is still under audit because browser tabs, archived conversations, aliases, temporary workrooms, named specialists, and repeated clones are not the same thing. The defensible public claim today is hundreds of active and archived AI work threads and dozens of recovered named specialist roles—not an invented exact employee count.
+        The exact number of unique NULLWORKS agents is still under audit because browser tabs, archived conversations, aliases, temporary workrooms, named specialists, and repeated clones are not the same thing. The defensible public claim is hundreds of active and archived AI work threads and dozens of recovered named specialist roles—not an invented exact employee count.
       </TruthBox>
 
       <H2>The organization became the interface</H2>
 
       <P>
-        NULLWORKS began developing executive, department, project, and specialist layers because the work exceeded my working memory. The titles were never intended to pretend that agents are people. They became compact human-readable handles for responsibility, authority, specialization, continuity, escalation, review, and handoff.
+        NULLWORKS began developing executive, project, and specialist layers because the work exceeded my working memory. The titles were never intended to pretend that agents are people. They became compact human-readable handles for responsibility, authority, specialization, continuity, escalation, review, and handoff.
       </P>
 
       <P>
@@ -49,21 +49,29 @@ export default function WhenAiBecomesACompanyPage() {
         The executive layer did not exist to control the agents for its own sake. It existed to protect the human operator from coordination collapse.
       </P>
 
-      <H2>The public NULLWORKS structure</H2>
+      <H2>The current public NULLWORKS structure</H2>
 
       <P>
-        The internal organization evolved into a human-readable control map. Mason remains final authority. The Boardroom handles priorities, routing, conflicts, and company-level decisions. Executive functions maintain operations, quality, continuity, security, public intelligence, artifacts, long-range interpretation, and emotional telemetry. Project workrooms contain scoped context. Specialists execute bounded work. Review gates return consequential actions to the human.
+        Mason remains the founder, brainstem, and final human authority. NULLWORKS NEURAXIS is the persistent company brain and nervous system: it compiles context, routes missions, coordinates live work, and returns truth-state receipts. Corporate WiFi holds the canonical-memory role for sources, decisions, corrections, failures, known unknowns, and reusable company state. Its operational health is never assumed; it remains receipt-gated.
+      </P>
+
+      <P>
+        The Black Doom Boardroom handles priorities, conflicts, escalation, approvals, and company-level interpretation. Named executive functions cover operations, quality, long-range pattern recognition, continuity, artifact execution, security boundaries, public intelligence, and human-state telemetry. Scoped workrooms contain project context. Temporary specialist tentacles execute bounded missions and report back through NEURAXIS rather than creating independent canon.
       </P>
 
       <div className="my-9 overflow-hidden rounded-[28px] border border-[#cdbb93] bg-[#efe7d7] shadow-[0_24px_80px_rgba(49,39,20,.10)]">
         <img
           src="/nullworks-company-structure-oisa.svg"
-          alt="NULLWORKS company structure showing Mason as final human authority, a named executive Boardroom, project workrooms, specialist cells, review gates, and telemetry."
-          width={1080}
-          height={1600}
+          alt="NULLWORKS company structure showing Mason as final human authority, NEURAXIS as the persistent company brain, Corporate WiFi as the canonical memory role, the Boardroom, executive functions, scoped project workrooms, temporary specialist tentacles, review gates, and telemetry."
+          width={1200}
+          height={1800}
           className="h-auto w-full"
         />
       </div>
+
+      <TruthBox title="Client boundary">
+        NULLWORKS does not install its internal character names as a customer&apos;s organization. The internal structure is proof that the orchestration pattern can operate. A client receives roles, workrooms, permissions, review gates, sources, telemetry, and interfaces mapped to the client&apos;s own people, vocabulary, systems, and authority.
+      </TruthBox>
 
       <H2>A digital Toyota</H2>
 
@@ -119,7 +127,7 @@ export default function WhenAiBecomesACompanyPage() {
       </Quote>
 
       <P>
-        I call that operating layer Operational Intelligence. The next Field Note describes the OI SUITe: the human interface connecting the digital workforce, sources, workrooms, authority, memory, quality gates, and telemetry.
+        I call that operating layer Operational Intelligence. The next Field Note describes the OI SUITe: the human interface connecting the digital workforce, sources, workrooms, authority, continuity, quality gates, and telemetry.
       </P>
     </FieldNoteShell>
   );
