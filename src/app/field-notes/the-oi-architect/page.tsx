@@ -4,7 +4,7 @@ import { BulletGrid, FieldNoteShell, H2, Lead, P, Quote, TruthBox } from "../_co
 export const metadata: Metadata = {
   title: "The AI Engineer Builds the Worker. The OI Architect Builds the Company. | NULLWORKS",
   description:
-    "Why organizations adopting AI need Operational Intelligence Systems Architects to coordinate humans, agents, workflows, evidence, authority, memory, and telemetry.",
+    "Why organizations adopting AI need Operational Intelligence Systems Architects to coordinate humans, agents, workflows, evidence, authority, continuity, and telemetry.",
 };
 
 export default function TheOiArchitectPage() {
@@ -24,7 +24,7 @@ export default function TheOiArchitectPage() {
       </P>
 
       <P>
-        But a new coordination problem sits across them: how should humans, agents, tools, evidence, permissions, decisions, workrooms, and feedback operate as one understandable production system?
+        But a new coordination problem sits across them: how should humans, agents, tools, evidence, permissions, decisions, workrooms, continuity, and feedback operate as one understandable production system?
       </P>
 
       <Quote>
@@ -80,6 +80,41 @@ export default function TheOiArchitectPage() {
         ]}
       />
 
+      <H2>How I help a company integrate AI</H2>
+
+      <P>
+        I help companies move from disconnected AI experiments to a governed operating system. The engagement can begin with one expert, one team, one department, or one painful cross-functional workflow. I map the work that already exists, inventory the AI and software already touching it, identify the coordination gaps, and install the smallest useful OI SUITe around the process.
+      </P>
+
+      <BulletGrid
+        items={[
+          {
+            title: "AI adoption map",
+            body: "A visible inventory of models, agents, copilots, automations, databases, APIs, vendors, employee-created workflows, and human-only steps.",
+          },
+          {
+            title: "Authority architecture",
+            body: "Explicit ownership, permissions, review gates, escalation paths, stop-the-line controls, and final human decision rights.",
+          },
+          {
+            title: "OI SUITe control layer",
+            body: "Command dashboard, scoped workrooms, source-linked decisions, workforce registry, exception queues, continuity, and operational telemetry.",
+          },
+          {
+            title: "Working pilot",
+            body: "A functioning bounded system used on real cases so the team can react to evidence and behavior rather than a slide deck alone.",
+          },
+          {
+            title: "Handoff package",
+            body: "Working software, requirements, source-linked decisions, failure receipts, known unknowns, security and hardening needs, and a prioritized backlog.",
+          },
+          {
+            title: "Value receipt",
+            body: "A defensible before-and-after record of cycle time, searching, waiting, retyping, rework, errors, throughput, adoption, and recovered expert capacity.",
+          },
+        ]}
+      />
+
       <H2>Different from an AI strategist</H2>
 
       <P>
@@ -93,7 +128,7 @@ export default function TheOiArchitectPage() {
       <H2>Different from “the person who knows prompts”</H2>
 
       <P>
-        Prompt design matters, but prompts are only one component. A strong instruction cannot repair unclear ownership, missing evidence, unlimited permissions, contaminated context, absent memory, broken handoffs, invisible failures, or a workflow nobody measured before automating.
+        Prompt design matters, but prompts are only one component. A strong instruction cannot repair unclear ownership, missing evidence, unlimited permissions, contaminated context, absent continuity, broken handoffs, invisible failures, or a workflow nobody measured before automating.
       </P>
 
       <P>
@@ -107,7 +142,7 @@ export default function TheOiArchitectPage() {
       <H2>Why companies will need this role</H2>
 
       <P>
-        AI adoption is currently fragmented. One employee uses a public chatbot. Another department buys an enterprise assistant. A developer creates an internal agent. A vendor adds AI to an existing platform. An automation team connects several services. A knowledge team adds retrieval. Security imposes controls. Leadership asks for ROI.
+        AI adoption is fragmented. One employee uses a public chatbot. Another department buys an enterprise assistant. A developer creates an internal agent. A vendor adds AI to an existing platform. An automation team connects several services. A knowledge team adds retrieval. Security imposes controls. Leadership asks for ROI.
       </P>
 
       <P>
@@ -142,6 +177,16 @@ export default function TheOiArchitectPage() {
           },
         ]}
       />
+
+      <H2>The output is a working frame, not a fake finish line</H2>
+
+      <P>
+        I compress the uncertain early phase from operator discovery through functional deployment. That gives the organization something concrete to test, reject, refine, secure, harden, scale, and operate. Specialist teams remain responsible for production security, hardening, performance, compliance, integration depth, and long-term operations.
+      </P>
+
+      <TruthBox title="Handoff boundary">
+        I do not claim that one rapid prototype replaces a mature engineering, security, compliance, or operations organization. My value is reducing ambiguity, preserving the evidence, exposing the failures, and handing the necessary specialists a validated operating frame instead of an abstract request.
+      </TruthBox>
 
       <H2>The OISA is paid for leverage</H2>
 
