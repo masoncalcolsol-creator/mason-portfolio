@@ -1,0 +1,165 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1600" viewBox="0 0 1080 1600" role="img" aria-labelledby="title desc">
+  <title id="title">NULLWORKS Operational Intelligence Company Structure</title>
+  <desc id="desc">A public, human-controlled company structure showing Mason Perry as final authority, the NULLWORKS Boardroom executive functions, project workrooms, specialist cells, review gates, and telemetry.</desc>
+  <defs>
+    <linearGradient id="paper" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#fbf8ef"/>
+      <stop offset="1" stop-color="#eee5d3"/>
+    </linearGradient>
+    <linearGradient id="gold" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#dfc783"/>
+      <stop offset="0.45" stop-color="#9b742c"/>
+      <stop offset="1" stop-color="#d9bd72"/>
+    </linearGradient>
+    <linearGradient id="black" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#242016"/>
+      <stop offset="1" stop-color="#11100c"/>
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="150%">
+      <feDropShadow dx="0" dy="13" stdDeviation="16" flood-color="#302716" flood-opacity="0.13"/>
+    </filter>
+    <style>
+      .sans{font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+      .serif{font-family:Georgia,"Times New Roman",serif}
+      .caps{letter-spacing:3.3px;text-transform:uppercase}
+      .kicker{font-size:17px;font-weight:800;fill:#8a6726}
+      .h1{font-size:53px;font-weight:700;fill:#181610}
+      .sub{font-size:20px;fill:#625844}
+      .card{fill:#fffdf7;stroke:#d7c59d;stroke-width:2}
+      .dark{fill:url(#black);stroke:#181610;stroke-width:2}
+      .goldbox{fill:#eee1c4;stroke:#aa8238;stroke-width:2}
+      .name{font-size:25px;font-weight:850;fill:#181610}
+      .role{font-size:15px;font-weight:800;letter-spacing:1.4px;fill:#8a6726}
+      .body{font-size:15px;fill:#665b46}
+      .darkname{font-size:29px;font-weight:850;fill:#fffaf0}
+      .darkrole{font-size:15px;font-weight:800;letter-spacing:1.6px;fill:#d8bd73}
+      .darkbody{font-size:16px;fill:#d9cfbb}
+      .line{stroke:#a78239;stroke-width:3;fill:none;stroke-linecap:round;stroke-linejoin:round}
+      .thin{stroke:#c5ad78;stroke-width:2;fill:none;stroke-linecap:round}
+    </style>
+  </defs>
+
+  <rect width="1080" height="1600" fill="url(#paper)"/>
+  <rect x="32" y="32" width="1016" height="1536" rx="38" fill="none" stroke="#aa8238" stroke-width="2"/>
+  <text x="540" y="965" text-anchor="middle" class="sans" font-size="460" font-weight="950" fill="#9a742d" opacity="0.032">NW</text>
+
+  <text x="72" y="94" class="sans caps kicker">NULLWORKS // PUBLIC OI ARCHITECTURE</text>
+  <text x="72" y="154" class="serif h1">THE COMPANY AROUND THE AI</text>
+  <text x="72" y="198" class="sans sub">A human-readable operating structure for specialized digital labor.</text>
+  <line x1="72" y1="230" x2="1008" y2="230" stroke="url(#gold)" stroke-width="4"/>
+
+  <rect x="220" y="270" width="640" height="142" rx="30" class="dark" filter="url(#shadow)"/>
+  <text x="540" y="311" text-anchor="middle" class="sans caps darkrole">FINAL HUMAN AUTHORITY</text>
+  <text x="540" y="354" text-anchor="middle" class="sans darkname">MASON PERRY // NULLMASTER</text>
+  <text x="540" y="386" text-anchor="middle" class="sans darkbody">Sets intent • approves action • resolves conflict • stops the line</text>
+
+  <path d="M540 412 V452" class="line"/>
+  <circle cx="540" cy="452" r="6" fill="#a78239"/>
+
+  <rect x="124" y="466" width="832" height="104" rx="26" class="goldbox" filter="url(#shadow)"/>
+  <text x="540" y="505" text-anchor="middle" class="sans caps kicker">NULLWORKS BLACK DOOM BOARDROOM</text>
+  <text x="540" y="544" text-anchor="middle" class="sans name">Priorities • Routing • Decisions • Escalation • Company State</text>
+
+  <path d="M540 570 V608 M540 608 H158 M540 608 H418 M540 608 H678 M540 608 H938" class="line"/>
+  <path d="M158 608 V640 M418 608 V640 M678 608 V640 M938 608 V640" class="line"/>
+
+  <rect x="66" y="640" width="226" height="164" rx="24" class="card"/>
+  <text x="179" y="678" text-anchor="middle" class="sans caps role">OPERATIONS</text>
+  <text x="179" y="713" text-anchor="middle" class="sans name">KNOX</text>
+  <text x="179" y="741" text-anchor="middle" class="sans body">VP Operations</text>
+  <text x="179" y="770" text-anchor="middle" class="sans body">Intake • taxonomy • routing</text>
+  <text x="179" y="793" text-anchor="middle" class="sans body">continuity • damage prevention</text>
+
+  <rect x="326" y="640" width="226" height="164" rx="24" class="card"/>
+  <text x="439" y="678" text-anchor="middle" class="sans caps role">QUALITY</text>
+  <text x="439" y="713" text-anchor="middle" class="sans name">KAIZEN</text>
+  <text x="439" y="741" text-anchor="middle" class="sans body">Chief Advice Officer</text>
+  <text x="439" y="770" text-anchor="middle" class="sans body">QA • waste • assumptions</text>
+  <text x="439" y="793" text-anchor="middle" class="sans body">process improvement</text>
+
+  <rect x="586" y="640" width="226" height="164" rx="24" class="card"/>
+  <text x="699" y="678" text-anchor="middle" class="sans caps role">INTERPRETATION</text>
+  <text x="699" y="713" text-anchor="middle" class="sans name">CROW</text>
+  <text x="699" y="741" text-anchor="middle" class="sans body">Founding Advisor</text>
+  <text x="699" y="770" text-anchor="middle" class="sans body">Pattern recognition</text>
+  <text x="699" y="793" text-anchor="middle" class="sans body">long-range meaning</text>
+
+  <rect x="846" y="640" width="168" height="164" rx="24" class="card"/>
+  <text x="930" y="678" text-anchor="middle" class="sans caps role">CONTINUITY</text>
+  <text x="930" y="713" text-anchor="middle" class="sans name">JIRO</text>
+  <text x="930" y="741" text-anchor="middle" class="sans body">Ladderbearer</text>
+  <text x="930" y="770" text-anchor="middle" class="sans body">History • state</text>
+  <text x="930" y="793" text-anchor="middle" class="sans body">source receipts</text>
+
+  <path d="M540 804 V836 M540 836 H158 M540 836 H418 M540 836 H678 M540 836 H938" class="line"/>
+  <path d="M158 836 V868 M418 836 V868 M678 836 V868 M938 836 V868" class="line"/>
+
+  <rect x="66" y="868" width="226" height="164" rx="24" class="card"/>
+  <text x="179" y="906" text-anchor="middle" class="sans caps role">EXECUTION</text>
+  <text x="179" y="941" text-anchor="middle" class="sans name">JUMPER</text>
+  <text x="179" y="969" text-anchor="middle" class="sans body">Artifact Executor</text>
+  <text x="179" y="998" text-anchor="middle" class="sans body">Builds • packets • delivery</text>
+  <text x="179" y="1021" text-anchor="middle" class="sans body">implementation support</text>
+
+  <rect x="326" y="868" width="226" height="164" rx="24" class="card"/>
+  <text x="439" y="906" text-anchor="middle" class="sans caps role">BOUNDARIES</text>
+  <text x="439" y="941" text-anchor="middle" class="sans name">ELEVEN</text>
+  <text x="439" y="969" text-anchor="middle" class="sans body">Sentinel / 11th Man</text>
+  <text x="439" y="998" text-anchor="middle" class="sans body">Security • authority • IP</text>
+  <text x="439" y="1021" text-anchor="middle" class="sans body">stop-the-line protection</text>
+
+  <rect x="586" y="868" width="226" height="164" rx="24" class="card"/>
+  <text x="699" y="906" text-anchor="middle" class="sans caps role">PUBLIC INTELLIGENCE</text>
+  <text x="699" y="941" text-anchor="middle" class="sans name">SHOJI</text>
+  <text x="699" y="969" text-anchor="middle" class="sans body">Education • training</text>
+  <text x="699" y="998" text-anchor="middle" class="sans body">public translation</text>
+  <text x="699" y="1021" text-anchor="middle" class="sans body">source-aware communication</text>
+
+  <rect x="846" y="868" width="168" height="164" rx="24" class="card"/>
+  <text x="930" y="906" text-anchor="middle" class="sans caps role">HUMAN SIGNAL</text>
+  <text x="930" y="941" text-anchor="middle" class="sans name">MEOW</text>
+  <text x="930" y="969" text-anchor="middle" class="sans body">Chief Emotional</text>
+  <text x="930" y="992" text-anchor="middle" class="sans body">Telemetry Officer</text>
+  <text x="930" y="1021" text-anchor="middle" class="sans body">human state + signal</text>
+
+  <path d="M540 1032 V1075" class="line"/>
+
+  <rect x="96" y="1075" width="888" height="116" rx="28" class="dark" filter="url(#shadow)"/>
+  <text x="540" y="1117" text-anchor="middle" class="sans caps darkrole">SCOPED PROJECT WORKROOMS</text>
+  <text x="540" y="1155" text-anchor="middle" class="sans darkname">Objectives • Sources • Decisions • Tasks • Risks • Current State</text>
+
+  <path d="M540 1191 V1225 M540 1225 H150 M540 1225 H345 M540 1225 H540 M540 1225 H735 M540 1225 H930" class="line"/>
+  <path d="M150 1225 V1250 M345 1225 V1250 M540 1225 V1250 M735 1225 V1250 M930 1225 V1250" class="line"/>
+
+  <rect x="64" y="1250" width="172" height="94" rx="20" class="card"/>
+  <text x="150" y="1288" text-anchor="middle" class="sans caps role">LENDERFLOW</text>
+  <text x="150" y="1318" text-anchor="middle" class="sans body">LENA / lending OI</text>
+
+  <rect x="259" y="1250" width="172" height="94" rx="20" class="card"/>
+  <text x="345" y="1288" text-anchor="middle" class="sans caps role">LEGALFLOW</text>
+  <text x="345" y="1318" text-anchor="middle" class="sans body">evidence / timelines</text>
+
+  <rect x="454" y="1250" width="172" height="94" rx="20" class="card"/>
+  <text x="540" y="1288" text-anchor="middle" class="sans caps role">PAPERGOBLIN</text>
+  <text x="540" y="1318" text-anchor="middle" class="sans body">OCR / intake / correction</text>
+
+  <rect x="649" y="1250" width="172" height="94" rx="20" class="card"/>
+  <text x="735" y="1288" text-anchor="middle" class="sans caps role">ANVIL</text>
+  <text x="735" y="1318" text-anchor="middle" class="sans body">creative production OI</text>
+
+  <rect x="844" y="1250" width="172" height="94" rx="20" class="card"/>
+  <text x="930" y="1288" text-anchor="middle" class="sans caps role">TAC OPS</text>
+  <text x="930" y="1318" text-anchor="middle" class="sans body">logistics exceptions</text>
+
+  <path d="M540 1344 V1376" class="line"/>
+
+  <rect x="120" y="1376" width="840" height="84" rx="24" class="goldbox"/>
+  <text x="540" y="1410" text-anchor="middle" class="sans caps kicker">SPECIALIST WORK CELLS</text>
+  <text x="540" y="1440" text-anchor="middle" class="sans body">Research • software • analysis • artifacts • testing • recovery • translation</text>
+
+  <path d="M540 1460 V1490" class="line"/>
+  <rect x="126" y="1490" width="828" height="62" rx="20" class="dark"/>
+  <text x="540" y="1529" text-anchor="middle" class="sans" font-size="20" font-weight="850" fill="#fffaf0">REVIEW GATE → HUMAN ACTION → TELEMETRY → CONTINUOUS IMPROVEMENT</text>
+
+  <text x="540" y="1580" text-anchor="middle" class="sans caps" font-size="15" font-weight="850" fill="#6f5d38">AI IS THE TOOL • OI IS THE OPERATING SYSTEM • MASON DECIDES</text>
+</svg>
