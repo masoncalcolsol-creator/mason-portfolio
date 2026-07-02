@@ -7,7 +7,6 @@ import {
   FileSearch,
   Gauge,
   GitBranch,
-  Github,
   Mail,
   Network,
   ScanLine,
@@ -92,7 +91,7 @@ export default function HomePage() {
               rel="noreferrer"
               className="hidden items-center gap-2 rounded-full border border-[#a98135] bg-[#fffaf0] px-4 py-3 text-sm font-black text-[#6f511f] no-underline sm:inline-flex"
             >
-              <Github size={16} /> GitHub
+              <GitBranch size={16} /> GitHub
             </a>
             <a
               href="mailto:masoncalcolsol@gmail.com?subject=Operational%20Intelligence%20Systems%20Architecture"
