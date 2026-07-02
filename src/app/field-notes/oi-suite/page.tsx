@@ -4,7 +4,7 @@ import { BulletGrid, FieldNoteShell, H2, Lead, P, Quote, TruthBox } from "../_co
 export const metadata: Metadata = {
   title: "OI SUITe: The Operating System Around the AI | NULLWORKS",
   description:
-    "A practical model for connecting humans, AI workers, tools, evidence, memory, authority, workrooms, review gates, and telemetry.",
+    "A practical model for connecting humans, AI workers, tools, evidence, continuity, authority, workrooms, review gates, and telemetry.",
 };
 
 export default function OiSuitePage() {
@@ -24,7 +24,7 @@ export default function OiSuitePage() {
       </P>
 
       <Quote>
-        AI is the worker. Operational Intelligence is the connected operating system around the worker.
+        AI is the workforce. Operational Intelligence is the connected operating system around the workforce.
       </Quote>
 
       <H2>What the OI SUITe connects</H2>
@@ -65,7 +65,7 @@ export default function OiSuitePage() {
       </P>
 
       <P>
-        The first dashboard module is a command center: priorities, current state, abnormal conditions, blocked work, pending approvals, and the next highest-leverage actions. A workforce registry describes each human, agent, tool, and automation. An intake router classifies new requests. Project workrooms preserve scoped context. An authority map limits actions. A continuity layer stores decisions and corrections. A quality gate challenges unsupported work. A telemetry board measures the system. A value ledger records what capacity was restored or what delay was removed.
+        The first module is a command center: priorities, current state, abnormal conditions, blocked work, pending approvals, and the next highest-leverage actions. A workforce registry describes each human, agent, tool, and automation. An intake router classifies new requests. Project workrooms preserve scoped context. An authority map limits actions. A continuity layer stores decisions and corrections. A quality gate challenges unsupported work. A telemetry board measures the system. A value ledger records what capacity was restored or what delay was removed.
       </P>
 
       <TruthBox title="Design boundary">
@@ -104,7 +104,7 @@ export default function OiSuitePage() {
           },
           {
             title: "Enterprise OI SUITe",
-            body: "Departments, permissions, integrations, governance, auditability, model/tool inventory, exceptions, and cross-functional coordination.",
+            body: "Departments, permissions, integrations, governance, auditability, model and tool inventory, exceptions, and cross-functional coordination.",
           },
           {
             title: "Vertical OI SUITe",
@@ -116,6 +116,41 @@ export default function OiSuitePage() {
           },
         ]}
       />
+
+      <H2>How NULLWORKS installs the framework</H2>
+
+      <BulletGrid
+        items={[
+          {
+            title: "01 — Map reality",
+            body: "Interview the operator, observe the real sequence, collect source examples, identify exceptions, delays, informal knowledge, and authority boundaries.",
+          },
+          {
+            title: "02 — Inventory the AI",
+            body: "Register the models, copilots, automations, databases, APIs, employee-created workflows, vendors, and existing software already touching the work.",
+          },
+          {
+            title: "03 — Design the work cells",
+            body: "Define human roles, AI roles, scoped workrooms, intake, routing, evidence, permissions, escalation, review gates, and failure handling.",
+          },
+          {
+            title: "04 — Build the control surface",
+            body: "Create the smallest useful dashboard and workflow that lets the expert direct the system, inspect the source, resolve exceptions, and approve action.",
+          },
+          {
+            title: "05 — Run real cases",
+            body: "Use bounded live work, preserve corrections and failures, measure the before-and-after state, and expose the known limits instead of hiding them.",
+          },
+          {
+            title: "06 — Handoff and improve",
+            body: "Deliver the working frame, requirements, receipts, telemetry, known unknowns, and hardening backlog to the client and necessary specialists.",
+          },
+        ]}
+      />
+
+      <TruthBox title="Platform boundary">
+        The OI framework is platform-neutral. It may coordinate OpenAI, Claude, Gemini, Microsoft, AWS, local models, existing vertical software, databases, APIs, and human-only steps. The architecture should fit the workflow and risk—not force every customer into one model vendor or one universal agent stack.
+      </TruthBox>
 
       <H2>Why this is not another chatbot wrapper</H2>
 
