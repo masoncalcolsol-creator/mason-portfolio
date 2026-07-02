@@ -1,0 +1,5 @@
+NULLWORKS OISA portfolio redeploy trigger
+Date: 2026-07-02
+Purpose: Trigger production rebuild for /oi and /field-notes routes.
+Expected production branch: main
+Human authority: Mason Perry
