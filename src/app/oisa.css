@@ -17,3 +17,17 @@ main[class*='bg-[#f4efe4]'] a {
 main[class*='bg-[#f4efe4]'] img {
   max-width: 100%;
 }
+
+@media (min-width: 640px) {
+  main[class*='bg-[#f4efe4]'] .sm\:inline {
+    display: inline !important;
+  }
+
+  main[class*='bg-[#f4efe4]'] .sm\:inline-flex {
+    display: inline-flex !important;
+  }
+
+  main[class*='bg-[#f4efe4]'] .sm\:hidden {
+    display: none !important;
+  }
+}
