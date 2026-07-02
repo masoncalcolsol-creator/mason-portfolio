@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import type { ReactNode } from "react";
 import { ArrowRight, Factory, Network, ShieldCheck, Sparkles } from "lucide-react";
 import { OI_SERIES } from "./_components/FieldNoteShell";
 
@@ -86,7 +87,7 @@ export default function FieldNotesIndex() {
   );
 }
 
-function Step({ icon, title, body }: { icon: React.ReactNode; title: string; body: string }) {
+function Step({ icon, title, body }: { icon: ReactNode; title: string; body: string }) {
   return (
     <div className="flex gap-4 rounded-[22px] border border-white/10 bg-white/[0.045] p-5">
       <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-[#d7b96f]/12 text-[#d7b96f]">{icon}</div>
