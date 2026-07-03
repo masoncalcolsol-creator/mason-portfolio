@@ -34,7 +34,7 @@ const systems = [
   },
   {
     title: "PAPERGOBLIN",
-    tag: "OCR + intake OI",
+    tag: "OCR + Intake OI",
     body: "OCR intake, editable correction, validation, persistence, and reusable human-correction telemetry built as a functional prototype during an airline flight.",
     href: "https://ori-intake-papergoblin.vercel.app/",
     icon: ScanLine,
@@ -83,23 +83,15 @@ export default function HomePage() {
             <div className={styles.brandMark}>NW</div>
             <div>
               <div className={styles.brandEyebrow}>Operational Intelligence</div>
-              <div className={styles.brandName}>NULLWORKS · Mason Perry</div>
+              <div className={styles.brandName}>NULLWORKS - Mason Perry</div>
             </div>
           </a>
 
           <div className={styles.headerActions}>
-            <a
-              href="https://github.com/masoncalcolsol-creator"
-              target="_blank"
-              rel="noreferrer"
-              className={styles.headerLink}
-            >
+            <a href="https://github.com/masoncalcolsol-creator" target="_blank" rel="noreferrer" className={styles.headerLink}>
               <GitBranch size={15} /> GitHub
             </a>
-            <a
-              href="mailto:masoncalcolsol@gmail.com?subject=Operational%20Intelligence%20Systems%20Architecture"
-              className={styles.headerPrimary}
-            >
+            <a href="mailto:masoncalcolsol@gmail.com?subject=Operational%20Intelligence%20Systems%20Architecture" className={styles.headerPrimary}>
               <Mail size={15} /> Contact Mason
             </a>
           </div>
@@ -147,7 +139,7 @@ export default function HomePage() {
               <div className={styles.ghostTitle}>One brilliant generalist</div>
               <div className={styles.ghostBody}>Capability expands. Context and coordination load expand with it.</div>
               <div className={styles.nodeRow}>
-                {['PLAN', 'BUILD', 'TOOLS', 'MEMORY', 'CHECK'].map((node) => (
+                {["PLAN", "BUILD", "TOOLS", "MEMORY", "CHECK"].map((node) => (
                   <span key={node} className={styles.node}>{node}</span>
                 ))}
               </div>
@@ -157,16 +149,22 @@ export default function HomePage() {
               <div className={styles.ghostTitle}>Digital Toyota</div>
               <div className={styles.ghostBody}>Specialists coordinate through one visible operating layer.</div>
               <div className={styles.nodeRow}>
-                {['ROUTER', 'BUILD', 'QA', 'MEMORY', 'DEPLOY'].map((node) => (
+                {["ROUTER", "BUILD", "QA", "MEMORY", "DEPLOY"].map((node) => (
                   <span key={node} className={styles.node}>{node}</span>
                 ))}
               </div>
             </div>
 
-            <div className={styles.operatorCore}>
-              <div className={styles.operatorIcon}><ShieldCheck size={34} /></div>
+            <div className={styles.operatorCore} aria-label="Human operator in OI SUITe armor">
+              <div className={styles.operatorHelmet}>
+                <div className={styles.operatorVisor} />
+              </div>
+              <div className={styles.operatorChest}>
+                <div className={styles.operatorCoreLight}>NW</div>
+              </div>
+              <div className={styles.operatorArms} />
               <div className={styles.operatorName}>Human Operator</div>
-              <div className={styles.operatorRole}>Intent · judgment · final authority</div>
+              <div className={styles.operatorRole}>Intent - judgment - final authority</div>
             </div>
 
             <div className={styles.visualStatement}>The operator needs the factory.</div>
@@ -192,12 +190,7 @@ export default function HomePage() {
             <blockquote className={styles.quote}>
               I did not organize the agents because they needed managers. I organized them because I did.
             </blockquote>
-            <a
-              href="/nullworks-company-structure-oisa.svg"
-              target="_blank"
-              rel="noreferrer"
-              className={styles.goldButton}
-            >
+            <a href="/nullworks-company-structure-oisa.svg" target="_blank" rel="noreferrer" className={styles.goldButton}>
               View NULLWORKS structure <ExternalLink size={16} />
             </a>
           </div>
@@ -261,18 +254,16 @@ export default function HomePage() {
             <div className={styles.darkEyebrow}>The OISA operating loop</div>
             <h2 className={styles.loopTitle}>From real workflow to measurable improvement.</h2>
             <div className={styles.loopFlow} aria-label="Discover, Structure, Build, Verify, Improve">
-              <span>Discover</span><ArrowRight size={14} />
-              <span>Structure</span><ArrowRight size={14} />
-              <span>Build</span><ArrowRight size={14} />
-              <span>Verify</span><ArrowRight size={14} />
-              <span>Improve</span>
+              {loop.map(([title], index) => (
+                <span key={title}>{String(index + 1).padStart(2, "0")} {title}</span>
+              ))}
             </div>
           </div>
 
           <div className={styles.loopSteps}>
             {loop.map(([title, body], index) => (
               <article key={title} className={styles.loopCard}>
-                <div className={styles.loopNumber}>{String(index + 1).padStart(2, '0')}</div>
+                <div className={styles.loopNumber}>{String(index + 1).padStart(2, "0")}</div>
                 <h3>{title}</h3>
                 <p>{body}</p>
               </article>
@@ -316,7 +307,7 @@ export default function HomePage() {
 
         <footer className={styles.footer}>
           <div>
-            <strong>Mason Perry</strong> — Founder, NULLWORKS · Operational Intelligence Systems Architect · Phoenix, Arizona
+            <strong>Mason Perry</strong> - Founder, NULLWORKS - Operational Intelligence Systems Architect - Phoenix, Arizona
           </div>
           <div className={styles.footerNote}>
             Views are Mason&apos;s own. Public architecture only. No customer, employer, or USPS confidential information is included.
