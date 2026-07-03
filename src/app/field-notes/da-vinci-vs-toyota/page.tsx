@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { BulletGrid, FieldNoteShell, H2, Lead, P, Quote, TruthBox } from "../_components/FieldNoteShell";
 import diagramStyles from "./page.module.css";
+import MobileDeploymentReceipt from "./MobileDeploymentReceipt";
 
 export const metadata: Metadata = {
   title: "Da Vinci or Toyota? The Fork in the Road for AI Agents | NULLWORKS",
@@ -257,6 +258,8 @@ export default function DaVinciVsToyotaPage() {
       <Quote>
         The model may be the worker. The operator still needs the factory.
       </Quote>
+
+      <MobileDeploymentReceipt />
     </FieldNoteShell>
   );
 }
