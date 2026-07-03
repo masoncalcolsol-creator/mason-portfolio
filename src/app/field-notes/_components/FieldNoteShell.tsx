@@ -10,6 +10,7 @@ export const OI_SERIES: SeriesLink[] = [
   { number: 3, title: "OI SUITe: The Operating System Around the AI", href: "/field-notes/oi-suite" },
   { number: 4, title: "The AI Engineer Builds the Worker. The OI Architect Builds the Company.", href: "/field-notes/the-oi-architect" },
   { number: 5, title: "Horse Cart to Toyota: What Workflow Compression Is Worth", href: "/field-notes/horse-cart-to-toyota" },
+  { number: 6, title: "Da Vinci or Toyota? The Fork in the Road for AI Agents", href: "/field-notes/da-vinci-vs-toyota" },
 ];
 
 export function FieldNoteShell({
@@ -30,6 +31,7 @@ export function FieldNoteShell({
   const currentIndex = OI_SERIES.findIndex((item) => item.number === number);
   const previous = currentIndex > 0 ? OI_SERIES[currentIndex - 1] : null;
   const next = currentIndex < OI_SERIES.length - 1 ? OI_SERIES[currentIndex + 1] : null;
+  const totalNotes = OI_SERIES.length;
 
   return (
     <main className={styles.page}>
@@ -51,8 +53,8 @@ export function FieldNoteShell({
           <div className={styles.heroMonogram} aria-hidden="true">NW</div>
           <div className={styles.articleHeroContent}>
             <div className={styles.articleTopline}>
-              <div className={styles.seriesPill}>Field Note {String(number).padStart(2, "0")} of 05</div>
-              <div className={styles.progressDots} aria-label={`Field note ${number} of 5`}>
+              <div className={styles.seriesPill}>Field Note {String(number).padStart(2, "0")} of {String(totalNotes).padStart(2, "0")}</div>
+              <div className={styles.progressDots} aria-label={`Field note ${number} of ${totalNotes}`}>
                 {OI_SERIES.map((item) => {
                   const dotClass = item.number === number
                     ? `${styles.progressDot} ${styles.progressDotCurrent}`
