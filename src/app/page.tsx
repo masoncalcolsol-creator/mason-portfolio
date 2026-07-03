@@ -15,12 +15,13 @@ import {
   UserRoundCheck,
   Workflow,
 } from "lucide-react";
+import styles from "./home.module.css";
 
 const systems = [
   {
     title: "LenderFlow / LENA",
     tag: "Lending OI",
-    body: "A human-reviewed lender-fit and workflow system built from direct broker discovery. Structures lender appetite, exceptions, freshness, source receipts, and missing information without making lending decisions.",
+    body: "A human-reviewed lender-fit and workflow system built from direct broker discovery. It structures appetite, exceptions, freshness, source receipts, and missing information without making lending decisions.",
     href: "https://lf-lender-intake.vercel.app/",
     icon: BriefcaseBusiness,
   },
@@ -75,129 +76,178 @@ const loop = [
 
 export default function HomePage() {
   return (
-    <main className="min-h-screen bg-[#f4efe4] text-[#19170f]">
-      <div className="pointer-events-none fixed inset-0 bg-[radial-gradient(circle_at_10%_0%,rgba(177,137,60,.15),transparent_35%),radial-gradient(circle_at_90%_18%,rgba(25,23,15,.08),transparent_30%)]" />
+    <main className={styles.page}>
+      <div className={styles.shell}>
+        <header className={styles.header}>
+          <a href="/" className={styles.brand}>
+            <div className={styles.brandMark}>NW</div>
+            <div>
+              <div className={styles.brandEyebrow}>Operational Intelligence</div>
+              <div className={styles.brandName}>NULLWORKS · Mason Perry</div>
+            </div>
+          </a>
 
-      <div className="relative mx-auto w-full max-w-[1180px] px-4 pb-20 pt-4 sm:px-6 sm:pt-6 lg:px-8">
-        <header className="flex items-center justify-between gap-4 rounded-[24px] border border-[#cdbb93] bg-[#fffaf0]/92 px-4 py-4 shadow-[0_20px_70px_rgba(49,39,20,.10)] backdrop-blur sm:px-6">
-          <div>
-            <div className="text-[10px] font-black uppercase tracking-[0.28em] text-[#8c6927] sm:text-xs">NULLWORKS</div>
-            <div className="text-lg font-black tracking-[-0.03em] text-[#19170f]">Mason Perry</div>
-          </div>
-          <div className="flex gap-2">
+          <div className={styles.headerActions}>
             <a
               href="https://github.com/masoncalcolsol-creator"
               target="_blank"
               rel="noreferrer"
-              className="hidden items-center gap-2 rounded-full border border-[#a98135] bg-[#fffaf0] px-4 py-3 text-sm font-black text-[#6f511f] no-underline sm:inline-flex"
+              className={styles.headerLink}
             >
-              <GitBranch size={16} /> GitHub
+              <GitBranch size={15} /> GitHub
             </a>
             <a
               href="mailto:masoncalcolsol@gmail.com?subject=Operational%20Intelligence%20Systems%20Architecture"
-              className="inline-flex items-center gap-2 rounded-full bg-[#19170f] px-4 py-3 text-sm font-black text-[#fffaf0] no-underline"
+              className={styles.headerPrimary}
             >
-              <Mail size={16} /> Contact
+              <Mail size={15} /> Contact Mason
             </a>
           </div>
         </header>
 
-        <section className="mt-5 overflow-hidden rounded-[34px] border border-[#cdbb93] bg-[#fffaf0] shadow-[0_34px_110px_rgba(49,39,20,.14)]">
-          <div className="grid lg:grid-cols-[1.18fr_.82fr]">
-            <div className="p-6 sm:p-10 lg:p-14">
-              <div className="inline-flex items-center gap-2 rounded-full border border-[#b78b39]/35 bg-[#efe3ca] px-3 py-2 text-xs font-black uppercase tracking-[0.16em] text-[#76551d]">
-                <Workflow size={15} /> Operational Intelligence Systems Architect
-              </div>
-
-              <h1 className="mt-7 max-w-[820px] font-serif text-[48px] font-bold leading-[0.93] tracking-[-0.06em] sm:text-[72px] lg:text-[92px]">
-                I build the company around the AI.
-              </h1>
-
-              <p className="mt-7 max-w-[780px] text-lg font-medium leading-relaxed text-[#5e5543] sm:text-xl">
-                I help individuals and organizations turn disconnected AI tools, agents, expert knowledge, records, and workflows into a human-readable Operational Intelligence operating system.
-              </p>
-
-              <p className="mt-5 max-w-[780px] text-base leading-relaxed text-[#675d49] sm:text-lg">
-                The goal is not another chatbot. It is visible ownership, scoped workrooms, source-linked decisions, authority boundaries, review gates, continuity, telemetry, and final human control.
-              </p>
-
-              <div className="mt-8 flex flex-wrap gap-3">
-                <a href="/field-notes" className="inline-flex items-center gap-2 rounded-full bg-[#19170f] px-5 py-4 text-sm font-black text-[#fffaf0] no-underline">
-                  Read the OI Field Notes <ArrowRight size={17} />
-                </a>
-                <a href="#systems" className="inline-flex items-center gap-2 rounded-full border border-[#a98135] bg-[#fffaf0] px-5 py-4 text-sm font-black text-[#6f511f] no-underline">
-                  View working systems <Boxes size={17} />
-                </a>
-              </div>
-
-              <div className="mt-8 grid gap-3 sm:grid-cols-3">
-                <Proof value="Industrial" label="electronics, automation, logistics, OCR, controls, fault isolation" />
-                <Proof value="Applied AI" label="workflow discovery, full-stack prototypes, human-in-loop systems" />
-                <Proof value="OISA" label="orchestration, authority, continuity, telemetry, workflow compression" />
-              </div>
+        <section className={styles.hero}>
+          <div className={styles.heroCopy}>
+            <div className={styles.eyebrow}>
+              <Workflow size={15} /> Operational Intelligence Systems Architect
             </div>
 
-            <div className="border-t border-[#d7c8a8] bg-[#19170f] p-6 text-[#fffaf0] lg:border-l lg:border-t-0 lg:p-10">
-              <div className="text-xs font-black uppercase tracking-[0.24em] text-[#d7b96f]">The operating thesis</div>
-              <h2 className="mt-6 font-serif text-4xl font-bold leading-[1.02] tracking-[-0.05em] sm:text-5xl">
-                The AI engineer builds the worker. The OI architect builds the company.
-              </h2>
-              <p className="mt-6 text-base leading-relaxed text-[#d8cfbd]">
-                NULLWORKS evolved because a growing digital workforce exceeded one human&apos;s ability to mentally track ownership, context, duplication, handoffs, authority, failures, and unfinished work.
-              </p>
-              <blockquote className="mt-7 border-l-4 border-[#d7b96f] pl-5 font-serif text-2xl font-bold leading-tight text-[#fffaf0]">
-                I did not organize the agents because they needed managers. I organized them because I did.
-              </blockquote>
-              <a
-                href="/nullworks-company-structure-oisa.svg"
-                target="_blank"
-                rel="noreferrer"
-                className="mt-8 inline-flex items-center gap-2 rounded-full bg-[#d7b96f] px-5 py-4 text-sm font-black text-[#19170f] no-underline"
-              >
-                View NULLWORKS structure <ExternalLink size={16} />
+            <h1 className={styles.heroTitle}>I build the company around the AI.</h1>
+
+            <p className={styles.heroLead}>
+              I help individuals and organizations turn disconnected AI tools, agents, expert knowledge, records, and workflows into a human-readable Operational Intelligence operating system.
+            </p>
+
+            <p className={styles.heroBody}>
+              The goal is not another chatbot. It is visible ownership, scoped workrooms, source-linked decisions, authority boundaries, review gates, continuity, telemetry, and final human control.
+            </p>
+
+            <div className={styles.heroActions}>
+              <a href="/field-notes" className={styles.primaryButton}>
+                Read the OI Field Notes <ArrowRight size={17} />
+              </a>
+              <a href="#systems" className={styles.secondaryButton}>
+                View working systems <Boxes size={17} />
               </a>
             </div>
+
+            <div className={styles.proofRow}>
+              <Proof value="Industrial" label="Electronics, automation, logistics, OCR, controls, and fault isolation." />
+              <Proof value="Applied AI" label="Workflow discovery, full-stack prototypes, and human-in-loop systems." />
+              <Proof value="OISA" label="Orchestration, authority, continuity, telemetry, and workflow compression." />
+            </div>
+          </div>
+
+          <div className={styles.heroVisual} aria-label="OI SUITe visual operating model">
+            <div className={styles.visualTopline}>
+              <div className={styles.visualLabel}>Da Vinci or Toyota?</div>
+              <div className={styles.visualTruth}>Human authority remains final</div>
+            </div>
+
+            <div className={`${styles.ghostPanel} ${styles.ghostLeft}`}>
+              <div className={styles.ghostTitle}>One brilliant generalist</div>
+              <div className={styles.ghostBody}>Capability expands. Context and coordination load expand with it.</div>
+              <div className={styles.nodeRow}>
+                {['PLAN', 'BUILD', 'TOOLS', 'MEMORY', 'CHECK'].map((node) => (
+                  <span key={node} className={styles.node}>{node}</span>
+                ))}
+              </div>
+            </div>
+
+            <div className={`${styles.ghostPanel} ${styles.ghostRight}`}>
+              <div className={styles.ghostTitle}>Digital Toyota</div>
+              <div className={styles.ghostBody}>Specialists coordinate through one visible operating layer.</div>
+              <div className={styles.nodeRow}>
+                {['ROUTER', 'BUILD', 'QA', 'MEMORY', 'DEPLOY'].map((node) => (
+                  <span key={node} className={styles.node}>{node}</span>
+                ))}
+              </div>
+            </div>
+
+            <div className={styles.operatorCore}>
+              <div className={styles.operatorIcon}><ShieldCheck size={34} /></div>
+              <div className={styles.operatorName}>Human Operator</div>
+              <div className={styles.operatorRole}>Intent · judgment · final authority</div>
+            </div>
+
+            <div className={styles.visualStatement}>The operator needs the factory.</div>
+
+            <div className={styles.visualMetrics}>
+              <Metric value="65+" label="specialists" />
+              <Metric value="800+" label="workrooms" />
+              <Metric value="119+" label="failure receipts" />
+            </div>
           </div>
         </section>
 
-        <section className="mt-8 grid gap-4 md:grid-cols-3">
-          {services.map((service) => {
-            const Icon = service.icon;
-            return (
-              <article key={service.title} className="rounded-[28px] border border-[#cdbb93] bg-[#fffaf0] p-6 shadow-[0_18px_60px_rgba(49,39,20,.08)]">
-                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#19170f] text-[#d7b96f]">
-                  <Icon size={22} />
-                </div>
-                <h2 className="mt-6 text-2xl font-black tracking-[-0.04em]">{service.title}</h2>
-                <p className="mb-0 mt-3 text-sm leading-relaxed text-[#675d49] sm:text-base">{service.body}</p>
-              </article>
-            );
-          })}
-        </section>
+        <section className={styles.thesis}>
+          <div className={styles.thesisIntro}>
+            <div className={styles.darkEyebrow}>The operating thesis</div>
+            <h2 className={styles.thesisTitle}>The AI engineer builds the worker. The OI architect builds the company.</h2>
+          </div>
 
-        <section id="systems" className="mt-10 scroll-mt-8">
-          <div className="max-w-[820px]">
-            <div className="text-xs font-black uppercase tracking-[0.24em] text-[#8c6927]">Selected systems</div>
-            <h2 className="mt-3 font-serif text-4xl font-bold tracking-[-0.05em] sm:text-6xl">Operational problems converted into working software.</h2>
-            <p className="mt-5 text-base leading-relaxed text-[#675d49] sm:text-lg">
-              Functional prototypes and live betas used to validate workflows, reduce uncertainty, preserve human review, and give specialist teams a working frame to harden, secure, scale, polish, and operate.
+          <div className={styles.thesisBody}>
+            <p>
+              NULLWORKS evolved because a growing digital workforce exceeded one human&apos;s ability to mentally track ownership, context, duplication, handoffs, authority, failures, and unfinished work.
             </p>
+            <blockquote className={styles.quote}>
+              I did not organize the agents because they needed managers. I organized them because I did.
+            </blockquote>
+            <a
+              href="/nullworks-company-structure-oisa.svg"
+              target="_blank"
+              rel="noreferrer"
+              className={styles.goldButton}
+            >
+              View NULLWORKS structure <ExternalLink size={16} />
+            </a>
+          </div>
+        </section>
+
+        <section className={styles.section}>
+          <div className={styles.sectionHeader}>
+            <div>
+              <div className={styles.sectionEyebrow}>OI SUITe layers</div>
+              <h2 className={styles.sectionTitle}>Structure that scales with the operator.</h2>
+            </div>
           </div>
 
-          <div className="mt-7 grid gap-4 md:grid-cols-2">
+          <div className={styles.serviceGrid}>
+            {services.map((service) => {
+              const Icon = service.icon;
+              return (
+                <article key={service.title} className={styles.serviceCard}>
+                  <div className={styles.cardIcon}><Icon size={22} /></div>
+                  <h3 className={styles.cardTitle}>{service.title}</h3>
+                  <p className={styles.cardBody}>{service.body}</p>
+                </article>
+              );
+            })}
+          </div>
+        </section>
+
+        <section id="systems" className={styles.section}>
+          <div className={styles.sectionHeader}>
+            <div>
+              <div className={styles.sectionEyebrow}>Selected systems</div>
+              <h2 className={styles.sectionTitle}>Operational problems converted into working software.</h2>
+              <p className={styles.sectionBody}>
+                Functional prototypes and live betas validate workflows, reduce uncertainty, preserve human review, and give specialist teams a working frame to harden, secure, scale, polish, and operate.
+              </p>
+            </div>
+          </div>
+
+          <div className={styles.systemGrid}>
             {systems.map((system) => {
               const Icon = system.icon;
               return (
-                <article key={system.title} className="rounded-[28px] border border-[#cdbb93] bg-[#fffaf0] p-6 shadow-[0_18px_60px_rgba(49,39,20,.08)] sm:p-7">
-                  <div className="flex items-center justify-between gap-4">
-                    <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#19170f] text-[#d7b96f]">
-                      <Icon size={22} />
-                    </div>
-                    <span className="text-xs font-black uppercase tracking-[0.18em] text-[#8c6927]">{system.tag}</span>
+                <article key={system.title} className={styles.systemCard}>
+                  <div className={styles.systemTop}>
+                    <div className={styles.cardIcon}><Icon size={22} /></div>
+                    <div className={styles.systemTag}>{system.tag}</div>
                   </div>
-                  <h3 className="mt-6 text-2xl font-black tracking-[-0.04em] sm:text-3xl">{system.title}</h3>
-                  <p className="mt-3 text-sm leading-relaxed text-[#675d49] sm:text-base">{system.body}</p>
-                  <a href={system.href} target="_blank" rel="noreferrer" className="mt-6 inline-flex items-center gap-2 text-sm font-black text-[#76551d] no-underline">
+                  <h3 className={styles.cardTitle}>{system.title}</h3>
+                  <p className={styles.cardBody}>{system.body}</p>
+                  <a href={system.href} target="_blank" rel="noreferrer" className={styles.inlineLink}>
                     Open system <ExternalLink size={15} />
                   </a>
                 </article>
@@ -206,68 +256,71 @@ export default function HomePage() {
           </div>
         </section>
 
-        <section className="mt-10 overflow-hidden rounded-[34px] border border-[#19170f] bg-[#19170f] text-[#fffaf0] shadow-[0_30px_100px_rgba(25,23,15,.24)]">
-          <div className="p-6 sm:p-10 lg:p-12">
-            <div className="text-xs font-black uppercase tracking-[0.24em] text-[#d7b96f]">The OISA operating loop</div>
-            <h2 className="mt-4 max-w-[850px] font-serif text-4xl font-bold tracking-[-0.05em] sm:text-6xl">Discover → Structure → Build → Verify → Improve</h2>
-
-            <div className="mt-8 grid gap-4 lg:grid-cols-5">
-              {loop.map(([title, body], index) => (
-                <div key={title} className="rounded-[24px] border border-white/10 bg-white/[0.045] p-5">
-                  <div className="text-xs font-black uppercase tracking-[0.18em] text-[#d7b96f]">0{index + 1}</div>
-                  <h3 className="mt-3 text-xl font-black">{title}</h3>
-                  <p className="mb-0 mt-3 text-sm leading-relaxed text-[#d8cfbd]">{body}</p>
-                </div>
-              ))}
+        <section className={styles.loopSection}>
+          <div className={styles.loopHeader}>
+            <div className={styles.darkEyebrow}>The OISA operating loop</div>
+            <h2 className={styles.loopTitle}>From real workflow to measurable improvement.</h2>
+            <div className={styles.loopFlow} aria-label="Discover, Structure, Build, Verify, Improve">
+              <span>Discover</span><ArrowRight size={14} />
+              <span>Structure</span><ArrowRight size={14} />
+              <span>Build</span><ArrowRight size={14} />
+              <span>Verify</span><ArrowRight size={14} />
+              <span>Improve</span>
             </div>
+          </div>
+
+          <div className={styles.loopSteps}>
+            {loop.map(([title, body], index) => (
+              <article key={title} className={styles.loopCard}>
+                <div className={styles.loopNumber}>{String(index + 1).padStart(2, '0')}</div>
+                <h3>{title}</h3>
+                <p>{body}</p>
+              </article>
+            ))}
           </div>
         </section>
 
-        <section className="mt-10 grid gap-4 lg:grid-cols-[1.1fr_.9fr]">
-          <div className="rounded-[30px] border border-[#cdbb93] bg-[#fffaf0] p-6 shadow-[0_20px_70px_rgba(49,39,20,.09)] sm:p-9">
-            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#efe3ca] text-[#8c6927]">
-              <ShieldCheck size={23} />
-            </div>
-            <h2 className="mt-6 font-serif text-4xl font-bold tracking-[-0.05em]">Human authority remains final.</h2>
-            <p className="mt-5 text-base leading-relaxed text-[#675d49] sm:text-lg">
+        <section className={styles.twoColumn}>
+          <article className={styles.lightCard}>
+            <div className={styles.cardIcon}><ShieldCheck size={23} /></div>
+            <h2 className={styles.bigCardTitle}>Human authority remains final.</h2>
+            <p className={styles.bigCardBody}>
               AI may investigate, organize, retrieve, compare, draft, test, build, and recommend. Consequential action remains with the accountable expert. Sources, uncertainty, review status, permissions, and stop-the-line controls should be visible by design.
             </p>
-          </div>
+          </article>
 
-          <div className="rounded-[30px] border border-[#cdbb93] bg-[#efe3ca] p-6 shadow-[0_20px_70px_rgba(49,39,20,.09)] sm:p-9">
-            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#19170f] text-[#d7b96f]">
-              <Gauge size={23} />
-            </div>
-            <h2 className="mt-6 font-serif text-4xl font-bold tracking-[-0.05em]">Measure the mess before claiming the compression.</h2>
-            <p className="mt-5 text-base leading-relaxed text-[#675d49] sm:text-lg">
+          <article className={styles.warmCard}>
+            <div className={styles.cardIcon}><Gauge size={23} /></div>
+            <h2 className={styles.bigCardTitle}>Measure the mess before claiming the compression.</h2>
+            <p className={styles.bigCardBody}>
               Start with one real workflow and a defensible baseline. Measure searching, waiting, retyping, duplication, errors, corrections, handoffs, and cycle time. Then build, test, and show what changed.
             </p>
-          </div>
+          </article>
         </section>
 
-        <section className="mt-10 rounded-[34px] border border-[#cdbb93] bg-[#fffaf0] p-6 text-center shadow-[0_24px_80px_rgba(49,39,20,.11)] sm:p-10">
-          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-[#19170f] text-[#d7b96f]">
-            <GitBranch size={25} />
-          </div>
-          <h2 className="mx-auto mt-6 max-w-[850px] font-serif text-4xl font-bold tracking-[-0.05em] sm:text-6xl">
-            Need a Toyota-style operating system for your AI workforce?
-          </h2>
-          <p className="mx-auto mt-5 max-w-[760px] text-base leading-relaxed text-[#675d49] sm:text-lg">
+        <section className={styles.cta}>
+          <div className={styles.ctaIcon}><GitBranch size={25} /></div>
+          <h2 className={styles.ctaTitle}>Need a Toyota-style operating system for your AI workforce?</h2>
+          <p className={styles.ctaBody}>
             Give me one painful workflow, one willing expert, the sources needed to understand the work, and permission to measure reality honestly.
           </p>
-          <div className="mt-7 flex flex-wrap justify-center gap-3">
-            <a href="mailto:masoncalcolsol@gmail.com?subject=OI%20Pilot%20Conversation" className="inline-flex items-center gap-2 rounded-full bg-[#19170f] px-5 py-4 text-sm font-black text-[#fffaf0] no-underline">
+          <div className={styles.ctaActions}>
+            <a href="mailto:masoncalcolsol@gmail.com?subject=OI%20Pilot%20Conversation" className={styles.primaryButton}>
               Start an OI pilot <ArrowRight size={17} />
             </a>
-            <a href="/field-notes/horse-cart-to-toyota" className="inline-flex items-center gap-2 rounded-full border border-[#a98135] bg-[#fffaf0] px-5 py-4 text-sm font-black text-[#6f511f] no-underline">
-              Read the value model <ArrowRight size={17} />
+            <a href="/field-notes/da-vinci-vs-toyota" className={styles.secondaryButton}>
+              Read Da Vinci or Toyota? <ArrowRight size={17} />
             </a>
           </div>
         </section>
 
-        <footer className="mt-8 rounded-[24px] border border-[#cdbb93] bg-[#fffaf0]/88 px-5 py-5 text-sm leading-relaxed text-[#675d49] sm:px-7">
-          <strong className="text-[#19170f]">Mason Perry</strong> — Founder, NULLWORKS · Operational Intelligence Systems Architect · Phoenix, Arizona
-          <div className="mt-2 text-xs text-[#776c56]">Views are Mason&apos;s own. Public architecture only. No customer, employer, or USPS confidential information is included.</div>
+        <footer className={styles.footer}>
+          <div>
+            <strong>Mason Perry</strong> — Founder, NULLWORKS · Operational Intelligence Systems Architect · Phoenix, Arizona
+          </div>
+          <div className={styles.footerNote}>
+            Views are Mason&apos;s own. Public architecture only. No customer, employer, or USPS confidential information is included.
+          </div>
         </footer>
       </div>
     </main>
@@ -276,9 +329,18 @@ export default function HomePage() {
 
 function Proof({ value, label }: { value: string; label: string }) {
   return (
-    <div className="rounded-[20px] border border-[#d1c09c] bg-[#f3ead8] p-4">
-      <div className="text-xl font-black tracking-[-0.04em] text-[#19170f]">{value}</div>
-      <div className="mt-1 text-xs font-semibold leading-relaxed text-[#675d49]">{label}</div>
+    <div className={styles.proof}>
+      <strong>{value}</strong>
+      <span>{label}</span>
+    </div>
+  );
+}
+
+function Metric({ value, label }: { value: string; label: string }) {
+  return (
+    <div className={styles.metric}>
+      <strong>{value}</strong>
+      <span>{label}</span>
     </div>
   );
 }
