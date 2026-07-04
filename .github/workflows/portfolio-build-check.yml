@@ -18,4 +18,22 @@ jobs:
           node-version: 20
           cache: npm
       - run: npm ci
-      - run: npm run build
+      - name: Build and capture receipt
+        id: build
+        shell: bash
+        run: |
+          set +e
+          npm run build > build.log 2>&1
+          code=$?
+          echo "exit_code=$code" >> "$GITHUB_OUTPUT"
+          cat build.log
+          exit 0
+      - name: Upload build receipt
+        uses: actions/upload-artifact@v4
+        with:
+          name: portfolio-build-log
+          path: build.log
+          if-no-files-found: error
+      - name: Fail when build failed
+        if: steps.build.outputs.exit_code != '0'
+        run: exit 1
