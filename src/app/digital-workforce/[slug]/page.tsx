@@ -17,6 +17,7 @@ import {
 import ExecutivePortrait from "../ExecutivePortrait";
 import { employees, getEmployee } from "../registry";
 import styles from "./page.module.css";
+import enh from "./profile-enhancements.module.css";
 
 type PageProps = {
   params: Promise<{ slug: string }>;
@@ -88,8 +89,8 @@ export default async function EmployeeProfilePage({ params }: PageProps) {
             <b>{employee.id}</b>
           </div>
 
-          <div className={`${styles.identityRow} ${isLeadership ? styles.executiveIdentityRow : ""}`}>
-            <div className={isLeadership ? styles.executivePicture : styles.avatar}>
+          <div className={`${styles.identityRow} ${isLeadership ? enh.executiveIdentityRow : ""}`}>
+            <div className={isLeadership ? enh.executivePicture : styles.avatar}>
               {isLeadership ? <ExecutivePortrait employee={employee} /> : initials(employee.name)}
             </div>
             <div className={styles.identityActions}>
@@ -100,7 +101,7 @@ export default async function EmployeeProfilePage({ params }: PageProps) {
             </div>
           </div>
 
-          <div className={`${styles.identityCopy} ${isLeadership ? styles.executiveIdentityCopy : ""}`}>
+          <div className={`${styles.identityCopy} ${isLeadership ? enh.executiveIdentityCopy : ""}`}>
             <div className={styles.nameLine}>
               <h1>{employee.name}</h1>
               <BadgeCheck size={25} />
@@ -125,7 +126,7 @@ export default async function EmployeeProfilePage({ params }: PageProps) {
 
             {isLeadership ? (
               <>
-                <section className={styles.featuredCard}>
+                <section className={enh.featuredCard}>
                   <div className={styles.cardEyebrow}><Star size={16} /> Featured operating doctrine</div>
                   <blockquote>“{employee.motto}”</blockquote>
                   <p>{employee.mission}</p>
@@ -133,8 +134,8 @@ export default async function EmployeeProfilePage({ params }: PageProps) {
 
                 <section className={styles.card}>
                   <div className={styles.cardEyebrow}><BriefcaseBusiness size={16} /> Experience</div>
-                  <div className={styles.experienceItem}>
-                    <div className={styles.experienceMark}>NW</div>
+                  <div className={enh.experienceItem}>
+                    <div className={enh.experienceMark}>NW</div>
                     <div>
                       <h3>{employee.title}</h3>
                       <strong>NULLWORKS · Current operating role</strong>
@@ -146,7 +147,7 @@ export default async function EmployeeProfilePage({ params }: PageProps) {
 
                 <section className={styles.card}>
                   <div className={styles.cardEyebrow}><Activity size={16} /> Operating activity</div>
-                  <div className={styles.activityList}>
+                  <div className={enh.activityList}>
                     <article>
                       <span>Current lane</span>
                       <p>Owns the bounded {employee.department.toLowerCase()} mission and returns evidence, state, and escalation receipts.</p>
