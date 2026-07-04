@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import type { FantasyPlayer } from "@/app/nullworks-fantasy-league/types";
 
 export const runtime = "nodejs";
 
@@ -27,8 +28,8 @@ const FALLBACK = [
   ["Jake Elliott", "K", "PHI"], ["Brandon Aubrey", "K", "DAL"], ["Harrison Butker", "K", "KC"],
 ] as const;
 
-function fallbackPlayers() {
-  const players = FALLBACK.map(([name, position, team], index) => ({
+function fallbackPlayers(): FantasyPlayer[] {
+  const players: FantasyPlayer[] = FALLBACK.map(([name, position, team], index) => ({
     id: `${position}:fallback-${index + 1}`,
     name,
     position,
@@ -40,7 +41,7 @@ function fallbackPlayers() {
     trending: 0,
   }));
 
-  players.push(...NFL_TEAMS.map((team, index) => ({
+  players.push(...NFL_TEAMS.map((team, index): FantasyPlayer => ({
     id: `DEF:${team}`,
     name: `${team} Defense`,
     position: "DEF",
@@ -75,7 +76,7 @@ export async function GET() {
     const trendingRows = trendingResponse?.ok ? await trendingResponse.json() as Array<{ player_id: string; count: number }> : [];
     const trending = new Map(trendingRows.map((row) => [String(row.player_id), Number(row.count || 0)]));
 
-    const players = Object.entries(raw)
+    const players: FantasyPlayer[] = Object.entries(raw)
       .flatMap(([playerId, player]) => {
         const position = String(player.fantasy_positions?.[0] || player.position || "").toUpperCase();
         const team = String(player.team || "FA").toUpperCase();
@@ -86,19 +87,19 @@ export async function GET() {
         return [{
           id: `${position}:${playerId}`,
           name,
-          position,
+          position: position as FantasyPlayer["position"],
           team,
           status: String(player.status || "Active"),
           searchRank: Number.isFinite(Number(player.search_rank)) ? Math.max(1, Number(player.search_rank)) : 4_000,
           age: Number.isFinite(Number(player.age)) ? Number(player.age) : null,
           yearsExp: Number.isFinite(Number(player.years_exp)) ? Number(player.years_exp) : null,
           trending: trending.get(playerId) || 0,
-        }];
+        } satisfies FantasyPlayer];
       })
-      .sort((left, right) => left.searchRank - right.searchRank || right.trending - left.trending)
+      .sort((left, right) => left.searchRank - right.searchRank || (right.trending ?? 0) - (left.trending ?? 0))
       .slice(0, 500);
 
-    players.push(...NFL_TEAMS.map((team, index) => ({
+    players.push(...NFL_TEAMS.map((team, index): FantasyPlayer => ({
       id: `DEF:${team}`,
       name: `${team} Defense`,
       position: "DEF",
