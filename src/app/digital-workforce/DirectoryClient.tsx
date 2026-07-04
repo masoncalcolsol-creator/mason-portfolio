@@ -3,7 +3,8 @@
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import { Search, SlidersHorizontal, UserRoundCheck } from "lucide-react";
-import { departments, employees, type EmployeeStatus } from "./data";
+import { departments, employees } from "./registry";
+import type { EmployeeStatus } from "./data";
 import styles from "./directory.module.css";
 
 const statusOptions: Array<"ALL" | EmployeeStatus> = ["ALL", "EXECUTIVE", "PROVISIONAL"];
@@ -61,7 +62,7 @@ export default function DirectoryClient() {
               className={status === option ? styles.activeFilter : undefined}
               onClick={() => setStatus(option)}
             >
-              {option === "ALL" ? "Everyone" : option === "EXECUTIVE" ? "Executives" : "Provisional"}
+              {option === "ALL" ? "Everyone" : option === "EXECUTIVE" ? "Leadership" : "Provisional"}
             </button>
           ))}
         </div>
@@ -97,7 +98,7 @@ export default function DirectoryClient() {
               <div className={styles.avatar} aria-hidden="true">{initials(employee.name)}</div>
               <div className={styles.cardStatusRow}>
                 <span className={employee.status === "EXECUTIVE" ? styles.executivePill : styles.provisionalPill}>
-                  {employee.status}
+                  {employee.slug === "mason-perry" ? "FOUNDER" : employee.status}
                 </span>
                 <span className={styles.registryPill}>{employee.registryState}</span>
               </div>
