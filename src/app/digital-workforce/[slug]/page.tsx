@@ -2,16 +2,20 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import {
+  Activity,
   ArrowLeft,
   BadgeCheck,
+  BriefcaseBusiness,
   Building2,
   GitBranch,
   Network,
   ShieldCheck,
+  Star,
   UserRoundCheck,
   Workflow,
 } from "lucide-react";
-import { employees, getEmployee } from "../data";
+import ExecutivePortrait from "../ExecutivePortrait";
+import { employees, getEmployee } from "../registry";
 import styles from "./page.module.css";
 
 type PageProps = {
@@ -63,6 +67,9 @@ export default async function EmployeeProfilePage({ params }: PageProps) {
     .filter((candidate) => candidate.department === employee.department && candidate.slug !== employee.slug)
     .slice(0, 4);
 
+  const isFounder = employee.slug === "mason-perry";
+  const isLeadership = employee.status === "EXECUTIVE";
+
   return (
     <main className={styles.page}>
       <div className={styles.shell}>
@@ -81,17 +88,19 @@ export default async function EmployeeProfilePage({ params }: PageProps) {
             <b>{employee.id}</b>
           </div>
 
-          <div className={styles.identityRow}>
-            <div className={styles.avatar}>{initials(employee.name)}</div>
+          <div className={`${styles.identityRow} ${isLeadership ? styles.executiveIdentityRow : ""}`}>
+            <div className={isLeadership ? styles.executivePicture : styles.avatar}>
+              {isLeadership ? <ExecutivePortrait employee={employee} /> : initials(employee.name)}
+            </div>
             <div className={styles.identityActions}>
               <span className={employee.status === "EXECUTIVE" ? styles.executivePill : styles.provisionalPill}>
-                {employee.status}
+                {isFounder ? "FOUNDER" : employee.status}
               </span>
               <span className={styles.registryPill}>{employee.registryState}</span>
             </div>
           </div>
 
-          <div className={styles.identityCopy}>
+          <div className={`${styles.identityCopy} ${isLeadership ? styles.executiveIdentityCopy : ""}`}>
             <div className={styles.nameLine}>
               <h1>{employee.name}</h1>
               <BadgeCheck size={25} />
@@ -101,7 +110,7 @@ export default async function EmployeeProfilePage({ params }: PageProps) {
           </div>
 
           <div className={styles.profileMetrics}>
-            <div><strong>{employee.status === "EXECUTIVE" ? "Executive" : "Specialist"}</strong><span>workforce class</span></div>
+            <div><strong>{isFounder ? "Founder" : employee.status === "EXECUTIVE" ? "Digital executive" : "Specialist"}</strong><span>workforce class</span></div>
             <div><strong>{employee.registryState}</strong><span>registry state</span></div>
             <div><strong>{employee.reportsTo}</strong><span>reports / escalates to</span></div>
           </div>
@@ -113,6 +122,47 @@ export default async function EmployeeProfilePage({ params }: PageProps) {
               <div className={styles.cardEyebrow}><UserRoundCheck size={16} /> About</div>
               <p className={styles.about}>{employee.about}</p>
             </section>
+
+            {isLeadership ? (
+              <>
+                <section className={styles.featuredCard}>
+                  <div className={styles.cardEyebrow}><Star size={16} /> Featured operating doctrine</div>
+                  <blockquote>“{employee.motto}”</blockquote>
+                  <p>{employee.mission}</p>
+                </section>
+
+                <section className={styles.card}>
+                  <div className={styles.cardEyebrow}><BriefcaseBusiness size={16} /> Experience</div>
+                  <div className={styles.experienceItem}>
+                    <div className={styles.experienceMark}>NW</div>
+                    <div>
+                      <h3>{employee.title}</h3>
+                      <strong>NULLWORKS · Current operating role</strong>
+                      <span>{employee.department} · OI SUITe</span>
+                      <p>{employee.mission}</p>
+                    </div>
+                  </div>
+                </section>
+
+                <section className={styles.card}>
+                  <div className={styles.cardEyebrow}><Activity size={16} /> Operating activity</div>
+                  <div className={styles.activityList}>
+                    <article>
+                      <span>Current lane</span>
+                      <p>Owns the bounded {employee.department.toLowerCase()} mission and returns evidence, state, and escalation receipts.</p>
+                    </article>
+                    <article>
+                      <span>Authority posture</span>
+                      <p>Executes and recommends inside the assigned lane while Mason Perry retains final human authority.</p>
+                    </article>
+                    <article>
+                      <span>Continuous improvement</span>
+                      <p>Uses corrections, failures, and review feedback to improve future packets without silently changing company canon.</p>
+                    </article>
+                  </div>
+                </section>
+              </>
+            ) : null}
 
             <section className={styles.card}>
               <div className={styles.cardEyebrow}><Workflow size={16} /> Operating lane</div>
@@ -140,10 +190,12 @@ export default async function EmployeeProfilePage({ params }: PageProps) {
               </div>
             </section>
 
-            <section className={styles.quoteCard}>
-              <blockquote>“{employee.motto}”</blockquote>
-              <span>{employee.name} // operating doctrine</span>
-            </section>
+            {!isLeadership ? (
+              <section className={styles.quoteCard}>
+                <blockquote>“{employee.motto}”</blockquote>
+                <span>{employee.name} // operating doctrine</span>
+              </section>
+            ) : null}
 
             <section className={styles.boundaryCard}>
               <ShieldCheck size={24} />
@@ -162,7 +214,7 @@ export default async function EmployeeProfilePage({ params }: PageProps) {
               <dl>
                 <div><dt>Department</dt><dd>{employee.department}</dd></div>
                 <div><dt>Registry ID</dt><dd>{employee.id}</dd></div>
-                <div><dt>Status</dt><dd>{employee.status}</dd></div>
+                <div><dt>Status</dt><dd>{isFounder ? "FOUNDER" : employee.status}</dd></div>
                 <div><dt>Identity state</dt><dd>{employee.registryState}</dd></div>
                 <div><dt>Escalation</dt><dd>{employee.reportsTo}</dd></div>
               </dl>
@@ -186,7 +238,7 @@ export default async function EmployeeProfilePage({ params }: PageProps) {
               <ShieldCheck size={22} />
               <strong>Registry note</strong>
               <p>
-                LOCKED profiles are approved executive identities. RECOVERED profiles have operating-history support. SCAFFOLD profiles are provisional public-safe workcell identities pending a complete receipt and identity audit.
+                LOCKED profiles are approved identities. RECOVERED profiles have operating-history support. SCAFFOLD profiles are provisional public-safe workcell identities pending a complete receipt and identity audit.
               </p>
             </section>
           </aside>
