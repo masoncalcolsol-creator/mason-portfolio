@@ -1,0 +1,50 @@
+name: Fantasy Build Autofix
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - ".github/workflows/fantasy-autofix.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          persist-credentials: true
+      - name: Patch narrowed league identifier
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          path = Path('src/app/nullworks-fantasy-league/FantasyApp.tsx')
+          text = path.read_text()
+          old = '''  const myTeam = getMyTeam(league, account.id);
+
+  function mutateLeague(updater: (league: FantasyLeague) => FantasyLeague) {
+    setDatabase((current) => updateLeague(current, league.id, updater));
+  }
+'''
+          new = '''  const leagueId = league.id;
+  const myTeam = getMyTeam(league, account.id);
+
+  function mutateLeague(updater: (league: FantasyLeague) => FantasyLeague) {
+    setDatabase((current) => updateLeague(current, leagueId, updater));
+  }
+'''
+          if old not in text:
+              raise SystemExit('Expected patch target was not found')
+          path.write_text(text.replace(old, new, 1))
+          PY
+      - name: Commit repair
+        run: |
+          git config user.name "NULLWORKS Build Recovery"
+          git config user.email "actions@users.noreply.github.com"
+          git add src/app/nullworks-fantasy-league/FantasyApp.tsx
+          git commit -m "Fix fantasy league type narrowing"
+          git push origin main
