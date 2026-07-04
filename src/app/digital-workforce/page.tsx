@@ -1,12 +1,14 @@
 import type { Metadata } from "next";
-import { Building2, Network, ShieldCheck, UsersRound } from "lucide-react";
+import Link from "next/link";
+import { Building2, Map, Network, ShieldCheck, UsersRound } from "lucide-react";
 import DirectoryClient from "./DirectoryClient";
+import { workforceCounts } from "./registry";
 import styles from "./page.module.css";
 
 export const metadata: Metadata = {
   title: "NULLWORKS Digital Workforce Directory",
   description:
-    "An unlisted operating directory for the NULLWORKS executive team and provisional digital specialists.",
+    "An unlisted operating directory for the NULLWORKS founder, digital executives, and provisional specialists.",
   robots: {
     index: false,
     follow: false,
@@ -33,19 +35,24 @@ export default function DigitalWorkforcePage() {
             <div className={styles.kicker}><Network size={16} /> One company. One brain. Many bounded specialists.</div>
             <h1>The NULLWORKS digital workforce.</h1>
             <p>
-              A LinkedIn-style operating directory for the executives and specialists inside the OI SUITe. Every profile defines a lane, mission, skills, escalation path, authority boundary, and registry state.
+              A LinkedIn-style operating directory for the founder, digital executives, and specialists inside the OI SUITe. Every profile defines a lane, mission, skills, escalation path, authority boundary, and registry state.
             </p>
             <blockquote>
               The worker can be digital. Ownership, evidence, boundaries, and final human authority must remain visible.
             </blockquote>
+            <div className={styles.heroActions}>
+              <Link href="/digital-workforce/company-map" className={styles.primaryAction}>
+                <Map size={17} /> Open master company map
+              </Link>
+            </div>
           </div>
 
           <div className={styles.heroPanel}>
             <div className={styles.panelGlow} />
-            <div className={styles.metric}><strong>9</strong><span>Locked executives</span></div>
-            <div className={styles.metric}><strong>65</strong><span>Provisional specialists</span></div>
-            <div className={styles.metric}><strong>74</strong><span>Unique profile routes</span></div>
-            <div className={styles.metric}><strong>1</strong><span>Final human authority</span></div>
+            <div className={styles.metric}><strong>{workforceCounts.founder}</strong><span>Founder / final authority</span></div>
+            <div className={styles.metric}><strong>{workforceCounts.digitalExecutives}</strong><span>Digital executives</span></div>
+            <div className={styles.metric}><strong>{workforceCounts.provisionals}</strong><span>Provisional specialists</span></div>
+            <div className={styles.metric}><strong>{workforceCounts.total}</strong><span>Unique employee profiles</span></div>
             <div className={styles.operatorCore}>
               <UsersRound size={31} />
               <strong>OI SUITe workforce</strong>
@@ -59,7 +66,7 @@ export default function DigitalWorkforcePage() {
           <div>
             <strong>Registry truth boundary</strong>
             <p>
-              The nine executive identities are locked company roles. Some specialist identities were recovered from operating history; the remaining provisional profiles are public-safe directory scaffolds created to make the current 65-specialist working inventory navigable while the complete receipt and identity audit continues. Provisional does not mean autonomous authority.
+              Mason Perry remains founder and final human authority. The nine digital executive seats include the established boardroom roles and RenderSmith as the recovered visual executive created through direct operating telemetry. Some specialist identities were recovered from operating history; remaining provisional profiles are public-safe directory scaffolds pending the complete receipt and identity audit. Provisional never means independent authority.
             </p>
           </div>
         </section>
