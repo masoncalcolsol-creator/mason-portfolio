@@ -4,6 +4,7 @@ import { Building2, Map, Network, ShieldCheck, UsersRound } from "lucide-react";
 import DirectoryClient from "./DirectoryClient";
 import { workforceCounts } from "./registry";
 import styles from "./page.module.css";
+import actions from "./directory-actions.module.css";
 
 export const metadata: Metadata = {
   title: "NULLWORKS Digital Workforce Directory",
@@ -40,8 +41,8 @@ export default function DigitalWorkforcePage() {
             <blockquote>
               The worker can be digital. Ownership, evidence, boundaries, and final human authority must remain visible.
             </blockquote>
-            <div className={styles.heroActions}>
-              <Link href="/digital-workforce/company-map" className={styles.primaryAction}>
+            <div className={actions.heroActions}>
+              <Link href="/digital-workforce/company-map" className={actions.primaryAction}>
                 <Map size={17} /> Open master company map
               </Link>
             </div>
