@@ -20,6 +20,8 @@ export function FieldNoteShell({
   deck,
   children,
   source,
+  standalone = false,
+  standaloneLabel = "Standalone field case",
 }: {
   number: number;
   eyebrow: string;
@@ -27,10 +29,12 @@ export function FieldNoteShell({
   deck: string;
   children: ReactNode;
   source?: { label: string; href: string };
+  standalone?: boolean;
+  standaloneLabel?: string;
 }) {
   const currentIndex = OI_SERIES.findIndex((item) => item.number === number);
-  const previous = currentIndex > 0 ? OI_SERIES[currentIndex - 1] : null;
-  const next = currentIndex < OI_SERIES.length - 1 ? OI_SERIES[currentIndex + 1] : null;
+  const previous = !standalone && currentIndex > 0 ? OI_SERIES[currentIndex - 1] : null;
+  const next = !standalone && currentIndex >= 0 && currentIndex < OI_SERIES.length - 1 ? OI_SERIES[currentIndex + 1] : null;
   const totalNotes = OI_SERIES.length;
 
   return (
@@ -53,17 +57,23 @@ export function FieldNoteShell({
           <div className={styles.heroMonogram} aria-hidden="true">NW</div>
           <div className={styles.articleHeroContent}>
             <div className={styles.articleTopline}>
-              <div className={styles.seriesPill}>Field Note {String(number).padStart(2, "0")} of {String(totalNotes).padStart(2, "0")}</div>
-              <div className={styles.progressDots} aria-label={`Field note ${number} of ${totalNotes}`}>
-                {OI_SERIES.map((item) => {
-                  const dotClass = item.number === number
-                    ? `${styles.progressDot} ${styles.progressDotCurrent}`
-                    : item.number < number
-                      ? `${styles.progressDot} ${styles.progressDotDone}`
-                      : styles.progressDot;
-                  return <span key={item.number} className={dotClass} />;
-                })}
-              </div>
+              {standalone ? (
+                <div className={styles.seriesPill}>{standaloneLabel}</div>
+              ) : (
+                <>
+                  <div className={styles.seriesPill}>Field Note {String(number).padStart(2, "0")} of {String(totalNotes).padStart(2, "0")}</div>
+                  <div className={styles.progressDots} aria-label={`Field note ${number} of ${totalNotes}`}>
+                    {OI_SERIES.map((item) => {
+                      const dotClass = item.number === number
+                        ? `${styles.progressDot} ${styles.progressDotCurrent}`
+                        : item.number < number
+                          ? `${styles.progressDot} ${styles.progressDotDone}`
+                          : styles.progressDot;
+                      return <span key={item.number} className={dotClass} />;
+                    })}
+                  </div>
+                </>
+              )}
             </div>
 
             <p className={styles.articleEyebrow}>{eyebrow}</p>
@@ -73,7 +83,7 @@ export function FieldNoteShell({
             <div className={styles.byline}>
               <strong>Mason Perry</strong>
               <span>Founder, NULLWORKS</span>
-              <span>Operational Intelligence Systems Architect</span>
+              <span>Human-Centered Operational Intelligence Systems Architect</span>
               <span>July 2026</span>
             </div>
 
@@ -88,23 +98,38 @@ export function FieldNoteShell({
         <article className={styles.articlePaper}>{children}</article>
 
         <section className={styles.articleNav}>
-          {previous ? (
-            <a href={previous.href} className={styles.navCard}>
-              <div className={styles.navLabel}><ArrowLeft size={13} /> Previous</div>
-              <div className={styles.navTitle}>{previous.title}</div>
-            </a>
-          ) : <div />}
-
-          {next ? (
-            <a href={next.href} className={`${styles.navCard} ${styles.navCardNext}`}>
-              <div className={styles.navLabel}>Next field note <ArrowRight size={13} /></div>
-              <div className={styles.navTitle}>{next.title}</div>
-            </a>
+          {standalone ? (
+            <>
+              <a href="/field-notes" className={styles.navCard}>
+                <div className={styles.navLabel}><ArrowLeft size={13} /> Field notes</div>
+                <div className={styles.navTitle}>Return to the published Operational Intelligence series.</div>
+              </a>
+              <a href="mailto:masoncalcolsol@gmail.com?subject=ORI%20TAC%20OPS%20OISA%20Case%20Study" className={`${styles.navCard} ${styles.navCardNext}`}>
+                <div className={styles.navLabel}>Challenge the case <ArrowRight size={13} /></div>
+                <div className={styles.navTitle}>Ask for evidence, identify a failure mode, or propose a pilot measurement.</div>
+              </a>
+            </>
           ) : (
-            <a href="mailto:masoncalcolsol@gmail.com?subject=OI%20Pilot%20Conversation" className={`${styles.navCard} ${styles.navCardNext}`}>
-              <div className={styles.navLabel}>Start a pilot <ArrowRight size={13} /></div>
-              <div className={styles.navTitle}>Map the workflow. Measure the waste. Install the operating layer.</div>
-            </a>
+            <>
+              {previous ? (
+                <a href={previous.href} className={styles.navCard}>
+                  <div className={styles.navLabel}><ArrowLeft size={13} /> Previous</div>
+                  <div className={styles.navTitle}>{previous.title}</div>
+                </a>
+              ) : <div />}
+
+              {next ? (
+                <a href={next.href} className={`${styles.navCard} ${styles.navCardNext}`}>
+                  <div className={styles.navLabel}>Next field note <ArrowRight size={13} /></div>
+                  <div className={styles.navTitle}>{next.title}</div>
+                </a>
+              ) : (
+                <a href="mailto:masoncalcolsol@gmail.com?subject=OI%20Pilot%20Conversation" className={`${styles.navCard} ${styles.navCardNext}`}>
+                  <div className={styles.navLabel}>Start a pilot <ArrowRight size={13} /></div>
+                  <div className={styles.navTitle}>Map the workflow. Measure the waste. Install the operating layer.</div>
+                </a>
+              )}
+            </>
           )}
         </section>
 
