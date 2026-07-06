@@ -7,7 +7,7 @@ export type SeriesLink = { number: number; title: string; href: string };
 export const OI_SERIES: SeriesLink[] = [
   { number: 1, title: "Let the Expert Expert", href: "/field-notes/let-the-expert-expert" },
   { number: 2, title: "When Your AI Assistant Becomes a Company", href: "/field-notes/when-ai-becomes-a-company" },
-  { number: 3, title: "OI SUITe: The Operating System Around the AI", href: "/field-notes/oi-suite" },
+  { number: 3, title: "OI SUITe: The Operating System Around the AI Operator", href: "/field-notes/oi-suite" },
   { number: 4, title: "The AI Engineer Builds the Worker. The OI Architect Builds the Company.", href: "/field-notes/the-oi-architect" },
   { number: 5, title: "Horse Cart to Toyota: What Workflow Compression Is Worth", href: "/field-notes/horse-cart-to-toyota" },
   { number: 6, title: "Da Vinci or Toyota? The Fork in the Road for AI Agents", href: "/field-notes/da-vinci-vs-toyota" },
@@ -143,11 +143,11 @@ export function FieldNoteShell({
 }
 
 export function Lead({ children }: { children: ReactNode }) {
-  return <p className={styles.lead}>{children}</p>;
+  return <p className={styles.lead} style={{ color: "#1f1b15", opacity: 1 }}>{children}</p>;
 }
 
 export function P({ children }: { children: ReactNode }) {
-  return <p className={styles.paragraph}>{children}</p>;
+  return <p className={styles.paragraph} style={{ color: "#3b3328", opacity: 1 }}>{children}</p>;
 }
 
 export function H2({ children }: { children: ReactNode }) {
@@ -162,7 +162,7 @@ export function TruthBox({ title = "Truth boundary", children }: { title?: strin
   return (
     <aside className={styles.truthBox}>
       <div className={styles.truthTitle}>{title}</div>
-      <div className={styles.truthBody}>{children}</div>
+      <div className={styles.truthBody} style={{ color: "#40372b", opacity: 1 }}>{children}</div>
     </aside>
   );
 }
@@ -173,7 +173,7 @@ export function BulletGrid({ items }: { items: { title: string; body: string }[]
       {items.map((item) => (
         <section key={item.title} className={styles.bulletCard}>
           <div className={styles.bulletTitle}>{item.title}</div>
-          <p className={styles.bulletBody}>{item.body}</p>
+          <p className={styles.bulletBody} style={{ color: "#473d30", opacity: 1 }}>{item.body}</p>
         </section>
       ))}
     </div>
