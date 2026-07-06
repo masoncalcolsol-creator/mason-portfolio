@@ -42,6 +42,8 @@ const redTeamQuestions = [
   "What would falsify the need for an OISA role?",
 ];
 
+const tanIntroStyle = { color: "#4b4339", opacity: 1 } as const;
+
 export default function OisaRedTeamReviewRoom() {
   return (
     <main className={styles.page}>
@@ -79,7 +81,7 @@ export default function OisaRedTeamReviewRoom() {
         <section className={styles.section}>
           <div className={styles.sectionLabel}>Challenge 01</div>
           <h2>What happens when the tentacles disagree?</h2>
-          <p className={styles.sectionIntro}>The many-specialists model only works when the system has arbitration, not merely parallel output.</p>
+          <p className={styles.sectionIntro} style={tanIntroStyle}>The many-specialists model only works when the system has arbitration, not merely parallel output.</p>
 
           <div className={styles.cardGrid}>
             {arbitration.map((item, index) => (
@@ -102,7 +104,7 @@ export default function OisaRedTeamReviewRoom() {
         <section className={styles.section}>
           <div className={styles.sectionLabel}>Challenge 02</div>
           <h2>How do we keep telemetry from becoming résumé theater?</h2>
-          <p className={styles.sectionIntro}>Throughput measures motion. Operational Intelligence must measure consequence.</p>
+          <p className={styles.sectionIntro} style={tanIntroStyle}>Throughput measures motion. Operational Intelligence must measure consequence.</p>
 
           <div className={styles.valueEquation}>
             <strong>Net operational gain</strong>
@@ -135,7 +137,7 @@ export default function OisaRedTeamReviewRoom() {
         <section className={styles.section}>
           <div className={styles.sectionLabel}>Red-team assignment</div>
           <h2>Please try to break the architecture.</h2>
-          <p className={styles.sectionIntro}>Agreement is less useful than a concrete failure mode. These are the questions I most want challenged.</p>
+          <p className={styles.sectionIntro} style={tanIntroStyle}>Agreement is less useful than a concrete failure mode. These are the questions I most want challenged.</p>
 
           <div className={styles.questionList}>
             {redTeamQuestions.map((question) => (
