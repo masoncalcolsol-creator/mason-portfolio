@@ -143,11 +143,11 @@ export function FieldNoteShell({
 }
 
 export function Lead({ children }: { children: ReactNode }) {
-  return <p className={styles.lead} style={{ color: "#1f1b15", opacity: 1 }}>{children}</p>;
+  return <p className={styles.lead} style={{ color: "#19150f", opacity: 1 }}>{children}</p>;
 }
 
 export function P({ children }: { children: ReactNode }) {
-  return <p className={styles.paragraph} style={{ color: "#3b3328", opacity: 1 }}>{children}</p>;
+  return <p className={styles.paragraph} style={{ color: "#272119", opacity: 1 }}>{children}</p>;
 }
 
 export function H2({ children }: { children: ReactNode }) {
@@ -162,7 +162,7 @@ export function TruthBox({ title = "Truth boundary", children }: { title?: strin
   return (
     <aside className={styles.truthBox}>
       <div className={styles.truthTitle}>{title}</div>
-      <div className={styles.truthBody} style={{ color: "#40372b", opacity: 1 }}>{children}</div>
+      <div className={styles.truthBody} style={{ color: "#2c251c", opacity: 1 }}>{children}</div>
     </aside>
   );
 }
@@ -173,7 +173,7 @@ export function BulletGrid({ items }: { items: { title: string; body: string }[]
       {items.map((item) => (
         <section key={item.title} className={styles.bulletCard}>
           <div className={styles.bulletTitle}>{item.title}</div>
-          <p className={styles.bulletBody} style={{ color: "#473d30", opacity: 1 }}>{item.body}</p>
+          <p className={styles.bulletBody} style={{ color: "#2e271e", opacity: 1 }}>{item.body}</p>
         </section>
       ))}
     </div>
