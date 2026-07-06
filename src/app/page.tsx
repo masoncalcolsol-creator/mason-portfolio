@@ -51,17 +51,17 @@ const systems = [
 const services = [
   {
     title: "Personal OI SUITe",
-    body: "One command layer for projects, agents, sources, decisions, unfinished work, commitments, and personal operating continuity.",
+    body: "One command layer for projects, AI Operators, sources, decisions, unfinished work, commitments, and personal operating continuity.",
     icon: UserRoundCheck,
   },
   {
     title: "Team OI SUITe",
-    body: "Visible ownership, scoped workrooms, AI-worker coordination, evidence, approval gates, continuity, and operating telemetry.",
+    body: "Visible ownership, scoped workrooms, AI Operator coordination, evidence, approval gates, continuity, and operating telemetry.",
     icon: Network,
   },
   {
     title: "Enterprise OI Control Layer",
-    body: "AI and tool inventory, governance, permissions, cross-functional routing, source traceability, auditability, and measurable value.",
+    body: "AI Operator, model, and tool inventory, governance, permissions, cross-functional routing, source traceability, auditability, and measurable value.",
     icon: Factory,
   },
 ];
@@ -103,10 +103,10 @@ export default function HomePage() {
               <Workflow size={15} /> Operational Intelligence Systems Architect
             </div>
 
-            <h1 className={styles.heroTitle}>I build the company around the AI.</h1>
+            <h1 className={styles.heroTitle}>I build the company around the AI Operator.</h1>
 
             <p className={styles.heroLead}>
-              I help individuals and organizations turn disconnected AI tools, agents, expert knowledge, records, and workflows into a human-readable Operational Intelligence operating system.
+              I help individuals and organizations turn disconnected AI Operators, tools, agents, expert knowledge, records, and workflows into a human-readable Operational Intelligence operating system.
             </p>
 
             <p className={styles.heroBody}>
@@ -180,7 +180,7 @@ export default function HomePage() {
         <section className={styles.thesis}>
           <div className={styles.thesisIntro}>
             <div className={styles.darkEyebrow}>The operating thesis</div>
-            <h2 className={styles.thesisTitle}>The AI engineer builds the worker. The OI architect builds the company.</h2>
+            <h2 className={styles.thesisTitle}>The AI engineer builds the worker. The OI architect builds the operating company around the AI Operator.</h2>
           </div>
 
           <div className={styles.thesisBody}>
@@ -276,7 +276,7 @@ export default function HomePage() {
             <div className={styles.cardIcon}><ShieldCheck size={23} /></div>
             <h2 className={styles.bigCardTitle}>Human authority remains final.</h2>
             <p className={styles.bigCardBody}>
-              AI may investigate, organize, retrieve, compare, draft, test, build, and recommend. Consequential action remains with the accountable expert. Sources, uncertainty, review status, permissions, and stop-the-line controls should be visible by design.
+              The AI Operator may investigate, organize, retrieve, compare, draft, test, build, and recommend. Consequential action remains with the accountable expert. Sources, uncertainty, review status, permissions, and stop-the-line controls should be visible by design.
             </p>
           </article>
 
@@ -291,7 +291,7 @@ export default function HomePage() {
 
         <section className={styles.cta}>
           <div className={styles.ctaIcon}><GitBranch size={25} /></div>
-          <h2 className={styles.ctaTitle}>Need a Toyota-style operating system for your AI workforce?</h2>
+          <h2 className={styles.ctaTitle}>Need a Toyota-style operating system for your AI Operator workforce?</h2>
           <p className={styles.ctaBody}>
             Give me one painful workflow, one willing expert, the sources needed to understand the work, and permission to measure reality honestly.
           </p>
