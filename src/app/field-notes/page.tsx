@@ -5,14 +5,13 @@ import styles from "./_components/FieldNotesLuxury.module.css";
 
 export const metadata: Metadata = {
   title: "NULLWORKS OI Field Notes | Mason Perry",
-  description:
-    "A six-part field-note series on human-centered AI, multi-agent orchestration, Operational Intelligence Systems Architecture, workflow compression, and Digital Toyota for AI work.",
+  description: "A six-part field-note series on human-centered AI, multi-agent orchestration, Operational Intelligence Systems Architecture, workflow compression, and Digital Toyota for AI work.",
 };
 
 const summaries = [
   "Why AI should increase the capacity of willing experts instead of hiding, bypassing, or replacing their judgment.",
   "What changes when one assistant becomes a digital workforce and coordination becomes the limiting factor.",
-  "The human-readable operating layer connecting agents, tools, evidence, memory, authority, workrooms, and telemetry.",
+  "The human-readable operating layer connecting the AI Operator, specialist agents, tools, evidence, memory, authority, workrooms, and telemetry.",
   "Why organizations need a new systems role that operates across software, AI, workflow, governance, and human authority.",
   "How to move from fragmented AI use to Toyota-style production—and how to measure the value created.",
   "Why one overloaded generalist is not an operating system, and how specialist agents become a human-controlled digital production system.",
@@ -45,9 +44,7 @@ export default function FieldNotesIndex() {
             <div className={styles.heroCopy}>
               <div className={styles.pill}><Sparkles size={14} /> Private briefing series</div>
               <h1 className={styles.heroTitle}>From AI Assistant to Operational Intelligence</h1>
-              <p className={styles.heroDeck}>
-                A six-part continuity story about protecting the expert, organizing a digital workforce, building the operating layer around AI, defining the OISA role, measuring workflow compression, and choosing Digital Toyota over one overloaded super-agent.
-              </p>
+              <p className={styles.heroDeck}>A six-part continuity story about protecting the expert, organizing a digital workforce, building the operating layer around the AI Operator, defining the OISA role, measuring workflow compression, and choosing Digital Toyota over one overloaded super-agent.</p>
               <div className={styles.heroActions}>
                 <a href={OI_SERIES[0].href} className={styles.primaryAction}>Begin Field Note 01 <ArrowRight size={17} /></a>
                 <span className={styles.heroNote}>Six notes · one operating thesis</span>
