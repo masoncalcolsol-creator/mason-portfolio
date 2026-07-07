@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>NULLWORKS Voice Foundry RUN-001 | AI Worker Telemetry Console</title>
+  <style>
+    :root { --bg:#0a0d0b; --panel:#121814; --ink:#f4f7ef; --muted:#9cad9c; --accent:#d7ff2f; --line:#2c372e; --red:#ff6b6b; --blue:#81d4ff; }
+    * { box-sizing:border-box } body { margin:0; background:radial-gradient(circle at 20% 0%, #1d291a, #0a0d0b 45%); color:var(--ink); font-family:Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, sans-serif; }
+    header { padding:48px 5vw 30px; border-bottom:1px solid var(--line); }
+    .eyebrow { color:var(--accent); letter-spacing:.13em; font-size:12px; text-transform:uppercase; font-weight:800 }
+    h1 { font-size:clamp(38px,7vw,78px); line-height:.93; max-width:1100px; margin:12px 0; }
+    .sub { max-width:930px; color:var(--muted); font-size:20px; line-height:1.5; }
+    main { padding:30px 5vw 60px; }
+    .grid { display:grid; grid-template-columns:repeat(12,1fr); gap:16px; }
+    .card { background:linear-gradient(180deg, rgba(255,255,255,.045), rgba(255,255,255,.015)); border:1px solid var(--line); border-radius:22px; padding:22px; box-shadow:0 20px 60px rgba(0,0,0,.25); }
+    .metric { grid-column:span 3; min-height:150px } .wide { grid-column:span 8 } .narrow { grid-column:span 4 } .full { grid-column:1 / -1 }
+    .num { font-size:50px; color:var(--accent); font-weight:900; line-height:1; }
+    .label { color:var(--muted); margin-top:8px; }
+    h2 { font-size:28px; margin:0 0 14px } h3 { margin:0 0 10px; color:var(--accent); }
+    .row { display:flex; gap:10px; flex-wrap:wrap; }
+    .pill { border:1px solid var(--line); border-radius:999px; padding:8px 12px; color:var(--muted); background:#0e130f; }
+    .ok { color:var(--accent) } .warn { color:#ffd166 } .bad { color:var(--red) }
+    table { width:100%; border-collapse:collapse; } td, th { text-align:left; padding:12px 10px; border-bottom:1px solid var(--line); vertical-align:top; } th { color:var(--accent); font-size:12px; letter-spacing:.08em; text-transform:uppercase; }
+    .timeline { display:grid; gap:12px; } .step { display:grid; grid-template-columns:140px 1fr 100px; gap:12px; align-items:start; padding:14px; border:1px solid var(--line); border-radius:16px; background:#0e130f; }
+    .small { font-size:13px; color:var(--muted); line-height:1.5; }
+    button { background:var(--accent); color:#0a0d0b; border:0; border-radius:999px; padding:10px 14px; font-weight:800; cursor:pointer; }
+    input, select { background:#0e130f; border:1px solid var(--line); color:var(--ink); padding:10px; border-radius:10px; }
+    pre { white-space:pre-wrap; background:#070a08; border:1px solid var(--line); border-radius:16px; padding:16px; color:#cbd7c6; overflow:auto; }
+    @media (max-width: 850px) { .metric,.wide,.narrow { grid-column:1 / -1 } .step { grid-template-columns:1fr } h1 { font-size:44px } }
+  </style>
+</head>
+<body>
+<header>
+  <div class="eyebrow">NULLWORKS VOICE FOUNDRY / RUN-001</div>
+  <h1>Toyota Operational Telemetry Cell</h1>
+  <p class="sub">A working prototype console for inspecting whether an AI workroom loaded authority, current sources, boundaries, tool actions, failure receipts, and handoff state. This console is deploying through the NULLWORKS portfolio production route. Public verification remains a separate receipt gate until the exact URL is fetched successfully.</p>
+  <div class="row">
+    <span class="pill">Human Authority: Mason Perry</span>
+    <span class="pill">Hive Brain: GitHub system of record</span>
+    <span class="pill">Corporate WiFi: OFF / degraded 502</span>
+    <span class="pill">Toyota participation: not claimed</span>
+  </div>
+</header>
+<main>
+  <section class="grid">
+    <div class="card metric"><div class="num">11s</div><div class="label">V1 time to governed working floor</div></div>
+    <div class="card metric"><div class="num">0</div><div class="label">Corporate WiFi calls required for recovery</div></div>
+    <div class="card metric"><div class="num">4</div><div class="label">Connected write categories targeted</div></div>
+    <div class="card metric"><div class="num warn">PENDING</div><div class="label">Independent public-route verification</div></div>
+    <div class="card wide">
+      <h2>Operating thesis</h2>
+      <p>The model is not the employee by itself. The thread is not the company memory. The prompt is not the operating system. The useful unit is a bounded AI workroom inside a governed operating environment.</p>
+      <div class="row"><span class="pill">handoff</span><span class="pill">evidence</span><span class="pill">authority</span><span class="pill">review gates</span><span class="pill">telemetry</span><span class="pill">failure receipts</span></div>
+    </div>
+    <div class="card narrow">
+      <h2>Truth boundary</h2>
+      <p class="warn">Prototype source built and committed for deployment. Exact public-route verification pending. Toyota participation not claimed. Corporate WiFi not tested. Production reliability not claimed.</p>
+    </div>
+    <div class="card full">
+      <h2>Execution ledger</h2>
+      <div class="timeline" id="ledger"></div>
+    </div>
+    <div class="card narrow">
+      <h2>Telemetry questions</h2>
+      <div id="questions"></div>
+    </div>
+    <div class="card wide">
+      <h2>Source matrix</h2>
+      <table><thead><tr><th>Source</th><th>Use</th><th>Boundary</th></tr></thead><tbody id="sources"></tbody></table>
+    </div>
+    <div class="card full">
+      <h2>Receipt export</h2>
+      <button onclick="copyReceipt()">Copy receipt JSON</button>
+      <pre id="receipt"></pre>
+    </div>
+  </section>
+</main>
+<script>
+const data = {
+  "run_id": "VOICE_FOUNDRY_RUN_001",
+  "worker": {
+    "type": "AI_WORKROOM",
+    "lane": "Voice Foundry / Toyota Operational Telemetry Cell",
+    "materialized_at": "2026-07-07T12:55:00Z"
+  },
+  "authority": {
+    "human_authority": "Mason Perry",
+    "decision_rights_loaded": true
+  },
+  "metrics": {
+    "v1_floor_ready_seconds": 11,
+    "end_to_end_creation_to_article_seconds": null,
+    "systems_written": 4,
+    "deployment_verified": false,
+    "corporate_wifi_tested": false
+  },
+  "sources": [
+    {
+      "name": "NULLWORKS Hive Brain company_floor.yaml",
+      "url_or_path": "hive/current/company_floor.yaml",
+      "claim_use": "fact"
+    },
+    {
+      "name": "NIST AI Risk Management Framework page",
+      "url_or_path": "https://www.nist.gov/itl/ai-risk-management-framework",
+      "claim_use": "context"
+    },
+    {
+      "name": "OpenTelemetry GenAI semantic conventions repository",
+      "url_or_path": "https://github.com/open-telemetry/semantic-conventions/tree/main/docs/gen-ai",
+      "claim_use": "context"
+    },
+    {
+      "name": "Reuters Woven City launch report",
+      "url_or_path": "https://www.reuters.com/business/autos-transportation/toyota-launches-woven-city-test-site-near-mt-fuji-tech-testing-2025-09-25/",
+      "claim_use": "context"
+    },
+    {
+      "name": "Reuters Toyota-Waymo collaboration report",
+      "url_or_path": "https://www.reuters.com/business/autos-transportation/toyota-waymo-agree-explore-collaboration-autonomous-driving-tech-2025-04-29/",
+      "claim_use": "context"
+    }
+  ],
+  "actions": [
+    {
+      "action": "Create governed project packet",
+      "system": "GitHub",
+      "state": "succeeded",
+      "receipt": "dbdfbcbf607ab0af7d4534a59e879687079d1143"
+    },
+    {
+      "action": "Build telemetry console source",
+      "system": "GitHub + local artifact",
+      "state": "succeeded",
+      "receipt": "telemetry_console.html"
+    },
+    {
+      "action": "Create outreach draft",
+      "system": "Gmail",
+      "state": "succeeded",
+      "receipt": "Gmail draft created, not sent"
+    },
+    {
+      "action": "Create review gate event",
+      "system": "Google Calendar",
+      "state": "succeeded",
+      "receipt": "Review gate created for 2026-07-08 09:00 MST"
+    },
+    {
+      "action": "Create weekly research monitor",
+      "system": "Automations",
+      "state": "succeeded",
+      "receipt": "Toyota Telemetry Watch created"
+    },
+    {
+      "action": "Verify public deployment",
+      "system": "Vercel production route",
+      "state": "unverified",
+      "receipt": "source queued through mason-portfolio main; exact public fetch pending"
+    },
+    {
+      "action": "Test Corporate WiFi",
+      "system": "Corporate WiFi",
+      "state": "not_tested",
+      "receipt": "policy OFF / floor reported DEGRADED_HTTP_502"
+    }
+  ],
+  "truth_boundary": [
+    "No Toyota participation claimed",
+    "No production reliability claimed",
+    "No Corporate WiFi success claimed",
+    "A source commit and CI success do not equal independent public-route verification"
+  ],
+  "telemetry_questions": [
+    "Did the AI worker load the right governed context?",
+    "Did it identify Human Authority?",
+    "Which source was current?",
+    "Which claims were facts vs hypotheses?",
+    "What tools did it call?",
+    "What failed or remained unverified?",
+    "Was a handoff preserved?",
+    "Did corrections go back into the system?",
+    "Did the workflow save human reconstruction time?"
+  ],
+  "handoff": {
+    "exact_next_action": "Complete Vercel CI, independently fetch the exact public route, then write the verified deployment receipt back to the Hive Brain.",
+    "corrections_to_preserve": [
+      "V1 proved 11-second floor readiness but not creation-to-article timing",
+      "Built source does not prove deployment",
+      "Corporate WiFi degraded state is not proven intentional"
+    ]
+  }
+};
+const ledger = document.getElementById('ledger');
+ledger.innerHTML = data.actions.map((a,i)=>`<div class="step"><strong>${String(i+1).padStart(2,'0')} / ${a.system}</strong><div>${a.action}<div class="small">Receipt: ${a.receipt || 'not supplied'}</div></div><span class="${a.state==='succeeded'?'ok':a.state==='failed'?'bad':'warn'}">${a.state}</span></div>`).join('');
+document.getElementById('questions').innerHTML = data.telemetry_questions.map(q=>`<p class="small">• ${q}</p>`).join('');
+document.getElementById('sources').innerHTML = data.sources.map(s=>`<tr><td>${s.name}<div class="small">${s.url_or_path}</div></td><td>${s.claim_use}</td><td>Use as ${s.claim_use}, not proof beyond source scope.</td></tr>`).join('');
+document.getElementById('receipt').textContent = JSON.stringify(data, null, 2);
+function copyReceipt() { navigator.clipboard.writeText(JSON.stringify(data, null, 2)); }
+</script>
+</body></html>
