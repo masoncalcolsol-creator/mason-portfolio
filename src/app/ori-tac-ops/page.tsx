@@ -1,14 +1,13 @@
+/* eslint-disable @next/next/no-img-element */
 import type { Metadata } from "next";
 import {
   ArrowRight,
   BadgeCheck,
-  Box,
   CheckCircle2,
   ClipboardCheck,
   Eye,
   FileSearch,
   Gauge,
-  HardDriveUpload,
   Mail,
   PackageCheck,
   Printer,
@@ -16,7 +15,6 @@ import {
   ShieldCheck,
   Sparkles,
   UserRound,
-  Users,
   Workflow,
   Wrench,
 } from "lucide-react";
@@ -120,20 +118,28 @@ const metrics = [
 
 const photoSlots = [
   {
+    src: "/ori-tac-ops/portable-kit-open.webp",
+    alt: "Open portable hard case containing a phone, Brother label printer, supplies, and cables",
     title: "Portable kit",
-    body: "Closed hard-case configuration with phone, Brother QL-820NWB printer, supplies, and power path.",
+    body: "The actual hard-case configuration: dedicated phone, Brother QL-820NWB printer, supplies, cables, and power path in one portable work cell.",
   },
   {
+    src: "/ori-tac-ops/deployed-work-cell.webp",
+    alt: "Brother label printer, phone interface, and printed repair helper label deployed on a work surface",
     title: "Work cell deployed",
-    body: "The kit opened at a clean work surface, showing the actual operator sequence without exposing mail data.",
+    body: "The real test article running on a clean surface. The employee verifies the OCR result on the phone before creating the helper label.",
   },
   {
-    title: "Helper-label close-up",
-    body: "A sanitized sample showing NOT POSTAGE, HUMAN VERIFIED, REPAIR CANDIDATE, and the intended visual hierarchy.",
+    src: "/ori-tac-ops/helper-label-output.webp",
+    alt: "Sanitized repair helper label marked not postage and human verified",
+    title: "Helper-label output",
+    body: "A sanitized test output marked USPS REPAIR HELPER LABEL, NOT POSTAGE, HUMAN VERIFIED, and REPAIR CANDIDATE.",
   },
   {
-    title: "Before and after",
-    body: "A fully sanitized damaged-label example beside the corrected helper output and final recovery receipt.",
+    src: "/ori-tac-ops/damaged-thermal-label-sanitized.webp",
+    alt: "Sanitized poorly printed thermal shipping label on a personal test package",
+    title: "The spark: a bad thermal print",
+    body: "This personal package delivered to Mason's home triggered the original idea. The public image preserves the failure condition while removing the name, home address, and tracking data.",
   },
 ];
 
@@ -304,18 +310,13 @@ export default function OriTacOpsLandingPage() {
         </section>
 
         <section className={styles.oiSection}>
-          <div className={styles.oiVisual}>
-            <div className={styles.oiRing} aria-hidden="true" />
-            <div className={styles.oiCenter}>
-              <Users size={28} />
-              <strong>HUMAN AUTHORITY</strong>
-              <span>final</span>
-            </div>
-            <div className={`${styles.oiNode} ${styles.nodeOne}`}><ScanLine size={18} /> Capture</div>
-            <div className={`${styles.oiNode} ${styles.nodeTwo}`}><FileSearch size={18} /> OCR</div>
-            <div className={`${styles.oiNode} ${styles.nodeThree}`}><Printer size={18} /> Output</div>
-            <div className={`${styles.oiNode} ${styles.nodeFour}`}><Gauge size={18} /> Telemetry</div>
-          </div>
+          <figure className={styles.overviewFigure}>
+            <img
+              src="/ori-tac-ops/ori-tac-ops-overview-sanitized.webp"
+              alt="ORI TAC OPS overview showing the portable kit, deployed work cell, helper-label output, sanitized damaged label, and human authority at the center"
+            />
+            <figcaption>Corrected public overview. Personal address and tracking data are deliberately sanitized.</figcaption>
+          </figure>
           <div className={styles.oiCopy}>
             <div className={styles.sectionLabel}>Why Toyota should care</div>
             <h2>ORI TAC OPS is an OI SUITe experiment disguised as a damaged-label tool.</h2>
@@ -335,17 +336,16 @@ export default function OriTacOpsLandingPage() {
           <div className={styles.photoHeader}>
             <div>
               <div className={styles.sectionLabel}>Field evidence gallery</div>
-              <h2>Photo slots are ready.</h2>
-              <p>These placeholders can be replaced with sanitized real photos without changing the page structure.</p>
+              <h2>The prototype is real.</h2>
+              <p>These are sanitized field images from the personal test article and the package that triggered the original idea.</p>
             </div>
-            <HardDriveUpload size={33} />
+            <BadgeCheck size={33} />
           </div>
           <div className={styles.photoGrid}>
-            {photoSlots.map((slot, index) => (
+            {photoSlots.map((slot) => (
               <article key={slot.title} className={styles.photoCard}>
-                <div className={styles.photoPlaceholder}>
-                  <Box size={31} />
-                  <span>PHOTO SLOT {String(index + 1).padStart(2, "0")}</span>
+                <div className={styles.photoImageWrap}>
+                  <img src={slot.src} alt={slot.alt} loading="lazy" />
                 </div>
                 <h3>{slot.title}</h3>
                 <p>{slot.body}</p>
