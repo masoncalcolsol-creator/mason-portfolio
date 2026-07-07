@@ -4,7 +4,6 @@ import {
   ArrowRight,
   BadgeCheck,
   CheckCircle2,
-  ClipboardCheck,
   Eye,
   FileSearch,
   Gauge,
@@ -18,92 +17,35 @@ import {
   Workflow,
   Wrench,
 } from "lucide-react";
+import { imageBase64 as portableImage } from "../api/ori-media/portable/data";
+import { imageBase64 as deployedImage } from "../api/ori-media/deployed/data";
+import { imageBase64 as damagedImage } from "../api/ori-media/damaged/data";
 import styles from "./page.module.css";
 
 export const metadata: Metadata = {
   title: "ORI TAC OPS | Human-Controlled Damaged-Label Recovery",
   description:
-    "A simple, portable, human-controlled work cell for damaged parcel-label recovery, designed as a controlled OI SUITe pilot rather than a staffing-reduction tool.",
+    "A portable, human-controlled work cell for damaged parcel-label recovery and a controlled OI SUITe field experiment.",
 };
 
+const portableSrc = `data:image/webp;base64,${portableImage}`;
+const deployedSrc = `data:image/webp;base64,${deployedImage}`;
+const damagedSrc = `data:image/webp;base64,${damagedImage}`;
+
 const flow = [
-  {
-    icon: ScanLine,
-    number: "01",
-    title: "Capture what survived",
-    body: "Use a phone to photograph the damaged label and preserve the readable evidence before more handling is added.",
-  },
-  {
-    icon: FileSearch,
-    number: "02",
-    title: "Let OCR assist",
-    body: "The system proposes readable names, addresses, tracking blocks, and destination clues. It does not silently decide the answer.",
-  },
-  {
-    icon: UserRound,
-    number: "03",
-    title: "Employee verifies",
-    body: "A trained employee corrects, rejects, or escalates the result. Human judgment and approved process remain final.",
-  },
-  {
-    icon: Printer,
-    number: "04",
-    title: "Print a helper label",
-    body: "The printer creates a clearly marked recovery aid: USPS REPAIR HELPER LABEL, NOT POSTAGE, HUMAN VERIFIED, REPAIR CANDIDATE.",
-  },
-  {
-    icon: PackageCheck,
-    number: "05",
-    title: "Return to approved flow",
-    body: "The parcel follows the locally approved recovery path. The prototype does not invent routing authority.",
-  },
-  {
-    icon: ClipboardCheck,
-    number: "06",
-    title: "Leave a receipt",
-    body: "The pilot records what was recovered, what remained uncertain, how long it took, and whether the parcel stayed in motion.",
-  },
-];
+  [ScanLine, "01", "Capture what survived", "Photograph the damaged label and preserve the readable evidence."],
+  [FileSearch, "02", "Let OCR assist", "The system proposes readable fields and leaves uncertainty visible."],
+  [UserRound, "03", "Employee verifies", "A trained employee corrects, rejects, or escalates the result."],
+  [Printer, "04", "Print a helper label", "The output is clearly marked NOT POSTAGE and HUMAN VERIFIED."],
+  [PackageCheck, "05", "Return to approved flow", "The parcel follows the locally approved recovery path."],
+  [BadgeCheck, "06", "Leave a receipt", "The pilot records time, corrections, outcome, and unresolved risk."],
+] as const;
 
 const audiences = [
-  {
-    icon: Wrench,
-    label: "For the employee doing the work",
-    title: "Less hunting. Less retyping. You still decide.",
-    body: "ORI TAC OPS is a workbench, not a replacement worker. It keeps the surviving evidence, machine suggestion, employee correction, printer output, and next handoff in one visible place.",
-  },
-  {
-    icon: Gauge,
-    label: "For Postal leadership",
-    title: "Turn a recurring exception into a measurable process.",
-    body: "A controlled pilot can measure exception volume, recovery rate, operator minutes, false recovery, rework, training burden, downstream handling, and unresolved risk before anyone claims savings or scale.",
-  },
-  {
-    icon: Workflow,
-    label: "For Toyota and systems integrators",
-    title: "The app is not the product. The complete work cell is.",
-    body: "This is an OI SUITe field experiment: operator, evidence, OCR, correction, physical printer, authority boundary, recovery path, telemetry, and human acceptance testing designed as one operating system.",
-  },
-];
-
-const rules = [
-  {
-    title: "It does not replace postal employees.",
-    body: "The employee owns interpretation, correction, escalation, and final responsibility.",
-  },
-  {
-    title: "It does not create postage.",
-    body: "Every output is visibly marked as a repair helper label and must remain inside approved recovery procedures.",
-  },
-  {
-    title: "It is not connected to secure USPS production systems.",
-    body: "The current independent prototype uses a portable phone, web interface, printer, and recovery-only labels. No private customer dataset is presented as a product asset.",
-  },
-  {
-    title: "It is not a deployed USPS program.",
-    body: "The next legitimate step is a bounded, authorized pilot with privacy, safety, labor, technical, and operational review.",
-  },
-];
+  [Wrench, "For the employee", "Less hunting. Less retyping. You still decide.", "ORI TAC OPS keeps the surviving evidence, machine suggestion, employee correction, printer output, and next handoff together."],
+  [Gauge, "For Postal leadership", "Turn a recurring exception into a measurable process.", "A controlled pilot can measure recovery rate, employee minutes, false recovery, rework, training burden, and downstream handling."],
+  [Workflow, "For Toyota and integrators", "The app is not the product. The complete work cell is.", "Operator, evidence, OCR, correction, hardware, authority boundaries, telemetry, and acceptance testing operate as one system."],
+] as const;
 
 const metrics = [
   "Recovery candidates presented",
@@ -116,32 +58,12 @@ const metrics = [
   "Hardware, support, and privacy cost",
 ];
 
-const photoSlots = [
-  {
-    src: "/ori-tac-ops/portable-kit-open.webp",
-    alt: "Open portable hard case containing a phone, Brother label printer, supplies, and cables",
-    title: "Portable kit",
-    body: "The actual hard-case configuration: dedicated phone, Brother QL-820NWB printer, supplies, cables, and power path in one portable work cell.",
-  },
-  {
-    src: "/ori-tac-ops/deployed-work-cell.webp",
-    alt: "Brother label printer, phone interface, and printed repair helper label deployed on a work surface",
-    title: "Work cell deployed",
-    body: "The real test article running on a clean surface. The employee verifies the OCR result on the phone before creating the helper label.",
-  },
-  {
-    src: "/ori-tac-ops/helper-label-output.webp",
-    alt: "Sanitized repair helper label marked not postage and human verified",
-    title: "Helper-label output",
-    body: "A sanitized test output marked USPS REPAIR HELPER LABEL, NOT POSTAGE, HUMAN VERIFIED, and REPAIR CANDIDATE.",
-  },
-  {
-    src: "/ori-tac-ops/damaged-thermal-label-sanitized.webp",
-    alt: "Sanitized poorly printed thermal shipping label on a personal test package",
-    title: "The spark: a bad thermal print",
-    body: "This personal package delivered to Mason's home triggered the original idea. The public image preserves the failure condition while removing the name, home address, and tracking data.",
-  },
-];
+const imageStyle = {
+  display: "block",
+  width: "100%",
+  height: "100%",
+  objectFit: "cover" as const,
+};
 
 export default function OriTacOpsLandingPage() {
   return (
@@ -167,23 +89,15 @@ export default function OriTacOpsLandingPage() {
 
         <section className={styles.hero}>
           <div className={styles.heroCopy}>
-            <div className={styles.eyebrow}>
-              <Sparkles size={14} /> Portable exception recovery // Human verified
-            </div>
+            <div className={styles.eyebrow}><Sparkles size={14} /> Portable exception recovery // Human verified</div>
             <h1>When the label fails, the parcel should not disappear into the process.</h1>
             <p className={styles.deck}>
-              ORI TAC OPS is a portable, human-controlled damaged-label recovery work cell. It helps a postal employee preserve what survived, use OCR as an assistant, correct the result, print a clearly marked helper label, and return the parcel to the approved recovery flow.
+              ORI TAC OPS is a portable, human-controlled damaged-label recovery work cell. It helps an employee preserve what survived, use OCR as an assistant, correct the result, print a clearly marked helper label, and return the parcel to the approved recovery flow.
             </p>
-            <p className={styles.plainLanguage}>
-              <strong>Plain English:</strong> take a picture, check the answer, print a helper label, keep the parcel moving.
-            </p>
+            <p className={styles.plainLanguage}><strong>Plain English:</strong> take a picture, check the answer, print a helper label, keep the parcel moving.</p>
             <div className={styles.actions}>
-              <a className={styles.primary} href="#how-it-works">
-                See the 30-second flow <ArrowRight size={16} />
-              </a>
-              <a className={styles.secondary} href="/field-notes/ori-tac-ops-oisa-beta-test">
-                Read the complete field case
-              </a>
+              <a className={styles.primary} href="#how-it-works">See the 30-second flow <ArrowRight size={16} /></a>
+              <a className={styles.secondary} href="/field-notes/ori-tac-ops-oisa-beta-test">Read the complete field case</a>
             </div>
             <div className={styles.statusLine}>
               <span><CheckCircle2 size={14} /> Working portable prototype</span>
@@ -192,37 +106,24 @@ export default function OriTacOpsLandingPage() {
             </div>
           </div>
 
-          <div className={styles.heroVisual} aria-label="ORI TAC OPS portable recovery work cell diagram">
-            <div className={styles.visualGrid} aria-hidden="true" />
-            <div className={styles.packageCard}>
-              <span>Damaged label</span>
-              <strong>Evidence survives</strong>
-              <div className={styles.fakeBarcode} aria-hidden="true" />
-              <small>Unreadable fields remain uncertain</small>
-            </div>
-            <div className={styles.phoneCard}>
-              <div className={styles.phoneTop}><ScanLine size={16} /> ORI</div>
-              <div className={styles.phoneField}><span>NAME</span><strong>Suggested → employee checks</strong></div>
-              <div className={styles.phoneField}><span>ADDRESS</span><strong>Editable, never hidden</strong></div>
-              <div className={styles.phoneField}><span>TRACKING</span><strong>Preserve surviving block</strong></div>
-              <div className={styles.verifyButton}><BadgeCheck size={15} /> HUMAN VERIFIED</div>
-            </div>
-            <div className={styles.printerCard}>
-              <Printer size={25} />
-              <strong>Helper label</strong>
-              <span>NOT POSTAGE</span>
-              <span>REPAIR CANDIDATE</span>
-            </div>
-            <div className={styles.operatorCore}>
-              <ShieldCheck size={27} />
-              <strong>EMPLOYEE</strong>
-              <span>Verify · correct · decide</span>
-            </div>
-            <div className={styles.flowArrowOne} aria-hidden="true">→</div>
-            <div className={styles.flowArrowTwo} aria-hidden="true">→</div>
-            <div className={styles.visualCaption}>
-              <span>THE COMPLETE SYSTEM</span>
-              <strong>Operator + evidence + OCR + printer + approved handoff + telemetry</strong>
+          <div className={styles.heroVisual} style={{ minHeight: 690, padding: 24, display: "grid", placeItems: "center" }}>
+            <div style={{ position: "relative", width: "100%", maxWidth: 520, aspectRatio: "1 / 1", display: "grid", placeItems: "center" }}>
+              <div style={{ position: "absolute", inset: "13%", border: "1px solid rgba(112,232,255,.34)", borderRadius: "50%" }} />
+              <div style={{ position: "absolute", inset: "26%", border: "1px solid rgba(216,255,63,.52)", borderRadius: "50%" }} />
+              <div style={{ zIndex: 3, width: 165, height: 165, borderRadius: "50%", background: "#f2ecdf", color: "#11181b", border: "3px solid #d8ff3f", display: "grid", placeItems: "center", textAlign: "center", padding: 20, boxShadow: "0 20px 60px rgba(0,0,0,.45)" }}>
+                <div><ShieldCheck size={30} color="#728318" /><strong style={{ display: "block", marginTop: 9, letterSpacing: ".12em" }}>HUMAN AUTHORITY</strong><small>final</small></div>
+              </div>
+              {[
+                ["CAPTURE", "12%", "8%"],
+                ["OCR ASSIST", "12%", "auto"],
+                ["PRINT OUTPUT", "auto", "8%"],
+                ["TELEMETRY", "auto", "auto"],
+              ].map(([label, top, left], index) => (
+                <div key={label} style={{ position: "absolute", top: top === "auto" ? undefined : top, bottom: top === "auto" ? "12%" : undefined, left: left === "auto" ? undefined : left, right: left === "auto" ? "8%" : undefined, padding: "11px 14px", borderRadius: 999, border: "1px solid rgba(255,255,255,.18)", background: "#0b1217", color: index % 2 ? "#70e8ff" : "#d8ff3f", fontSize: 10, fontWeight: 900, letterSpacing: ".08em" }}>{label}</div>
+              ))}
+              <div style={{ position: "absolute", right: 12, bottom: 12, left: 12, padding: 14, borderRadius: 16, background: "rgba(5,9,12,.88)", border: "1px solid rgba(216,255,63,.3)", textAlign: "center", fontSize: 12 }}>
+                Operator + evidence + OCR + printer + approved handoff + telemetry
+              </div>
             </div>
           </div>
         </section>
@@ -230,21 +131,13 @@ export default function OriTacOpsLandingPage() {
         <section id="how-it-works" className={styles.lightSection}>
           <div className={styles.sectionLabel}>The 30-second explanation</div>
           <h2>One exception. One visible work cell. Six simple steps.</h2>
-          <p className={styles.sectionLead}>
-            The goal is not to make the employee trust a mysterious AI answer. The goal is to put the surviving evidence, machine assistance, human correction, physical output, and next approved action on one screen.
-          </p>
+          <p className={styles.sectionLead}>The employee never has to trust a mysterious answer. The evidence, suggestion, correction, output, and next approved action remain visible.</p>
           <div className={styles.flowGrid}>
-            {flow.map((item) => {
-              const Icon = item.icon;
-              return (
-                <article key={item.number} className={styles.flowCard}>
-                  <div className={styles.flowIcon}><Icon size={22} /></div>
-                  <span>{item.number}</span>
-                  <h3>{item.title}</h3>
-                  <p>{item.body}</p>
-                </article>
-              );
-            })}
+            {flow.map(([Icon, number, title, body]) => (
+              <article key={number} className={styles.flowCard}>
+                <div className={styles.flowIcon}><Icon size={22} /></div><span>{number}</span><h3>{title}</h3><p>{body}</p>
+              </article>
+            ))}
           </div>
         </section>
 
@@ -252,35 +145,8 @@ export default function OriTacOpsLandingPage() {
           <div className={styles.sectionLabel}>One page, three audiences</div>
           <h2>The same system should make sense on the floor, in the boardroom, and in an engineering review.</h2>
           <div className={styles.audienceGrid}>
-            {audiences.map((item) => {
-              const Icon = item.icon;
-              return (
-                <article key={item.label} className={styles.audienceCard}>
-                  <Icon size={25} />
-                  <span>{item.label}</span>
-                  <h3>{item.title}</h3>
-                  <p>{item.body}</p>
-                </article>
-              );
-            })}
-          </div>
-        </section>
-
-        <section className={styles.rulesSection}>
-          <div className={styles.rulesIntro}>
-            <div className={styles.sectionLabel}>Four rules that do not move</div>
-            <h2>Human authority is not a marketing line. It is the operating boundary.</h2>
-            <p>
-              ORI TAC OPS only makes sense if the people responsible for the mail can see what the system is doing, correct it, stop it, and escalate uncertainty.
-            </p>
-          </div>
-          <div className={styles.rulesGrid}>
-            {rules.map((rule, index) => (
-              <article key={rule.title}>
-                <span>{String(index + 1).padStart(2, "0")}</span>
-                <h3>{rule.title}</h3>
-                <p>{rule.body}</p>
-              </article>
+            {audiences.map(([Icon, label, title, body]) => (
+              <article key={label} className={styles.audienceCard}><Icon size={25} /><span>{label}</span><h3>{title}</h3><p>{body}</p></article>
             ))}
           </div>
         </section>
@@ -289,120 +155,37 @@ export default function OriTacOpsLandingPage() {
           <div className={styles.pilotCopy}>
             <div className={styles.sectionLabel}>The correct next step</div>
             <h2>Run a small controlled pilot. Measure the current state before claiming the future.</h2>
-            <p>
-              A valid test begins with a bounded site, approved operators, sanitized evidence, defined escalation, and a clear stop condition. The pilot should compare the existing exception path with the portable work cell—not assume that technology automatically creates value.
-            </p>
-            <div className={styles.hypothesisCard}>
-              <Gauge size={24} />
-              <div>
-                <span>Small-volume hypothesis</span>
-                <strong>Could recovering roughly three additional parcels per day justify the complete cost of the work cell?</strong>
-                <p>That is a question for measured pilot data, not a published savings claim.</p>
-              </div>
-            </div>
+            <p>A valid test begins with a bounded site, approved operators, sanitized evidence, defined escalation, and a clear stop condition.</p>
+            <div className={styles.hypothesisCard}><Gauge size={24} /><div><span>Small-volume hypothesis</span><strong>Could recovering roughly three additional parcels per day justify the complete cost of the work cell?</strong><p>That is a question for measured pilot data, not a published savings claim.</p></div></div>
           </div>
-          <div className={styles.metricsPanel}>
-            <span className={styles.metricsLabel}>Pilot telemetry</span>
-            {metrics.map((metric) => (
-              <div key={metric}><CheckCircle2 size={15} /> {metric}</div>
-            ))}
-          </div>
+          <div className={styles.metricsPanel}><span className={styles.metricsLabel}>Pilot telemetry</span>{metrics.map((metric) => <div key={metric}><CheckCircle2 size={15} /> {metric}</div>)}</div>
         </section>
 
         <section className={styles.oiSection}>
-          <figure className={styles.overviewFigure}>
-            <img
-              src="/ori-tac-ops/ori-tac-ops-overview-sanitized.webp"
-              alt="ORI TAC OPS overview showing the portable kit, deployed work cell, helper-label output, sanitized damaged label, and human authority at the center"
-            />
-            <figcaption>Corrected public overview. Personal address and tracking data are deliberately sanitized.</figcaption>
-          </figure>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(2,minmax(0,1fr))", gap: 12, alignSelf: "center" }}>
+            <figure style={{ margin: 0, overflow: "hidden", borderRadius: 18, border: "1px solid rgba(216,255,63,.3)", background: "#091015" }}><div style={{ aspectRatio: "3 / 4" }}><img src={portableSrc} alt="Portable ORI TAC OPS kit in a hard case" style={imageStyle} /></div><figcaption style={{ padding: 12, color: "#cbd2ca", fontSize: 11 }}>Portable kit</figcaption></figure>
+            <figure style={{ margin: 0, overflow: "hidden", borderRadius: 18, border: "1px solid rgba(112,232,255,.3)", background: "#091015" }}><div style={{ aspectRatio: "3 / 4" }}><img src={deployedSrc} alt="ORI TAC OPS printer, phone interface, and helper label" style={imageStyle} /></div><figcaption style={{ padding: 12, color: "#cbd2ca", fontSize: 11 }}>Deployed work cell</figcaption></figure>
+            <figure style={{ margin: 0, overflow: "hidden", borderRadius: 18, border: "1px solid rgba(112,232,255,.3)", background: "#091015" }}><div style={{ aspectRatio: "4 / 3", background: "#f2ecdf", padding: 18 }}><img src="/ori-tac-ops/test-output.svg" alt="Human-verified repair helper-label illustration" style={{ ...imageStyle, objectFit: "contain" }} /></div><figcaption style={{ padding: 12, color: "#cbd2ca", fontSize: 11 }}>Helper-label output</figcaption></figure>
+            <figure style={{ margin: 0, overflow: "hidden", borderRadius: 18, border: "1px solid rgba(216,255,63,.3)", background: "#091015" }}><div style={{ aspectRatio: "4 / 3" }}><img src={damagedSrc} alt="Sanitized damaged thermal shipping label that inspired ORI TAC OPS" style={{ ...imageStyle, objectPosition: "center 35%" }} /></div><figcaption style={{ padding: 12, color: "#cbd2ca", fontSize: 11 }}>The spark: a bad thermal print</figcaption></figure>
+          </div>
           <div className={styles.oiCopy}>
             <div className={styles.sectionLabel}>Why Toyota should care</div>
             <h2>ORI TAC OPS is an OI SUITe experiment disguised as a damaged-label tool.</h2>
-            <p>
-              The useful product is not “AI reads a label.” The useful product is the operating architecture around that capability: the employee role, source evidence, authority limits, correction path, hardware, training, exception routing, telemetry, and recovery receipt.
-            </p>
-            <p>
-              That same method applies to warehouse automation, installation, software implementation, maintenance support, customer turnover, and any environment where physical operations and digital systems meet.
-            </p>
-            <a className={styles.darkLink} href="/toyota-bridge">
-              See Mason&apos;s Toyota role-fit case <ArrowRight size={16} />
-            </a>
+            <p>The useful product is not “AI reads a label.” The useful product is the operating architecture around the capability: employee role, source evidence, authority limits, correction path, hardware, training, exception routing, telemetry, and recovery receipt.</p>
+            <p>The same method applies to warehouse automation, installation, software implementation, maintenance support, customer turnover, and any environment where physical operations and digital systems meet.</p>
+            <a className={styles.darkLink} href="/toyota-bridge">See Mason&apos;s Toyota role-fit case <ArrowRight size={16} /></a>
           </div>
         </section>
 
         <section className={styles.photoSection}>
-          <div className={styles.photoHeader}>
-            <div>
-              <div className={styles.sectionLabel}>Field evidence gallery</div>
-              <h2>The prototype is real.</h2>
-              <p>These are sanitized field images from the personal test article and the package that triggered the original idea.</p>
-            </div>
-            <BadgeCheck size={33} />
-          </div>
-          <div className={styles.photoGrid}>
-            {photoSlots.map((slot) => (
-              <article key={slot.title} className={styles.photoCard}>
-                <div className={styles.photoImageWrap}>
-                  <img src={slot.src} alt={slot.alt} loading="lazy" />
-                </div>
-                <h3>{slot.title}</h3>
-                <p>{slot.body}</p>
-              </article>
-            ))}
-          </div>
+          <div className={styles.photoHeader}><div><div className={styles.sectionLabel}>Field evidence</div><h2>The prototype is real.</h2><p>The kit and work-cell photos are from the personal test article. The damaged-label image is from the package delivered to Mason&apos;s home that sparked the idea. Personal address and tracking data are removed from the public version.</p></div><BadgeCheck size={33} /></div>
         </section>
 
-        <section className={styles.evidenceSection}>
-          <div className={styles.evidenceIcon}><BadgeCheck size={27} /></div>
-          <div>
-            <div className={styles.sectionLabel}>What is real today</div>
-            <h2>A working test article and a legitimate routing receipt—not a production claim.</h2>
-            <p>
-              Mason built and field-tested a portable prototype using a dedicated phone, web interface, Brother QL-820NWB printer, hard case, helper labels, and a human-verification path. After a senior Postal technology leader invited a submission through Postal channels, the controlled-pilot packet was sent and routed toward technical review.
-            </p>
-            <p>
-              That is evidence of serious institutional interest and correct routing. It is not approval, procurement, endorsement, pilot authorization, or deployment.
-            </p>
-          </div>
-        </section>
+        <section className={styles.truthSection}><ShieldCheck size={28} /><div><strong>Public truth boundary</strong><p>ORI TAC OPS is an independent NULLWORKS human-centered logistics exception-recovery concept with a working portable prototype and a controlled-pilot request. It is not an approved, purchased, connected, or deployed USPS production system. No controlled pilot has validated exact savings or return on investment. USPS and Toyota do not sponsor or endorse this page. Human authority remains final.</p></div></section>
 
-        <section className={styles.truthSection}>
-          <ShieldCheck size={28} />
-          <div>
-            <strong>Public truth boundary</strong>
-            <p>
-              ORI TAC OPS is an independent NULLWORKS human-centered logistics exception-recovery concept with a working portable prototype and a controlled-pilot request. It is not an approved, purchased, connected, or deployed USPS production system. No controlled pilot has yet validated recovery rates, exact savings, training time, enterprise impact, or return on investment. USPS and Toyota do not sponsor or endorse this page. Human authority remains final.
-            </p>
-          </div>
-        </section>
+        <section className={styles.finalCta}><div><div className={styles.sectionLabel}>The simple pitch</div><h2>Do not replace the expert. Give the expert a better recovery work cell.</h2><p>The next conversation is not “Should AI run the mail?” It is “Can a small, controlled, employee-led test reduce avoidable exception handling without creating new risk?”</p></div><div className={styles.finalActions}><a className={styles.primary} href="mailto:masoncalcolsol@gmail.com?subject=ORI%20TAC%20OPS%20controlled%20pilot">Discuss a controlled pilot <ArrowRight size={16} /></a><a className={styles.secondary} href="/field-notes/ori-tac-ops-oisa-beta-test">Read the full OISA case study</a></div></section>
 
-        <section className={styles.finalCta}>
-          <div>
-            <div className={styles.sectionLabel}>The simple pitch</div>
-            <h2>Do not replace the expert. Give the expert a better recovery work cell.</h2>
-            <p>
-              The next conversation is not “Should AI run the mail?” It is “Can a small, controlled, employee-led test reduce avoidable exception handling without creating new risk?”
-            </p>
-          </div>
-          <div className={styles.finalActions}>
-            <a className={styles.primary} href="mailto:masoncalcolsol@gmail.com?subject=ORI%20TAC%20OPS%20controlled%20pilot">
-              Discuss a controlled pilot <ArrowRight size={16} />
-            </a>
-            <a className={styles.secondary} href="/field-notes/ori-tac-ops-oisa-beta-test">
-              Read the full OISA case study
-            </a>
-          </div>
-        </section>
-
-        <footer className={styles.footer}>
-          <div>
-            <strong>Mason Perry</strong>
-            <span>Founder, NULLWORKS · Operational Intelligence Systems Architect</span>
-          </div>
-          <p>Human authority remains final.</p>
-        </footer>
+        <footer className={styles.footer}><div><strong>Mason Perry</strong><span>Founder, NULLWORKS · Operational Intelligence Systems Architect</span></div><p>Human authority remains final.</p></footer>
       </div>
     </main>
   );
