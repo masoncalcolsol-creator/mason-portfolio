@@ -1,0 +1,65 @@
+main figure {
+  margin: 0;
+}
+
+main img[src^="/ori-tac-ops/"] {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+main img[src="/ori-tac-ops/ori-tac-ops-overview-sanitized.webp"] {
+  border: 1px solid rgba(112, 232, 255, 0.26);
+  border-radius: 22px;
+  background: #071117;
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.34);
+}
+
+main figure:has(img[src="/ori-tac-ops/ori-tac-ops-overview-sanitized.webp"]) figcaption {
+  margin-top: 10px;
+  color: #8fa09c;
+  font-size: 11px;
+  line-height: 1.5;
+  text-align: center;
+}
+
+main img[src="/ori-tac-ops/portable-kit-open.webp"],
+main img[src="/ori-tac-ops/deployed-work-cell.webp"],
+main img[src="/ori-tac-ops/helper-label-output.webp"],
+main img[src="/ori-tac-ops/damaged-thermal-label-sanitized.webp"] {
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  border: 1px solid rgba(103, 121, 28, 0.35);
+  border-radius: 14px;
+  background: #101719;
+}
+
+main img[src="/ori-tac-ops/portable-kit-open.webp"] {
+  object-position: center 58%;
+}
+
+main img[src="/ori-tac-ops/deployed-work-cell.webp"] {
+  object-position: center;
+}
+
+main img[src="/ori-tac-ops/helper-label-output.webp"] {
+  object-position: center;
+  background: #f2ecdf;
+}
+
+main img[src="/ori-tac-ops/damaged-thermal-label-sanitized.webp"] {
+  object-position: center 34%;
+}
+
+@media (max-width: 720px) {
+  main img[src="/ori-tac-ops/ori-tac-ops-overview-sanitized.webp"] {
+    border-radius: 16px;
+  }
+
+  main img[src="/ori-tac-ops/portable-kit-open.webp"],
+  main img[src="/ori-tac-ops/deployed-work-cell.webp"],
+  main img[src="/ori-tac-ops/helper-label-output.webp"],
+  main img[src="/ori-tac-ops/damaged-thermal-label-sanitized.webp"] {
+    aspect-ratio: 16 / 11;
+  }
+}
