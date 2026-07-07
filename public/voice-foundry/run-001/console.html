@@ -34,7 +34,7 @@
 <header>
   <div class="eyebrow">NULLWORKS VOICE FOUNDRY / RUN-001</div>
   <h1>Toyota Operational Telemetry Cell</h1>
-  <p class="sub">A working prototype console for inspecting whether an AI workroom loaded authority, current sources, boundaries, tool actions, failure receipts, and handoff state. This console is deploying through the NULLWORKS portfolio production route. Public verification remains a separate receipt gate until the exact URL is fetched successfully.</p>
+  <p class="sub">A working prototype console for inspecting whether an AI workroom loaded authority, current sources, boundaries, tool actions, failure receipts, and handoff state. Vercel reported a successful production deployment from the NULLWORKS portfolio repository. Independent verification of the exact public route remains a separate receipt gate.</p>
   <div class="row">
     <span class="pill">Human Authority: Mason Perry</span>
     <span class="pill">Hive Brain: GitHub system of record</span>
@@ -47,7 +47,7 @@
     <div class="card metric"><div class="num">11s</div><div class="label">V1 time to governed working floor</div></div>
     <div class="card metric"><div class="num">0</div><div class="label">Corporate WiFi calls required for recovery</div></div>
     <div class="card metric"><div class="num">4</div><div class="label">Connected write categories targeted</div></div>
-    <div class="card metric"><div class="num warn">PENDING</div><div class="label">Independent public-route verification</div></div>
+    <div class="card metric"><div class="num warn">CI PASS</div><div class="label">Vercel deployment succeeded; independent route fetch pending</div></div>
     <div class="card wide">
       <h2>Operating thesis</h2>
       <p>The model is not the employee by itself. The thread is not the company memory. The prompt is not the operating system. The useful unit is a bounded AI workroom inside a governed operating environment.</p>
@@ -55,7 +55,7 @@
     </div>
     <div class="card narrow">
       <h2>Truth boundary</h2>
-      <p class="warn">Prototype source built and committed for deployment. Exact public-route verification pending. Toyota participation not claimed. Corporate WiFi not tested. Production reliability not claimed.</p>
+      <p class="warn">Vercel production deployment reported success. Exact public-route verification remains pending. Toyota participation not claimed. Corporate WiFi not tested. Production reliability not claimed.</p>
     </div>
     <div class="card full">
       <h2>Execution ledger</h2>
@@ -92,6 +92,7 @@ const data = {
     "v1_floor_ready_seconds": 11,
     "end_to_end_creation_to_article_seconds": null,
     "systems_written": 4,
+    "vercel_deployment_success": true,
     "deployment_verified": false,
     "corporate_wifi_tested": false
   },
@@ -156,8 +157,8 @@ const data = {
     {
       "action": "Verify public deployment",
       "system": "Vercel production route",
-      "state": "unverified",
-      "receipt": "source queued through mason-portfolio main; exact public fetch pending"
+      "state": "succeeded",
+      "receipt": "Vercel status success for commit 6b410dafa0cf4b7b14f5e3920bc07ce63f4acff2; exact public fetch pending"
     },
     {
       "action": "Test Corporate WiFi",
