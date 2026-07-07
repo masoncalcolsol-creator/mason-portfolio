@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 1600" role="img" aria-labelledby="title desc">
+<title id="title">RIVET cyber-industrial initiation portrait</title>
+<desc id="desc">An original nonhuman digital operative in severe black technical workwear connected by luminous green data conduits, ascending through an unfinished industrial tower toward the highest active construction floor.</desc>
+<defs>
+  <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#050708"/><stop offset=".58" stop-color="#11171a"/><stop offset="1" stop-color="#020303"/></linearGradient>
+  <linearGradient id="steel" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#2a3338"/><stop offset=".45" stop-color="#080b0d"/><stop offset="1" stop-color="#445158"/></linearGradient>
+  <linearGradient id="visor" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#12191c"/><stop offset=".5" stop-color="#020303"/><stop offset="1" stop-color="#243038"/></linearGradient>
+  <radialGradient id="signal"><stop offset="0" stop-color="#d7ffb5"/><stop offset=".25" stop-color="#8cff4f"/><stop offset=".7" stop-color="#2d7a18" stop-opacity=".45"/><stop offset="1" stop-color="#2d7a18" stop-opacity="0"/></radialGradient>
+  <filter id="glow" x="-100%" y="-100%" width="300%" height="300%"><feGaussianBlur stdDeviation="12" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+  <filter id="soft"><feGaussianBlur stdDeviation="4"/></filter>
+  <pattern id="grid" width="70" height="70" patternUnits="userSpaceOnUse"><path d="M70 0H0V70" fill="none" stroke="#879298" stroke-opacity=".08" stroke-width="1"/></pattern>
+  <clipPath id="bodyClip"><path d="M205 1600V1050Q230 910 355 845L420 810H780L845 845Q970 910 995 1050V1600Z"/></clipPath>
+</defs>
+<rect width="1200" height="1600" fill="url(#bg)"/><rect width="1200" height="1600" fill="url(#grid)"/>
+<g opacity=".58" stroke="#657178" stroke-width="12" fill="none"><path d="M65 0V1600M255 0V1600M945 0V1600M1135 0V1600"/><path d="M0 165H1200M0 410H1200M0 700H1200M0 1040H1200M0 1375H1200"/></g>
+<g opacity=".28" stroke="#8d989d" stroke-width="6"><path d="M65 165L255 410M255 165L65 410M945 165L1135 410M1135 165L945 410"/><path d="M65 700L255 1040M255 700L65 1040M945 700L1135 1040M1135 700L945 1040"/></g>
+<g><rect x="0" y="92" width="1200" height="18" fill="#8cff4f" opacity=".78" filter="url(#glow)"/><rect x="80" y="112" width="1040" height="72" rx="8" fill="#101719" stroke="#8cff4f" stroke-opacity=".62"/><g fill="#8cff4f"><circle cx="140" cy="148" r="8"/><circle cx="180" cy="148" r="8"/><circle cx="1020" cy="148" r="8"/><circle cx="1060" cy="148" r="8"/></g><path d="M435 184V302M765 184V302" stroke="#8cff4f" stroke-width="8" stroke-opacity=".65"/><path d="M435 302L600 365L765 302" fill="none" stroke="#8cff4f" stroke-width="6" stroke-opacity=".65"/></g>
+<g fill="#6f7a80" opacity=".55"><circle cx="130" cy="940" r="18"/><path d="M108 965H152L170 1050H90Z"/><circle cx="1055" cy="1170" r="18"/><path d="M1033 1195H1077L1095 1280H1015Z"/></g>
+<g stroke="#79858a" stroke-width="8" opacity=".38"><path d="M980 0V520M980 110L1140 250M980 250L1115 250"/><path d="M180 330V910M180 420L40 570M180 570L70 570"/></g>
+<g fill="none" stroke-linecap="round"><path d="M0 1270C220 1240 280 1060 390 935C480 830 520 700 600 585C685 460 760 320 760 175" stroke="#8cff4f" stroke-width="11" opacity=".45" filter="url(#glow)"/><path d="M1200 1310C950 1280 890 1080 810 960C720 825 690 690 600 585C520 490 470 340 470 175" stroke="#8cff4f" stroke-width="8" opacity=".34" filter="url(#glow)"/><path d="M170 1600C260 1380 360 1250 455 1120" stroke="#7f8b91" stroke-width="22"/><path d="M1030 1600C940 1380 840 1250 745 1120" stroke="#7f8b91" stroke-width="22"/></g>
+<path d="M205 1600V1050Q230 910 355 845L420 810H780L845 845Q970 910 995 1050V1600Z" fill="url(#steel)" stroke="#6d7a80" stroke-width="5"/>
+<g clip-path="url(#bodyClip)"><path d="M185 1140L430 930L600 1170L770 930L1015 1140" fill="none" stroke="#3a464c" stroke-width="60"/><path d="M220 1510L440 1120M980 1510L760 1120" stroke="#090c0d" stroke-width="40"/><path d="M270 980L470 1300M930 980L730 1300" stroke="#8cff4f" stroke-opacity=".15" stroke-width="8"/></g>
+<path d="M405 860L450 735H750L795 860L720 960H480Z" fill="#0a0d0f" stroke="#66747b" stroke-width="6"/>
+<g fill="#8cff4f" opacity=".78" filter="url(#glow)"><circle cx="455" cy="825" r="8"/><circle cx="490" cy="865" r="7"/><circle cx="745" cy="825" r="8"/><circle cx="710" cy="865" r="7"/></g>
+<path d="M350 590Q348 350 470 250Q600 145 730 250Q852 350 850 590L800 735Q742 815 600 825Q458 815 400 735Z" fill="url(#steel)" stroke="#76848a" stroke-width="7"/>
+<path d="M390 505Q415 330 525 275Q600 238 675 275Q785 330 810 505L770 645Q702 720 600 726Q498 720 430 645Z" fill="url(#visor)" stroke="#344047" stroke-width="5"/>
+<circle cx="472" cy="520" r="100" fill="#060808" stroke="#879298" stroke-width="8"/><circle cx="472" cy="520" r="55" fill="#0d1417" stroke="#8cff4f" stroke-width="7"/><circle cx="472" cy="520" r="18" fill="#d9ffc4" filter="url(#glow)"/>
+<path d="M575 385L755 430L780 565L725 665L575 695Z" fill="#050708" stroke="#536168" stroke-width="6"/><path d="M600 435H730M610 485H756M610 535H746M595 590H720" stroke="#8cff4f" stroke-opacity=".36" stroke-width="8"/>
+<path d="M365 430L318 515L350 640" fill="none" stroke="#8cff4f" stroke-width="10" opacity=".6" filter="url(#glow)"/><path d="M835 430L882 515L850 640" fill="none" stroke="#8cff4f" stroke-width="10" opacity=".6" filter="url(#glow)"/>
+<path d="M470 1040L600 970L730 1040L695 1195L600 1245L505 1195Z" fill="#070a0b" stroke="#657279" stroke-width="6"/><circle cx="600" cy="1100" r="76" fill="url(#signal)" opacity=".95"/><circle cx="600" cy="1100" r="28" fill="#8cff4f" filter="url(#glow)"/>
+<path d="M600 1024V900M524 1100H420M676 1100H780M550 1150L475 1260M650 1150L725 1260" stroke="#8cff4f" stroke-width="9" opacity=".65" filter="url(#glow)"/>
+<g fill="#b6c0c4" stroke="#151a1c" stroke-width="5"><circle cx="330" cy="1035" r="18"/><circle cx="290" cy="1100" r="16"/><circle cx="870" cy="1035" r="18"/><circle cx="910" cy="1100" r="16"/></g>
+<path d="M110 1445H1090L1015 1510H185Z" fill="#171d20" stroke="#7f8b91" stroke-width="6"/><path d="M210 1445V1350M990 1445V1350M210 1360H990" stroke="#8cff4f" stroke-opacity=".5" stroke-width="8"/><g fill="#8cff4f" opacity=".8"><circle cx="260" cy="1395" r="7"/><circle cx="940" cy="1395" r="7"/></g>
+<rect width="1200" height="1600" fill="none" stroke="#000" stroke-width="90" opacity=".65"/><ellipse cx="600" cy="1580" rx="520" ry="120" fill="#000" opacity=".65" filter="url(#soft)"/>
+</svg>
