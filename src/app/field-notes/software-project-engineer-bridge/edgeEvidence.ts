@@ -1,1 +1,1 @@
-export const edgeInterference = "/images/toyota/chute-edge-before-after.jpg";
+export const edgeInterference = "/media/chute-edge-before-after";
