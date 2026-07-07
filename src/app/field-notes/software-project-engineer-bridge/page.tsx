@@ -122,8 +122,8 @@ export default function SoftwareProjectEngineerBridgePage() {
 
       <EvidencePhoto
         src={edgeInterference}
-        alt="Close field view of a bulk chute transition where a protruding material edge could interrupt package flow"
-        caption="Selected privacy-safe field evidence: an improperly fitted transition created a physical catch point in the package path. The visible failure mechanism was upstream of the software response."
+        alt="Diagnostic diagram showing a package stalled at a protruding chute transition, blocking a photoeye and faulting the upstream bulk feed line"
+        caption="Diagnostic mechanism diagram based on Mason Perry’s field observations and supplied photographs: the physical catch point was upstream of the software response."
       />
 
       <P>
@@ -245,7 +245,7 @@ export default function SoftwareProjectEngineerBridgePage() {
       </P>
 
       <TruthBox title="Application truth boundary">
-        This is an independent recruiter-facing application field case. It does not claim employment by, endorsement from, affiliation with, or participation by Toyota Automated Logistics. Toyota equipment counts and maintenance examples describe Mason Perry’s current facility experience. The selected field image was supplied by Mason and cropped and compressed to avoid intentionally publishing package-address data. ORI TAC Ops is a developing human-in-the-loop operating concept, not a claim of USPS approval or production deployment. Prototype work is not represented as unverified production experience.
+        This is an independent recruiter-facing application field case. It does not claim employment by, endorsement from, affiliation with, or participation by Toyota Automated Logistics. Toyota equipment counts and maintenance examples describe Mason Perry’s current facility experience. The diagnostic visual is an original diagram based on Mason’s observations and supplied photographs; it is not presented as an unaltered site photograph. ORI TAC Ops is a developing human-in-the-loop operating concept, not a claim of USPS approval or production deployment. Prototype work is not represented as unverified production experience.
       </TruthBox>
 
       <H2>The bridge</H2>
