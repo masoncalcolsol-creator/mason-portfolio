@@ -1,586 +1,279 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { ChangeEvent, useEffect, useMemo, useState } from "react";
 import {
   ArrowRight,
-  BadgeCheck,
   BriefcaseBusiness,
   CheckCircle2,
   FileSearch,
   Gauge,
-  GitBranch,
   Network,
   ScanLine,
   ShieldCheck,
   Sparkles,
   TriangleAlert,
-  UserRoundCheck,
   Workflow,
 } from "lucide-react";
 import styles from "./caseforge.module.css";
 
-type FactFlag = "domesticViolence" | "relocation" | "substance" | "school" | "messages" | "priorOrder";
-type ArgumentId = "bestInterests" | "decisionMaking" | "parentingTime" | "evidencePattern" | "procedure" | "discovery" | "emergency";
-
-type Matter = {
-  id: string;
+type SourceDoc = { id: string; name: string; kind: string; text: string; createdAt: string };
+type EvidenceItem = { id: string; sourceId: string; sourceName: string; page: string; label: string; excerpt: string; weight: number; note: string };
+type MatterState = {
   client: string;
   opposing: string;
   child: string;
   county: string;
-  motion: string;
-  templateMatter: string;
-  status: string;
-  urgency: string;
-  assignedOperator: string;
-  attorneyGate: string;
+  matterType: string;
+  tasking: string;
+  facts: string;
+  risks: string;
+  operator: string;
+  reviewer: string;
+  approved: boolean;
+  lastReceipt: string;
+};
+type SearchHit = { sourceId: string; sourceName: string; page: string; excerpt: string; score: number };
+
+const storageKey = "nullworks-caseforge-local-beta-v1";
+
+const initialMatter: MatterState = {
+  client: "Jones",
+  opposing: "Jones",
+  child: "Minor Child",
+  county: "Maricopa County",
+  matterType: "Time-sensitive family case support packet",
+  tasking: "Prepare a working memo, source index, issue map, discovery checklist, and review packet for professional review.",
+  facts: "School stability, exchange logistics, communication pattern, and current order language appear central. Use prior matter structure only as a framework, not as authority.",
+  risks: "Verify all sources, forms, dates, exhibits, and professional-scope boundaries before external use.",
+  operator: "Senior family-law operations lead",
+  reviewer: "Attorney / authorized professional",
+  approved: false,
+  lastReceipt: "No review receipt yet.",
 };
 
-type EvidenceHit = {
-  id: string;
-  label: string;
-  page: number;
-  quote: string;
-  weight: number;
-  sourceType: string;
-  flags: FactFlag[];
-};
-
-type ArgumentCard = {
-  id: ArgumentId;
-  title: string;
-  baseStrength: number;
-  source: string;
-  reason: string;
-  requiredFlags: FactFlag[];
-  evidenceIds: string[];
-  risk: string;
-};
-
-const flagLabels: Record<FactFlag, string> = {
-  domesticViolence: "Domestic violence supported",
-  relocation: "Relocation issue",
-  substance: "Substance / impairment concern",
-  school: "School stability issue",
-  messages: "TalkingParents evidence",
-  priorOrder: "Prior order / parenting plan",
-};
-
-const matters: Matter[] = [
-  {
-    id: "jones",
-    client: "Jones",
-    opposing: "Jones",
-    child: "Minor Child",
-    county: "Maricopa County",
-    motion: "Emergency orders + discovery response",
-    templateMatter: "Thompson",
-    status: "Drafting",
-    urgency: "24 hour rush",
-    assignedOperator: "Senior family-law operator",
-    attorneyGate: "Required before export",
-  },
-  {
-    id: "garcia",
-    client: "Garcia",
-    opposing: "Garcia",
-    child: "A.G.",
-    county: "Maricopa County",
-    motion: "Parenting-time modification packet",
-    templateMatter: "Garcia",
-    status: "Indexed",
-    urgency: "Standard",
-    assignedOperator: "Document prep lane",
-    attorneyGate: "Required before filing",
-  },
-  {
-    id: "thompson",
-    client: "Thompson",
-    opposing: "Thompson",
-    child: "T.T.",
-    county: "Maricopa County",
-    motion: "Prior response framework",
-    templateMatter: "Thompson",
-    status: "Review",
-    urgency: "Closed template",
-    assignedOperator: "Matter memory",
-    attorneyGate: "Historical only",
-  },
+const seedDocs: SourceDoc[] = [
+  { id: "sample-messages", name: "Sample message notes", kind: "seed text", createdAt: "beta seed", text: "Page 4: Holiday exchange dispute. One parent asks to change the exchange time. The other references school schedule.\n\nPage 118: Repeated schedule-change requests. Several messages show conflict about pickup timing and communication.\n\nPage 322: Escalating language. Full context must be reviewed before using any sensitive characterization." },
+  { id: "sample-order", name: "Sample prior order notes", kind: "seed text", createdAt: "beta seed", text: "Page 1: Existing order controls decision-making and parenting-time language. Quote exactly from the signed order. Do not reconstruct order terms from memory.\n\nPage 2: Current plan requires exchange logistics and school-day stability to be evaluated against actual signed language." },
 ];
 
-const legalSources = [
-  ["Official statute slot", "Arizona Revised Statutes Title 25", "Required before any statute citation becomes usable."],
-  ["Official court slot", "Arizona Judicial Branch rules", "Procedure, timing, and form checks before final draft."],
-  ["Local court slot", "Maricopa County family forms", "Caption, packet, filing posture, and local-form sanity checks."],
-  ["Licensed citator slot", "Westlaw / equivalent connector", "Not connected in beta source. Future case-law verification requires a licensed source."],
-  ["Matter memory slot", "Prior pleadings and outcomes", "Pattern memory only. Never controlling law without official or licensed verification."],
+const authoritySlots = [
+  ["Official statute slot", "Arizona statutes", "Not connected yet. Verify before citing."],
+  ["Official court slot", "Arizona court rules", "Not connected yet. Verify procedure before use."],
+  ["Local court slot", "Maricopa County forms", "Not connected yet. Verify forms and filing posture."],
+  ["Licensed research slot", "Licensed legal research connector", "Not connected. Case-law validation requires a licensed source."],
+  ["Matter memory slot", "Prior work product", "Pattern memory only. Never controlling authority by itself."],
 ];
 
-const evidenceBank: EvidenceHit[] = [
-  {
-    id: "tp-004",
-    label: "TalkingParents page 4 — exchange dispute",
-    page: 4,
-    quote: "Holiday-exchange language appears near the start of the transcript and should be checked against the signed PDF.",
-    weight: 91,
-    sourceType: "TalkingParents transcript",
-    flags: ["messages", "school"],
-  },
-  {
-    id: "tp-118",
-    label: "TalkingParents page 118 — schedule-change pattern",
-    page: 118,
-    quote: "Repeated schedule-change requests may support a stability argument if attorney review confirms context.",
-    weight: 77,
-    sourceType: "TalkingParents transcript",
-    flags: ["messages", "priorOrder"],
-  },
-  {
-    id: "tp-322",
-    label: "TalkingParents page 322 — escalation language",
-    page: 322,
-    quote: "Escalating language is relevant only if marked material, admissible, and not misleading in context.",
-    weight: 63,
-    sourceType: "TalkingParents transcript",
-    flags: ["messages", "domesticViolence"],
-  },
-  {
-    id: "order-001",
-    label: "Prior order excerpt — decision-making framework",
-    page: 1,
-    quote: "Existing decision-making language must be imported exactly from the current order, not reconstructed from memory.",
-    weight: 86,
-    sourceType: "Existing order",
-    flags: ["priorOrder"],
-  },
-  {
-    id: "disc-009",
-    label: "Discovery request 9 — school records",
-    page: 9,
-    quote: "Discovery response can be drafted from indexed school and message exhibits after privilege and scope review.",
-    weight: 74,
-    sourceType: "Discovery request",
-    flags: ["school", "priorOrder"],
-  },
-];
+function nowReceipt() { return new Date().toLocaleString(); }
+function makeId(prefix: string) { return `${prefix}-${Date.now()}-${Math.random().toString(16).slice(2, 8)}`; }
 
-const baseArguments: ArgumentCard[] = [
-  {
-    id: "bestInterests",
-    title: "Best-interests framework",
-    baseStrength: 88,
-    source: "Arizona Title 25 source slot + verified matter facts",
-    reason: "Strong default framework because it organizes child-focused facts, stability, communication, and parenting-plan fit without overclaiming.",
-    requiredFlags: [],
-    evidenceIds: ["tp-004", "tp-118"],
-    risk: "Low if tied to verified facts and reviewed by attorney.",
-  },
-  {
-    id: "emergency",
-    title: "Emergency-order module",
-    baseStrength: 58,
-    source: "Attorney-reviewed facts + local rule / form check required",
-    reason: "Only appropriate when the record supports urgency, harm, or immediate court attention. Never auto-included from rhetoric alone.",
-    requiredFlags: ["domesticViolence"],
-    evidenceIds: ["tp-322"],
-    risk: "High. Requires human legal authority before use.",
-  },
-  {
-    id: "decisionMaking",
-    title: "Legal decision-making / authority allocation",
-    baseStrength: 76,
-    source: "Prior order + official statute/rule verification required",
-    reason: "Useful if requested relief turns on authority, communication, decision deadlock, or ability to co-parent.",
-    requiredFlags: ["priorOrder"],
-    evidenceIds: ["order-001", "tp-118"],
-    risk: "Medium. Prior order must be quoted exactly.",
-  },
-  {
-    id: "parentingTime",
-    title: "Parenting-time stability and logistics",
-    baseStrength: 82,
-    source: "Maricopa family workflow + official statute source slot",
-    reason: "Strong where the record shows repeatable exchange, school, travel, routine, or schedule evidence.",
-    requiredFlags: ["school"],
-    evidenceIds: ["tp-004", "tp-118"],
-    risk: "Low to medium depending on requested relief.",
-  },
-  {
-    id: "evidencePattern",
-    title: "Evidence-pattern argument",
-    baseStrength: 70,
-    source: "TalkingParents page-aware source block engine",
-    reason: "Useful as supporting architecture: not one quote, but a source-linked pattern with page jumps and attorney-selected context.",
-    requiredFlags: ["messages"],
-    evidenceIds: ["tp-004", "tp-118", "tp-322"],
-    risk: "Medium. Must avoid cherry-picking and preserve context.",
-  },
-  {
-    id: "discovery",
-    title: "Discovery response / propounding lane",
-    baseStrength: 73,
-    source: "Discovery request index + privilege/scope review gate",
-    reason: "Turns uploaded discovery into response shell, objection placeholders, production checklist, and missing-item queue.",
-    requiredFlags: ["priorOrder"],
-    evidenceIds: ["disc-009"],
-    risk: "Medium. Privilege and scope review required.",
-  },
-  {
-    id: "procedure",
-    title: "Procedure / form compliance guardrail",
-    baseStrength: 68,
-    source: "Arizona Court Rules + Maricopa forms source slot",
-    reason: "Prevents wrong caption, wrong packet, missing attachment, or unsupported filing posture.",
-    requiredFlags: [],
-    evidenceIds: [],
-    risk: "Low but mandatory before export.",
-  },
-];
+function chunkText(source: SourceDoc): SearchHit[] {
+  return source.text
+    .split(/\n\s*\n|(?=Page\s+\d+)/i)
+    .map((block) => block.trim())
+    .filter(Boolean)
+    .map((block, index) => ({
+      sourceId: source.id,
+      sourceName: source.name,
+      page: block.match(/page\s+(\d+)/i)?.[1] ?? `${index + 1}`,
+      excerpt: block.length > 850 ? `${block.slice(0, 850)}…` : block,
+      score: 0,
+    }));
+}
 
-const templates = [
-  ["Thompson", "92", "Reuse structure A, C, D, and F. Do not reuse domestic-violence module unless Jones has independent support."],
-  ["Garcia", "78", "Reuse parenting-time logistics and school-stability framing. Verify prior-order posture."],
-  ["Nguyen", "61", "Use only evidence-indexing method. Different county and posture make argument reuse weak."],
-];
-
-const workcellTasks = [
-  ["Intake", "Normalize parties, child initials, county, current order, requested relief, deadlines, and missing materials."],
-  ["Index", "Split pleadings, orders, discovery, correspondence, messages, exhibits, and forms into source-linked records."],
-  ["Frame", "Rank argument modules, identify unsupported modules, and suggest reusable prior-matter frameworks."],
-  ["Draft", "Assemble editable preview with citations, exhibits, discovery shells, and attorney notes."],
-  ["Gate", "Lock PDF/export until professional review, source checks, and approval receipt are complete."],
-];
-
-const auditEvents = [
-  "Voice prompt processed into matter facts and requested relief.",
-  "Domestic-violence module excluded because current prompt says no support.",
-  "Thompson template suggested for structure but blocked from blind reuse.",
-  "TalkingParents evidence mapped to pages 4, 118, and 322.",
-  "Attorney gate remains locked until citation and fact review complete.",
-];
-
-function scoreArgument(argument: ArgumentCard, flags: Record<FactFlag, boolean>) {
-  const required = argument.requiredFlags.reduce((sum, flag) => sum + (flags[flag] ? 9 : -16), 0);
-  const evidence = argument.evidenceIds.reduce((sum, id) => {
-    const hit = evidenceBank.find((item) => item.id === id);
-    if (!hit) return sum;
-    return sum + (hit.flags.some((flag) => flags[flag]) ? 4 : -1);
-  }, 0);
-  const sensitivePenalty = !flags.domesticViolence && argument.id === "emergency" ? -18 : 0;
-  return Math.max(10, Math.min(99, argument.baseStrength + required + evidence + sensitivePenalty));
+function scoreHit(text: string, query: string) {
+  const terms = query.toLowerCase().split(/\s+/).filter((term) => term.length > 2);
+  const haystack = text.toLowerCase();
+  return terms.reduce((sum, term) => sum + (haystack.includes(term) ? 1 : 0), 0);
 }
 
 export default function CaseForgePage() {
-  const [activeMatterId, setActiveMatterId] = useState("jones");
-  const activeMatter = matters.find((item) => item.id === activeMatterId) ?? matters[0];
-  const [matter, setMatter] = useState<Matter>(activeMatter);
-  const [prompt, setPrompt] = useState("Build a response for Jones using Thompson as a starting point. No domestic violence module unless supported. Emphasize school stability, TalkingParents evidence, the current parenting plan, emergency-order readiness, and discovery response shell.");
-  const [flags, setFlags] = useState<Record<FactFlag, boolean>>({
-    domesticViolence: false,
-    relocation: false,
-    substance: false,
-    school: true,
-    messages: true,
-    priorOrder: true,
-  });
-  const [selected, setSelected] = useState<Record<ArgumentId, boolean>>({
-    bestInterests: true,
-    decisionMaking: true,
-    parentingTime: true,
-    evidencePattern: true,
-    procedure: true,
-    discovery: true,
-    emergency: false,
-  });
-  const [activePage, setActivePage] = useState(4);
-  const [approved, setApproved] = useState(false);
+  const [matter, setMatter] = useState<MatterState>(initialMatter);
+  const [docs, setDocs] = useState<SourceDoc[]>(seedDocs);
+  const [evidence, setEvidence] = useState<EvidenceItem[]>([]);
+  const [query, setQuery] = useState("school exchange schedule order");
+  const [pasteName, setPasteName] = useState("Pasted source block");
+  const [pasteText, setPasteText] = useState("");
+  const [status, setStatus] = useState("Local beta ready. Data is stored in this browser until backend persistence is wired.");
 
-  const rankedArguments = useMemo(
-    () => baseArguments
-      .map((argument) => ({ ...argument, strength: scoreArgument(argument, flags) }))
-      .sort((a, b) => b.strength - a.strength),
-    [flags],
-  );
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem(storageKey);
+      if (!raw) return;
+      const parsed = JSON.parse(raw) as { matter?: MatterState; docs?: SourceDoc[]; evidence?: EvidenceItem[] };
+      if (parsed.matter) setMatter(parsed.matter);
+      if (parsed.docs) setDocs(parsed.docs);
+      if (parsed.evidence) setEvidence(parsed.evidence);
+    } catch { setStatus("Could not load prior local workspace. Starting fresh."); }
+  }, []);
 
-  const selectedArguments = rankedArguments.filter((argument) => selected[argument.id]);
-  const matchedTemplate = templates.find(([name]) => name === matter.templateMatter) ?? templates[0];
-  const readiness = Math.min(100, Math.round((selectedArguments.length * 9) + (flags.messages ? 14 : 0) + (flags.priorOrder ? 14 : 0) + (approved ? 20 : 0)));
-  const exportLocked = !approved;
+  useEffect(() => {
+    try { localStorage.setItem(storageKey, JSON.stringify({ matter, docs, evidence })); }
+    catch { setStatus("Local save failed. Browser storage may be blocked or full."); }
+  }, [matter, docs, evidence]);
 
-  function switchMatter(nextMatter: Matter) {
-    setActiveMatterId(nextMatter.id);
-    setMatter(nextMatter);
-    setApproved(false);
-  }
+  const searchHits = useMemo(() => docs.flatMap(chunkText)
+    .map((hit) => ({ ...hit, score: scoreHit(hit.excerpt, query) }))
+    .filter((hit) => query.trim().length === 0 || hit.score > 0)
+    .sort((a, b) => b.score - a.score)
+    .slice(0, 20), [docs, query]);
 
-  function setMatterField(field: keyof Matter, value: string) {
+  const memo = useMemo(() => buildMemo(matter, evidence, docs), [matter, evidence, docs]);
+
+  function updateMatter(field: keyof MatterState, value: string | boolean) {
     setMatter((current) => ({ ...current, [field]: value }));
   }
 
-  function toggleFlag(flag: FactFlag) {
-    const nextValue = !flags[flag];
-    setFlags((current) => ({ ...current, [flag]: nextValue }));
-    if (flag === "domesticViolence" && !nextValue) {
-      setSelected((current) => ({ ...current, emergency: false }));
+  async function handleFile(event: ChangeEvent<HTMLInputElement>) {
+    const files = Array.from(event.target.files ?? []);
+    const loaded: SourceDoc[] = [];
+    const rejected: string[] = [];
+    for (const file of files) {
+      const lower = file.name.toLowerCase();
+      if (lower.endsWith(".pdf") || file.type === "application/pdf") {
+        rejected.push(`${file.name}: paste OCR/text export until PDF parser is wired.`);
+        continue;
+      }
+      try {
+        loaded.push({ id: makeId("doc"), name: file.name, kind: file.type || "text file", text: await file.text(), createdAt: nowReceipt() });
+      } catch { rejected.push(`${file.name}: could not read as text.`); }
     }
+    if (loaded.length) setDocs((current) => [...loaded, ...current]);
+    setStatus([loaded.length ? `Loaded ${loaded.length} text source(s).` : "No text sources loaded.", ...rejected].join(" "));
+    event.target.value = "";
   }
 
-  function toggleArgument(id: ArgumentId) {
-    setSelected((current) => ({ ...current, [id]: !current[id] }));
+  function addPastedSource() {
+    if (pasteText.trim().length < 5) { setStatus("Paste source text before adding a source block."); return; }
+    setDocs((current) => [{ id: makeId("paste"), name: pasteName.trim() || "Pasted source block", kind: "pasted text", text: pasteText, createdAt: nowReceipt() }, ...current]);
+    setPasteText("");
+    setStatus("Pasted source block added and indexed locally.");
   }
 
-  function processPrompt() {
-    const text = prompt.toLowerCase();
-    setFlags((current) => ({
-      ...current,
-      domesticViolence: text.includes("domestic violence") && !text.includes("no domestic violence"),
-      relocation: text.includes("relocation") || text.includes("move away"),
-      substance: text.includes("substance") || text.includes("impairment") || text.includes("alcohol"),
-      school: current.school || text.includes("school"),
-      messages: current.messages || text.includes("talkingparents") || text.includes("message"),
-      priorOrder: current.priorOrder || text.includes("order") || text.includes("parenting plan"),
-    }));
-    if (text.includes("garcia")) setMatterField("templateMatter", "Garcia");
-    if (text.includes("nguyen")) setMatterField("templateMatter", "Nguyen");
-    if (text.includes("thompson")) setMatterField("templateMatter", "Thompson");
-    if (text.includes("emergency")) setSelected((current) => ({ ...current, emergency: true }));
-    if (text.includes("discovery")) setSelected((current) => ({ ...current, discovery: true }));
+  function captureEvidence(hit: SearchHit) {
+    setEvidence((current) => [{
+      id: makeId("ev"), sourceId: hit.sourceId, sourceName: hit.sourceName, page: hit.page,
+      label: `Page/block ${hit.page} — ${query || "captured source"}`,
+      excerpt: hit.excerpt, weight: Math.min(99, 60 + hit.score * 10), note: "Captured from local source search. Verify context before external use."
+    }, ...current]);
+    setStatus(`Captured evidence from ${hit.sourceName}, page/block ${hit.page}.`);
+  }
+
+  async function copyMemo() {
+    try { await navigator.clipboard.writeText(memo); setStatus("Working memo copied to clipboard."); }
+    catch { setStatus("Clipboard copy failed. Select and copy the memo manually."); }
+  }
+
+  function downloadWorkspace() {
+    const blob = new Blob([JSON.stringify({ matter, docs, evidence, memo }, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `caseforge-${matter.client || "matter"}-workspace.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+    setStatus("Workspace JSON exported.");
+  }
+
+  function markReview() {
+    const next = !matter.approved;
+    setMatter((current) => ({ ...current, approved: next, lastReceipt: next ? `Review gate marked complete at ${nowReceipt()}` : `Review gate reopened at ${nowReceipt()}` }));
+  }
+
+  function resetWorkspace() {
+    setMatter(initialMatter); setDocs(seedDocs); setEvidence([]); setStatus("Workspace reset to beta seed data.");
   }
 
   return (
     <main className={styles.page}>
       <section className={styles.hero}>
         <div className={styles.heroCopy}>
-          <div className={styles.kicker}>NULLWORKS LEGAL OPERATIONS WORKCELL</div>
+          <div className={styles.kicker}>NULLWORKS CASEFORGE · FUNCTIONAL LOCAL BETA</div>
           <h1>CaseForge</h1>
-          <p>
-            A service-ready legal operations workbench for matter intake, source-linked evidence,
-            discovery preparation, argument ranking, reusable matter memory, and attorney-controlled draft assembly.
-          </p>
-          <div className={styles.boundary}>
-            <ShieldCheck size={20} />
-            <span>Not a law firm. Not a lawyer. Not legal advice. Attorney or authorized legal professional remains final authority.</span>
-          </div>
+          <p>Paste or upload text sources, search the record, capture evidence, assemble a working memo, preserve review receipts, and export the workspace.</p>
+          <div className={styles.boundary}><ShieldCheck size={20} /><span>Operations support only. Professional authority remains final.</span></div>
         </div>
-        <div className={styles.statusCard}>
-          <Gauge size={24} />
-          <strong>Beta source build</strong>
-          <span>Firm queue → matter workbench → evidence → draft → approval gate</span>
-        </div>
-      </section>
-
-      <section className={styles.dashboardGrid}>
-        <article className={styles.card}>
-          <div className={styles.cardHead}><BriefcaseBusiness size={20} /><h2>Firm queue</h2></div>
-          <div className={styles.matterList}>
-            {matters.map((item) => (
-              <button key={item.id} className={item.id === activeMatterId ? styles.matterOn : styles.matter} onClick={() => switchMatter(item)}>
-                <strong>{item.client}</strong>
-                <span>{item.motion}</span>
-                <em>{item.status} · {item.urgency}</em>
-              </button>
-            ))}
-          </div>
-        </article>
-
-        <article className={styles.card}>
-          <div className={styles.cardHead}><UserRoundCheck size={20} /><h2>Service model</h2></div>
-          <div className={styles.operatorCard}>
-            <strong>{matter.assignedOperator}</strong>
-            <span>{matter.attorneyGate}</span>
-            <p>One expert operator supervises intake, indexing, drafts, and exception handling while the attorney or authorized professional keeps legal judgment and approval.</p>
-          </div>
-          <div className={styles.metricsRow}>
-            <Metric value="5" label="workcell stages" />
-            <Metric value="7" label="argument modules" />
-            <Metric value={`${readiness}%`} label="draft readiness" />
-          </div>
-        </article>
+        <div className={styles.statusCard}><Gauge size={24} /><strong>{matter.approved ? "Review marked" : "Export gated"}</strong><span>{status}</span></div>
       </section>
 
       <section className={styles.gridTwo}>
         <article className={styles.card}>
-          <div className={styles.cardHead}><Network size={20} /><h2>Voice command surface</h2></div>
-          <textarea value={prompt} onChange={(event) => setPrompt(event.target.value)} />
-          <button className={styles.primaryButton} onClick={processPrompt}>Process command <ArrowRight size={16} /></button>
-          <p className={styles.microcopy}>Mobile dictation works in this field now. Browser microphone capture is a later connector and is not claimed in this beta source build.</p>
-        </article>
-
-        <article className={styles.card}>
-          <div className={styles.cardHead}><GitBranch size={20} /><h2>Reusable matter shell</h2></div>
+          <div className={styles.cardHead}><BriefcaseBusiness size={20} /><h2>Matter workspace</h2></div>
           <div className={styles.formGrid}>
-            {Object.entries(matter).filter(([key]) => key !== "id").map(([key, value]) => (
-              <label key={key}>
-                <span>{key.replace(/([A-Z])/g, " $1")}</span>
-                <input value={value} onChange={(event) => setMatterField(key as keyof Matter, event.target.value)} />
-              </label>
-            ))}
+            <Field label="Client" value={matter.client} onChange={(value) => updateMatter("client", value)} />
+            <Field label="Opposing party" value={matter.opposing} onChange={(value) => updateMatter("opposing", value)} />
+            <Field label="Child / initials" value={matter.child} onChange={(value) => updateMatter("child", value)} />
+            <Field label="County" value={matter.county} onChange={(value) => updateMatter("county", value)} />
+            <Field label="Matter type" value={matter.matterType} onChange={(value) => updateMatter("matterType", value)} />
+            <Field label="Reviewer" value={matter.reviewer} onChange={(value) => updateMatter("reviewer", value)} />
           </div>
+          <TextField label="Tasking" value={matter.tasking} onChange={(value) => updateMatter("tasking", value)} />
+          <TextField label="Known facts" value={matter.facts} onChange={(value) => updateMatter("facts", value)} />
+          <TextField label="Risks / boundaries" value={matter.risks} onChange={(value) => updateMatter("risks", value)} />
+        </article>
+
+        <article className={styles.card}>
+          <div className={styles.cardHead}><ScanLine size={20} /><h2>Source intake</h2></div>
+          <p className={styles.microcopy}>Reads text files and pasted text today. For PDFs, paste OCR/text export until KONRAN PDF parsing is wired.</p>
+          <input type="file" multiple accept=".txt,.md,.csv,.json,.html,.xml,text/*" onChange={handleFile} />
+          <Field label="Source name" value={pasteName} onChange={setPasteName} />
+          <TextField label="Paste source text / OCR / transcript" value={pasteText} onChange={setPasteText} />
+          <button className={styles.primaryButton} onClick={addPastedSource}>Add source block <ArrowRight size={16} /></button>
+          <ul className={styles.cleanList}><li>{docs.length} source records.</li><li>{evidence.length} captured evidence records.</li><li>Local browser persistence active.</li></ul>
         </article>
       </section>
 
-      <section className={styles.card}>
-        <div className={styles.cardHead}><Workflow size={20} /><h2>Workcell stages</h2></div>
-        <div className={styles.stageGrid}>
-          {workcellTasks.map(([title, body], index) => (
-            <div key={title}>
-              <span>{index + 1}</span>
-              <strong>{title}</strong>
-              <p>{body}</p>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      <section className={styles.card}>
-        <div className={styles.cardHead}><Sparkles size={20} /><h2>Fact modules</h2></div>
-        <div className={styles.chips}>
-          {(Object.keys(flagLabels) as FactFlag[]).map((flag) => (
-            <button key={flag} className={flags[flag] ? styles.chipOn : styles.chip} onClick={() => toggleFlag(flag)}>
-              {flags[flag] ? <CheckCircle2 size={15} /> : <TriangleAlert size={15} />}
-              {flagLabels[flag]}
+      <section className={styles.gridTwoWide}>
+        <article className={styles.card}>
+          <div className={styles.cardHead}><FileSearch size={20} /><h2>Search and capture evidence</h2></div>
+          <Field label="Search query" value={query} onChange={setQuery} />
+          <div className={styles.evidenceList}>{searchHits.map((hit) => (
+            <button key={`${hit.sourceId}-${hit.page}-${hit.excerpt.slice(0, 20)}`} className={styles.evidence} onClick={() => captureEvidence(hit)}>
+              <strong>{hit.sourceName} · page/block {hit.page}</strong><span>{hit.excerpt}</span><em>Score {hit.score} · tap to capture</em>
             </button>
-          ))}
-        </div>
-      </section>
-
-      <section className={styles.gridTwoWide}>
-        <article className={styles.card}>
-          <div className={styles.cardHead}><Workflow size={20} /><h2>Ranked argument and task modules</h2></div>
-          <div className={styles.argumentList}>
-            {rankedArguments.map((argument) => (
-              <button key={argument.id} className={selected[argument.id] ? styles.argumentOn : styles.argument} onClick={() => toggleArgument(argument.id)}>
-                <span className={styles.score}>{argument.strength}</span>
-                <span>
-                  <strong>{argument.title}</strong>
-                  <small>{argument.reason}</small>
-                  <em>{argument.source} · Risk: {argument.risk}</em>
-                </span>
-              </button>
-            ))}
-          </div>
+          ))}</div>
         </article>
 
         <article className={styles.card}>
-          <div className={styles.cardHead}><FileSearch size={20} /><h2>Source-page evidence viewer</h2></div>
-          <div className={styles.evidencePane}>
-            <div className={styles.pdfMock}>
-              <span>Source viewer</span>
-              <strong>Page {activePage}</strong>
-              <p>Clicking an evidence bubble jumps to the exact source page. Live KONRAN/PDF indexing is the next integration gate.</p>
-            </div>
-            <div className={styles.evidenceList}>
-              {evidenceBank.map((hit) => (
-                <button key={hit.id} onClick={() => setActivePage(hit.page)} className={activePage === hit.page ? styles.evidenceOn : styles.evidence}>
-                  <strong>{hit.label}</strong>
-                  <span>{hit.quote}</span>
-                  <em>{hit.sourceType} · Weight {hit.weight} · page {hit.page}</em>
-                </button>
-              ))}
-            </div>
-          </div>
-        </article>
-      </section>
-
-      <section className={styles.gridThree}>
-        <article className={styles.card}>
-          <div className={styles.cardHead}><Sparkles size={20} /><h2>Things you did not know you knew</h2></div>
-          <div className={styles.templateCard}>
-            <BadgeCheck />
-            <div>
-              <strong>{matchedTemplate[0]} match score: {matchedTemplate[1]}</strong>
-              <p>{matchedTemplate[2]}</p>
-            </div>
-          </div>
-          <ul className={styles.cleanList}>
-            <li>Prior matters are ranked as reusable structure, not legal truth.</li>
-            <li>One-off internet pleadings are low-weight leads only.</li>
-            <li>Official law and licensed citators outrank memory, templates, and generated text.</li>
-          </ul>
-        </article>
-
-        <article className={styles.card}>
-          <div className={styles.cardHead}><ScanLine size={20} /><h2>Discovery / document work</h2></div>
-          <ul className={styles.cleanList}>
-            <li>Propound discovery shell: interrogatories, RFP checklist, admissions placeholder.</li>
-            <li>Respond to discovery shell: objections placeholder, production log, missing items.</li>
-            <li>Emergency packet shell: facts, exhibits, proposed orders, attorney review notes.</li>
-            <li>Upload slots: pleadings, orders, TP transcript, exhibits, school records, messages.</li>
-          </ul>
-        </article>
-
-        <article className={styles.card}>
-          <div className={styles.cardHead}><Gauge size={20} /><h2>Telemetry</h2></div>
-          <div className={styles.auditList}>
-            {auditEvents.map((event) => <span key={event}>{event}</span>)}
-          </div>
+          <div className={styles.cardHead}><Sparkles size={20} /><h2>Captured evidence</h2></div>
+          <div className={styles.evidenceList}>{evidence.length === 0 ? <p className={styles.microcopy}>No evidence captured yet.</p> : evidence.map((item) => (
+            <div key={item.id} className={styles.evidenceOn}><strong>{item.label}</strong><span>{item.excerpt}</span><em>{item.sourceName} · page/block {item.page} · weight {item.weight}</em><button className={styles.primaryButton} onClick={() => setEvidence((current) => current.filter((ev) => ev.id !== item.id))}>Remove</button></div>
+          ))}</div>
         </article>
       </section>
 
       <section className={styles.gridTwoWide}>
         <article className={styles.card}>
-          <div className={styles.cardHead}><FileSearch size={20} /><h2>Draft preview before PDF</h2></div>
-          <div className={styles.draftPreview}>
-            <p><strong>For {matter.county} Superior Court</strong></p>
-            <p><strong>Re:</strong> {matter.client} v. {matter.opposing} · {matter.motion}</p>
-            <p>
-              The proposed filing should be framed around the selected human-approved modules below. Each legal citation remains in draft status until verified against official sources or a licensed citator.
-            </p>
-            <ol>
-              {selectedArguments.map((argument) => (
-                <li key={argument.id}>
-                  <strong>{argument.title}</strong> — {argument.reason}
-                </li>
-              ))}
-            </ol>
-            <p>
-              Evidence references should cite page-specific source blocks, including page {activePage} of the source viewer where relevant. Export remains blocked until review is complete.
-            </p>
-          </div>
+          <div className={styles.cardHead}><Workflow size={20} /><h2>Working memo</h2></div>
+          <div className={styles.draftPreview}><pre>{memo}</pre></div>
+          <div className={styles.chips}><button className={styles.primaryButton} onClick={copyMemo}>Copy memo</button><button className={styles.primaryButton} onClick={downloadWorkspace}>Export JSON</button><button className={styles.primaryButton} onClick={resetWorkspace}>Reset</button></div>
         </article>
-
         <article className={styles.card}>
-          <div className={styles.cardHead}><ShieldCheck size={20} /><h2>Attorney / authorized professional gate</h2></div>
-          <button className={approved ? styles.approvalOn : styles.approval} onClick={() => setApproved((value) => !value)}>
-            {approved ? <CheckCircle2 /> : <ShieldCheck />}
-            <span>{approved ? "Review receipt marked complete" : "Export locked pending professional review"}</span>
-          </button>
-          <div className={exportLocked ? styles.exportLocked : styles.exportReady}>
-            <strong>{exportLocked ? "PDF/export locked" : "Draft packet ready for controlled export"}</strong>
-            <p>{exportLocked ? "Source citations, fact modules, exhibits, and legal posture must be reviewed before any draft leaves the workcell." : "This is still a beta UI receipt, not a legal sufficiency claim."}</p>
-          </div>
-          <ul className={styles.cleanList}>
-            <li>No attorney-client relationship from software intake alone.</li>
-            <li>No autonomous filing, signing, or legal advice.</li>
-            <li>Every removed module, source gap, and export decision needs a receipt.</li>
-          </ul>
+          <div className={styles.cardHead}><ShieldCheck size={20} /><h2>Review gate</h2></div>
+          <button className={matter.approved ? styles.approvalOn : styles.approval} onClick={markReview}>{matter.approved ? <CheckCircle2 /> : <TriangleAlert />}<span>{matter.approved ? "Review receipt marked complete" : "External use blocked pending review"}</span></button>
+          <div className={matter.approved ? styles.exportReady : styles.exportLocked}><strong>{evidence.length ? "Memo generated" : "Needs captured evidence"}</strong><p>{matter.lastReceipt}</p></div>
+          <ul className={styles.cleanList}><li>Verify sources before external use.</li><li>Professional judgment controls final output.</li><li>Do not paste protected client data without authorization.</li></ul>
         </article>
       </section>
 
       <section className={styles.card}>
-        <div className={styles.cardHead}><ShieldCheck size={20} /><h2>CoCounsel-class standard without unsafe claims</h2></div>
-        <div className={styles.sourceGrid}>
-          {legalSources.map(([kind, label, use]) => (
-            <div key={label}>
-              <strong>{kind}</strong>
-              <span>{label}</span>
-              <p>{use}</p>
-            </div>
-          ))}
-        </div>
-        <p className={styles.microcopy}>
-          Beta source does not claim licensed Westlaw, Practical Law, CoCounsel, court e-filing, or live statute API access. It proves the operating surface: voice intake, matter queue, reusable matter memory, argument ranking, source weighting, evidence-page jumps, discovery shells, preview-before-PDF, and human authority.
-        </p>
+        <div className={styles.cardHead}><Network size={20} /><h2>Authority connectors still required</h2></div>
+        <div className={styles.sourceGrid}>{authoritySlots.map(([kind, label, use]) => <div key={label}><strong>{kind}</strong><span>{label}</span><p>{use}</p></div>)}</div>
       </section>
     </main>
   );
 }
 
-function Metric({ value, label }: { value: string; label: string }) {
-  return (
-    <div className={styles.metric}>
-      <strong>{value}</strong>
-      <span>{label}</span>
-    </div>
-  );
+function Field({ label, value, onChange }: { label: string; value: string; onChange: (value: string) => void }) {
+  return <label><span>{label}</span><input value={value} onChange={(event) => onChange(event.target.value)} /></label>;
+}
+
+function TextField({ label, value, onChange }: { label: string; value: string; onChange: (value: string) => void }) {
+  return <label><span>{label}</span><textarea value={value} onChange={(event) => onChange(event.target.value)} /></label>;
+}
+
+function buildMemo(matter: MatterState, evidence: EvidenceItem[], docs: SourceDoc[]) {
+  const evidenceLines = evidence.length ? evidence.map((item, index) => `${index + 1}. ${item.label}\n   Source: ${item.sourceName}, page/block ${item.page}\n   Weight: ${item.weight}\n   Excerpt: ${item.excerpt}\n   Note: ${item.note}`).join("\n\n") : "No evidence captured yet.";
+  const sourceLines = docs.map((doc, index) => `${index + 1}. ${doc.name} (${doc.kind}) — ${doc.text.length.toLocaleString()} characters`).join("\n");
+  return `CASEFORGE LOCAL BETA WORKING MEMO\n\nBOUNDARY\nOperations support only. Professional authority remains final.\n\nMATTER\nClient: ${matter.client}\nOpposing Party: ${matter.opposing}\nChild / Initials: ${matter.child}\nCounty: ${matter.county}\nMatter Type: ${matter.matterType}\nReviewer: ${matter.reviewer}\n\nTASKING\n${matter.tasking}\n\nKNOWN FACTS\n${matter.facts}\n\nRISKS / BOUNDARIES\n${matter.risks}\n\nISSUE MAP FOR REVIEW\n1. Confirm current signed order and exact controlling language.\n2. Build child-stability / logistics section only from captured source evidence.\n3. Build communication-pattern section only where full context supports it.\n4. Build discovery checklist from indexed requests, missing items, and scope review.\n5. Exclude sensitive framing unless evidence and reviewer judgment support it.\n\nCAPTURED EVIDENCE\n${evidenceLines}\n\nSOURCE INVENTORY\n${sourceLines || "No source documents loaded."}\n\nREVIEW CHECKLIST\n[ ] Verify official sources and forms.\n[ ] Verify excerpts against full document context.\n[ ] Confirm requested tasking and authorization.\n[ ] Confirm exhibits and page references.\n[ ] Reviewer approves final use.\n\nREVIEW RECEIPT\n${matter.lastReceipt}\n`;
 }
