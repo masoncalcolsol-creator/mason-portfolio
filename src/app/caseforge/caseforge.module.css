@@ -150,8 +150,8 @@
   font-size: 1.15rem;
 }
 
-textarea,
-input {
+.page textarea,
+.page input {
   width: 100%;
   box-sizing: border-box;
   background: rgba(255, 255, 255, 0.06);
@@ -162,12 +162,12 @@ input {
   font: inherit;
 }
 
-textarea {
+.page textarea {
   min-height: 170px;
   resize: vertical;
 }
 
-label span {
+.page label span {
   display: block;
   color: #98a4bd;
   font-size: 0.75rem;
