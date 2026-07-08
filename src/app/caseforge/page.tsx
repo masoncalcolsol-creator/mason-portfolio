@@ -18,6 +18,7 @@ import styles from "./caseforge.module.css";
 
 type SourceDoc = { id: string; name: string; kind: string; text: string; createdAt: string };
 type EvidenceItem = { id: string; sourceId: string; sourceName: string; page: string; label: string; excerpt: string; weight: number; note: string };
+type WorkItem = { id: string; title: string; owner: string; status: "open" | "review" | "done"; notes: string };
 type MatterState = {
   client: string;
   opposing: string;
@@ -33,8 +34,9 @@ type MatterState = {
   lastReceipt: string;
 };
 type SearchHit = { sourceId: string; sourceName: string; page: string; excerpt: string; score: number };
+type WorkspaceFile = { matter?: MatterState; docs?: SourceDoc[]; evidence?: EvidenceItem[]; workItems?: WorkItem[] };
 
-const storageKey = "nullworks-caseforge-local-beta-v1";
+const storageKey = "nullworks-caseforge-local-beta-v2";
 
 const initialMatter: MatterState = {
   client: "Jones",
@@ -54,6 +56,13 @@ const initialMatter: MatterState = {
 const seedDocs: SourceDoc[] = [
   { id: "sample-messages", name: "Sample message notes", kind: "seed text", createdAt: "beta seed", text: "Page 4: Holiday exchange dispute. One parent asks to change the exchange time. The other references school schedule.\n\nPage 118: Repeated schedule-change requests. Several messages show conflict about pickup timing and communication.\n\nPage 322: Escalating language. Full context must be reviewed before using any sensitive characterization." },
   { id: "sample-order", name: "Sample prior order notes", kind: "seed text", createdAt: "beta seed", text: "Page 1: Existing order controls decision-making and parenting-time language. Quote exactly from the signed order. Do not reconstruct order terms from memory.\n\nPage 2: Current plan requires exchange logistics and school-day stability to be evaluated against actual signed language." },
+];
+
+const seedWorkItems: WorkItem[] = [
+  { id: "wi-order", title: "Verify current signed order language", owner: "Reviewer", status: "open", notes: "Confirm exact order terms before external use." },
+  { id: "wi-sources", title: "Load source records", owner: "Operator", status: "open", notes: "Paste/export OCR text until PDF parsing is wired." },
+  { id: "wi-evidence", title: "Capture supporting source blocks", owner: "Operator", status: "open", notes: "Search sources and capture relevant blocks with page references." },
+  { id: "wi-review", title: "Professional review gate", owner: "Reviewer", status: "review", notes: "No external use until reviewed." },
 ];
 
 const authoritySlots = [
@@ -91,34 +100,39 @@ export default function CaseForgePage() {
   const [matter, setMatter] = useState<MatterState>(initialMatter);
   const [docs, setDocs] = useState<SourceDoc[]>(seedDocs);
   const [evidence, setEvidence] = useState<EvidenceItem[]>([]);
+  const [workItems, setWorkItems] = useState<WorkItem[]>(seedWorkItems);
   const [query, setQuery] = useState("school exchange schedule order");
   const [pasteName, setPasteName] = useState("Pasted source block");
+  const [pasteKind, setPasteKind] = useState("pasted text");
   const [pasteText, setPasteText] = useState("");
+  const [newTask, setNewTask] = useState("");
   const [status, setStatus] = useState("Local beta ready. Data is stored in this browser until backend persistence is wired.");
 
   useEffect(() => {
     try {
       const raw = localStorage.getItem(storageKey);
       if (!raw) return;
-      const parsed = JSON.parse(raw) as { matter?: MatterState; docs?: SourceDoc[]; evidence?: EvidenceItem[] };
+      const parsed = JSON.parse(raw) as WorkspaceFile;
       if (parsed.matter) setMatter(parsed.matter);
       if (parsed.docs) setDocs(parsed.docs);
       if (parsed.evidence) setEvidence(parsed.evidence);
+      if (parsed.workItems) setWorkItems(parsed.workItems);
     } catch { setStatus("Could not load prior local workspace. Starting fresh."); }
   }, []);
 
   useEffect(() => {
-    try { localStorage.setItem(storageKey, JSON.stringify({ matter, docs, evidence })); }
+    try { localStorage.setItem(storageKey, JSON.stringify({ matter, docs, evidence, workItems })); }
     catch { setStatus("Local save failed. Browser storage may be blocked or full."); }
-  }, [matter, docs, evidence]);
+  }, [matter, docs, evidence, workItems]);
 
   const searchHits = useMemo(() => docs.flatMap(chunkText)
     .map((hit) => ({ ...hit, score: scoreHit(hit.excerpt, query) }))
     .filter((hit) => query.trim().length === 0 || hit.score > 0)
     .sort((a, b) => b.score - a.score)
-    .slice(0, 20), [docs, query]);
+    .slice(0, 30), [docs, query]);
 
-  const memo = useMemo(() => buildMemo(matter, evidence, docs), [matter, evidence, docs]);
+  const issueMap = useMemo(() => buildIssueMap(matter, evidence), [matter, evidence]);
+  const memo = useMemo(() => buildMemo(matter, evidence, docs, workItems, issueMap), [matter, evidence, docs, workItems, issueMap]);
 
   function updateMatter(field: keyof MatterState, value: string | boolean) {
     setMatter((current) => ({ ...current, [field]: value }));
@@ -143,9 +157,25 @@ export default function CaseForgePage() {
     event.target.value = "";
   }
 
+  async function importWorkspace(event: ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    try {
+      const parsed = JSON.parse(await file.text()) as WorkspaceFile;
+      if (parsed.matter) setMatter(parsed.matter);
+      if (parsed.docs) setDocs(parsed.docs);
+      if (parsed.evidence) setEvidence(parsed.evidence);
+      if (parsed.workItems) setWorkItems(parsed.workItems);
+      setStatus(`Imported workspace from ${file.name}.`);
+    } catch {
+      setStatus("Workspace import failed. Use a CaseForge JSON export.");
+    }
+    event.target.value = "";
+  }
+
   function addPastedSource() {
     if (pasteText.trim().length < 5) { setStatus("Paste source text before adding a source block."); return; }
-    setDocs((current) => [{ id: makeId("paste"), name: pasteName.trim() || "Pasted source block", kind: "pasted text", text: pasteText, createdAt: nowReceipt() }, ...current]);
+    setDocs((current) => [{ id: makeId("paste"), name: pasteName.trim() || "Pasted source block", kind: pasteKind.trim() || "pasted text", text: pasteText, createdAt: nowReceipt() }, ...current]);
     setPasteText("");
     setStatus("Pasted source block added and indexed locally.");
   }
@@ -159,19 +189,37 @@ export default function CaseForgePage() {
     setStatus(`Captured evidence from ${hit.sourceName}, page/block ${hit.page}.`);
   }
 
+  function updateEvidence(id: string, patch: Partial<EvidenceItem>) {
+    setEvidence((current) => current.map((item) => item.id === id ? { ...item, ...patch } : item));
+  }
+
+  function addWorkItem() {
+    if (!newTask.trim()) { setStatus("Add a task title first."); return; }
+    setWorkItems((current) => [{ id: makeId("task"), title: newTask.trim(), owner: matter.operator, status: "open", notes: "Added from local beta." }, ...current]);
+    setNewTask("");
+    setStatus("Work item added.");
+  }
+
+  function cycleWorkItem(id: string) {
+    setWorkItems((current) => current.map((item) => {
+      if (item.id !== id) return item;
+      const next = item.status === "open" ? "review" : item.status === "review" ? "done" : "open";
+      return { ...item, status: next };
+    }));
+  }
+
   async function copyMemo() {
     try { await navigator.clipboard.writeText(memo); setStatus("Working memo copied to clipboard."); }
     catch { setStatus("Clipboard copy failed. Select and copy the memo manually."); }
   }
 
+  function downloadText() {
+    downloadBlob(memo, `caseforge-${matter.client || "matter"}-working-memo.txt`, "text/plain");
+    setStatus("Working memo TXT exported.");
+  }
+
   function downloadWorkspace() {
-    const blob = new Blob([JSON.stringify({ matter, docs, evidence, memo }, null, 2)], { type: "application/json" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `caseforge-${matter.client || "matter"}-workspace.json`;
-    a.click();
-    URL.revokeObjectURL(url);
+    downloadBlob(JSON.stringify({ matter, docs, evidence, workItems, memo }, null, 2), `caseforge-${matter.client || "matter"}-workspace.json`, "application/json");
     setStatus("Workspace JSON exported.");
   }
 
@@ -181,7 +229,7 @@ export default function CaseForgePage() {
   }
 
   function resetWorkspace() {
-    setMatter(initialMatter); setDocs(seedDocs); setEvidence([]); setStatus("Workspace reset to beta seed data.");
+    setMatter(initialMatter); setDocs(seedDocs); setEvidence([]); setWorkItems(seedWorkItems); setStatus("Workspace reset to beta seed data.");
   }
 
   return (
@@ -190,7 +238,7 @@ export default function CaseForgePage() {
         <div className={styles.heroCopy}>
           <div className={styles.kicker}>NULLWORKS CASEFORGE · FUNCTIONAL LOCAL BETA</div>
           <h1>CaseForge</h1>
-          <p>Paste or upload text sources, search the record, capture evidence, assemble a working memo, preserve review receipts, and export the workspace.</p>
+          <p>Paste or upload text sources, search the record, capture evidence, build issue modules, manage work items, preserve review receipts, and export the workspace.</p>
           <div className={styles.boundary}><ShieldCheck size={20} /><span>Operations support only. Professional authority remains final.</span></div>
         </div>
         <div className={styles.statusCard}><Gauge size={24} /><strong>{matter.approved ? "Review marked" : "Export gated"}</strong><span>{status}</span></div>
@@ -217,9 +265,10 @@ export default function CaseForgePage() {
           <p className={styles.microcopy}>Reads text files and pasted text today. For PDFs, paste OCR/text export until KONRAN PDF parsing is wired.</p>
           <input type="file" multiple accept=".txt,.md,.csv,.json,.html,.xml,text/*" onChange={handleFile} />
           <Field label="Source name" value={pasteName} onChange={setPasteName} />
+          <Field label="Source type" value={pasteKind} onChange={setPasteKind} />
           <TextField label="Paste source text / OCR / transcript" value={pasteText} onChange={setPasteText} />
           <button className={styles.primaryButton} onClick={addPastedSource}>Add source block <ArrowRight size={16} /></button>
-          <ul className={styles.cleanList}><li>{docs.length} source records.</li><li>{evidence.length} captured evidence records.</li><li>Local browser persistence active.</li></ul>
+          <div className={styles.auditList}>{docs.map((doc) => <span key={doc.id}>{doc.name} · {doc.kind} · {doc.text.length.toLocaleString()} chars · {doc.createdAt}</span>)}</div>
         </article>
       </section>
 
@@ -237,8 +286,35 @@ export default function CaseForgePage() {
         <article className={styles.card}>
           <div className={styles.cardHead}><Sparkles size={20} /><h2>Captured evidence</h2></div>
           <div className={styles.evidenceList}>{evidence.length === 0 ? <p className={styles.microcopy}>No evidence captured yet.</p> : evidence.map((item) => (
-            <div key={item.id} className={styles.evidenceOn}><strong>{item.label}</strong><span>{item.excerpt}</span><em>{item.sourceName} · page/block {item.page} · weight {item.weight}</em><button className={styles.primaryButton} onClick={() => setEvidence((current) => current.filter((ev) => ev.id !== item.id))}>Remove</button></div>
+            <div key={item.id} className={styles.evidenceOn}>
+              <Field label="Label" value={item.label} onChange={(value) => updateEvidence(item.id, { label: value })} />
+              <TextField label="Excerpt" value={item.excerpt} onChange={(value) => updateEvidence(item.id, { excerpt: value })} />
+              <Field label="Review note" value={item.note} onChange={(value) => updateEvidence(item.id, { note: value })} />
+              <strong>{item.sourceName} · page/block {item.page} · weight {item.weight}</strong>
+              <button className={styles.primaryButton} onClick={() => setEvidence((current) => current.filter((ev) => ev.id !== item.id))}>Remove</button>
+            </div>
           ))}</div>
+        </article>
+      </section>
+
+      <section className={styles.gridThree}>
+        <article className={styles.card}>
+          <div className={styles.cardHead}><Workflow size={20} /><h2>Generated issue modules</h2></div>
+          <div className={styles.argumentList}>{issueMap.map((issue) => <div key={issue.title} className={styles.argumentOn}><span className={styles.score}>{issue.strength}</span><span><strong>{issue.title}</strong><small>{issue.summary}</small><em>{issue.receipts}</em></span></div>)}</div>
+        </article>
+        <article className={styles.card}>
+          <div className={styles.cardHead}><CheckCircle2 size={20} /><h2>Work items</h2></div>
+          <Field label="New task" value={newTask} onChange={setNewTask} />
+          <button className={styles.primaryButton} onClick={addWorkItem}>Add task</button>
+          <div className={styles.auditList}>{workItems.map((item) => <button key={item.id} className={styles.evidence} onClick={() => cycleWorkItem(item.id)}><strong>{item.status.toUpperCase()} · {item.title}</strong><span>{item.owner}: {item.notes}</span></button>)}</div>
+        </article>
+        <article className={styles.card}>
+          <div className={styles.cardHead}><Network size={20} /><h2>Import / export</h2></div>
+          <p className={styles.microcopy}>Move work between devices with JSON export/import until cloud database sync is built.</p>
+          <input type="file" accept=".json,application/json" onChange={importWorkspace} />
+          <button className={styles.primaryButton} onClick={downloadWorkspace}>Export workspace JSON</button>
+          <button className={styles.primaryButton} onClick={downloadText}>Export memo TXT</button>
+          <button className={styles.primaryButton} onClick={resetWorkspace}>Reset local data</button>
         </article>
       </section>
 
@@ -246,7 +322,7 @@ export default function CaseForgePage() {
         <article className={styles.card}>
           <div className={styles.cardHead}><Workflow size={20} /><h2>Working memo</h2></div>
           <div className={styles.draftPreview}><pre>{memo}</pre></div>
-          <div className={styles.chips}><button className={styles.primaryButton} onClick={copyMemo}>Copy memo</button><button className={styles.primaryButton} onClick={downloadWorkspace}>Export JSON</button><button className={styles.primaryButton} onClick={resetWorkspace}>Reset</button></div>
+          <div className={styles.chips}><button className={styles.primaryButton} onClick={copyMemo}>Copy memo</button><button className={styles.primaryButton} onClick={downloadText}>Download TXT</button></div>
         </article>
         <article className={styles.card}>
           <div className={styles.cardHead}><ShieldCheck size={20} /><h2>Review gate</h2></div>
@@ -272,8 +348,35 @@ function TextField({ label, value, onChange }: { label: string; value: string; o
   return <label><span>{label}</span><textarea value={value} onChange={(event) => onChange(event.target.value)} /></label>;
 }
 
-function buildMemo(matter: MatterState, evidence: EvidenceItem[], docs: SourceDoc[]) {
+function downloadBlob(content: string, filename: string, type: string) {
+  const blob = new Blob([content], { type });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function buildIssueMap(matter: MatterState, evidence: EvidenceItem[]) {
+  const text = `${matter.tasking} ${matter.facts} ${evidence.map((item) => item.excerpt).join(" ")}`.toLowerCase();
+  const modules = [
+    { title: "Current order / source-language verification", terms: ["order", "signed", "current"], summary: "Confirm exact controlling source language before any external use." },
+    { title: "Child stability / logistics", terms: ["school", "exchange", "schedule", "pickup"], summary: "Organize source-backed facts about schedule, school, exchange, and routine." },
+    { title: "Communication pattern", terms: ["message", "communication", "talking", "parent"], summary: "Identify repeated communication patterns while preserving full context." },
+    { title: "Discovery / production checklist", terms: ["discovery", "request", "records", "production"], summary: "Track requested materials, missing items, response shells, and review needs." },
+  ];
+  return modules.map((module) => {
+    const hits = module.terms.filter((term) => text.includes(term)).length;
+    const receipts = evidence.filter((item) => module.terms.some((term) => item.excerpt.toLowerCase().includes(term))).length;
+    return { title: module.title, summary: module.summary, receipts: `${receipts} captured evidence receipt(s)`, strength: Math.min(99, 45 + hits * 12 + receipts * 8) };
+  }).sort((a, b) => b.strength - a.strength);
+}
+
+function buildMemo(matter: MatterState, evidence: EvidenceItem[], docs: SourceDoc[], workItems: WorkItem[], issueMap: ReturnType<typeof buildIssueMap>) {
   const evidenceLines = evidence.length ? evidence.map((item, index) => `${index + 1}. ${item.label}\n   Source: ${item.sourceName}, page/block ${item.page}\n   Weight: ${item.weight}\n   Excerpt: ${item.excerpt}\n   Note: ${item.note}`).join("\n\n") : "No evidence captured yet.";
-  const sourceLines = docs.map((doc, index) => `${index + 1}. ${doc.name} (${doc.kind}) — ${doc.text.length.toLocaleString()} characters`).join("\n");
-  return `CASEFORGE LOCAL BETA WORKING MEMO\n\nBOUNDARY\nOperations support only. Professional authority remains final.\n\nMATTER\nClient: ${matter.client}\nOpposing Party: ${matter.opposing}\nChild / Initials: ${matter.child}\nCounty: ${matter.county}\nMatter Type: ${matter.matterType}\nReviewer: ${matter.reviewer}\n\nTASKING\n${matter.tasking}\n\nKNOWN FACTS\n${matter.facts}\n\nRISKS / BOUNDARIES\n${matter.risks}\n\nISSUE MAP FOR REVIEW\n1. Confirm current signed order and exact controlling language.\n2. Build child-stability / logistics section only from captured source evidence.\n3. Build communication-pattern section only where full context supports it.\n4. Build discovery checklist from indexed requests, missing items, and scope review.\n5. Exclude sensitive framing unless evidence and reviewer judgment support it.\n\nCAPTURED EVIDENCE\n${evidenceLines}\n\nSOURCE INVENTORY\n${sourceLines || "No source documents loaded."}\n\nREVIEW CHECKLIST\n[ ] Verify official sources and forms.\n[ ] Verify excerpts against full document context.\n[ ] Confirm requested tasking and authorization.\n[ ] Confirm exhibits and page references.\n[ ] Reviewer approves final use.\n\nREVIEW RECEIPT\n${matter.lastReceipt}\n`;
+  const sourceLines = docs.map((doc, index) => `${index + 1}. ${doc.name} (${doc.kind}) — ${doc.text.length.toLocaleString()} characters — ${doc.createdAt}`).join("\n");
+  const taskLines = workItems.map((item, index) => `${index + 1}. [${item.status.toUpperCase()}] ${item.title} — ${item.owner}: ${item.notes}`).join("\n");
+  const issueLines = issueMap.map((item, index) => `${index + 1}. ${item.title} — strength ${item.strength}\n   ${item.summary}\n   ${item.receipts}`).join("\n");
+  return `CASEFORGE LOCAL BETA WORKING MEMO\n\nBOUNDARY\nOperations support only. Professional authority remains final.\n\nMATTER\nClient: ${matter.client}\nOpposing Party: ${matter.opposing}\nChild / Initials: ${matter.child}\nCounty: ${matter.county}\nMatter Type: ${matter.matterType}\nReviewer: ${matter.reviewer}\n\nTASKING\n${matter.tasking}\n\nKNOWN FACTS\n${matter.facts}\n\nRISKS / BOUNDARIES\n${matter.risks}\n\nGENERATED ISSUE MODULES\n${issueLines}\n\nCAPTURED EVIDENCE\n${evidenceLines}\n\nWORK ITEMS\n${taskLines}\n\nSOURCE INVENTORY\n${sourceLines || "No source documents loaded."}\n\nREVIEW CHECKLIST\n[ ] Verify official sources and forms.\n[ ] Verify excerpts against full document context.\n[ ] Confirm requested tasking and authorization.\n[ ] Confirm exhibits and page references.\n[ ] Reviewer approves final use.\n\nREVIEW RECEIPT\n${matter.lastReceipt}\n`;
 }
