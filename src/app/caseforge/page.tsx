@@ -2,32 +2,25 @@
 
 import { useMemo, useState } from "react";
 import {
-  AlertTriangle,
   ArrowRight,
   BadgeCheck,
-  BrainCircuit,
+  BriefcaseBusiness,
   CheckCircle2,
-  ClipboardCheck,
-  Clock3,
   FileSearch,
-  FolderKanban,
   Gauge,
-  Gavel,
-  LockKeyhole,
-  Mic,
-  Scale,
+  GitBranch,
+  Network,
+  ScanLine,
   ShieldCheck,
   Sparkles,
-  SquarePen,
-  Upload,
-  UsersRound,
+  TriangleAlert,
+  UserRoundCheck,
   Workflow,
 } from "lucide-react";
 import styles from "./caseforge.module.css";
 
 type FactFlag = "domesticViolence" | "relocation" | "substance" | "school" | "messages" | "priorOrder";
 type ArgumentId = "bestInterests" | "decisionMaking" | "parentingTime" | "evidencePattern" | "procedure" | "discovery" | "emergency";
-type MatterStatus = "Intake" | "Indexed" | "Drafting" | "Review" | "Attorney Gate";
 
 type Matter = {
   id: string;
@@ -37,7 +30,7 @@ type Matter = {
   county: string;
   motion: string;
   templateMatter: string;
-  status: MatterStatus;
+  status: string;
   urgency: string;
   assignedOperator: string;
   attorneyGate: string;
@@ -279,7 +272,7 @@ function scoreArgument(argument: ArgumentCard, flags: Record<FactFlag, boolean>)
 
 export default function CaseForgePage() {
   const [activeMatterId, setActiveMatterId] = useState("jones");
-  const activeMatter = matters.find((matter) => matter.id === activeMatterId) ?? matters[0];
+  const activeMatter = matters.find((item) => item.id === activeMatterId) ?? matters[0];
   const [matter, setMatter] = useState<Matter>(activeMatter);
   const [prompt, setPrompt] = useState("Build a response for Jones using Thompson as a starting point. No domestic violence module unless supported. Emphasize school stability, TalkingParents evidence, the current parenting plan, emergency-order readiness, and discovery response shell.");
   const [flags, setFlags] = useState<Record<FactFlag, boolean>>({
@@ -311,7 +304,7 @@ export default function CaseForgePage() {
 
   const selectedArguments = rankedArguments.filter((argument) => selected[argument.id]);
   const matchedTemplate = templates.find(([name]) => name === matter.templateMatter) ?? templates[0];
-  const readiness = Math.round((selectedArguments.length * 9) + (flags.messages ? 14 : 0) + (flags.priorOrder ? 14 : 0) + (approved ? 20 : 0));
+  const readiness = Math.min(100, Math.round((selectedArguments.length * 9) + (flags.messages ? 14 : 0) + (flags.priorOrder ? 14 : 0) + (approved ? 20 : 0)));
   const exportLocked = !approved;
 
   function switchMatter(nextMatter: Matter) {
@@ -325,8 +318,9 @@ export default function CaseForgePage() {
   }
 
   function toggleFlag(flag: FactFlag) {
-    setFlags((current) => ({ ...current, [flag]: !current[flag] }));
-    if (flag === "domesticViolence" && flags.domesticViolence) {
+    const nextValue = !flags[flag];
+    setFlags((current) => ({ ...current, [flag]: nextValue }));
+    if (flag === "domesticViolence" && !nextValue) {
       setSelected((current) => ({ ...current, emergency: false }));
     }
   }
@@ -377,7 +371,7 @@ export default function CaseForgePage() {
 
       <section className={styles.dashboardGrid}>
         <article className={styles.card}>
-          <div className={styles.cardHead}><FolderKanban size={20} /><h2>Firm queue</h2></div>
+          <div className={styles.cardHead}><BriefcaseBusiness size={20} /><h2>Firm queue</h2></div>
           <div className={styles.matterList}>
             {matters.map((item) => (
               <button key={item.id} className={item.id === activeMatterId ? styles.matterOn : styles.matter} onClick={() => switchMatter(item)}>
@@ -390,7 +384,7 @@ export default function CaseForgePage() {
         </article>
 
         <article className={styles.card}>
-          <div className={styles.cardHead}><UsersRound size={20} /><h2>Service model</h2></div>
+          <div className={styles.cardHead}><UserRoundCheck size={20} /><h2>Service model</h2></div>
           <div className={styles.operatorCard}>
             <strong>{matter.assignedOperator}</strong>
             <span>{matter.attorneyGate}</span>
@@ -406,14 +400,14 @@ export default function CaseForgePage() {
 
       <section className={styles.gridTwo}>
         <article className={styles.card}>
-          <div className={styles.cardHead}><Mic size={20} /><h2>Voice command surface</h2></div>
+          <div className={styles.cardHead}><Network size={20} /><h2>Voice command surface</h2></div>
           <textarea value={prompt} onChange={(event) => setPrompt(event.target.value)} />
           <button className={styles.primaryButton} onClick={processPrompt}>Process command <ArrowRight size={16} /></button>
           <p className={styles.microcopy}>Mobile dictation works in this field now. Browser microphone capture is a later connector and is not claimed in this beta source build.</p>
         </article>
 
         <article className={styles.card}>
-          <div className={styles.cardHead}><SquarePen size={20} /><h2>Reusable matter shell</h2></div>
+          <div className={styles.cardHead}><GitBranch size={20} /><h2>Reusable matter shell</h2></div>
           <div className={styles.formGrid}>
             {Object.entries(matter).filter(([key]) => key !== "id").map(([key, value]) => (
               <label key={key}>
@@ -439,11 +433,11 @@ export default function CaseForgePage() {
       </section>
 
       <section className={styles.card}>
-        <div className={styles.cardHead}><BrainCircuit size={20} /><h2>Fact modules</h2></div>
+        <div className={styles.cardHead}><Sparkles size={20} /><h2>Fact modules</h2></div>
         <div className={styles.chips}>
           {(Object.keys(flagLabels) as FactFlag[]).map((flag) => (
             <button key={flag} className={flags[flag] ? styles.chipOn : styles.chip} onClick={() => toggleFlag(flag)}>
-              {flags[flag] ? <CheckCircle2 size={15} /> : <AlertTriangle size={15} />}
+              {flags[flag] ? <CheckCircle2 size={15} /> : <TriangleAlert size={15} />}
               {flagLabels[flag]}
             </button>
           ))}
@@ -452,7 +446,7 @@ export default function CaseForgePage() {
 
       <section className={styles.gridTwoWide}>
         <article className={styles.card}>
-          <div className={styles.cardHead}><Scale size={20} /><h2>Ranked argument and task modules</h2></div>
+          <div className={styles.cardHead}><Workflow size={20} /><h2>Ranked argument and task modules</h2></div>
           <div className={styles.argumentList}>
             {rankedArguments.map((argument) => (
               <button key={argument.id} className={selected[argument.id] ? styles.argumentOn : styles.argument} onClick={() => toggleArgument(argument.id)}>
@@ -506,7 +500,7 @@ export default function CaseForgePage() {
         </article>
 
         <article className={styles.card}>
-          <div className={styles.cardHead}><Upload size={20} /><h2>Discovery / document work</h2></div>
+          <div className={styles.cardHead}><ScanLine size={20} /><h2>Discovery / document work</h2></div>
           <ul className={styles.cleanList}>
             <li>Propound discovery shell: interrogatories, RFP checklist, admissions placeholder.</li>
             <li>Respond to discovery shell: objections placeholder, production log, missing items.</li>
@@ -516,7 +510,7 @@ export default function CaseForgePage() {
         </article>
 
         <article className={styles.card}>
-          <div className={styles.cardHead}><Clock3 size={20} /><h2>Telemetry</h2></div>
+          <div className={styles.cardHead}><Gauge size={20} /><h2>Telemetry</h2></div>
           <div className={styles.auditList}>
             {auditEvents.map((event) => <span key={event}>{event}</span>)}
           </div>
@@ -525,7 +519,7 @@ export default function CaseForgePage() {
 
       <section className={styles.gridTwoWide}>
         <article className={styles.card}>
-          <div className={styles.cardHead}><Gavel size={20} /><h2>Draft preview before PDF</h2></div>
+          <div className={styles.cardHead}><FileSearch size={20} /><h2>Draft preview before PDF</h2></div>
           <div className={styles.draftPreview}>
             <p><strong>For {matter.county} Superior Court</strong></p>
             <p><strong>Re:</strong> {matter.client} v. {matter.opposing} · {matter.motion}</p>
@@ -546,9 +540,9 @@ export default function CaseForgePage() {
         </article>
 
         <article className={styles.card}>
-          <div className={styles.cardHead}><LockKeyhole size={20} /><h2>Attorney / authorized professional gate</h2></div>
+          <div className={styles.cardHead}><ShieldCheck size={20} /><h2>Attorney / authorized professional gate</h2></div>
           <button className={approved ? styles.approvalOn : styles.approval} onClick={() => setApproved((value) => !value)}>
-            {approved ? <CheckCircle2 /> : <LockKeyhole />}
+            {approved ? <CheckCircle2 /> : <ShieldCheck />}
             <span>{approved ? "Review receipt marked complete" : "Export locked pending professional review"}</span>
           </button>
           <div className={exportLocked ? styles.exportLocked : styles.exportReady}>
@@ -564,7 +558,7 @@ export default function CaseForgePage() {
       </section>
 
       <section className={styles.card}>
-        <div className={styles.cardHead}><ClipboardCheck size={20} /><h2>CoCounsel-class standard without unsafe claims</h2></div>
+        <div className={styles.cardHead}><ShieldCheck size={20} /><h2>CoCounsel-class standard without unsafe claims</h2></div>
         <div className={styles.sourceGrid}>
           {legalSources.map(([kind, label, use]) => (
             <div key={label}>
