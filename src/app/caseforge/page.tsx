@@ -1,6 +1,7 @@
 "use client";
 
-import { ChangeEvent, useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import type { ChangeEvent } from "react";
 import {
   ArrowRight,
   BriefcaseBusiness,
@@ -34,17 +35,14 @@ type MatterState = {
   lastReceipt: string;
 };
 type SearchHit = { sourceId: string; sourceName: string; page: string; excerpt: string; score: number };
-type WorkspaceFile = { matter?: MatterState; docs?: SourceDoc[]; evidence?: EvidenceItem[]; workItems?: WorkItem[]; gates?: GateState };
 type GateState = { authorized: boolean; noSecrets: boolean; localOnlyAcknowledged: boolean };
+type WorkspaceFile = { matter?: MatterState; docs?: SourceDoc[]; evidence?: EvidenceItem[]; workItems?: WorkItem[]; gates?: GateState };
 type OfficialLink = { label: string; url: string; use: string };
 type PdfJsTextItem = { str?: string };
 type PdfJsPage = { getTextContent: () => Promise<{ items: PdfJsTextItem[] }> };
 type PdfJsDocument = { numPages: number; getPage: (pageNumber: number) => Promise<PdfJsPage> };
-type PdfJsLib = { GlobalWorkerOptions: { workerSrc: string }; getDocument: (source: { data: ArrayBuffer }) => { promise: Promise<PdfJsDocument } };
-
-declare global {
-  interface Window { pdfjsLib?: PdfJsLib }
-}
+type PdfJsLib = { GlobalWorkerOptions: { workerSrc: string }; getDocument: (source: { data: ArrayBuffer }) => { promise: Promise<PdfJsDocument> } };
+type PdfWindow = Window & typeof globalThis & { pdfjsLib?: PdfJsLib };
 
 const storageKey = "nullworks-caseforge-local-beta-v3";
 
@@ -98,19 +96,10 @@ const pdfWorkerUrl = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf
 
 function nowReceipt() { return new Date().toLocaleString(); }
 function makeId(prefix: string) { return `${prefix}-${Date.now()}-${Math.random().toString(16).slice(2, 8)}`; }
+function pdfWindow() { return window as PdfWindow; }
 
 function chunkText(source: SourceDoc): SearchHit[] {
-  return source.text
-    .split(/\n\s*\n|(?=Page\s+\d+)/i)
-    .map((block) => block.trim())
-    .filter(Boolean)
-    .map((block, index) => ({
-      sourceId: source.id,
-      sourceName: source.name,
-      page: block.match(/page\s+(\d+)/i)?.[1] ?? `${index + 1}`,
-      excerpt: block.length > 850 ? `${block.slice(0, 850)}…` : block,
-      score: 0,
-    }));
+  return source.text.split(/\n\s*\n|(?=Page\s+\d+)/i).map((block) => block.trim()).filter(Boolean).map((block, index) => ({ sourceId: source.id, sourceName: source.name, page: block.match(/page\s+(\d+)/i)?.[1] ?? `${index + 1}`, excerpt: block.length > 850 ? `${block.slice(0, 850)}…` : block, score: 0 }));
 }
 
 function scoreHit(text: string, query: string) {
@@ -120,17 +109,11 @@ function scoreHit(text: string, query: string) {
 }
 
 async function loadPdfJs(): Promise<PdfJsLib> {
-  if (window.pdfjsLib) {
-    window.pdfjsLib.GlobalWorkerOptions.workerSrc = pdfWorkerUrl;
-    return window.pdfjsLib;
-  }
+  const win = pdfWindow();
+  if (win.pdfjsLib) { win.pdfjsLib.GlobalWorkerOptions.workerSrc = pdfWorkerUrl; return win.pdfjsLib; }
   await new Promise<void>((resolve, reject) => {
     const existing = document.getElementById("caseforge-pdfjs-loader") as HTMLScriptElement | null;
-    if (existing) {
-      existing.addEventListener("load", () => resolve(), { once: true });
-      existing.addEventListener("error", () => reject(new Error("PDF.js failed to load.")), { once: true });
-      return;
-    }
+    if (existing) { existing.addEventListener("load", () => resolve(), { once: true }); existing.addEventListener("error", () => reject(new Error("PDF.js failed to load.")), { once: true }); return; }
     const script = document.createElement("script");
     script.id = "caseforge-pdfjs-loader";
     script.src = pdfScriptUrl;
@@ -139,15 +122,15 @@ async function loadPdfJs(): Promise<PdfJsLib> {
     script.onerror = () => reject(new Error("PDF.js failed to load."));
     document.head.appendChild(script);
   });
-  if (!window.pdfjsLib) throw new Error("PDF.js unavailable after load.");
-  window.pdfjsLib.GlobalWorkerOptions.workerSrc = pdfWorkerUrl;
-  return window.pdfjsLib;
+  const loaded = pdfWindow().pdfjsLib;
+  if (!loaded) throw new Error("PDF.js unavailable after load.");
+  loaded.GlobalWorkerOptions.workerSrc = pdfWorkerUrl;
+  return loaded;
 }
 
 async function extractPdfText(file: File) {
   const pdfjs = await loadPdfJs();
-  const bytes = await file.arrayBuffer();
-  const pdf = await pdfjs.getDocument({ data: bytes }).promise;
+  const pdf = await pdfjs.getDocument({ data: await file.arrayBuffer() }).promise;
   const pages: string[] = [];
   for (let pageNumber = 1; pageNumber <= pdf.numPages; pageNumber += 1) {
     const page = await pdf.getPage(pageNumber);
@@ -172,30 +155,10 @@ export default function CaseForgePage() {
   const [newTask, setNewTask] = useState("");
   const [status, setStatus] = useState("Local beta ready. Data is stored in this browser until backend persistence is wired.");
 
-  useEffect(() => {
-    try {
-      const raw = localStorage.getItem(storageKey);
-      if (!raw) return;
-      const parsed = JSON.parse(raw) as WorkspaceFile;
-      if (parsed.matter) setMatter(parsed.matter);
-      if (parsed.docs) setDocs(parsed.docs);
-      if (parsed.evidence) setEvidence(parsed.evidence);
-      if (parsed.workItems) setWorkItems(parsed.workItems);
-      if (parsed.gates) setGates(parsed.gates);
-    } catch { setStatus("Could not load prior local workspace. Starting fresh."); }
-  }, []);
+  useEffect(() => { try { const raw = localStorage.getItem(storageKey); if (!raw) return; const parsed = JSON.parse(raw) as WorkspaceFile; if (parsed.matter) setMatter(parsed.matter); if (parsed.docs) setDocs(parsed.docs); if (parsed.evidence) setEvidence(parsed.evidence); if (parsed.workItems) setWorkItems(parsed.workItems); if (parsed.gates) setGates(parsed.gates); } catch { setStatus("Could not load prior local workspace. Starting fresh."); } }, []);
+  useEffect(() => { try { localStorage.setItem(storageKey, JSON.stringify({ matter, docs, evidence, workItems, gates })); } catch { setStatus("Local save failed. Browser storage may be blocked or full."); } }, [matter, docs, evidence, workItems, gates]);
 
-  useEffect(() => {
-    try { localStorage.setItem(storageKey, JSON.stringify({ matter, docs, evidence, workItems, gates })); }
-    catch { setStatus("Local save failed. Browser storage may be blocked or full."); }
-  }, [matter, docs, evidence, workItems, gates]);
-
-  const searchHits = useMemo(() => docs.flatMap(chunkText)
-    .map((hit) => ({ ...hit, score: scoreHit(hit.excerpt, query) }))
-    .filter((hit) => query.trim().length === 0 || hit.score > 0)
-    .sort((a, b) => b.score - a.score)
-    .slice(0, 30), [docs, query]);
-
+  const searchHits = useMemo(() => docs.flatMap(chunkText).map((hit) => ({ ...hit, score: scoreHit(hit.excerpt, query) })).filter((hit) => query.trim().length === 0 || hit.score > 0).sort((a, b) => b.score - a.score).slice(0, 30), [docs, query]);
   const issueMap = useMemo(() => buildIssueMap(matter, evidence), [matter, evidence]);
   const memo = useMemo(() => buildMemo(matter, evidence, docs, workItems, issueMap, gates), [matter, evidence, docs, workItems, issueMap, gates]);
   const gateReady = gates.authorized && gates.noSecrets && gates.localOnlyAcknowledged;
@@ -211,15 +174,9 @@ export default function CaseForgePage() {
     for (const file of files) {
       const lower = file.name.toLowerCase();
       try {
-        if (lower.endsWith(".pdf") || file.type === "application/pdf") {
-          const text = await extractPdfText(file);
-          loaded.push({ id: makeId("pdf"), name: file.name, kind: "browser-extracted PDF text", text, createdAt: nowReceipt() });
-        } else {
-          loaded.push({ id: makeId("doc"), name: file.name, kind: file.type || "text file", text: await file.text(), createdAt: nowReceipt() });
-        }
-      } catch (error) {
-        rejected.push(`${file.name}: ${error instanceof Error ? error.message : "could not be read"}.`);
-      }
+        if (lower.endsWith(".pdf") || file.type === "application/pdf") { const text = await extractPdfText(file); loaded.push({ id: makeId("pdf"), name: file.name, kind: "browser-extracted PDF text", text, createdAt: nowReceipt() }); }
+        else { loaded.push({ id: makeId("doc"), name: file.name, kind: file.type || "text file", text: await file.text(), createdAt: nowReceipt() }); }
+      } catch (error) { rejected.push(`${file.name}: ${error instanceof Error ? error.message : "could not be read"}.`); }
     }
     if (loaded.length) setDocs((current) => [...loaded, ...current]);
     setStatus([loaded.length ? `Loaded ${loaded.length} source(s).` : "No sources loaded.", ...rejected].join(" "));
@@ -229,61 +186,21 @@ export default function CaseForgePage() {
   async function importWorkspace(event: ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0];
     if (!file) return;
-    try {
-      const parsed = JSON.parse(await file.text()) as WorkspaceFile;
-      if (parsed.matter) setMatter(parsed.matter);
-      if (parsed.docs) setDocs(parsed.docs);
-      if (parsed.evidence) setEvidence(parsed.evidence);
-      if (parsed.workItems) setWorkItems(parsed.workItems);
-      if (parsed.gates) setGates(parsed.gates);
-      setStatus(`Imported workspace from ${file.name}.`);
-    } catch { setStatus("Workspace import failed. Use a CaseForge JSON export."); }
+    try { const parsed = JSON.parse(await file.text()) as WorkspaceFile; if (parsed.matter) setMatter(parsed.matter); if (parsed.docs) setDocs(parsed.docs); if (parsed.evidence) setEvidence(parsed.evidence); if (parsed.workItems) setWorkItems(parsed.workItems); if (parsed.gates) setGates(parsed.gates); setStatus(`Imported workspace from ${file.name}.`); }
+    catch { setStatus("Workspace import failed. Use a CaseForge JSON export."); }
     event.target.value = "";
   }
 
   async function tryImportOfficialUrl() {
-    try {
-      setStatus("Attempting browser import from official URL. Some courts block browser fetch; paste text if blocked.");
-      const response = await fetch(officialUrl);
-      if (!response.ok) throw new Error(`HTTP ${response.status}`);
-      const html = await response.text();
-      const text = html.replace(/<script[\s\S]*?<\/script>/gi, " ").replace(/<style[\s\S]*?<\/style>/gi, " ").replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
-      setDocs((current) => [{ id: makeId("official"), name: officialUrl, kind: "official-url browser import", text, createdAt: nowReceipt() }, ...current]);
-      setStatus("Official URL text imported into local source ledger. Verify against the original page before external use.");
-    } catch (error) {
-      setStatus(`Browser import failed: ${error instanceof Error ? error.message : "unknown error"}. Open the official page and paste the relevant text instead.`);
-    }
+    try { setStatus("Attempting browser import from official URL. Some courts block browser fetch; paste text if blocked."); const response = await fetch(officialUrl); if (!response.ok) throw new Error(`HTTP ${response.status}`); const html = await response.text(); const text = html.replace(/<script[\s\S]*?<\/script>/gi, " ").replace(/<style[\s\S]*?<\/style>/gi, " ").replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim(); setDocs((current) => [{ id: makeId("official"), name: officialUrl, kind: "official-url browser import", text, createdAt: nowReceipt() }, ...current]); setStatus("Official URL text imported. Verify against the original page before external use."); }
+    catch (error) { setStatus(`Browser import failed: ${error instanceof Error ? error.message : "unknown error"}. Open the official page and paste the relevant text instead.`); }
   }
 
-  function addPastedSource() {
-    if (pasteText.trim().length < 5) { setStatus("Paste source text before adding a source block."); return; }
-    setDocs((current) => [{ id: makeId("paste"), name: pasteName.trim() || "Pasted source block", kind: pasteKind.trim() || "pasted text", text: pasteText, createdAt: nowReceipt() }, ...current]);
-    setPasteText("");
-    setStatus("Pasted source block added and indexed locally.");
-  }
-
-  function captureEvidence(hit: SearchHit) {
-    setEvidence((current) => [{ id: makeId("ev"), sourceId: hit.sourceId, sourceName: hit.sourceName, page: hit.page, label: `Page/block ${hit.page} — ${query || "captured source"}`, excerpt: hit.excerpt, weight: Math.min(99, 60 + hit.score * 10), note: "Captured from local source search. Verify context before external use." }, ...current]);
-    setStatus(`Captured evidence from ${hit.sourceName}, page/block ${hit.page}.`);
-  }
-
+  function addPastedSource() { if (pasteText.trim().length < 5) { setStatus("Paste source text before adding a source block."); return; } setDocs((current) => [{ id: makeId("paste"), name: pasteName.trim() || "Pasted source block", kind: pasteKind.trim() || "pasted text", text: pasteText, createdAt: nowReceipt() }, ...current]); setPasteText(""); setStatus("Pasted source block added and indexed locally."); }
+  function captureEvidence(hit: SearchHit) { setEvidence((current) => [{ id: makeId("ev"), sourceId: hit.sourceId, sourceName: hit.sourceName, page: hit.page, label: `Page/block ${hit.page} — ${query || "captured source"}`, excerpt: hit.excerpt, weight: Math.min(99, 60 + hit.score * 10), note: "Captured from local source search. Verify context before external use." }, ...current]); setStatus(`Captured evidence from ${hit.sourceName}, page/block ${hit.page}.`); }
   function updateEvidence(id: string, patch: Partial<EvidenceItem>) { setEvidence((current) => current.map((item) => item.id === id ? { ...item, ...patch } : item)); }
-
-  function addWorkItem() {
-    if (!newTask.trim()) { setStatus("Add a task title first."); return; }
-    setWorkItems((current) => [{ id: makeId("task"), title: newTask.trim(), owner: matter.operator, status: "open", notes: "Added from local beta." }, ...current]);
-    setNewTask("");
-    setStatus("Work item added.");
-  }
-
-  function cycleWorkItem(id: string) {
-    setWorkItems((current) => current.map((item) => {
-      if (item.id !== id) return item;
-      const next = item.status === "open" ? "review" : item.status === "review" ? "done" : "open";
-      return { ...item, status: next };
-    }));
-  }
-
+  function addWorkItem() { if (!newTask.trim()) { setStatus("Add a task title first."); return; } setWorkItems((current) => [{ id: makeId("task"), title: newTask.trim(), owner: matter.operator, status: "open", notes: "Added from local beta." }, ...current]); setNewTask(""); setStatus("Work item added."); }
+  function cycleWorkItem(id: string) { setWorkItems((current) => current.map((item) => { if (item.id !== id) return item; const next = item.status === "open" ? "review" : item.status === "review" ? "done" : "open"; return { ...item, status: next }; })); }
   async function copyMemo() { try { await navigator.clipboard.writeText(memo); setStatus("Working memo copied to clipboard."); } catch { setStatus("Clipboard copy failed. Select and copy the memo manually."); } }
   function downloadText() { downloadBlob(memo, `caseforge-${matter.client || "matter"}-working-memo.txt`, "text/plain"); setStatus("Working memo TXT exported."); }
   function downloadWorkspace() { downloadBlob(JSON.stringify({ matter, docs, evidence, workItems, gates, memo }, null, 2), `caseforge-${matter.client || "matter"}-workspace.json`, "application/json"); setStatus("Workspace JSON exported."); }
@@ -292,112 +209,13 @@ export default function CaseForgePage() {
 
   return (
     <main className={styles.page}>
-      <section className={styles.hero}>
-        <div className={styles.heroCopy}>
-          <div className={styles.kicker}>NULLWORKS CASEFORGE · FUNCTIONAL LOCAL BETA</div>
-          <h1>CaseForge</h1>
-          <p>Upload PDFs/text, search the record, capture evidence, build issue modules, manage work items, preserve review receipts, and export the workspace.</p>
-          <div className={styles.boundary}><ShieldCheck size={20} /><span>Operations support only. Professional authority remains final.</span></div>
-        </div>
-        <div className={styles.statusCard}><Gauge size={24} /><strong>{matter.approved ? "Review marked" : gateReady ? "Local gate ready" : "Gate incomplete"}</strong><span>{status}</span></div>
-      </section>
-
-      <section className={styles.gridTwo}>
-        <article className={styles.card}>
-          <div className={styles.cardHead}><ShieldCheck size={20} /><h2>Client-data safety gate</h2></div>
-          <div className={styles.auditList}>
-            <button className={gates.authorized ? styles.evidenceOn : styles.evidence} onClick={() => updateGate("authorized")}><strong>{gates.authorized ? "DONE" : "OPEN"} · Authorization confirmed</strong><span>I have authorization to process this material in this beta workspace.</span></button>
-            <button className={gates.noSecrets ? styles.evidenceOn : styles.evidence} onClick={() => updateGate("noSecrets")}><strong>{gates.noSecrets ? "DONE" : "OPEN"} · No secrets / unnecessary sensitive data</strong><span>I have removed passwords, payment data, unnecessary identifiers, and unrelated private material.</span></button>
-            <button className={gates.localOnlyAcknowledged ? styles.evidenceOn : styles.evidence} onClick={() => updateGate("localOnlyAcknowledged")}><strong>{gates.localOnlyAcknowledged ? "DONE" : "OPEN"} · Local-only storage acknowledged</strong><span>This beta stores data in this browser and JSON exports; no secure firm cloud is configured yet.</span></button>
-          </div>
-        </article>
-
-        <article className={styles.card}>
-          <div className={styles.cardHead}><Network size={20} /><h2>Cloud / account status</h2></div>
-          <div className={styles.exportLocked}><strong>Not configured yet</strong><p>No Supabase/Auth/firm database credentials are wired in this preview. Use JSON export/import to move work between phone and laptop until secure cloud sync is built.</p></div>
-          <input type="file" accept=".json,application/json" onChange={importWorkspace} />
-          <button className={styles.primaryButton} onClick={downloadWorkspace}>Export workspace JSON</button>
-        </article>
-      </section>
-
-      <section className={styles.gridTwo}>
-        <article className={styles.card}>
-          <div className={styles.cardHead}><BriefcaseBusiness size={20} /><h2>Matter workspace</h2></div>
-          <div className={styles.formGrid}>
-            <Field label="Client" value={matter.client} onChange={(value) => updateMatter("client", value)} />
-            <Field label="Opposing party" value={matter.opposing} onChange={(value) => updateMatter("opposing", value)} />
-            <Field label="Child / initials" value={matter.child} onChange={(value) => updateMatter("child", value)} />
-            <Field label="County" value={matter.county} onChange={(value) => updateMatter("county", value)} />
-            <Field label="Matter type" value={matter.matterType} onChange={(value) => updateMatter("matterType", value)} />
-            <Field label="Reviewer" value={matter.reviewer} onChange={(value) => updateMatter("reviewer", value)} />
-          </div>
-          <TextField label="Tasking" value={matter.tasking} onChange={(value) => updateMatter("tasking", value)} />
-          <TextField label="Known facts" value={matter.facts} onChange={(value) => updateMatter("facts", value)} />
-          <TextField label="Risks / boundaries" value={matter.risks} onChange={(value) => updateMatter("risks", value)} />
-        </article>
-
-        <article className={styles.card}>
-          <div className={styles.cardHead}><ScanLine size={20} /><h2>Source intake</h2></div>
-          <p className={styles.microcopy}>PDF extraction now runs in the browser with pdf.js. Scanned image-only PDFs may still need OCR.</p>
-          <input type="file" multiple accept=".pdf,.txt,.md,.csv,.json,.html,.xml,application/pdf,text/*" onChange={handleFile} />
-          <Field label="Source name" value={pasteName} onChange={setPasteName} />
-          <Field label="Source type" value={pasteKind} onChange={setPasteKind} />
-          <TextField label="Paste source text / OCR / transcript" value={pasteText} onChange={setPasteText} />
-          <button className={styles.primaryButton} onClick={addPastedSource}>Add source block <ArrowRight size={16} /></button>
-          <div className={styles.auditList}>{docs.map((doc) => <span key={doc.id}>{doc.name} · {doc.kind} · {doc.text.length.toLocaleString()} chars · {doc.createdAt}</span>)}</div>
-        </article>
-      </section>
-
-      <section className={styles.gridTwo}>
-        <article className={styles.card}>
-          <div className={styles.cardHead}><Network size={20} /><h2>Official source helper</h2></div>
-          <p className={styles.microcopy}>Open official sources, then either try browser import or paste verified text. Browser import may fail if the site blocks CORS.</p>
-          <Field label="Official URL" value={officialUrl} onChange={setOfficialUrl} />
-          <div className={styles.chips}><button className={styles.primaryButton} onClick={() => window.open(officialUrl, "_blank", "noopener,noreferrer")}>Open official source</button><button className={styles.primaryButton} onClick={tryImportOfficialUrl}>Try browser import</button></div>
-          <div className={styles.sourceGrid}>{officialLinks.map((link) => <button key={link.url} className={styles.evidence} onClick={() => setOfficialUrl(link.url)}><strong>{link.label}</strong><span>{link.use}</span></button>)}</div>
-        </article>
-        <article className={styles.card}>
-          <div className={styles.cardHead}><TriangleAlert size={20} /><h2>Licensed research gate</h2></div>
-          <div className={styles.exportLocked}><strong>Not connected</strong><p>Westlaw, Practical Law, CoCounsel, or equivalent case-law validation is not available in this preview. Do not treat any case-law slot as verified until a licensed connector or human legal research source is actually attached.</p></div>
-        </article>
-      </section>
-
-      <section className={styles.gridTwoWide}>
-        <article className={styles.card}>
-          <div className={styles.cardHead}><FileSearch size={20} /><h2>Search and capture evidence</h2></div>
-          <Field label="Search query" value={query} onChange={setQuery} />
-          <div className={styles.evidenceList}>{searchHits.map((hit) => (
-            <button key={`${hit.sourceId}-${hit.page}-${hit.excerpt.slice(0, 20)}`} className={styles.evidence} onClick={() => captureEvidence(hit)}>
-              <strong>{hit.sourceName} · page/block {hit.page}</strong><span>{hit.excerpt}</span><em>Score {hit.score} · tap to capture</em>
-            </button>
-          ))}</div>
-        </article>
-
-        <article className={styles.card}>
-          <div className={styles.cardHead}><Sparkles size={20} /><h2>Captured evidence</h2></div>
-          <div className={styles.evidenceList}>{evidence.length === 0 ? <p className={styles.microcopy}>No evidence captured yet.</p> : evidence.map((item) => (
-            <div key={item.id} className={styles.evidenceOn}>
-              <Field label="Label" value={item.label} onChange={(value) => updateEvidence(item.id, { label: value })} />
-              <TextField label="Excerpt" value={item.excerpt} onChange={(value) => updateEvidence(item.id, { excerpt: value })} />
-              <Field label="Review note" value={item.note} onChange={(value) => updateEvidence(item.id, { note: value })} />
-              <strong>{item.sourceName} · page/block {item.page} · weight {item.weight}</strong>
-              <button className={styles.primaryButton} onClick={() => setEvidence((current) => current.filter((ev) => ev.id !== item.id))}>Remove</button>
-            </div>
-          ))}</div>
-        </article>
-      </section>
-
-      <section className={styles.gridThree}>
-        <article className={styles.card}><div className={styles.cardHead}><Workflow size={20} /><h2>Generated issue modules</h2></div><div className={styles.argumentList}>{issueMap.map((issue) => <div key={issue.title} className={styles.argumentOn}><span className={styles.score}>{issue.strength}</span><span><strong>{issue.title}</strong><small>{issue.summary}</small><em>{issue.receipts}</em></span></div>)}</div></article>
-        <article className={styles.card}><div className={styles.cardHead}><CheckCircle2 size={20} /><h2>Work items</h2></div><Field label="New task" value={newTask} onChange={setNewTask} /><button className={styles.primaryButton} onClick={addWorkItem}>Add task</button><div className={styles.auditList}>{workItems.map((item) => <button key={item.id} className={styles.evidence} onClick={() => cycleWorkItem(item.id)}><strong>{item.status.toUpperCase()} · {item.title}</strong><span>{item.owner}: {item.notes}</span></button>)}</div></article>
-        <article className={styles.card}><div className={styles.cardHead}><Network size={20} /><h2>Import / export</h2></div><button className={styles.primaryButton} onClick={downloadWorkspace}>Export workspace JSON</button><button className={styles.primaryButton} onClick={downloadText}>Export memo TXT</button><button className={styles.primaryButton} onClick={resetWorkspace}>Reset local data</button></article>
-      </section>
-
-      <section className={styles.gridTwoWide}>
-        <article className={styles.card}><div className={styles.cardHead}><Workflow size={20} /><h2>Working memo</h2></div><div className={styles.draftPreview}><pre>{memo}</pre></div><div className={styles.chips}><button className={styles.primaryButton} onClick={copyMemo}>Copy memo</button><button className={styles.primaryButton} onClick={downloadText}>Download TXT</button></div></article>
-        <article className={styles.card}><div className={styles.cardHead}><ShieldCheck size={20} /><h2>Review gate</h2></div><button className={matter.approved ? styles.approvalOn : styles.approval} onClick={markReview}>{matter.approved ? <CheckCircle2 /> : <TriangleAlert />}<span>{matter.approved ? "Review receipt marked complete" : "External use blocked pending review"}</span></button><div className={matter.approved ? styles.exportReady : styles.exportLocked}><strong>{evidence.length ? "Memo generated" : "Needs captured evidence"}</strong><p>{matter.lastReceipt}</p></div><ul className={styles.cleanList}><li>Verify sources before external use.</li><li>Professional judgment controls final output.</li><li>Do not paste protected client data without authorization.</li></ul></article>
-      </section>
-
+      <section className={styles.hero}><div className={styles.heroCopy}><div className={styles.kicker}>NULLWORKS CASEFORGE · FUNCTIONAL LOCAL BETA</div><h1>CaseForge</h1><p>Upload PDFs/text, search the record, capture evidence, build issue modules, manage work items, preserve review receipts, and export the workspace.</p><div className={styles.boundary}><ShieldCheck size={20} /><span>Operations support only. Professional authority remains final.</span></div></div><div className={styles.statusCard}><Gauge size={24} /><strong>{matter.approved ? "Review marked" : gateReady ? "Local gate ready" : "Gate incomplete"}</strong><span>{status}</span></div></section>
+      <section className={styles.gridTwo}><article className={styles.card}><div className={styles.cardHead}><ShieldCheck size={20} /><h2>Client-data safety gate</h2></div><div className={styles.auditList}><button className={gates.authorized ? styles.evidenceOn : styles.evidence} onClick={() => updateGate("authorized")}><strong>{gates.authorized ? "DONE" : "OPEN"} · Authorization confirmed</strong><span>I have authorization to process this material in this beta workspace.</span></button><button className={gates.noSecrets ? styles.evidenceOn : styles.evidence} onClick={() => updateGate("noSecrets")}><strong>{gates.noSecrets ? "DONE" : "OPEN"} · No secrets / unnecessary sensitive data</strong><span>I have removed passwords, payment data, unnecessary identifiers, and unrelated private material.</span></button><button className={gates.localOnlyAcknowledged ? styles.evidenceOn : styles.evidence} onClick={() => updateGate("localOnlyAcknowledged")}><strong>{gates.localOnlyAcknowledged ? "DONE" : "OPEN"} · Local-only storage acknowledged</strong><span>This beta stores data in this browser and JSON exports; no secure firm cloud is configured yet.</span></button></div></article><article className={styles.card}><div className={styles.cardHead}><Network size={20} /><h2>Cloud / account status</h2></div><div className={styles.exportLocked}><strong>Not configured yet</strong><p>No Supabase/Auth/firm database credentials are wired in this preview. Use JSON export/import to move work between phone and laptop until secure cloud sync is built.</p></div><input type="file" accept=".json,application/json" onChange={importWorkspace} /><button className={styles.primaryButton} onClick={downloadWorkspace}>Export workspace JSON</button></article></section>
+      <section className={styles.gridTwo}><article className={styles.card}><div className={styles.cardHead}><BriefcaseBusiness size={20} /><h2>Matter workspace</h2></div><div className={styles.formGrid}><Field label="Client" value={matter.client} onChange={(value) => updateMatter("client", value)} /><Field label="Opposing party" value={matter.opposing} onChange={(value) => updateMatter("opposing", value)} /><Field label="Child / initials" value={matter.child} onChange={(value) => updateMatter("child", value)} /><Field label="County" value={matter.county} onChange={(value) => updateMatter("county", value)} /><Field label="Matter type" value={matter.matterType} onChange={(value) => updateMatter("matterType", value)} /><Field label="Reviewer" value={matter.reviewer} onChange={(value) => updateMatter("reviewer", value)} /></div><TextField label="Tasking" value={matter.tasking} onChange={(value) => updateMatter("tasking", value)} /><TextField label="Known facts" value={matter.facts} onChange={(value) => updateMatter("facts", value)} /><TextField label="Risks / boundaries" value={matter.risks} onChange={(value) => updateMatter("risks", value)} /></article><article className={styles.card}><div className={styles.cardHead}><ScanLine size={20} /><h2>Source intake</h2></div><p className={styles.microcopy}>PDF extraction now runs in the browser with pdf.js. Scanned image-only PDFs may still need OCR.</p><input type="file" multiple accept=".pdf,.txt,.md,.csv,.json,.html,.xml,application/pdf,text/*" onChange={handleFile} /><Field label="Source name" value={pasteName} onChange={setPasteName} /><Field label="Source type" value={pasteKind} onChange={setPasteKind} /><TextField label="Paste source text / OCR / transcript" value={pasteText} onChange={setPasteText} /><button className={styles.primaryButton} onClick={addPastedSource}>Add source block <ArrowRight size={16} /></button><div className={styles.auditList}>{docs.map((doc) => <span key={doc.id}>{doc.name} · {doc.kind} · {doc.text.length.toLocaleString()} chars · {doc.createdAt}</span>)}</div></article></section>
+      <section className={styles.gridTwo}><article className={styles.card}><div className={styles.cardHead}><Network size={20} /><h2>Official source helper</h2></div><p className={styles.microcopy}>Open official sources, then either try browser import or paste verified text. Browser import may fail if the site blocks CORS.</p><Field label="Official URL" value={officialUrl} onChange={setOfficialUrl} /><div className={styles.chips}><button className={styles.primaryButton} onClick={() => window.open(officialUrl, "_blank", "noopener,noreferrer")}>Open official source</button><button className={styles.primaryButton} onClick={tryImportOfficialUrl}>Try browser import</button></div><div className={styles.sourceGrid}>{officialLinks.map((link) => <button key={link.url} className={styles.evidence} onClick={() => setOfficialUrl(link.url)}><strong>{link.label}</strong><span>{link.use}</span></button>)}</div></article><article className={styles.card}><div className={styles.cardHead}><TriangleAlert size={20} /><h2>Licensed research gate</h2></div><div className={styles.exportLocked}><strong>Not connected</strong><p>Westlaw, Practical Law, CoCounsel, or equivalent case-law validation is not available in this preview. Do not treat any case-law slot as verified until a licensed connector or human legal research source is actually attached.</p></div></article></section>
+      <section className={styles.gridTwoWide}><article className={styles.card}><div className={styles.cardHead}><FileSearch size={20} /><h2>Search and capture evidence</h2></div><Field label="Search query" value={query} onChange={setQuery} /><div className={styles.evidenceList}>{searchHits.map((hit) => <button key={`${hit.sourceId}-${hit.page}-${hit.excerpt.slice(0, 20)}`} className={styles.evidence} onClick={() => captureEvidence(hit)}><strong>{hit.sourceName} · page/block {hit.page}</strong><span>{hit.excerpt}</span><em>Score {hit.score} · tap to capture</em></button>)}</div></article><article className={styles.card}><div className={styles.cardHead}><Sparkles size={20} /><h2>Captured evidence</h2></div><div className={styles.evidenceList}>{evidence.length === 0 ? <p className={styles.microcopy}>No evidence captured yet.</p> : evidence.map((item) => <div key={item.id} className={styles.evidenceOn}><Field label="Label" value={item.label} onChange={(value) => updateEvidence(item.id, { label: value })} /><TextField label="Excerpt" value={item.excerpt} onChange={(value) => updateEvidence(item.id, { excerpt: value })} /><Field label="Review note" value={item.note} onChange={(value) => updateEvidence(item.id, { note: value })} /><strong>{item.sourceName} · page/block {item.page} · weight {item.weight}</strong><button className={styles.primaryButton} onClick={() => setEvidence((current) => current.filter((ev) => ev.id !== item.id))}>Remove</button></div>)}</div></article></section>
+      <section className={styles.gridThree}><article className={styles.card}><div className={styles.cardHead}><Workflow size={20} /><h2>Generated issue modules</h2></div><div className={styles.argumentList}>{issueMap.map((issue) => <div key={issue.title} className={styles.argumentOn}><span className={styles.score}>{issue.strength}</span><span><strong>{issue.title}</strong><small>{issue.summary}</small><em>{issue.receipts}</em></span></div>)}</div></article><article className={styles.card}><div className={styles.cardHead}><CheckCircle2 size={20} /><h2>Work items</h2></div><Field label="New task" value={newTask} onChange={setNewTask} /><button className={styles.primaryButton} onClick={addWorkItem}>Add task</button><div className={styles.auditList}>{workItems.map((item) => <button key={item.id} className={styles.evidence} onClick={() => cycleWorkItem(item.id)}><strong>{item.status.toUpperCase()} · {item.title}</strong><span>{item.owner}: {item.notes}</span></button>)}</div></article><article className={styles.card}><div className={styles.cardHead}><Network size={20} /><h2>Import / export</h2></div><button className={styles.primaryButton} onClick={downloadWorkspace}>Export workspace JSON</button><button className={styles.primaryButton} onClick={downloadText}>Export memo TXT</button><button className={styles.primaryButton} onClick={resetWorkspace}>Reset local data</button></article></section>
+      <section className={styles.gridTwoWide}><article className={styles.card}><div className={styles.cardHead}><Workflow size={20} /><h2>Working memo</h2></div><div className={styles.draftPreview}><pre>{memo}</pre></div><div className={styles.chips}><button className={styles.primaryButton} onClick={copyMemo}>Copy memo</button><button className={styles.primaryButton} onClick={downloadText}>Download TXT</button></div></article><article className={styles.card}><div className={styles.cardHead}><ShieldCheck size={20} /><h2>Review gate</h2></div><button className={matter.approved ? styles.approvalOn : styles.approval} onClick={markReview}>{matter.approved ? <CheckCircle2 /> : <TriangleAlert />}<span>{matter.approved ? "Review receipt marked complete" : "External use blocked pending review"}</span></button><div className={matter.approved ? styles.exportReady : styles.exportLocked}><strong>{evidence.length ? "Memo generated" : "Needs captured evidence"}</strong><p>{matter.lastReceipt}</p></div><ul className={styles.cleanList}><li>Verify sources before external use.</li><li>Professional judgment controls final output.</li><li>Do not paste protected client data without authorization.</li></ul></article></section>
       <section className={styles.card}><div className={styles.cardHead}><Network size={20} /><h2>Authority connectors still required</h2></div><div className={styles.sourceGrid}>{authoritySlots.map(([kind, label, use]) => <div key={label}><strong>{kind}</strong><span>{label}</span><p>{use}</p></div>)}</div></section>
     </main>
   );
@@ -405,16 +223,7 @@ export default function CaseForgePage() {
 
 function Field({ label, value, onChange }: { label: string; value: string; onChange: (value: string) => void }) { return <label><span>{label}</span><input value={value} onChange={(event) => onChange(event.target.value)} /></label>; }
 function TextField({ label, value, onChange }: { label: string; value: string; onChange: (value: string) => void }) { return <label><span>{label}</span><textarea value={value} onChange={(event) => onChange(event.target.value)} /></label>; }
-
-function downloadBlob(content: string, filename: string, type: string) {
-  const blob = new Blob([content], { type });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = filename;
-  a.click();
-  URL.revokeObjectURL(url);
-}
+function downloadBlob(content: string, filename: string, type: string) { const blob = new Blob([content], { type }); const url = URL.createObjectURL(blob); const a = document.createElement("a"); a.href = url; a.download = filename; a.click(); URL.revokeObjectURL(url); }
 
 function buildIssueMap(matter: MatterState, evidence: EvidenceItem[]) {
   const text = `${matter.tasking} ${matter.facts} ${evidence.map((item) => item.excerpt).join(" ")}`.toLowerCase();
@@ -424,11 +233,7 @@ function buildIssueMap(matter: MatterState, evidence: EvidenceItem[]) {
     { title: "Communication pattern", terms: ["message", "communication", "talking", "parent"], summary: "Identify repeated communication patterns while preserving full context." },
     { title: "Discovery / production checklist", terms: ["discovery", "request", "records", "production"], summary: "Track requested materials, missing items, response shells, and review needs." },
   ];
-  return modules.map((module) => {
-    const hits = module.terms.filter((term) => text.includes(term)).length;
-    const receipts = evidence.filter((item) => module.terms.some((term) => item.excerpt.toLowerCase().includes(term))).length;
-    return { title: module.title, summary: module.summary, receipts: `${receipts} captured evidence receipt(s)`, strength: Math.min(99, 45 + hits * 12 + receipts * 8) };
-  }).sort((a, b) => b.strength - a.strength);
+  return modules.map((module) => { const hits = module.terms.filter((term) => text.includes(term)).length; const receipts = evidence.filter((item) => module.terms.some((term) => item.excerpt.toLowerCase().includes(term))).length; return { title: module.title, summary: module.summary, receipts: `${receipts} captured evidence receipt(s)`, strength: Math.min(99, 45 + hits * 12 + receipts * 8) }; }).sort((a, b) => b.strength - a.strength);
 }
 
 function buildMemo(matter: MatterState, evidence: EvidenceItem[], docs: SourceDoc[], workItems: WorkItem[], issueMap: ReturnType<typeof buildIssueMap>, gates: GateState) {
