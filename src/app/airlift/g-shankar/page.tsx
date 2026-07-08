@@ -73,6 +73,32 @@ export default function GShankarAirliftPage() {
           </nav>
         </header>
 
+        <section className={styles.liveReceipt}>
+          <div className={styles.receiptBadge}>
+            <Workflow size={16} /> FYI / Live build receipt
+          </div>
+          <div className={styles.receiptCopy}>
+            <h2>This page was built live from Mason&apos;s LinkedIn exchange with you.</h2>
+            <p>
+              Mason does not claim to be a conventional software developer. He is a lifelong systems operator using an Operational Intelligence SUITe: a governed work system that turns natural-language direction into sourced pages, repository commits, deployment checks, receipts, and human verification.
+            </p>
+            <p>
+              This specific Airlift page was not instrumented end-to-end, so it does not claim a seconds number. The honest receipt is: live instruction, two source commits, Vercel success, and Mason&apos;s mobile-browser verification. The underlying Hive fast-boot layer separately has a verified 11-second working-floor receipt.
+            </p>
+          </div>
+          <div className={styles.receiptLinks}>
+            <a href="https://github.com/masoncalcolsol-creator/mason-portfolio/commit/763923ea69172946012e8c04d2a65fa24747d616" target="_blank" rel="noreferrer" className={styles.receiptLink}>
+              Page source commit <ExternalLink size={14} />
+            </a>
+            <a href="https://github.com/masoncalcolsol-creator/mason-portfolio/commit/0c42b74e4ffa81601db50547c2178e97aa17d24b" target="_blank" rel="noreferrer" className={styles.receiptLink}>
+              Style + deploy commit <ExternalLink size={14} />
+            </a>
+            <a href="https://github.com/masoncalcolsol-creator/nullworks-corporate-wifi-hive/blob/main/HIVE_BOOT.yaml" target="_blank" rel="noreferrer" className={styles.receiptLink}>
+              11-second Hive receipt <ExternalLink size={14} />
+            </a>
+          </div>
+        </section>
+
         <section className={styles.hero}>
           <div className={styles.heroCopy}>
             <div className={styles.eyebrow}>
