@@ -43,7 +43,8 @@
 .headerLink,
 .headerPrimary,
 .primaryButton,
-.secondaryButton {
+.secondaryButton,
+.receiptLink {
   color: inherit;
   text-decoration: none;
 }
@@ -75,7 +76,8 @@
 .eyebrow,
 .sectionEyebrow,
 .darkEyebrow,
-.signalTopline {
+.signalTopline,
+.receiptBadge {
   font-size: 10px;
   font-weight: 900;
   letter-spacing: 0.22em;
@@ -103,7 +105,8 @@
 
 .headerLinks,
 .heroActions,
-.ctaActions {
+.ctaActions,
+.receiptLinks {
   display: flex;
   flex-wrap: wrap;
   gap: 9px;
@@ -112,7 +115,8 @@
 .headerLink,
 .headerPrimary,
 .primaryButton,
-.secondaryButton {
+.secondaryButton,
+.receiptLink {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -126,7 +130,8 @@
 .headerLink:hover,
 .headerPrimary:hover,
 .primaryButton:hover,
-.secondaryButton:hover {
+.secondaryButton:hover,
+.receiptLink:hover {
   transform: translateY(-1px);
 }
 
@@ -150,6 +155,63 @@
   border: 1px solid #b88a34;
   background: #fffaf0;
   color: #76551d;
+}
+
+.liveReceipt {
+  display: grid;
+  grid-template-columns: minmax(160px, 0.28fr) minmax(0, 1fr) minmax(220px, 0.42fr);
+  gap: 18px;
+  align-items: start;
+  margin-top: 16px;
+  padding: clamp(18px, 3vw, 28px);
+  border: 1px solid rgba(229, 199, 126, 0.36);
+  border-radius: 28px;
+  background:
+    linear-gradient(135deg, rgba(10, 21, 32, 0.97), rgba(23, 32, 29, 0.95)),
+    #0a1520;
+  color: #fffaf0;
+  box-shadow: 0 28px 90px rgba(10, 21, 32, 0.16);
+}
+
+.receiptBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  width: fit-content;
+  padding: 10px 12px;
+  border: 1px solid rgba(229, 199, 126, 0.26);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.06);
+  color: #e5c77e;
+}
+
+.receiptCopy h2 {
+  margin: 0;
+  color: #fffaf0;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(24px, 3vw, 39px);
+  letter-spacing: -0.045em;
+  line-height: 1.02;
+}
+
+.receiptCopy p {
+  margin: 12px 0 0;
+  color: rgba(255, 250, 240, 0.76);
+  font-size: 14px;
+  line-height: 1.68;
+}
+
+.receiptLinks {
+  align-content: flex-start;
+  flex-direction: column;
+}
+
+.receiptLink {
+  width: 100%;
+  padding: 11px 13px;
+  border: 1px solid rgba(229, 199, 126, 0.28);
+  background: rgba(255, 255, 255, 0.07);
+  color: #f1d58d;
 }
 
 .hero {
@@ -493,6 +555,7 @@
 }
 
 @media (max-width: 900px) {
+  .liveReceipt,
   .hero,
   .thesis,
   .airlift,
@@ -509,6 +572,14 @@
 
   .questionList {
     gap: 9px;
+  }
+
+  .receiptLinks {
+    flex-direction: row;
+  }
+
+  .receiptLink {
+    width: auto;
   }
 }
 
