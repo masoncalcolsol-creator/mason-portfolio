@@ -9,8 +9,6 @@ type HiveStatus = {
   floorStatus?: string;
   company?: string;
   category?: string;
-  readiness?: string;
-  exactNextAction?: string;
   error?: string;
 };
 
@@ -77,8 +75,6 @@ async function readHiveStatus(): Promise<HiveStatus> {
       floorStatus: pickYamlValue(floor, "status"),
       company: pickYamlValue(floor, "company"),
       category: pickYamlValue(floor, "category"),
-      readiness: pickYamlValue(floor, "readiness"),
-      exactNextAction: pickYamlValue(floor, "exact_next_action"),
     };
   } catch (error) {
     return {
@@ -104,21 +100,26 @@ function say(text: string): string {
 }
 
 async function handle(request: Request): Promise<Response> {
+  const url = new URL(request.url);
+  const isLoop = url.searchParams.get("loop") === "1";
   const status = await readHiveStatus();
   const commandUrl = new URL("/api/neuraxis/twilio/command", request.url).toString();
 
   const statusLine = status.ok
-    ? `Hive Brain connected. Loaded boot version ${status.bootVersion || "unknown"}, floor ${status.floorVersion || "unknown"}, status ${status.floorStatus || "unknown"}.`
-    : `Neuraxis phone bridge is online, but Hive Brain is not live connected yet. Mode: ${status.mode}. ${status.error || ""}`;
+    ? `Hive Brain connected. Boot version ${status.bootVersion || "unknown"}. Company floor ${status.floorVersion || "unknown"}. ${status.company || "NULLWORKS"} is loaded.`
+    : `Neuraxis phone bridge is online, but Hive Brain is not live connected yet. Mode ${status.mode}. ${status.error || ""}`;
+
+  const opener = isLoop
+    ? "I'm listening."
+    : `Neuraxis Hive gateway online. ${statusLine} Speak naturally. What do you need?`;
 
   const response = `<?xml version="1.0" encoding="UTF-8"?>
 <Response>
-  ${say("Neuraxis Hive gateway online.")}
-  ${say(statusLine)}
-  <Gather input="speech dtmf" timeout="6" speechTimeout="auto" method="POST" action="${xmlEscape(commandUrl)}">
-    ${say("Say status, full spectrum clone, log to hive, or press 1 for Hive status.")}
+  <Gather input="speech dtmf" timeout="8" speechTimeout="auto" method="POST" action="${xmlEscape(commandUrl)}">
+    ${say(opener)}
   </Gather>
-  ${say("No command received. Goodbye.")}
+  ${say("I did not catch that. I am still here. Try again in one sentence.")}
+  <Redirect method="POST">${xmlEscape(new URL("/api/neuraxis/twilio/voice?loop=1", request.url).toString())}</Redirect>
 </Response>`;
 
   return twiml(response);
