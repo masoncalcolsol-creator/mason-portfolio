@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { ChangeEvent, useEffect, useMemo, useRef, useState } from "react";
 import styles from "./page.module.css";
 
 type Headline = {
@@ -17,6 +17,14 @@ type Signal = {
   action: string;
 };
 
+type CapturedSignal = Signal & {
+  id: string;
+  url: string;
+  rawText: string;
+  score: number;
+  capturedAt: string;
+};
+
 type MemeTemplate = {
   id: string;
   name: string;
@@ -26,7 +34,7 @@ type MemeTemplate = {
   glow: string;
 };
 
-const headlines: Headline[] = [
+const seedHeadlines: Headline[] = [
   {
     label: "OISA SIGNAL",
     title: "AI hiring says it wants builders. The filters still reject the operator who built the system.",
@@ -65,7 +73,7 @@ const headlines: Headline[] = [
   },
 ];
 
-const signals: Signal[] = [
+const seedSignals: Signal[] = [
   {
     source: "Kyle Spivey",
     signal: "AI Operations Architect / product-builder lane",
@@ -158,37 +166,125 @@ const templates: MemeTemplate[] = [
   },
 ];
 
-function wrapText(
-  ctx: CanvasRenderingContext2D,
-  text: string,
-  x: number,
-  y: number,
-  maxWidth: number,
-  lineHeight: number,
-) {
-  const words = text.split(" ");
+const storageKey = "nullworks.linkedinCodex.capturedSignals.v1";
+
+function scoreSignal(rawText: string) {
+  const text = rawText.toLowerCase();
+  let score = 30;
+  if (text.includes("role") || text.includes("hiring") || text.includes("recruiter")) score += 12;
+  if (text.includes("workflow") || text.includes("system") || text.includes("operations")) score += 14;
+  if (text.includes("exception") || text.includes("recovery") || text.includes("telemetry")) score += 16;
+  if (text.includes("demo") || text.includes("walkthrough") || text.includes("deck")) score += 10;
+  if (text.includes("buyer") || text.includes("distribution") || text.includes("sales")) score += 8;
+  return Math.min(score, 99);
+}
+
+function createRead(rawText: string) {
+  const text = rawText.toLowerCase();
+  if (text.includes("exception") || text.includes("recovery")) {
+    return "They are reacting to the exception-path argument, not just the surface app.";
+  }
+  if (text.includes("recruiter") || text.includes("hiring") || text.includes("role")) {
+    return "The job-market filter gap is visible: the work exists, but the role language is unstable.";
+  }
+  if (text.includes("demo") || text.includes("walkthrough") || text.includes("deck")) {
+    return "This is an operator-to-operator proof request. Preserve the receipt and review the system path.";
+  }
+  if (text.includes("distribution") || text.includes("sales") || text.includes("buyer")) {
+    return "Distribution may be the real bottleneck; map buyer, channel, and adoption friction.";
+  }
+  return "Human signal captured. Translate the interaction into role language, proof language, and next action.";
+}
+
+function createAction(rawText: string) {
+  const text = rawText.toLowerCase();
+  if (text.includes("demo") || text.includes("walkthrough") || text.includes("deck")) {
+    return "Request the demo packet, review where the workflow breaks, and capture the buyer/distribution hypothesis.";
+  }
+  if (text.includes("recruiter") || text.includes("hiring") || text.includes("role")) {
+    return "Ask what roles actually hire this shape and which companies reward proof over title stack.";
+  }
+  if (text.includes("exception") || text.includes("recovery")) {
+    return "Turn this into a field note about exception ownership, authority gates, and telemetry restoration.";
+  }
+  return "Follow up with one specific question and preserve the answer as a LinkedIn Codex receipt.";
+}
+
+function createSignal(rawText: string) {
+  const text = rawText.toLowerCase();
+  if (text.includes("exception") || text.includes("recovery")) return "Exception-path redesign signal";
+  if (text.includes("recruiter") || text.includes("hiring") || text.includes("role")) return "Hiring-language / OISA translation signal";
+  if (text.includes("demo") || text.includes("walkthrough") || text.includes("deck")) return "Demo / product-review signal";
+  if (text.includes("distribution") || text.includes("sales") || text.includes("buyer")) return "Distribution and buyer-path signal";
+  return "Human response signal";
+}
+
+function createHeadlineFromSignal(signal: CapturedSignal): Headline {
+  const raw = signal.rawText.toLowerCase();
+  let title = "LinkedIn produced a human signal. Now turn it into a receipt.";
+  let body = signal.read;
+  let label = "LIVE CAPTURE";
+  let status = `score ${signal.score}`;
+
+  if (raw.includes("exception") || raw.includes("recovery")) {
+    label = "EXCEPTION PATH";
+    title = "The normal path is easy to diagram. The exception path reveals what the organization understands.";
+    body = "Captured signal points back to OISA: authority, evidence, re-entry logic, response ownership, and telemetry need to be designed before failure reaches the downstream pile.";
+  } else if (raw.includes("recruiter") || raw.includes("hiring") || raw.includes("role")) {
+    label = "HIRING GAP";
+    title = "The market wants AI operators, but the filters still look for old title stacks.";
+    body = "Use the response as proof that OISA language needs role translation, receipts, and examples of shipped systems instead of generic software labels.";
+  } else if (raw.includes("demo") || raw.includes("walkthrough") || raw.includes("deck")) {
+    label = "OPERATOR SIGNAL";
+    title = "A real human asked to see the system. That is the signal worth preserving.";
+    body = "Demo requests, walkthroughs, and deck asks are stronger than empty reactions. They reveal buyer curiosity and peer validation.";
+  } else if (raw.includes("distribution") || raw.includes("sales") || raw.includes("buyer")) {
+    label = "GO TO MARKET";
+    title = "The product may work. The distribution path still has to be designed.";
+    body = "Capture who can buy it, who can deploy it, who can approve it, and where the operating pain is already visible.";
+  }
+
+  return { label, title, body, status };
+}
+
+function getCanvasLines(ctx: CanvasRenderingContext2D, text: string, maxWidth: number) {
+  const words = text.split(/\s+/).filter(Boolean);
+  const lines: string[] = [];
   let line = "";
-  let currentY = y;
 
-  words.forEach((word, index) => {
+  words.forEach((word) => {
     const testLine = line ? `${line} ${word}` : word;
-    const metrics = ctx.measureText(testLine);
-
-    if (metrics.width > maxWidth && line) {
-      ctx.fillText(line, x, currentY);
+    if (ctx.measureText(testLine).width > maxWidth && line) {
+      lines.push(line);
       line = word;
-      currentY += lineHeight;
     } else {
       line = testLine;
     }
+  });
 
-    if (index === words.length - 1 && line) {
-      ctx.fillText(line, x, currentY);
-    }
+  if (line) lines.push(line);
+  return lines.length ? lines : [""];
+}
+
+function drawOutlinedLines(
+  ctx: CanvasRenderingContext2D,
+  lines: string[],
+  x: number,
+  y: number,
+  lineHeight: number,
+) {
+  lines.forEach((line, index) => {
+    const currentY = y + index * lineHeight;
+    ctx.strokeText(line, x, currentY);
+    ctx.fillText(line, x, currentY);
   });
 }
 
 export default function LinkedInCodexPage() {
+  const [capturedSignals, setCapturedSignals] = useState<CapturedSignal[]>([]);
+  const [source, setSource] = useState("LinkedIn");
+  const [url, setUrl] = useState("");
+  const [rawText, setRawText] = useState("");
   const [selectedTemplate, setSelectedTemplate] = useState(templates[0].id);
   const [topText, setTopText] = useState(templates[0].top);
   const [bottomText, setBottomText] = useState(templates[0].bottom);
@@ -200,6 +296,30 @@ export default function LinkedInCodexPage() {
     () => templates.find((template) => template.id === selectedTemplate) ?? templates[0],
     [selectedTemplate],
   );
+
+  const allSignals = useMemo(() => [...capturedSignals, ...seedSignals], [capturedSignals]);
+
+  const liveHeadlines = useMemo(
+    () => [...capturedSignals.map(createHeadlineFromSignal), ...seedHeadlines],
+    [capturedSignals],
+  );
+
+  useEffect(() => {
+    try {
+      const saved = window.localStorage.getItem(storageKey);
+      if (saved) setCapturedSignals(JSON.parse(saved) as CapturedSignal[]);
+    } catch {
+      setCapturedSignals([]);
+    }
+  }, []);
+
+  useEffect(() => {
+    try {
+      window.localStorage.setItem(storageKey, JSON.stringify(capturedSignals));
+    } catch {
+      // Local storage is optional. The field lab still works without persistence.
+    }
+  }, [capturedSignals]);
 
   useEffect(() => {
     drawMeme(false);
@@ -213,17 +333,61 @@ export default function LinkedInCodexPage() {
     setBottomText(template.bottom);
   }
 
-  function handleImageUpload(event: React.ChangeEvent<HTMLInputElement>) {
+  function handleImageUpload(event: ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0];
     if (!file) return;
 
     const reader = new FileReader();
     reader.onload = () => {
-      if (typeof reader.result === "string") {
-        setImageDataUrl(reader.result);
-      }
+      if (typeof reader.result === "string") setImageDataUrl(reader.result);
     };
     reader.readAsDataURL(file);
+  }
+
+  function captureSignal() {
+    const trimmed = rawText.trim();
+    if (!trimmed) return;
+
+    const record: CapturedSignal = {
+      id: `${Date.now()}`,
+      source: source.trim() || "LinkedIn",
+      url: url.trim(),
+      rawText: trimmed,
+      score: scoreSignal(trimmed),
+      signal: createSignal(trimmed),
+      read: createRead(trimmed),
+      action: createAction(trimmed),
+      capturedAt: new Date().toISOString(),
+    };
+
+    setCapturedSignals((items) => [record, ...items].slice(0, 24));
+    setRawText("");
+    const headline = createHeadlineFromSignal(record);
+    loadHeadlineIntoMeme(headline);
+  }
+
+  function clearCapturedSignals() {
+    setCapturedSignals([]);
+  }
+
+  function loadHeadlineIntoMeme(headline: Headline) {
+    const cleanedTitle = headline.title.replace(/[“”]/g, "\"").replace(/[’]/g, "'");
+    const words = cleanedTitle.toUpperCase().split(/\s+/).filter(Boolean);
+    const top = words.slice(0, 6).join(" ");
+    const bottom = words.slice(6, 14).join(" ") || headline.label;
+
+    setTopText(top);
+    setBottomText(bottom);
+    setSmallText(`${headline.label} // ${headline.body}`.slice(0, 190));
+
+    const templateId = headline.label.includes("HIRING")
+      ? "receipts"
+      : headline.label.includes("EXCEPTION")
+        ? "canary"
+        : headline.label.includes("OPERATOR")
+          ? "oisa"
+          : "tokens";
+    setSelectedTemplate(templateId);
   }
 
   function drawMeme(download: boolean) {
@@ -266,8 +430,8 @@ export default function LinkedInCodexPage() {
       ctx.fill();
 
       ctx.fillStyle = "rgba(0,0,0,0.72)";
-      ctx.fillRect(0, 0, width, 150);
-      ctx.fillRect(0, height - 170, width, 170);
+      ctx.fillRect(0, 0, width, 170);
+      ctx.fillRect(0, height - 190, width, 190);
 
       ctx.strokeStyle = activeTemplate.accent;
       ctx.lineWidth = 8;
@@ -275,11 +439,13 @@ export default function LinkedInCodexPage() {
 
       ctx.fillStyle = activeTemplate.accent;
       ctx.font = "900 42px Arial, sans-serif";
-      ctx.fillText("NULLWORKS // LINKEDIN CODEX", 54, height - 102);
+      ctx.textAlign = "left";
+      ctx.fillText("NULLWORKS // LINKEDIN CODEX", 54, height - 122);
 
       ctx.fillStyle = "rgba(255,255,255,0.9)";
       ctx.font = "700 30px Arial, sans-serif";
-      wrapText(ctx, smallText.toUpperCase(), 54, height - 58, width - 108, 34);
+      const smallLines = getCanvasLines(ctx, smallText.toUpperCase(), width - 108).slice(0, 2);
+      smallLines.forEach((line, index) => ctx.fillText(line, 54, height - 76 + index * 34));
     };
 
     const drawText = () => {
@@ -287,20 +453,17 @@ export default function LinkedInCodexPage() {
       ctx.lineJoin = "round";
       ctx.miterLimit = 2;
 
-      ctx.font = "900 92px Impact, Arial Black, sans-serif";
+      ctx.font = "900 86px Impact, Arial Black, sans-serif";
       ctx.strokeStyle = "#000000";
       ctx.lineWidth = 16;
       ctx.fillStyle = "#ffffff";
-      wrapText(ctx, topText.toUpperCase(), width / 2, 100, width - 120, 98);
-      ctx.strokeText(topText.toUpperCase(), width / 2, 100);
-      ctx.fillText(topText.toUpperCase(), width / 2, 100);
+      const topLines = getCanvasLines(ctx, topText.toUpperCase(), width - 120).slice(0, 2);
+      drawOutlinedLines(ctx, topLines, width / 2, 96, 88);
 
-      ctx.font = "900 88px Impact, Arial Black, sans-serif";
-      ctx.strokeStyle = "#000000";
-      ctx.lineWidth = 16;
-      ctx.fillStyle = "#ffffff";
-      ctx.strokeText(bottomText.toUpperCase(), width / 2, height - 62);
-      ctx.fillText(bottomText.toUpperCase(), width / 2, height - 62);
+      ctx.font = "900 80px Impact, Arial Black, sans-serif";
+      const bottomLines = getCanvasLines(ctx, bottomText.toUpperCase(), width - 120).slice(0, 2);
+      const bottomStart = height - 78 - (bottomLines.length - 1) * 78;
+      drawOutlinedLines(ctx, bottomLines, width / 2, bottomStart, 78);
 
       ctx.textAlign = "left";
     };
@@ -342,41 +505,16 @@ export default function LinkedInCodexPage() {
 
         const overlay = ctx.createLinearGradient(0, 0, 0, height);
         overlay.addColorStop(0, "rgba(0,0,0,0.82)");
-        overlay.addColorStop(0.24, "rgba(0,0,0,0.25)");
-        overlay.addColorStop(0.7, "rgba(0,0,0,0.25)");
+        overlay.addColorStop(0.25, "rgba(0,0,0,0.24)");
+        overlay.addColorStop(0.7, "rgba(0,0,0,0.24)");
         overlay.addColorStop(1, "rgba(0,0,0,0.86)");
         ctx.fillStyle = overlay;
         ctx.fillRect(0, 0, width, height);
-
-        ctx.strokeStyle = activeTemplate.accent;
-        ctx.lineWidth = 8;
-        ctx.strokeRect(28, 28, width - 56, height - 56);
+        drawBase();
         finish();
       };
       img.src = imageDataUrl;
     } else {
-      ctx.fillStyle = "rgba(255,255,255,0.08)";
-      ctx.fillRect(140, 220, 1320, 410);
-      ctx.strokeStyle = activeTemplate.accent;
-      ctx.lineWidth = 6;
-      ctx.strokeRect(140, 220, 1320, 410);
-
-      ctx.fillStyle = activeTemplate.accent;
-      ctx.font = "900 72px Arial Black, Arial, sans-serif";
-      ctx.fillText("AI", 210, 360);
-      ctx.fillText("OPS", 210, 454);
-      ctx.fillText("RECEIPTS", 210, 548);
-
-      ctx.fillStyle = "rgba(255,255,255,0.82)";
-      ctx.font = "700 38px Arial, sans-serif";
-      wrapText(
-        ctx,
-        "UPLOAD A SCREENSHOT, POST RECEIPT, PRODUCT CAPTURE, OR FIELD NOTE TO TURN IT INTO A LINKEDIN-READY MEME CARD.",
-        620,
-        335,
-        720,
-        46,
-      );
       finish();
     }
   }
@@ -385,39 +523,109 @@ export default function LinkedInCodexPage() {
     <main className={styles.shell}>
       <section className={styles.hero}>
         <div className={styles.heroCopy}>
-          <p className={styles.eyebrow}>NULLWORKS // OISA FIELD LAB</p>
-          <h1>LinkedIn Codex</h1>
+          <p className={styles.eyebrow}>NULLWORKS // LINKEDIN CODEX</p>
+          <h1>Human signal, bot noise, saved receipts.</h1>
           <p>
-            A Drudge-style signal wall for proving what the hiring market misses: receipts,
-            exception-path thinking, human canaries, recruiter gaps, and OISA-shaped demand.
+            A Drudge-style field board for turning LinkedIn replies, recruiter signals,
+            TAC OPS reactions, and OISA role-language tests into headlines, canary reads,
+            and shareable meme artifacts.
           </p>
           <div className={styles.heroActions}>
-            <a href="#headlines">Read the board</a>
-            <a href="#meme">Build a meme</a>
-            <a href="/oisa">OISA landing page</a>
+            <a href="#capture">Capture a signal</a>
+            <a href="#headlines">Use headlines</a>
+            <a href="#meme">Generate meme</a>
           </div>
         </div>
-        <div className={styles.statusCard}>
-          <span>FIELD STATUS</span>
-          <strong>LIVE LAB</strong>
-          <p>LinkedIn is being used as telemetry, not ego. Post, tag, observe, classify, follow up, preserve receipts.</p>
+        <aside className={styles.statusCard}>
+          <div>
+            <span>MODE</span>
+            <strong>Operator capture</strong>
+          </div>
+          <p>
+            This does not run a blind LinkedIn scraper. Paste public thread text, screenshots notes,
+            URLs, or recruiter messages you are allowed to use. The Codex converts that field input
+            into local receipts, headlines, and meme captions.
+          </p>
+        </aside>
+      </section>
+
+      <section id="capture" className={styles.importDock}>
+        <div className={styles.boardHeader}>
+          <div>
+            <p>LINKEDIN CAPTURE DOCK</p>
+            <h2>Paste the field signal. Codex turns it into headlines.</h2>
+          </div>
+          <button className={styles.secondaryButton} type="button" onClick={clearCapturedSignals}>
+            Clear local captures
+          </button>
+        </div>
+        <div className={styles.intakeGrid}>
+          <div className={styles.fieldGroup}>
+            <label>
+              Source / person / thread
+              <input value={source} onChange={(event) => setSource(event.target.value)} />
+            </label>
+            <label>
+              LinkedIn URL or receipt link
+              <input value={url} onChange={(event) => setUrl(event.target.value)} placeholder="Optional" />
+            </label>
+            <label>
+              Paste comment, DM, recruiter reply, post text, or screenshot notes
+              <textarea
+                value={rawText}
+                onChange={(event) => setRawText(event.target.value)}
+                placeholder="Example: Alex said companies need someone who can take messy fragmented systems and consolidate / iterate / automate..."
+                rows={8}
+              />
+            </label>
+            <div className={styles.memeButtons}>
+              <button type="button" onClick={captureSignal}>Capture + generate headline</button>
+              <button type="button" onClick={() => setRawText("")}>Reset input</button>
+            </div>
+          </div>
+          <div className={styles.receiptStack}>
+            <p className={styles.sectionKicker}>LOCAL RECEIPTS</p>
+            {capturedSignals.length === 0 ? (
+              <div className={styles.emptyState}>No captured LinkedIn signals yet. Paste one and hit capture.</div>
+            ) : (
+              capturedSignals.slice(0, 5).map((signal) => (
+                <article key={signal.id} className={styles.receiptCard}>
+                  <div className={styles.cardMeta}>
+                    <span>{signal.source}</span>
+                    <em>{signal.score}/99</em>
+                  </div>
+                  <h3>{signal.signal}</h3>
+                  <p>{signal.read}</p>
+                  <button type="button" onClick={() => loadHeadlineIntoMeme(createHeadlineFromSignal(signal))}>
+                    Send headline to meme generator
+                  </button>
+                </article>
+              ))
+            )}
+          </div>
         </div>
       </section>
 
-      <section id="headlines" className={styles.board} aria-label="LinkedIn Codex headline board">
+      <section id="headlines" className={styles.board}>
         <div className={styles.boardHeader}>
-          <p>THE HEADLINE WALL</p>
-          <h2>Human signals from the job-market machine</h2>
+          <div>
+            <p>HEADLINE WALL</p>
+            <h2>Drudge board for OISA field signals</h2>
+          </div>
+          <span>{capturedSignals.length} live captures</span>
         </div>
         <div className={styles.headlineGrid}>
-          {headlines.map((headline, index) => (
-            <article className={index === 0 ? styles.leadHeadline : styles.headlineCard} key={headline.title}>
+          {liveHeadlines.map((headline, index) => (
+            <article key={`${headline.title}-${index}`} className={index === 0 ? styles.leadHeadline : styles.headlineCard}>
               <div className={styles.cardMeta}>
                 <span>{headline.label}</span>
                 <em>{headline.status}</em>
               </div>
               <h3>{headline.title}</h3>
               <p>{headline.body}</p>
+              <button className={styles.headlineButton} type="button" onClick={() => loadHeadlineIntoMeme(headline)}>
+                Use for meme
+              </button>
             </article>
           ))}
         </div>
@@ -426,7 +634,7 @@ export default function LinkedInCodexPage() {
       <section className={styles.splitSection}>
         <div className={styles.panel}>
           <p className={styles.sectionKicker}>CANARY PROTOCOL</p>
-          <h2>Do the humans understand the signal?</h2>
+          <h2>Separate real humans from empty engagement</h2>
           <div className={styles.checkList}>
             {canaryQuestions.map((question) => (
               <div key={question}>
@@ -449,8 +657,10 @@ export default function LinkedInCodexPage() {
 
       <section className={styles.signalLedger}>
         <div className={styles.boardHeader}>
-          <p>SIGNAL LEDGER</p>
-          <h2>Who reacted, what it means, what to do next</h2>
+          <div>
+            <p>SIGNAL LEDGER</p>
+            <h2>Who reacted, what it means, what to do next</h2>
+          </div>
         </div>
         <div className={styles.tableWrap}>
           <table>
@@ -463,8 +673,8 @@ export default function LinkedInCodexPage() {
               </tr>
             </thead>
             <tbody>
-              {signals.map((signal) => (
-                <tr key={signal.source}>
+              {allSignals.map((signal) => (
+                <tr key={`${signal.source}-${signal.signal}`}>
                   <td>{signal.source}</td>
                   <td>{signal.signal}</td>
                   <td>{signal.read}</td>
@@ -479,10 +689,10 @@ export default function LinkedInCodexPage() {
       <section id="meme" className={styles.memeLab}>
         <div className={styles.memeControls}>
           <p className={styles.sectionKicker}>BUILT-IN MEME GENERATOR</p>
-          <h2>Make the receipt shareable</h2>
+          <h2>Headlines become shareable</h2>
           <p>
-            Upload a screenshot or field image, pick a Codex template, rewrite the caption,
-            and export a LinkedIn-ready PNG.
+            Capture a LinkedIn signal, click “Use for meme,” upload a screenshot if useful,
+            then export the PNG. Fast field-to-artifact loop.
           </p>
 
           <label>
@@ -517,21 +727,20 @@ export default function LinkedInCodexPage() {
           </label>
 
           <div className={styles.memeButtons}>
-            <button type="button" onClick={() => drawMeme(true)}>
-              Export PNG
-            </button>
-            <button type="button" onClick={() => setImageDataUrl(null)}>
-              Clear image
-            </button>
+            <button type="button" onClick={() => drawMeme(true)}>Export PNG</button>
+            <button type="button" onClick={() => setImageDataUrl(null)}>Clear image</button>
           </div>
         </div>
         <div className={styles.canvasWrap}>
-          <canvas ref={canvasRef} aria-label="Generated LinkedIn Codex meme preview" />
+          <canvas ref={canvasRef} aria-label="LinkedIn Codex meme canvas" />
         </div>
       </section>
 
       <section className={styles.footerBand}>
-        <p>LINKEDIN IS THE LAB. RECEIPTS ARE THE SPECIMENS. OISA IS THE ROLE THE MARKET HAS NOT NAMED CLEANLY YET.</p>
+        <p>
+          Do not just scroll the feed. Turn every useful human response into a receipt,
+          a headline, a role test, and a next action.
+        </p>
       </section>
     </main>
   );
