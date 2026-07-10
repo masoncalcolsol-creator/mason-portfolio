@@ -276,33 +276,33 @@
   border-radius: 22px;
 }
 
-table {
+.tableWrap table {
   width: 100%;
   border-collapse: collapse;
   min-width: 980px;
 }
 
-th,
-td {
+.tableWrap th,
+.tableWrap td {
   text-align: left;
   vertical-align: top;
   padding: 15px;
   border-bottom: 1px solid rgba(148, 163, 184, 0.16);
 }
 
-th {
+.tableWrap th {
   color: #f97316;
   letter-spacing: 0.12em;
   font-size: 12px;
   text-transform: uppercase;
 }
 
-td {
+.tableWrap td {
   color: rgba(248, 250, 252, 0.78);
   line-height: 1.38;
 }
 
-td:first-child {
+.tableWrap td:first-child {
   color: #ffffff;
   font-weight: 950;
 }
