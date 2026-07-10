@@ -24,6 +24,7 @@
 .panel,
 .signalLedger,
 .memeLab,
+.importDock,
 .footerBand {
   border: 1px solid rgba(148, 163, 184, 0.24);
   background:
@@ -51,9 +52,9 @@
 
 .hero h1 {
   margin: 0;
-  max-width: 900px;
-  font-size: clamp(58px, 11vw, 150px);
-  line-height: 0.83;
+  max-width: 960px;
+  font-size: clamp(56px, 10vw, 145px);
+  line-height: 0.84;
   letter-spacing: -0.085em;
   text-transform: uppercase;
 }
@@ -61,20 +62,24 @@
 .heroCopy > p:not(.eyebrow) {
   max-width: 900px;
   color: rgba(248, 250, 252, 0.76);
-  font-size: clamp(18px, 2.15vw, 28px);
+  font-size: clamp(18px, 2.15vw, 27px);
   line-height: 1.35;
   margin: 26px 0 0;
 }
 
-.heroActions {
+.heroActions,
+.memeButtons {
   display: flex;
   flex-wrap: wrap;
   gap: 12px;
-  margin-top: 30px;
+  margin-top: 28px;
 }
 
 .heroActions a,
-.memeButtons button {
+.memeButtons button,
+.secondaryButton,
+.headlineButton,
+.receiptCard button {
   appearance: none;
   border: 1px solid rgba(249, 115, 22, 0.5);
   background: rgba(249, 115, 22, 0.13);
@@ -84,10 +89,14 @@
   font-weight: 900;
   text-decoration: none;
   cursor: pointer;
+  font: inherit;
 }
 
 .heroActions a:hover,
-.memeButtons button:hover {
+.memeButtons button:hover,
+.secondaryButton:hover,
+.headlineButton:hover,
+.receiptCard button:hover {
   background: rgba(249, 115, 22, 0.25);
 }
 
@@ -106,6 +115,7 @@
   font-size: 12px;
   letter-spacing: 0.18em;
   font-weight: 1000;
+  text-transform: uppercase;
 }
 
 .statusCard strong {
@@ -126,6 +136,7 @@
 .board,
 .signalLedger,
 .memeLab,
+.importDock,
 .footerBand {
   max-width: 1480px;
   margin: 0 auto 26px;
@@ -143,7 +154,8 @@
 
 .boardHeader h2,
 .panel h2,
-.memeControls h2 {
+.memeControls h2,
+.importDock h2 {
   margin: 0;
   font-size: clamp(28px, 4vw, 58px);
   line-height: 0.96;
@@ -151,18 +163,123 @@
   text-transform: uppercase;
 }
 
-.headlineGrid {
+.boardHeader > span {
+  border: 1px solid rgba(34, 197, 94, 0.34);
+  background: rgba(34, 197, 94, 0.09);
+  color: #bbf7d0;
+  border-radius: 999px;
+  padding: 10px 12px;
+  white-space: nowrap;
+  font-weight: 900;
+}
+
+.importDock {
+  border-color: rgba(34, 197, 94, 0.32);
+}
+
+.intakeGrid {
   display: grid;
-  grid-template-columns: repeat(6, minmax(0, 1fr));
+  grid-template-columns: minmax(320px, 0.85fr) minmax(0, 1.15fr);
+  gap: 20px;
+}
+
+.fieldGroup,
+.receiptStack,
+.emptyState {
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  background: rgba(15, 23, 42, 0.62);
+  border-radius: 24px;
+  padding: 18px;
+}
+
+.fieldGroup {
+  display: grid;
   gap: 14px;
 }
 
+.fieldGroup label,
+.memeControls label {
+  color: #dbeafe;
+  display: grid;
+  gap: 7px;
+  font-size: 13px;
+  font-weight: 950;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.fieldGroup input,
+.fieldGroup textarea,
+.memeControls input,
+.memeControls select,
+.memeControls textarea {
+  width: 100%;
+  border: 1px solid rgba(148, 163, 184, 0.28);
+  border-radius: 15px;
+  background: rgba(2, 6, 23, 0.82);
+  color: #f8fafc;
+  padding: 12px;
+  font: inherit;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.fieldGroup textarea,
+.memeControls textarea {
+  resize: vertical;
+}
+
+.receiptStack {
+  display: grid;
+  gap: 12px;
+  align-content: start;
+}
+
+.emptyState {
+  color: rgba(248, 250, 252, 0.7);
+  line-height: 1.45;
+}
+
+.receiptCard,
 .leadHeadline,
 .headlineCard {
   border: 1px solid rgba(148, 163, 184, 0.24);
   border-radius: 22px;
   padding: 18px;
   background: rgba(15, 23, 42, 0.8);
+}
+
+.receiptCard h3,
+.leadHeadline h3,
+.headlineCard h3 {
+  margin: 18px 0 12px;
+  font-size: clamp(22px, 2.2vw, 34px);
+  line-height: 1.02;
+  letter-spacing: -0.045em;
+}
+
+.receiptCard p,
+.leadHeadline p,
+.headlineCard p,
+.panel p,
+.memeControls p {
+  color: rgba(248, 250, 252, 0.74);
+  line-height: 1.45;
+  font-size: 16px;
+  margin: 0;
+}
+
+.receiptCard button,
+.headlineButton {
+  margin-top: 14px;
+  font-size: 14px;
+  padding: 10px 12px;
+}
+
+.headlineGrid {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 14px;
 }
 
 .leadHeadline {
@@ -177,6 +294,12 @@
 
 .headlineCard {
   grid-column: span 3;
+}
+
+.leadHeadline h3 {
+  font-size: clamp(30px, 3.9vw, 62px);
+  line-height: 0.98;
+  letter-spacing: -0.055em;
 }
 
 .cardMeta {
@@ -194,28 +317,6 @@
 .cardMeta em {
   color: #86efac;
   font-style: normal;
-}
-
-.leadHeadline h3,
-.headlineCard h3 {
-  margin: 18px 0 12px;
-  font-size: clamp(28px, 3.8vw, 62px);
-  line-height: 0.98;
-  letter-spacing: -0.055em;
-}
-
-.headlineCard h3 {
-  font-size: clamp(22px, 2.2vw, 34px);
-}
-
-.leadHeadline p,
-.headlineCard p,
-.panel p,
-.memeControls p {
-  color: rgba(248, 250, 252, 0.74);
-  line-height: 1.45;
-  font-size: 16px;
-  margin: 0;
 }
 
 .splitSection {
@@ -320,41 +421,12 @@
   gap: 14px;
 }
 
-.memeControls label {
-  color: #dbeafe;
-  display: grid;
-  gap: 7px;
-  font-size: 13px;
-  font-weight: 950;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-}
-
-.memeControls input,
-.memeControls select,
-.memeControls textarea {
-  width: 100%;
-  border: 1px solid rgba(148, 163, 184, 0.28);
-  border-radius: 15px;
-  background: rgba(2, 6, 23, 0.82);
-  color: #f8fafc;
-  padding: 12px;
-  font: inherit;
-  letter-spacing: 0;
-  text-transform: none;
-}
-
 .fileInput input {
   border-style: dashed;
 }
 
-.memeButtons {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-}
-
-.memeButtons button:last-child {
+.memeButtons button:last-child,
+.secondaryButton {
   border-color: rgba(148, 163, 184, 0.34);
   background: rgba(148, 163, 184, 0.09);
 }
@@ -395,7 +467,8 @@
 @media (max-width: 980px) {
   .hero,
   .splitSection,
-  .memeLab {
+  .memeLab,
+  .intakeGrid {
     grid-template-columns: 1fr;
   }
 
@@ -409,6 +482,28 @@
   }
 
   .boardHeader {
-    display: block;
+    align-items: start;
+    flex-direction: column;
+  }
+}
+
+@media (max-width: 620px) {
+  .shell {
+    padding: 12px;
+  }
+
+  .hero h1 {
+    font-size: clamp(46px, 17vw, 78px);
+  }
+
+  .heroCopy,
+  .statusCard,
+  .board,
+  .panel,
+  .signalLedger,
+  .memeLab,
+  .importDock,
+  .footerBand {
+    border-radius: 22px;
   }
 }
