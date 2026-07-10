@@ -20,9 +20,14 @@ const HIVE_REPO = process.env.HIVE_REPO || "masoncalcolsol-creator/nullworks-cor
 const HIVE_BRANCH = process.env.HIVE_BRANCH || "main";
 const HIVE_TOKEN = process.env.HIVE_GITHUB_TOKEN || process.env.GITHUB_TOKEN || "";
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY || "";
-// Keep the default model to an official current Responses API model. If OPENAI_MODEL is set
-// in Vercel, it overrides this value. Remove or update OPENAI_MODEL if a 400 model error returns.
-const OPENAI_MODEL = process.env.OPENAI_MODEL || "gpt-5.6-luna";
+
+// Mason confirmed Luna is not available on this account. Force the bridge back to GPT-5.5
+// unless a different non-Luna model is explicitly provided later.
+const DEFAULT_OPENAI_MODEL = "gpt-5.5";
+const RAW_OPENAI_MODEL = (process.env.OPENAI_MODEL || "").trim();
+const OPENAI_MODEL = !RAW_OPENAI_MODEL || RAW_OPENAI_MODEL.toLowerCase().includes("luna")
+  ? DEFAULT_OPENAI_MODEL
+  : RAW_OPENAI_MODEL;
 
 function xmlEscape(value: string): string {
   return value
@@ -127,6 +132,13 @@ function summarizeOpenAIError(raw: string): string {
   }
 }
 
+function extractOutputText(data: unknown): string {
+  const record = data as { output_text?: string; output?: Array<{ content?: Array<{ text?: string; type?: string }> }> };
+  return record.output_text
+    || record.output?.flatMap(item => item.content || []).map(item => item.text || "").join(" ")
+    || "I heard you, but I did not get a usable model response.";
+}
+
 async function askOpenAI(userSpeech: string, status: HiveStatus, callSid: string): Promise<string> {
   if (!OPENAI_API_KEY) {
     return "Natural conversation is not connected yet because OPENAI_API_KEY is missing in Vercel. I can still answer menu commands like Hive status, full spectrum clone, and log to Hive.";
@@ -142,6 +154,7 @@ COMPANY: ${status.company || "NULLWORKS"}
 CATEGORY: ${status.category || "Operational Intelligence systems architecture"}
 READINESS: ${status.readiness || status.floorStatus || "unknown"}
 EXACT NEXT ACTION: ${status.exactNextAction || "unknown"}
+MODEL REQUESTED: ${OPENAI_MODEL}
 
 HIVE BOOT EXCERPT:
 ${status.bootExcerpt || "unavailable"}
@@ -169,15 +182,14 @@ ${userSpeech || "status"}`;
 
     if (!response.ok) {
       const err = await response.text();
-      return `Natural conversation reached OpenAI but failed with status ${response.status}. ${summarizeOpenAIError(err)} The Hive bridge still works.`;
+      return `Natural conversation reached OpenAI using ${OPENAI_MODEL}, but failed with status ${response.status}. ${summarizeOpenAIError(err)} The Hive bridge still works.`;
     }
 
-    const data = await response.json() as { output_text?: string; output?: Array<{ content?: Array<{ text?: string }> }> };
-    const text = data.output_text || data.output?.flatMap(item => item.content || []).map(item => item.text || "").join(" ") || "I heard you, but I did not get a usable model response.";
-    return clampPhoneAnswer(text);
+    const data = await response.json();
+    return clampPhoneAnswer(extractOutputText(data));
   } catch (error) {
     const message = error instanceof Error ? error.message : "unknown network error";
-    return `Natural conversation failed during the OpenAI call. ${clampPhoneAnswer(message)} The Hive bridge is still online.`;
+    return `Natural conversation failed during the OpenAI call using ${OPENAI_MODEL}. ${clampPhoneAnswer(message)} The Hive bridge is still online.`;
   }
 }
 
