@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import VoiceFoundryClient from "./VoiceFoundryClient";
+import VoiceFoundryTranscriptionRepair from "./VoiceFoundryTranscriptionRepair";
 import "./voice-foundry.css";
 
 export const metadata: Metadata = {
@@ -15,5 +16,10 @@ export const metadata: Metadata = {
 };
 
 export default function VoiceFoundryPage() {
-  return <VoiceFoundryClient />;
+  return (
+    <>
+      <VoiceFoundryClient />
+      <VoiceFoundryTranscriptionRepair />
+    </>
+  );
 }
