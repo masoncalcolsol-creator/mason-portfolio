@@ -21,8 +21,6 @@ const HIVE_BRANCH = process.env.HIVE_BRANCH || "main";
 const HIVE_TOKEN = process.env.HIVE_GITHUB_TOKEN || process.env.GITHUB_TOKEN || "";
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY || "";
 
-// Mason confirmed Luna is not available on this account. Force the bridge back to GPT-5.5
-// unless a different non-Luna model is explicitly provided later.
 const DEFAULT_OPENAI_MODEL = "gpt-5.5";
 const RAW_OPENAI_MODEL = (process.env.OPENAI_MODEL || "").trim();
 const OPENAI_MODEL = !RAW_OPENAI_MODEL || RAW_OPENAI_MODEL.toLowerCase().includes("luna")
@@ -141,10 +139,10 @@ function extractOutputText(data: unknown): string {
 
 async function askOpenAI(userSpeech: string, status: HiveStatus, callSid: string): Promise<string> {
   if (!OPENAI_API_KEY) {
-    return "Natural conversation is not connected yet because OPENAI_API_KEY is missing in Vercel. I can still answer menu commands like Hive status, full spectrum clone, and log to Hive.";
+    return "Natural conversation is not connected yet because OPENAI_API_KEY is missing in Vercel. I can still answer basic Hive status.";
   }
 
-  const instructions = `You are Neuraxis, the NULLWORKS phone gateway. You are speaking over a phone call, so answer conversationally in 1 to 4 short spoken paragraphs. Mason Perry is Founder and final Human Authority. Use the Hive context below as current operating context. Do not claim live synchronization, deployment, endorsement, referral, interview, or institutional approval without a receipt. Do not expose secrets, tokens, private keys, passwords, or unnecessary protected personal details. If asked to save/write/log something to Hive, explain that direct phone writeback is not enabled yet unless the current code says otherwise, and route Mason to the Gmail dropbox phrase or ask him to confirm in ChatGPT. Be helpful, blunt, and operational. If uncertain, say what is unknown.`;
+  const instructions = `You are Neuraxis, the NULLWORKS phone gateway. You are speaking over a phone call, so answer conversationally in 1 to 4 short spoken paragraphs. Mason Perry is Founder and final Human Authority. Use the Hive context below as current operating context. Do not claim live synchronization, deployment, endorsement, referral, interview, or institutional approval without a receipt. Do not expose secrets, tokens, private keys, passwords, or unnecessary protected personal details. If asked to save/write/log something to Hive, explain that direct phone writeback is not enabled yet unless the current code says otherwise. Be helpful, blunt, and operational. If uncertain, say what is unknown. Do not explain Operational Intelligence unless Mason asks. Prioritize the direct answer to Mason's spoken words.`;
 
   const input = `CALL SID: ${callSid}
 HIVE MODE: ${status.mode}
@@ -197,14 +195,14 @@ async function handle(request: Request): Promise<Response> {
   const { text, callSid } = request.method === "POST" ? await readCommand(request) : { text: "status", callSid: "browser-test" };
   const command = text.toLowerCase();
   const status = await readHiveStatus();
-  const voiceUrl = new URL("/api/neuraxis/twilio/voice", request.url).toString();
+  const voiceUrl = new URL("/api/neuraxis/twilio/voice?loop=1", request.url).toString();
 
   let spoken: string;
 
   if (!status.ok) {
     spoken = `Neuraxis received your words, but Hive Brain is not live connected. Mode ${status.mode}. ${status.error || ""}`;
   } else if (command === "1" || command.includes("hive status") || command === "status") {
-    spoken = `Hive status. Boot version ${status.bootVersion || "unknown"}. ${status.company || "NULLWORKS"}. Floor version ${status.floorVersion || "unknown"}. Readiness ${status.readiness || status.floorStatus || "unknown"}.`;
+    spoken = `Hive status. Boot version ${status.bootVersion || "unknown"}. ${status.company || "NULLWORKS"}. Company floor ${status.floorVersion || "unknown"}. State ${status.floorStatus || "unknown"}.`;
   } else if (command.includes("full spectrum") || command.includes("clone")) {
     spoken = `Full Spectrum Clone route confirmed. Hive boot version ${status.bootVersion || "unknown"}. Company floor ${status.floorVersion || "unknown"}. Human Authority remains Mason Perry. Use current Hive files first, then project receipts. Do not overclaim.`;
   } else if (command.includes("log") || command.includes("receipt") || command.includes("save")) {
