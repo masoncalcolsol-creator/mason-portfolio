@@ -1,0 +1,418 @@
+:root {
+  --codex-bg: #05090f;
+}
+
+.shell {
+  min-height: 100vh;
+  color: #f8fafc;
+  background:
+    radial-gradient(circle at 12% 8%, rgba(249, 115, 22, 0.18), transparent 30%),
+    radial-gradient(circle at 85% 18%, rgba(56, 189, 248, 0.18), transparent 28%),
+    linear-gradient(180deg, #020617 0%, #05090f 42%, #070b12 100%);
+  padding: clamp(18px, 4vw, 48px);
+  font-family: var(--font-geist-sans), system-ui, sans-serif;
+}
+
+.hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1.6fr) minmax(280px, 0.7fr);
+  gap: 22px;
+  align-items: stretch;
+  max-width: 1480px;
+  margin: 0 auto 26px;
+}
+
+.heroCopy,
+.statusCard,
+.board,
+.panel,
+.signalLedger,
+.memeLab,
+.footerBand {
+  border: 1px solid rgba(148, 163, 184, 0.24);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.07), rgba(255, 255, 255, 0.025)),
+    rgba(2, 6, 23, 0.84);
+  box-shadow: 0 28px 80px rgba(0, 0, 0, 0.38);
+  backdrop-filter: blur(18px);
+}
+
+.heroCopy {
+  border-radius: 34px;
+  padding: clamp(28px, 5vw, 70px);
+}
+
+.eyebrow,
+.sectionKicker,
+.boardHeader p {
+  color: #f97316;
+  letter-spacing: 0.19em;
+  font-weight: 1000;
+  font-size: 12px;
+  text-transform: uppercase;
+  margin: 0 0 12px;
+}
+
+.hero h1 {
+  margin: 0;
+  max-width: 900px;
+  font-size: clamp(58px, 11vw, 150px);
+  line-height: 0.83;
+  letter-spacing: -0.085em;
+  text-transform: uppercase;
+}
+
+.heroCopy > p:not(.eyebrow) {
+  max-width: 900px;
+  color: rgba(248, 250, 252, 0.76);
+  font-size: clamp(18px, 2.15vw, 28px);
+  line-height: 1.35;
+  margin: 26px 0 0;
+}
+
+.heroActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 30px;
+}
+
+.heroActions a,
+.memeButtons button {
+  appearance: none;
+  border: 1px solid rgba(249, 115, 22, 0.5);
+  background: rgba(249, 115, 22, 0.13);
+  color: #fff7ed;
+  padding: 12px 16px;
+  border-radius: 999px;
+  font-weight: 900;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.heroActions a:hover,
+.memeButtons button:hover {
+  background: rgba(249, 115, 22, 0.25);
+}
+
+.statusCard {
+  border-radius: 34px;
+  padding: 30px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 360px;
+  border-color: rgba(34, 197, 94, 0.35);
+}
+
+.statusCard span {
+  color: #22c55e;
+  font-size: 12px;
+  letter-spacing: 0.18em;
+  font-weight: 1000;
+}
+
+.statusCard strong {
+  display: block;
+  color: #86efac;
+  font-size: clamp(42px, 5vw, 82px);
+  line-height: 0.9;
+  letter-spacing: -0.065em;
+  text-transform: uppercase;
+}
+
+.statusCard p {
+  color: rgba(248, 250, 252, 0.72);
+  line-height: 1.45;
+  font-size: 17px;
+}
+
+.board,
+.signalLedger,
+.memeLab,
+.footerBand {
+  max-width: 1480px;
+  margin: 0 auto 26px;
+  border-radius: 30px;
+  padding: clamp(18px, 3vw, 34px);
+}
+
+.boardHeader {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.boardHeader h2,
+.panel h2,
+.memeControls h2 {
+  margin: 0;
+  font-size: clamp(28px, 4vw, 58px);
+  line-height: 0.96;
+  letter-spacing: -0.045em;
+  text-transform: uppercase;
+}
+
+.headlineGrid {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.leadHeadline,
+.headlineCard {
+  border: 1px solid rgba(148, 163, 184, 0.24);
+  border-radius: 22px;
+  padding: 18px;
+  background: rgba(15, 23, 42, 0.8);
+}
+
+.leadHeadline {
+  grid-column: span 3;
+  grid-row: span 2;
+  min-height: 330px;
+  border-color: rgba(249, 115, 22, 0.55);
+  background:
+    radial-gradient(circle at top right, rgba(249, 115, 22, 0.19), transparent 48%),
+    rgba(15, 23, 42, 0.82);
+}
+
+.headlineCard {
+  grid-column: span 3;
+}
+
+.cardMeta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  color: #93c5fd;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-weight: 1000;
+}
+
+.cardMeta em {
+  color: #86efac;
+  font-style: normal;
+}
+
+.leadHeadline h3,
+.headlineCard h3 {
+  margin: 18px 0 12px;
+  font-size: clamp(28px, 3.8vw, 62px);
+  line-height: 0.98;
+  letter-spacing: -0.055em;
+}
+
+.headlineCard h3 {
+  font-size: clamp(22px, 2.2vw, 34px);
+}
+
+.leadHeadline p,
+.headlineCard p,
+.panel p,
+.memeControls p {
+  color: rgba(248, 250, 252, 0.74);
+  line-height: 1.45;
+  font-size: 16px;
+  margin: 0;
+}
+
+.splitSection {
+  max-width: 1480px;
+  margin: 0 auto 26px;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 22px;
+}
+
+.panel {
+  border-radius: 30px;
+  padding: clamp(20px, 3vw, 34px);
+}
+
+.checkList {
+  display: grid;
+  gap: 12px;
+  margin-top: 22px;
+}
+
+.checkList div {
+  display: grid;
+  grid-template-columns: 34px 1fr;
+  gap: 10px;
+  align-items: start;
+  border: 1px solid rgba(34, 197, 94, 0.25);
+  background: rgba(34, 197, 94, 0.08);
+  border-radius: 18px;
+  padding: 13px;
+}
+
+.checkList span {
+  color: #86efac;
+  font-size: 23px;
+  font-weight: 1000;
+}
+
+.roleCloud {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 24px;
+}
+
+.roleCloud span {
+  border: 1px solid rgba(56, 189, 248, 0.35);
+  background: rgba(14, 165, 233, 0.1);
+  color: #e0f2fe;
+  border-radius: 999px;
+  padding: 10px 12px;
+  font-weight: 850;
+}
+
+.tableWrap {
+  overflow-x: auto;
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  border-radius: 22px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 980px;
+}
+
+th,
+td {
+  text-align: left;
+  vertical-align: top;
+  padding: 15px;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.16);
+}
+
+th {
+  color: #f97316;
+  letter-spacing: 0.12em;
+  font-size: 12px;
+  text-transform: uppercase;
+}
+
+td {
+  color: rgba(248, 250, 252, 0.78);
+  line-height: 1.38;
+}
+
+td:first-child {
+  color: #ffffff;
+  font-weight: 950;
+}
+
+.memeLab {
+  display: grid;
+  grid-template-columns: minmax(320px, 0.75fr) minmax(0, 1.25fr);
+  gap: 24px;
+  border-color: rgba(34, 197, 94, 0.32);
+}
+
+.memeControls {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.memeControls label {
+  color: #dbeafe;
+  display: grid;
+  gap: 7px;
+  font-size: 13px;
+  font-weight: 950;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.memeControls input,
+.memeControls select,
+.memeControls textarea {
+  width: 100%;
+  border: 1px solid rgba(148, 163, 184, 0.28);
+  border-radius: 15px;
+  background: rgba(2, 6, 23, 0.82);
+  color: #f8fafc;
+  padding: 12px;
+  font: inherit;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.fileInput input {
+  border-style: dashed;
+}
+
+.memeButtons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.memeButtons button:last-child {
+  border-color: rgba(148, 163, 184, 0.34);
+  background: rgba(148, 163, 184, 0.09);
+}
+
+.canvasWrap {
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  border-radius: 24px;
+  padding: 12px;
+  background: rgba(0, 0, 0, 0.46);
+  display: grid;
+  place-items: center;
+}
+
+.canvasWrap canvas {
+  width: 100%;
+  height: auto;
+  border-radius: 16px;
+  background: #020617;
+}
+
+.footerBand {
+  border-color: rgba(249, 115, 22, 0.44);
+  background:
+    linear-gradient(90deg, rgba(249, 115, 22, 0.16), rgba(56, 189, 248, 0.12)),
+    rgba(2, 6, 23, 0.86);
+}
+
+.footerBand p {
+  margin: 0;
+  color: #ffffff;
+  font-weight: 1000;
+  font-size: clamp(22px, 3vw, 46px);
+  line-height: 1.05;
+  letter-spacing: -0.035em;
+  text-transform: uppercase;
+}
+
+@media (max-width: 980px) {
+  .hero,
+  .splitSection,
+  .memeLab {
+    grid-template-columns: 1fr;
+  }
+
+  .headlineGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .leadHeadline,
+  .headlineCard {
+    grid-column: span 1;
+  }
+
+  .boardHeader {
+    display: block;
+  }
+}
