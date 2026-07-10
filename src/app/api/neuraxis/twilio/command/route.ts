@@ -20,7 +20,9 @@ const HIVE_REPO = process.env.HIVE_REPO || "masoncalcolsol-creator/nullworks-cor
 const HIVE_BRANCH = process.env.HIVE_BRANCH || "main";
 const HIVE_TOKEN = process.env.HIVE_GITHUB_TOKEN || process.env.GITHUB_TOKEN || "";
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY || "";
-const OPENAI_MODEL = process.env.OPENAI_MODEL || "gpt-5.5-mini";
+// Keep the default model to an official current Responses API model. If OPENAI_MODEL is set
+// in Vercel, it overrides this value. Remove or update OPENAI_MODEL if a 400 model error returns.
+const OPENAI_MODEL = process.env.OPENAI_MODEL || "gpt-5.6-luna";
 
 function xmlEscape(value: string): string {
   return value
@@ -36,7 +38,7 @@ function pickYamlValue(content: string, key: string): string | undefined {
   return match?.[1]?.trim();
 }
 
-function excerpt(content: string, max = 3600): string {
+function excerpt(content: string, max = 3200): string {
   return content.length <= max ? content : `${content.slice(0, max)}\n...[truncated for phone context]`;
 }
 
@@ -76,8 +78,8 @@ async function readHiveStatus(): Promise<HiveStatus> {
       category: pickYamlValue(floor, "category"),
       readiness: pickYamlValue(floor, "readiness"),
       exactNextAction: pickYamlValue(floor, "exact_next_action"),
-      bootExcerpt: excerpt(boot, 2400),
-      floorExcerpt: excerpt(floor, 5200),
+      bootExcerpt: excerpt(boot, 1800),
+      floorExcerpt: excerpt(floor, 3600),
     };
   } catch (error) {
     return { ok: false, mode: "HIVE_READ_FAILED", error: error instanceof Error ? error.message : "Unknown Hive read failure" };
@@ -113,14 +115,42 @@ function clampPhoneAnswer(text: string): string {
   return `${cleaned.slice(0, 900)}. I am trimming there for the phone call. Ask me to continue if you want the next part.`;
 }
 
+function summarizeOpenAIError(raw: string): string {
+  try {
+    const parsed = JSON.parse(raw) as { error?: { message?: string; type?: string; code?: string } };
+    const type = parsed.error?.type ? ` Type ${parsed.error.type}.` : "";
+    const code = parsed.error?.code ? ` Code ${parsed.error.code}.` : "";
+    const message = parsed.error?.message ? ` ${parsed.error.message}` : "";
+    return clampPhoneAnswer(`${type}${code}${message}`.trim());
+  } catch {
+    return clampPhoneAnswer(raw.slice(0, 420));
+  }
+}
+
 async function askOpenAI(userSpeech: string, status: HiveStatus, callSid: string): Promise<string> {
   if (!OPENAI_API_KEY) {
     return "Natural conversation is not connected yet because OPENAI_API_KEY is missing in Vercel. I can still answer menu commands like Hive status, full spectrum clone, and log to Hive.";
   }
 
-  const system = `You are Neuraxis, the NULLWORKS phone gateway. You are speaking over a phone call, so answer conversationally in 1 to 4 short spoken paragraphs. Mason Perry is Founder and final Human Authority. Use the Hive excerpts below as current operating context. Do not claim live synchronization, deployment, endorsement, referral, interview, or institutional approval without a receipt. Do not expose secrets, tokens, private keys, passwords, or unnecessary protected personal details. If asked to save/write/log something to Hive, explain that direct phone writeback is not enabled yet unless the current code says otherwise, and route Mason to the Gmail dropbox phrase or ask him to confirm in ChatGPT. Be helpful, blunt, and operational. If uncertain, say what is unknown.`;
+  const instructions = `You are Neuraxis, the NULLWORKS phone gateway. You are speaking over a phone call, so answer conversationally in 1 to 4 short spoken paragraphs. Mason Perry is Founder and final Human Authority. Use the Hive context below as current operating context. Do not claim live synchronization, deployment, endorsement, referral, interview, or institutional approval without a receipt. Do not expose secrets, tokens, private keys, passwords, or unnecessary protected personal details. If asked to save/write/log something to Hive, explain that direct phone writeback is not enabled yet unless the current code says otherwise, and route Mason to the Gmail dropbox phrase or ask him to confirm in ChatGPT. Be helpful, blunt, and operational. If uncertain, say what is unknown.`;
 
-  const context = `CALL SID: ${callSid}\nHIVE MODE: ${status.mode}\nBOOT VERSION: ${status.bootVersion || "unknown"}\nFLOOR VERSION: ${status.floorVersion || "unknown"}\nCOMPANY: ${status.company || "NULLWORKS"}\nCATEGORY: ${status.category || "Operational Intelligence systems architecture"}\nREADINESS: ${status.readiness || status.floorStatus || "unknown"}\nEXACT NEXT ACTION: ${status.exactNextAction || "unknown"}\n\nHIVE BOOT EXCERPT:\n${status.bootExcerpt || "unavailable"}\n\nCOMPANY FLOOR EXCERPT:\n${status.floorExcerpt || "unavailable"}`;
+  const input = `CALL SID: ${callSid}
+HIVE MODE: ${status.mode}
+BOOT VERSION: ${status.bootVersion || "unknown"}
+FLOOR VERSION: ${status.floorVersion || "unknown"}
+COMPANY: ${status.company || "NULLWORKS"}
+CATEGORY: ${status.category || "Operational Intelligence systems architecture"}
+READINESS: ${status.readiness || status.floorStatus || "unknown"}
+EXACT NEXT ACTION: ${status.exactNextAction || "unknown"}
+
+HIVE BOOT EXCERPT:
+${status.bootExcerpt || "unavailable"}
+
+COMPANY FLOOR EXCERPT:
+${status.floorExcerpt || "unavailable"}
+
+MASON SAID:
+${userSpeech || "status"}`;
 
   try {
     const response = await fetch("https://api.openai.com/v1/responses", {
@@ -131,25 +161,23 @@ async function askOpenAI(userSpeech: string, status: HiveStatus, callSid: string
       },
       body: JSON.stringify({
         model: OPENAI_MODEL,
-        instructions: system,
-        input: [
-          { role: "system", content: [{ type: "input_text", text: context }] },
-          { role: "user", content: [{ type: "input_text", text: userSpeech || "status" }] },
-        ],
+        instructions,
+        input,
         max_output_tokens: 260,
       }),
     });
 
     if (!response.ok) {
       const err = await response.text();
-      return `Natural conversation reached OpenAI but failed with status ${response.status}. The Hive bridge still works. Error receipt should be checked in Vercel logs.`;
+      return `Natural conversation reached OpenAI but failed with status ${response.status}. ${summarizeOpenAIError(err)} The Hive bridge still works.`;
     }
 
     const data = await response.json() as { output_text?: string; output?: Array<{ content?: Array<{ text?: string }> }> };
     const text = data.output_text || data.output?.flatMap(item => item.content || []).map(item => item.text || "").join(" ") || "I heard you, but I did not get a usable model response.";
     return clampPhoneAnswer(text);
-  } catch {
-    return "Natural conversation failed during the OpenAI call. The Hive bridge is still online, but the phone brain needs the Vercel logs checked.";
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "unknown network error";
+    return `Natural conversation failed during the OpenAI call. ${clampPhoneAnswer(message)} The Hive bridge is still online.`;
   }
 }
 
