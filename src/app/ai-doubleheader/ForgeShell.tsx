@@ -1,7 +1,7 @@
 "use client";
 
 import { ChangeEvent, useState } from "react";
-import DoubleheaderStudio from "./DoubleheaderStudio";
+import DoubleheaderStudio, { STUDIO_STORAGE_KEY } from "./DoubleheaderStudio";
 import styles from "./forge-shell.module.css";
 
 type Preset =
@@ -10,15 +10,30 @@ type Preset =
   | "founder-noir"
   | "mars-pathfinder";
 
-const STUDIO_STORAGE_KEY = "nullworks.aiDoubleheader.cinematic.v1";
+type ArtReview = {
+  face: boolean;
+  clean: boolean;
+  publicSafe: boolean;
+};
+
+type RenderResult = {
+  image: string;
+  preset: Preset;
+  createdAt: number;
+};
+
+const presetLabels: Record<Preset, string> = {
+  "operational-commander": "Operational Commander",
+  "field-engineer": "Field Engineer",
+  "founder-noir": "Founder Noir",
+  "mars-pathfinder": "Mars Pathfinder",
+};
 
 function loadStudioState() {
   try {
     return JSON.parse(localStorage.getItem(STUDIO_STORAGE_KEY) || "{}") as {
       profile?: Record<string, unknown>;
-      cardData?: {
-        human_card?: Record<string, unknown>;
-      };
+      cardData?: { human_card?: Record<string, unknown> };
     };
   } catch {
     return {};
@@ -61,14 +76,23 @@ export default function ForgeShell() {
   const [forgedImage, setForgedImage] = useState("");
   const [preset, setPreset] = useState<Preset>("operational-commander");
   const [consent, setConsent] = useState(false);
+  const [artReview, setArtReview] = useState<ArtReview>({ face: false, clean: false, publicSafe: false });
   const [status, setStatus] = useState("");
   const [isForging, setIsForging] = useState(false);
+  const [remaining, setRemaining] = useState<number | null>(null);
+  const [history, setHistory] = useState<RenderResult[]>([]);
   const [studioVersion, setStudioVersion] = useState(0);
+
+  const artApproved = Object.values(artReview).every(Boolean);
+
+  function resetReview() {
+    setArtReview({ face: false, clean: false, publicSafe: false });
+  }
 
   function openForge() {
     const saved = loadStudioState();
     const current = String(saved.profile?.headshot || "");
-    if (!sourceImage && current) setSourceImage(current);
+    if (current) setSourceImage(current);
     setOpen(true);
   }
 
@@ -79,6 +103,7 @@ export default function ForgeShell() {
       setSourceImage(await prepareImage(file));
       setForgedImage("");
       setConsent(false);
+      resetReview();
       setStatus("Face source loaded locally. Nothing has been transmitted.");
     } catch (error) {
       setStatus(error instanceof Error ? error.message : "Image failed.");
@@ -89,8 +114,11 @@ export default function ForgeShell() {
     const file = event.target.files?.[0];
     if (!file) return;
     try {
-      setForgedImage(await prepareImage(file));
-      setStatus("Finished cinematic art loaded locally. Apply it to the card when ready.");
+      const image = await prepareImage(file);
+      setForgedImage(image);
+      setHistory((current) => [{ image, preset, createdAt: Date.now() }, ...current].slice(0, 4));
+      resetReview();
+      setStatus("Finished cinematic art loaded locally. Complete the visual review before applying it.");
     } catch (error) {
       setStatus(error instanceof Error ? error.message : "Image failed.");
     }
@@ -111,7 +139,8 @@ export default function ForgeShell() {
     const humanCard = saved.cardData?.human_card || {};
 
     setIsForging(true);
-    setStatus("Building wardrobe, lighting, and world around the face. Keep this tab open.");
+    resetReview();
+    setStatus(`Forging ${presetLabels[preset]}: rebuilding wardrobe, lighting, and world around the face.`);
     try {
       const response = await fetch("/api/ai-doubleheader/forge", {
         method: "POST",
@@ -127,12 +156,21 @@ export default function ForgeShell() {
           consent: true,
         }),
       });
-      const payload = (await response.json()) as { imageDataUrl?: string; error?: string };
+      const payload = (await response.json()) as {
+        imageDataUrl?: string;
+        error?: string;
+        remaining?: number;
+      };
       if (!response.ok || !payload.imageDataUrl) {
         throw new Error(payload.error || "The portrait forge returned no image.");
       }
       setForgedImage(payload.imageDataUrl);
-      setStatus("Cinematic portrait complete. Check the face, then apply it to the card.");
+      setRemaining(typeof payload.remaining === "number" ? payload.remaining : null);
+      setHistory((current) => [
+        { image: payload.imageDataUrl as string, preset, createdAt: Date.now() },
+        ...current,
+      ].slice(0, 4));
+      setStatus("Cinematic portrait complete. Zoom in, inspect the face, and check for accidental text before applying it.");
     } catch (error) {
       setStatus(error instanceof Error ? error.message : "Portrait forge failed.");
     } finally {
@@ -143,6 +181,10 @@ export default function ForgeShell() {
   function applyToCard() {
     if (!forgedImage) {
       setStatus("Forge or upload finished cinematic art first.");
+      return;
+    }
+    if (!artApproved) {
+      setStatus("Complete all three finished-art review checks before applying the image.");
       return;
     }
     const saved = loadStudioState();
@@ -157,6 +199,13 @@ export default function ForgeShell() {
     setStudioVersion((value) => value + 1);
     setStatus("Cinematic portrait applied. The human-card preview has been rebuilt.");
     setOpen(false);
+  }
+
+  function chooseHistory(result: RenderResult) {
+    setForgedImage(result.image);
+    setPreset(result.preset);
+    resetReview();
+    setStatus(`${presetLabels[result.preset]} selected. Review it again before applying.`);
   }
 
   return (
@@ -180,7 +229,7 @@ export default function ForgeShell() {
             </header>
 
             <p className={styles.lead}>
-              The source supplies the recognizable face. The image model rebuilds the clothing, light, and environment. The website adds all names, stats, and card typography afterward.
+              The source supplies the recognizable face. The image model rebuilds clothing, light, and environment. The website adds names, stats, borders, and card typography afterward.
             </p>
 
             <div className={styles.imagePair}>
@@ -200,6 +249,23 @@ export default function ForgeShell() {
               </article>
             </div>
 
+            {history.length > 0 && (
+              <section className={styles.history} aria-label="Recent forge results">
+                <div>
+                  <span>RECENT RENDERS</span>
+                  <small>Tap a version to restore it</small>
+                </div>
+                <div className={styles.historyGrid}>
+                  {history.map((result) => (
+                    <button key={result.createdAt} type="button" onClick={() => chooseHistory(result)} title={presetLabels[result.preset]}>
+                      <img src={result.image} alt={`${presetLabels[result.preset]} render`} />
+                      <span>{presetLabels[result.preset]}</span>
+                    </button>
+                  ))}
+                </div>
+              </section>
+            )}
+
             <div className={styles.controls}>
               <label>
                 Visual lane
@@ -216,19 +282,30 @@ export default function ForgeShell() {
               </label>
             </div>
 
-            {status && <div className={styles.status}>{status}</div>}
+            {status && <div className={styles.status} role="status">{status}</div>}
+            {remaining !== null && <p className={styles.remaining}>{remaining} automatic forge render{remaining === 1 ? "" : "s"} remaining in the current beta window.</p>}
+
+            {forgedImage && (
+              <section className={styles.artReview}>
+                <span>FINISHED-ART REVIEW</span>
+                <p>Image models can add accidental marks or alter identity. Zoom in before applying.</p>
+                <label><input type="checkbox" checked={artReview.face} onChange={(e) => setArtReview({ ...artReview, face: e.target.checked })} /><span>The face is recognizable and acceptable.</span></label>
+                <label><input type="checkbox" checked={artReview.clean} onChange={(e) => setArtReview({ ...artReview, clean: e.target.checked })} /><span>No unwanted words, logos, badges, watermarks, duplicate people, or visible artifacts.</span></label>
+                <label><input type="checkbox" checked={artReview.publicSafe} onChange={(e) => setArtReview({ ...artReview, publicSafe: e.target.checked })} /><span>No private, employer-confidential, customer, address, tracking, credential, or facility-layout data is visible.</span></label>
+              </section>
+            )}
 
             <div className={styles.actions}>
-              <button className={styles.forgeButton} type="button" onClick={forgePortrait} disabled={isForging}>
-                {isForging ? "Forging portrait..." : "Forge cinematic portrait"}
+              <button className={styles.forgeButton} type="button" onClick={forgePortrait} disabled={isForging || !sourceImage || !consent}>
+                {isForging ? "Forging portrait..." : forgedImage ? "Regenerate portrait" : "Forge cinematic portrait"}
               </button>
-              <button className={styles.applyButton} type="button" onClick={applyToCard} disabled={!forgedImage}>
-                Apply art to human card
+              <button className={styles.applyButton} type="button" onClick={applyToCard} disabled={!forgedImage || !artApproved}>
+                Apply approved art to human card
               </button>
             </div>
 
             <p className={styles.boundary}>
-              The source image remains local until Forge is pressed. The generated image is returned to this browser and stored in the existing local Doubleheader workspace. Human review remains final.
+              The source image remains local until Forge is pressed. The generated image returns to this browser and is stored in the existing local Doubleheader workspace. Human review remains final.
             </p>
           </section>
         </div>
