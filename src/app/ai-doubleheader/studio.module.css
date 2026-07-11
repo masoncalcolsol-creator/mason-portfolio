@@ -165,7 +165,7 @@
 }
 .full { grid-column: 1 / -1; }
 
-label {
+.page label {
   display: grid;
   gap: .45rem;
   color: #c9cec7;
@@ -174,9 +174,9 @@ label {
   letter-spacing: .035em;
 }
 
-input,
-select,
-textarea {
+.page input,
+.page select,
+.page textarea {
   width: 100%;
   box-sizing: border-box;
   border: 1px solid rgba(217, 180, 111, .24);
@@ -188,10 +188,10 @@ textarea {
   font-weight: 600;
   outline: none;
 }
-input:focus,
-select:focus,
-textarea:focus { border-color: #a5ff37; box-shadow: 0 0 0 3px rgba(165, 255, 55, .08); }
-textarea { resize: vertical; line-height: 1.5; }
+.page input:focus,
+.page select:focus,
+.page textarea:focus { border-color: #a5ff37; box-shadow: 0 0 0 3px rgba(165, 255, 55, .08); }
+.page textarea { resize: vertical; line-height: 1.5; }
 
 .uploadBox {
   display: grid;
