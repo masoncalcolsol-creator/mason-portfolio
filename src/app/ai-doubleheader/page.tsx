@@ -202,6 +202,21 @@ const masonSample: CardData = {
   },
 };
 
+const emptyCard: Card = {
+  name: "",
+  call_sign: "",
+  current_role: "",
+  archetype: "",
+  strengths: [],
+  limitations: [],
+  signature_move: "",
+  best_use_situation: "",
+  likely_failure_mode: "",
+  escalation_rule: "",
+  scouting_report: "",
+  visual_concept: "",
+};
+
 function textArray(value: unknown, fallback: string[]) {
   if (!Array.isArray(value)) return fallback;
   const items = value.map(String).filter(Boolean).slice(0, 6);
@@ -210,7 +225,7 @@ function textArray(value: unknown, fallback: string[]) {
 
 function receipts(value: unknown): Receipt[] {
   if (!Array.isArray(value)) return [];
-  return value.slice(0, 4).map((item) => {
+  return value.map((item) => {
     const row = (item || {}) as Record<string, unknown>;
     return {
       label: String(row.label || "Receipt"),
@@ -269,8 +284,8 @@ function normalizeData(value: unknown, profile: Profile): CardData {
     protocol_version: String(
       root.protocol_version || "AI_DOUBLEHEADER_V0.1",
     ),
-    human_card: normalizeCard(root.human_card, masonSample.human_card),
-    ai_card: normalizeCard(root.ai_card, masonSample.ai_card),
+    human_card: normalizeCard(root.human_card, emptyCard),
+    ai_card: normalizeCard(root.ai_card, emptyCard),
     telemetry: {
       provider: String(telemetry.provider || profile.provider),
       model: String(telemetry.model || profile.model),
@@ -312,8 +327,24 @@ function stripFence(value: string) {
     .trim();
 }
 
+function pruneEmpty(value: unknown): unknown {
+  if (Array.isArray(value)) {
+    return value
+      .map(pruneEmpty)
+      .filter((item) => item !== undefined);
+  }
+  if (value && typeof value === "object") {
+    const entries = Object.entries(value as Record<string, unknown>)
+      .map(([key, item]) => [key, pruneEmpty(item)] as const)
+      .filter(([, item]) => item !== undefined);
+    return Object.fromEntries(entries);
+  }
+  if (value === "" || value === null || value === undefined) return undefined;
+  return value;
+}
+
 function downloadJson(data: unknown, name: string) {
-  const blob = new Blob([JSON.stringify(data, null, 2)], {
+  const blob = new Blob([JSON.stringify(pruneEmpty(data), null, 2)], {
     type: "application/json",
   });
   const url = URL.createObjectURL(blob);
@@ -743,12 +774,24 @@ Before returning JSON, remove or generalize anything that should not be public. 
 
   function importJson() {
     setJsonError("");
+    setCardData(null);
+    localStorage.removeItem(`${DATA_PREFIX}${accountId}`);
     try {
       const parsed = JSON.parse(stripFence(rawJson));
       const normalized = normalizeData(parsed, profile);
+      const selectedMode = profile.contextMode.trim().toLowerCase();
+      const reportedMode = normalized.telemetry.context_mode.trim().toLowerCase();
+      const conditionMismatch =
+        Boolean(selectedMode) &&
+        Boolean(reportedMode) &&
+        selectedMode !== reportedMode;
       setCardData(normalized);
       localStorage.setItem(`${DATA_PREFIX}${accountId}`, JSON.stringify(normalized));
-      setNotice("Cards loaded. Review the content before exporting.");
+      setNotice(
+        conditionMismatch
+          ? `Condition mismatch: selected ${profile.contextMode}, AI reported ${normalized.telemetry.context_mode}. Data loaded, but verify the run before export.`
+          : "Cards loaded with a clean data swipe. Review before exporting.",
+      );
     } catch (error) {
       setJsonError(error instanceof Error ? error.message : "Invalid JSON.");
     }
