@@ -3,11 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 export const runtime = "nodejs";
 export const maxDuration = 120;
 
-type RateEntry = {
-  count: number;
-  resetAt: number;
-};
-
+type RateEntry = { count: number; resetAt: number };
 type ForgeBody = {
   sourceImage?: string;
   preset?: string;
@@ -26,7 +22,6 @@ const MAX_DATA_URL_LENGTH = 11_000_000;
 const globalRateStore = globalThis as typeof globalThis & {
   __aiDoubleheaderForgeRate?: Map<string, RateEntry>;
 };
-
 const rateStore =
   globalRateStore.__aiDoubleheaderForgeRate ||
   (globalRateStore.__aiDoubleheaderForgeRate = new Map<string, RateEntry>());
@@ -51,15 +46,14 @@ function checkRateLimit(key: string) {
   const now = Date.now();
   const current = rateStore.get(key);
   if (!current || current.resetAt <= now) {
-    rateStore.set(key, { count: 1, resetAt: now + RATE_WINDOW_MS });
-    return { allowed: true, remaining: RATE_LIMIT - 1 };
+    const resetAt = now + RATE_WINDOW_MS;
+    rateStore.set(key, { count: 1, resetAt });
+    return { allowed: true, remaining: RATE_LIMIT - 1, resetAt };
   }
-  if (current.count >= RATE_LIMIT) {
-    return { allowed: false, remaining: 0, resetAt: current.resetAt };
-  }
+  if (current.count >= RATE_LIMIT) return { allowed: false, remaining: 0, resetAt: current.resetAt };
   current.count += 1;
   rateStore.set(key, current);
-  return { allowed: true, remaining: RATE_LIMIT - current.count };
+  return { allowed: true, remaining: RATE_LIMIT - current.count, resetAt: current.resetAt };
 }
 
 function clean(value: unknown, max = 500) {
@@ -79,24 +73,34 @@ function parseDataUrl(value: string) {
   return { mime, buffer };
 }
 
+function json(body: Record<string, unknown>, status = 200) {
+  return NextResponse.json(body, {
+    status,
+    headers: {
+      "Cache-Control": "no-store, max-age=0",
+      "X-Content-Type-Options": "nosniff",
+    },
+  });
+}
+
 export async function POST(request: NextRequest) {
   const apiKey = process.env.OPENAI_API_KEY;
   if (!apiKey) {
-    return NextResponse.json(
-      {
-        error:
-          "The cinematic portrait forge is not configured on this deployment yet. Upload finished cinematic artwork to use the manual fallback.",
-      },
-      { status: 503 },
+    return json(
+      { error: "The cinematic portrait forge is not configured on this deployment. Upload finished cinematic artwork to use the local fallback." },
+      503,
     );
   }
 
-  const key = clientKey(request);
-  const rate = checkRateLimit(key);
+  const rate = checkRateLimit(clientKey(request));
   if (!rate.allowed) {
-    return NextResponse.json(
-      { error: "This beta allows three portrait renders per six-hour window." },
-      { status: 429 },
+    return json(
+      {
+        error: "This public beta allows three portrait renders per six-hour window.",
+        remaining: 0,
+        resetAt: rate.resetAt,
+      },
+      429,
     );
   }
 
@@ -104,32 +108,21 @@ export async function POST(request: NextRequest) {
   try {
     body = (await request.json()) as ForgeBody;
   } catch {
-    return NextResponse.json({ error: "Invalid render request." }, { status: 400 });
+    return json({ error: "Invalid render request." }, 400);
   }
 
-  if (!body.consent) {
-    return NextResponse.json(
-      { error: "Image-use consent is required before rendering." },
-      { status: 400 },
-    );
-  }
+  if (!body.consent) return json({ error: "Image-use consent is required before rendering." }, 400);
 
   const sourceImage = body.sourceImage || "";
   if (!sourceImage || sourceImage.length > MAX_DATA_URL_LENGTH) {
-    return NextResponse.json(
-      { error: "Upload a valid source portrait smaller than 10 MB." },
-      { status: 400 },
-    );
+    return json({ error: "Upload a valid source portrait smaller than 10 MB." }, 400);
   }
 
   let source: ReturnType<typeof parseDataUrl>;
   try {
     source = parseDataUrl(sourceImage);
   } catch (error) {
-    return NextResponse.json(
-      { error: error instanceof Error ? error.message : "Invalid portrait." },
-      { status: 400 },
-    );
+    return json({ error: error instanceof Error ? error.message : "Invalid portrait." }, 400);
   }
 
   const preset = presetDirections[body.preset || ""] || presetDirections["operational-commander"];
@@ -139,30 +132,35 @@ export async function POST(request: NextRequest) {
   const identityContext = [role, archetype, visualConcept].filter(Boolean).join(". ");
 
   const prompt = `
-Edit the supplied portrait into an original premium cinematic collectible-card key-art portrait.
+Edit the supplied portrait into original premium cinematic collectible-card KEY ART ONLY.
 
 IDENTITY PRESERVATION IS THE HIGHEST PRIORITY:
 - Preserve the same recognizable person, facial structure, skin tone, age, hairline, hairstyle, eye color, expression, and distinguishing facial details.
-- Do not beautify, age, de-age, feminize, masculinize, or replace the person.
-- Keep one person only.
+- Do not beautify, age, de-age, feminize, masculinize, replace, duplicate, or merge the person.
+- Keep exactly one person.
 
 COMPOSITION:
 - Vertical 2:3 portrait.
 - Chest-up composition with the head centered in the upper third and shoulders visible.
 - Camera at eye level, realistic lens behavior, crisp eyes, natural skin texture.
-- Build the wardrobe, lighting, atmosphere, and environment around the face rather than preserving the original room or clothing.
-- Leave useful darker negative space in the lower quarter for deterministic card typography added later by the website.
+- Rebuild wardrobe, lighting, atmosphere, and environment around the face; do not preserve the original room, mirror, phone, earbuds, or clothing.
+- Leave darker negative space in the lower quarter for deterministic typography added later by the website.
 
 VISUAL DIRECTION:
 ${preset}
 Professional identity context: ${identityContext || role}.
-Premium movie-poster realism, controlled contrast, dimensional atmosphere, sophisticated production design, not a generic superhero costume.
+Premium movie-poster realism, controlled contrast, dimensional atmosphere, sophisticated original production design, not a generic superhero costume.
 
-HARD EXCLUSIONS:
-- No words, letters, numbers, captions, logos, badges, watermarks, UI, borders, trading-card frame, duplicated face, extra person, distorted anatomy, oversized head, or cartoon treatment.
-- Do not place the person's name, company, role, or call sign in the image.
+ABSOLUTE NO-TEXT ZONE:
+- The image must contain zero readable or pseudo-readable text.
+- No words, letters, numbers, symbols that resemble writing, captions, signs, screens with glyphs, logos, badges, patches, emblems, watermarks, UI, card borders, or title treatments.
+- Use abstract light, unlabeled machinery, and non-readable interface geometry only.
+- Do not place the person's name, company, role, call sign, initials, or credentials anywhere.
 
-Return only the finished cinematic portrait artwork. The website will add all typography and statistics afterward.
+OTHER EXCLUSIONS:
+- No extra people, duplicated face, distorted anatomy, oversized head, cartoon treatment, gore, weapons, or public-figure resemblance substitution.
+
+Return only the finished cinematic portrait artwork. The website will add all typography, statistics, borders, and review labels afterward.
 `.trim();
 
   try {
@@ -177,9 +175,7 @@ Return only the finished cinematic portrait artwork. The website will add all ty
 
     const response = await fetch("https://api.openai.com/v1/images/edits", {
       method: "POST",
-      headers: {
-        Authorization: `Bearer ${apiKey}`,
-      },
+      headers: { Authorization: `Bearer ${apiKey}` },
       body: form,
     });
 
@@ -189,29 +185,19 @@ Return only the finished cinematic portrait artwork. The website will add all ty
     };
 
     if (!response.ok) {
-      return NextResponse.json(
-        { error: payload.error?.message || "The image provider rejected the render request." },
-        { status: response.status },
-      );
+      return json({ error: payload.error?.message || "The image provider rejected the render request." }, response.status);
     }
 
     const imageBase64 = payload.data?.[0]?.b64_json;
-    if (!imageBase64) {
-      return NextResponse.json(
-        { error: "The image provider returned no image." },
-        { status: 502 },
-      );
-    }
+    if (!imageBase64) return json({ error: "The image provider returned no image." }, 502);
 
-    return NextResponse.json({
+    return json({
       imageDataUrl: `data:image/jpeg;base64,${imageBase64}`,
       remaining: rate.remaining,
+      resetAt: rate.resetAt,
       model: "gpt-image-2",
     });
   } catch (error) {
-    return NextResponse.json(
-      { error: error instanceof Error ? error.message : "Portrait forge failed." },
-      { status: 500 },
-    );
+    return json({ error: error instanceof Error ? error.message : "Portrait forge failed." }, 500);
   }
 }
