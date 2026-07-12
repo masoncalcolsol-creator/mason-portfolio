@@ -1,0 +1,55 @@
+/* NULLWORKS public landing-page corrections — 2026-07-12 */
+
+/*
+ * The WHY panel was visually narrower because it occupied the smaller column
+ * of an asymmetric two-column grid. Give that tan panel the full shared shell,
+ * then keep the three operating perspectives as an orderly row below it.
+ */
+.nwAudit .outside {
+  grid-template-columns: minmax(0, 1fr) !important;
+}
+
+.nwAudit .warmPanel {
+  width: 100%;
+  min-width: 0;
+}
+
+.nwAudit .layerStack {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+/* Prevent any full-shell audit panel from shrinking inside a flex/grid parent. */
+.nwAudit section.shell.panel,
+.nwAudit section.shell.scalePanel {
+  width: min(1160px, calc(100% - 28px));
+}
+
+@media (max-width: 900px) {
+  .nwAudit .layerStack {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/*
+ * On small screens, remove Contact Mason from the crowded header flow and
+ * restore it as the intended persistent floating action.
+ */
+@media (max-width: 700px) {
+  header a[href^="mailto:masoncalcolsol@gmail.com"] {
+    position: fixed !important;
+    right: 14px;
+    bottom: max(14px, env(safe-area-inset-bottom));
+    z-index: 50;
+    min-height: 46px;
+    padding: 12px 16px !important;
+    border: 1px solid rgba(229, 199, 126, 0.42);
+    background: #0a1520 !important;
+    color: #fffaf0 !important;
+    box-shadow: 0 18px 48px rgba(10, 21, 32, 0.34) !important;
+    backdrop-filter: blur(16px);
+  }
+
+  main:has(header a[href^="mailto:masoncalcolsol@gmail.com"]) {
+    padding-bottom: 78px;
+  }
+}
