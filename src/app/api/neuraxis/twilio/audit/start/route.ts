@@ -14,6 +14,8 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 export const maxDuration = 30;
 
+type AuditStep = "identity" | "employees" | "ai_problem" | "handoff";
+
 type AuditAnswers = {
   name?: string;
   company?: string;
@@ -26,7 +28,7 @@ type AuditAnswers = {
 };
 
 type AuditState = {
-  step: "conversation";
+  step: AuditStep;
   callSid: string;
   caller: string;
   callerName?: string;
@@ -56,17 +58,17 @@ async function handle(request: Request) {
   const lookup = isMason ? { name: "Mason", type: "APPROVED_CALLER" } : await lookupCallerName(caller);
   const callerName = cleanCallerName(lookup.name);
 
-  const prompt = "NEURAXIS is online. We are Organizational Intelligence, and we are ready to help. We examine why the work exists, what is actually failing, and the lowest-lift fix: workflow, people, authority, software, AI, or something simpler. This is not a software pitch or a consulting script. Tell me your name, company, title, approximate employee count, which AI you use, and what is going wrong. Answer however you want.";
+  const prompt = "NEURAXIS is online. We are Organizational Intelligence, and we are ready to help. NULLWORKS looks at why the work exists, what is actually failing, and the lowest-lift change that restores the outcome. That may be workflow, people, authority, software, AI, or something simpler. This is not a software pitch or a consulting script. The intake has three quick steps, and you can interrupt me with questions at any time. First, what is your name, company, and title? Say all three together.";
 
   const state: AuditState = {
-    step: "conversation",
+    step: "identity",
     callSid: params.CallSid || crypto.randomUUID(),
     caller,
     callerName,
     callerType: lookup.type,
     startedAt: new Date().toISOString(),
     turns: 0,
-    answers: callerName ? { name: callerName } : {},
+    answers: {},
     notes: [],
   };
 
@@ -79,7 +81,7 @@ async function handle(request: Request) {
   <Gather input="speech" timeout="7" speechTimeout="auto" actionOnEmptyResult="true" method="POST" action="${xmlEscape(action.toString())}">
     ${speak(prompt, request.url)}
   </Gather>
-  ${speak("I did not catch that. Say whatever brought you here, and we will start there.", request.url)}
+  ${speak("I did not catch that. Start with your name, company, and title.", request.url)}
   <Redirect method="POST">${xmlEscape(retry)}</Redirect>
 </Response>`);
 }
