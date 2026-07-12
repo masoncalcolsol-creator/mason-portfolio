@@ -41,7 +41,7 @@ export function FieldNoteShell({
     <main className={styles.page}>
       <div className={styles.shell}>
         <header className={styles.topbar}>
-          <a href="/field-notes" className={styles.brandLink}>
+          <a href="/" className={styles.brandLink} aria-label="Open the NULLWORKS public operating map">
             <div className={styles.monogram}>NW</div>
             <div>
               <div className={styles.brandEyebrow}>NULLWORKS // OI FIELD NOTES</div>
