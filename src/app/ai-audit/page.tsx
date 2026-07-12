@@ -9,28 +9,28 @@ export const metadata: Metadata = {
 const diagnoses = [
   {
     number: "01",
-    name: "FIX THE FLOW",
+    name: "Fix the flow",
     fit: "You do not need an OISA.",
     body: "The work is simple enough that one clear correction, better ownership, an environmental change, or a small software adjustment can restore the outcome.",
     action: "Map it. Fix it. Hand it back.",
   },
   {
     number: "02",
-    name: "FORWARD DEPLOY + HAND OFF",
+    name: "Forward deploy + hand off",
     fit: "You need bounded architecture help.",
     body: "A forward-deployed operational architect enters the workflow, prototypes the missing operating layer, validates it with domain experts, and leaves the team able to run it.",
     action: "Observe. Build. Stabilize. Transfer.",
   },
   {
     number: "03",
-    name: "INSTALL OISA CAPACITY",
+    name: "Install OISA capacity",
     fit: "You need a named operating function.",
     body: "The organization has enough AI, handoffs, evidence risk, exceptions, and cross-functional friction to justify a permanent or fractional OISA role.",
     action: "Define the charter, authority, rhythm, and outcomes.",
   },
   {
     number: "04",
-    name: "RESET BEFORE AI",
+    name: "Reset before AI",
     fit: "The operating model is not stable enough yet.",
     body: "Core workflows, accountability, incentives, authority, labor structure, data, or management systems must be repaired before more AI can create dependable value.",
     action: "Stop layering technology onto structural failure.",
@@ -74,358 +74,380 @@ const auditOutputs = [
 
 export default function AiAuditPage() {
   return (
-    <main className="audit-page">
+    <main className="auditPage">
       <style>{`
-        :root { color-scheme: dark; }
+        :root { color-scheme: light; }
         * { box-sizing: border-box; }
         html { scroll-behavior: smooth; }
-        body { margin: 0; background: #070909; }
-        .audit-page {
-          --ink: #f5f3eb;
-          --muted: #b7b8af;
-          --dim: #81867f;
-          --line: #2b312d;
-          --panel: #0d1110;
-          --signal: #ff5a2a;
-          --signal-soft: rgba(255, 90, 42, .14);
-          --acid: #d7ff2f;
+        body { margin: 0; background: #f3eee2; }
+        .auditPage {
+          --paper: #f7f1e5;
+          --paper-deep: #ecdfc8;
+          --ink: #15211d;
+          --muted: #665f52;
+          --navy: #0b1822;
+          --green: #173129;
+          --teal: #2e6870;
+          --gold: #bd8b35;
+          --gold-light: #efd69a;
+          --line: rgba(113, 83, 35, .28);
           min-height: 100vh;
           color: var(--ink);
           background:
-            radial-gradient(circle at 6% 0%, rgba(255, 90, 42, .17), transparent 31rem),
-            radial-gradient(circle at 92% 11%, rgba(215, 255, 47, .10), transparent 28rem),
-            linear-gradient(180deg, #080a09 0%, #070909 100%);
+            radial-gradient(circle at 9% 0%, rgba(46,104,112,.15), transparent 34rem),
+            radial-gradient(circle at 94% 7%, rgba(189,139,53,.18), transparent 31rem),
+            linear-gradient(rgba(42,57,52,.035) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(42,57,52,.035) 1px, transparent 1px),
+            #f3eee2;
+          background-size: auto, auto, 48px 48px, 48px 48px, auto;
           font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-          overflow: hidden;
+          overflow-x: hidden;
         }
-        .shell { width: min(1180px, calc(100% - 38px)); margin: 0 auto; }
-        .hero { position: relative; padding: 76px 0 68px; border-bottom: 1px solid var(--line); }
-        .hero::after {
-          content: "AUDIT";
-          position: absolute;
-          right: -1.5vw;
-          bottom: -1.5vw;
-          font-size: clamp(110px, 22vw, 310px);
-          font-weight: 1000;
-          letter-spacing: -.09em;
-          color: rgba(255,255,255,.018);
-          pointer-events: none;
+        .shell { position: relative; width: min(1160px, calc(100% - 28px)); margin: 0 auto; }
+        .topbar { padding: 16px 0 0; }
+        .nav {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 14px;
+          padding: 13px 15px;
+          border: 1px solid var(--line);
+          border-radius: 24px;
+          background: rgba(255,251,242,.9);
+          box-shadow: 0 20px 70px rgba(49,41,27,.1);
+          backdrop-filter: blur(18px);
         }
-        .eyebrow { color: var(--signal); font-weight: 950; font-size: 12px; letter-spacing: .18em; text-transform: uppercase; }
-        .hero-grid { display: grid; grid-template-columns: 1.2fr .8fr; gap: 28px; align-items: end; margin-top: 18px; }
-        h1 { max-width: 900px; margin: 0; font-size: clamp(56px, 8.7vw, 116px); line-height: .86; letter-spacing: -.075em; }
-        .hero .lead { margin: 28px 0 0; max-width: 850px; color: var(--muted); font-size: clamp(20px, 2.1vw, 25px); line-height: 1.55; }
-        .hero-card { position: relative; z-index: 1; border: 1px solid #3a403c; border-radius: 28px; padding: 28px; background: linear-gradient(155deg, rgba(255,90,42,.14), rgba(255,255,255,.025)); box-shadow: 0 32px 90px rgba(0,0,0,.38); }
-        .hero-card .metric { color: var(--acid); font-size: clamp(52px, 7vw, 82px); font-weight: 1000; line-height: .88; letter-spacing: -.07em; }
-        .hero-card .metric-label { margin-top: 8px; color: #e9eadf; font-size: 13px; text-transform: uppercase; letter-spacing: .13em; font-weight: 900; }
-        .hero-card p { margin: 20px 0 0; color: #c4c7bf; line-height: 1.65; }
-        .chips { display: flex; flex-wrap: wrap; gap: 9px; margin-top: 28px; }
-        .chip { border: 1px solid #353b37; background: rgba(7,9,9,.62); color: #c1c5be; border-radius: 999px; padding: 9px 13px; font-size: 13px; }
-        .cta-row { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 32px; }
-        .cta { display: inline-flex; min-height: 48px; align-items: center; justify-content: center; text-decoration: none; border-radius: 999px; padding: 13px 19px; font-weight: 950; background: var(--signal); color: #130a07; box-shadow: 0 10px 35px rgba(255,90,42,.18); }
-        .cta.secondary { background: transparent; color: var(--acid); border: 1px solid #55633e; box-shadow: none; }
-        section { padding: 76px 0; border-bottom: 1px solid var(--line); }
-        .section-label { color: var(--signal); font-size: 12px; letter-spacing: .16em; text-transform: uppercase; font-weight: 950; }
-        h2 { max-width: 1030px; margin: 12px 0 26px; font-size: clamp(39px, 5.6vw, 72px); line-height: .98; letter-spacing: -.055em; }
-        h3 { letter-spacing: -.025em; }
-        .body { max-width: 910px; color: var(--muted); font-size: 19px; line-height: 1.72; }
-        .witness-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-top: 34px; }
-        .witness-card { min-height: 245px; border: 1px solid #323934; border-radius: 24px; padding: 24px; background: linear-gradient(180deg, rgba(255,255,255,.035), rgba(255,255,255,.012)); }
-        .witness-card strong { display: block; color: var(--acid); font-size: 12px; letter-spacing: .14em; text-transform: uppercase; }
-        .witness-card h3 { margin: 18px 0 12px; font-size: 28px; }
-        .witness-card p { margin: 0; color: #aeb4ad; line-height: 1.67; }
-        .witness-card.primary { border-color: rgba(255,90,42,.5); background: linear-gradient(145deg, rgba(255,90,42,.11), rgba(255,255,255,.015)); }
-        .outside-grid { display: grid; grid-template-columns: .9fr 1.1fr; gap: 22px; align-items: stretch; margin-top: 34px; }
-        .why-card { border: 1px solid rgba(215,255,47,.38); border-radius: 27px; padding: 28px; background: linear-gradient(145deg, rgba(215,255,47,.08), rgba(255,255,255,.012)); }
-        .why-card .giant { color: var(--acid); font-size: clamp(70px, 10vw, 118px); font-weight: 1000; line-height: .82; letter-spacing: -.08em; }
-        .why-card p { color: #c7cbc3; line-height: 1.65; }
-        .layers { display: grid; gap: 12px; }
-        .layer { border: 1px solid #313834; border-radius: 22px; padding: 22px; background: #0c100f; }
-        .layer .role { color: var(--signal); font-size: 12px; font-weight: 900; text-transform: uppercase; letter-spacing: .14em; }
-        .layer h3 { margin: 10px 0 8px; font-size: 25px; }
-        .layer p { margin: 0; color: #aeb4ad; line-height: 1.62; }
-        .receipt { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 34px; }
-        .weather { min-height: 420px; border: 1px solid #343b36; border-radius: 28px; padding: 28px; overflow: hidden; position: relative; background:
-          linear-gradient(180deg, rgba(160,184,198,.18), rgba(7,9,9,.92)),
-          repeating-linear-gradient(112deg, transparent 0 17px, rgba(255,255,255,.06) 18px 19px);
+        .brand { display: flex; align-items: center; gap: 12px; min-width: 0; }
+        .brandMark { display: grid; flex: 0 0 auto; width: 46px; height: 46px; place-items: center; border: 1px solid var(--gold); border-radius: 50%; background: var(--navy); color: var(--gold-light); font-family: Georgia, "Times New Roman", serif; font-weight: 900; letter-spacing: -.08em; }
+        .brandEyebrow, .eyebrow, .sectionLabel, .darkLabel { font-size: 10px; font-weight: 950; letter-spacing: .22em; text-transform: uppercase; }
+        .brandEyebrow, .eyebrow, .sectionLabel { color: #80601f; }
+        .brandName { margin-top: 2px; color: #171914; font-family: Georgia, "Times New Roman", serif; font-size: 18px; font-weight: 800; line-height: 1.1; }
+        .navLink, .primaryButton, .secondaryButton { display: inline-flex; align-items: center; justify-content: center; min-height: 44px; border-radius: 999px; padding: 11px 15px; text-decoration: none; font-size: 12px; font-weight: 900; }
+        .navLink, .secondaryButton { border: 1px solid rgba(143,104,32,.38); background: #fffaf0; color: #73531c; }
+        .primaryButton { background: var(--navy); color: #fffaf0; box-shadow: 0 16px 38px rgba(10,21,32,.18); }
+        .hero { display: grid; grid-template-columns: minmax(0,1.07fr) minmax(330px,.93fr); gap: 18px; padding: 16px 0 18px; }
+        .heroCopy, .heroSignal, .card, .darkPanel, .warmPanel, .lightPanel, .umbrellaScene, .umbrellaAnswer, .diagnosis, .lender, .neutrality, .closingCard {
+          border: 1px solid var(--line);
+          border-radius: 34px;
+          box-shadow: 0 28px 90px rgba(49,41,27,.12);
         }
-        .weather::before { content: "SLEET"; position: absolute; right: -10px; bottom: 6px; font-size: clamp(80px, 12vw, 150px); font-weight: 1000; letter-spacing: -.08em; color: rgba(255,255,255,.04); }
-        .weather .field { position: relative; z-index: 1; color: var(--acid); font-size: 12px; letter-spacing: .16em; text-transform: uppercase; font-weight: 950; }
-        .weather h3 { position: relative; z-index: 1; margin: 16px 0; font-size: clamp(35px, 4vw, 54px); line-height: 1; }
-        .weather p { position: relative; z-index: 1; color: #c1c6bf; line-height: 1.68; max-width: 570px; }
-        .solution { border: 1px solid rgba(255,90,42,.48); border-radius: 28px; padding: 28px; background: linear-gradient(145deg, rgba(255,90,42,.12), #0c100f 55%); }
-        .solution .not { color: #8d948d; font-size: 12px; font-weight: 900; text-transform: uppercase; letter-spacing: .14em; }
-        .solution .wrong { display: grid; gap: 9px; margin: 18px 0 26px; color: #9ca29b; text-decoration: line-through; }
-        .solution .answer { color: var(--signal); font-size: clamp(48px, 7vw, 84px); font-weight: 1000; line-height: .87; letter-spacing: -.07em; }
-        .solution p { color: #c1c6bf; line-height: 1.68; }
-        .diagnoses { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; margin-top: 34px; }
-        .diagnosis { border: 1px solid #323934; border-radius: 25px; padding: 25px; background: linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.01)); }
-        .diagnosis .number { color: var(--signal); font-size: 30px; font-weight: 1000; }
-        .diagnosis h3 { margin: 16px 0 8px; font-size: 30px; }
-        .diagnosis .fit { color: var(--acid); font-weight: 850; }
-        .diagnosis p { color: #afb5ae; line-height: 1.65; }
-        .diagnosis .action { margin-top: 18px; padding-top: 16px; border-top: 1px solid #29302c; color: #e0e2db; font-weight: 800; }
-        .signal-grid, .lens-grid, .output-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-top: 30px; }
-        .signal, .lens, .output { border: 1px solid #303733; border-radius: 18px; padding: 18px; color: #b8bdb6; line-height: 1.55; background: #0b0f0e; }
-        .signal { border-left: 3px solid var(--signal); }
-        .lens { border-left: 3px solid var(--acid); }
-        .output::before { content: "✓"; color: var(--acid); font-weight: 1000; margin-right: 10px; }
-        .lender { border: 1px solid #3b423d; border-radius: 30px; padding: 31px; background:
-          radial-gradient(circle at 100% 0%, rgba(215,255,47,.10), transparent 24rem),
-          linear-gradient(145deg, rgba(255,90,42,.07), rgba(255,255,255,.018));
-        }
-        .lender h3 { margin: 10px 0 18px; font-size: clamp(38px, 5vw, 60px); }
-        .lender p { color: #c1c5bf; font-size: 19px; line-height: 1.72; max-width: 950px; }
-        .steps { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 28px; }
-        .step { border-top: 2px solid var(--signal); padding: 16px 0 0; color: #b8bdb6; line-height: 1.5; }
-        .step strong { display: block; color: #f0f0e8; margin-bottom: 6px; }
-        .neutrality { border: 1px solid rgba(215,255,47,.45); border-radius: 30px; padding: 32px; background: linear-gradient(145deg, rgba(215,255,47,.10), rgba(255,255,255,.015)); }
-        .neutrality h2 { margin-top: 0; }
-        .neutrality p { color: #c7cbc3; font-size: 20px; line-height: 1.7; }
-        .truth { margin-top: 24px; border: 1px solid #353c37; border-radius: 22px; padding: 22px; color: #969d96; line-height: 1.65; background: #0a0e0d; }
-        .closing { text-align: center; padding: 88px 0 94px; }
-        .closing h2 { margin-left: auto; margin-right: auto; }
-        .closing .body { margin: 0 auto; }
-        .closing .cta-row { justify-content: center; }
-        footer { padding: 34px 0 70px; color: #747b75; border-top: 1px solid var(--line); }
+        .heroCopy { display: flex; min-height: 580px; padding: clamp(30px,5vw,60px); justify-content: center; flex-direction: column; background: rgba(255,251,242,.95); }
+        .eyebrow { display: inline-flex; width: fit-content; padding: 9px 12px; border: 1px solid rgba(184,138,52,.36); border-radius: 999px; background: #eee1c7; }
+        h1, h2, .serif { font-family: Georgia, "Times New Roman", serif; }
+        h1 { max-width: 760px; margin: 24px 0 0; font-size: clamp(48px,6.4vw,82px); line-height: .94; letter-spacing: -.055em; }
+        .lead { max-width: 740px; margin: 25px 0 0; color: #554d40; font-size: clamp(17px,1.55vw,21px); line-height: 1.68; }
+        .chips { display: flex; flex-wrap: wrap; gap: 9px; margin-top: 26px; }
+        .chip { padding: 9px 12px; border: 1px solid rgba(143,104,32,.28); border-radius: 999px; background: #f5ead8; color: #5c513f; font-size: 12px; font-weight: 750; }
+        .actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 28px; }
+        .heroSignal { position: relative; display: flex; min-height: 580px; padding: clamp(26px,4vw,44px); justify-content: center; flex-direction: column; overflow: hidden; background: linear-gradient(155deg, #0a1721, #19302a 76%, #254b4d); color: #fffaf0; }
+        .heroSignal::after { content: "OI"; position: absolute; right: -18px; bottom: -54px; color: rgba(239,214,154,.055); font-family: Georgia, "Times New Roman", serif; font-size: 250px; font-weight: 900; line-height: 1; }
+        .darkLabel { position: relative; z-index: 1; color: var(--gold-light); }
+        .twenty { position: relative; z-index: 1; margin-top: 22px; color: #fffaf0; font-family: Georgia, "Times New Roman", serif; font-size: clamp(58px,8vw,104px); font-weight: 800; line-height: .82; letter-spacing: -.065em; }
+        .twenty span { display: block; margin-top: 15px; color: var(--gold-light); font-family: Inter, ui-sans-serif, system-ui, sans-serif; font-size: 12px; font-weight: 950; letter-spacing: .18em; line-height: 1.4; text-transform: uppercase; }
+        .seven { position: relative; z-index: 1; margin-top: 32px; padding-top: 24px; border-top: 1px solid rgba(239,214,154,.26); }
+        .seven strong { display: block; color: #cce5dc; font-size: clamp(34px,4.8vw,62px); line-height: .94; letter-spacing: -.05em; }
+        .heroSignal p { position: relative; z-index: 1; margin: 18px 0 0; color: rgba(255,250,240,.74); line-height: 1.72; }
+        .truthNote { position: relative; z-index: 1; margin-top: 22px; color: rgba(255,250,240,.55); font-size: 12px; line-height: 1.55; }
+        .section { padding: 18px 0 0; }
+        .sectionHeader { padding: 22px 4px 16px; }
+        h2 { max-width: 980px; margin: 10px 0 0; font-size: clamp(34px,4.8vw,62px); line-height: 1; letter-spacing: -.045em; }
+        .body { max-width: 900px; margin: 18px 0 0; color: var(--muted); font-size: 17px; line-height: 1.75; }
+        .signalGrid { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 14px; }
+        .card { min-height: 180px; padding: 23px; background: rgba(255,251,242,.94); }
+        .cardNumber { color: var(--gold); font-size: 12px; font-weight: 950; letter-spacing: .18em; }
+        .card p { margin: 18px 0 0; color: #5f5749; font-size: 14px; font-weight: 650; line-height: 1.65; }
+        .darkPanel { margin-top: 18px; padding: clamp(26px,4vw,44px); background: #15221e; color: #fffaf0; }
+        .darkPanel h2 { color: #fffaf0; }
+        .darkPanel .body { color: rgba(255,250,240,.72); }
+        .witnessGrid { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 12px; margin-top: 30px; }
+        .witness { padding: 22px; border: 1px solid rgba(229,199,126,.22); border-radius: 24px; background: rgba(255,255,255,.045); }
+        .witness strong { color: var(--gold-light); font-size: 11px; letter-spacing: .16em; text-transform: uppercase; }
+        .witness h3 { margin: 16px 0 10px; font-size: 25px; letter-spacing: -.03em; }
+        .witness p { margin: 0; color: rgba(255,250,240,.68); font-size: 14px; line-height: 1.67; }
+        .witness.primary { border-color: rgba(117,187,182,.55); background: rgba(46,104,112,.18); }
+        .outside { display: grid; grid-template-columns: .82fr 1.18fr; gap: 14px; }
+        .warmPanel { padding: 30px; background: #ead9b9; }
+        .why { color: var(--navy); font-family: Georgia, "Times New Roman", serif; font-size: clamp(78px,11vw,142px); font-weight: 900; line-height: .78; letter-spacing: -.08em; }
+        .warmPanel p { margin: 28px 0 0; color: #594c38; line-height: 1.72; }
+        .layerStack { display: grid; gap: 12px; }
+        .lightPanel { padding: 23px; background: rgba(255,251,242,.94); }
+        .lightPanel strong { color: #80601f; font-size: 11px; letter-spacing: .16em; text-transform: uppercase; }
+        .lightPanel h3 { margin: 12px 0 8px; font-size: 25px; }
+        .lightPanel p { margin: 0; color: #615747; font-size: 14px; line-height: 1.67; }
+        .umbrellaGrid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+        .umbrellaScene { position: relative; min-height: 450px; padding: 30px; overflow: hidden; background: linear-gradient(165deg,#dce4dd,#aac7c4 55%,#315e63); color: var(--navy); }
+        .umbrellaScene::after { content: "SLEET"; position: absolute; right: -22px; bottom: -24px; color: rgba(11,24,34,.08); font-family: Georgia, "Times New Roman", serif; font-size: clamp(100px,15vw,190px); font-weight: 900; letter-spacing: -.08em; }
+        .umbrellaScene strong { position: relative; z-index: 1; color: #315e63; font-size: 11px; letter-spacing: .16em; text-transform: uppercase; }
+        .umbrellaScene h3 { position: relative; z-index: 1; max-width: 570px; margin: 18px 0; font-family: Georgia, "Times New Roman", serif; font-size: clamp(36px,4.5vw,58px); line-height: 1; letter-spacing: -.045em; }
+        .umbrellaScene p { position: relative; z-index: 1; max-width: 580px; color: #31423f; line-height: 1.7; }
+        .umbrellaAnswer { padding: 30px; background: linear-gradient(150deg,#0b1822,#1d332d); color: #fffaf0; }
+        .wrong { display: grid; gap: 9px; margin: 20px 0 28px; color: rgba(255,250,240,.48); text-decoration: line-through; }
+        .answer { color: var(--gold-light); font-family: Georgia, "Times New Roman", serif; font-size: clamp(52px,7vw,88px); font-weight: 900; line-height: .86; letter-spacing: -.065em; }
+        .umbrellaAnswer p { color: rgba(255,250,240,.72); line-height: 1.72; }
+        .diagnosisGrid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 14px; }
+        .diagnosis { padding: 26px; background: rgba(255,251,242,.94); }
+        .diagnosisNumber { color: var(--gold); font-size: 30px; font-weight: 950; }
+        .diagnosis h3 { margin: 14px 0 8px; font-family: Georgia, "Times New Roman", serif; font-size: 31px; line-height: 1; }
+        .diagnosisFit { color: var(--teal); font-weight: 900; }
+        .diagnosis p { color: #615747; line-height: 1.67; }
+        .diagnosisAction { margin-top: 18px; padding-top: 16px; border-top: 1px solid rgba(113,83,35,.2); font-weight: 850; }
+        .scalePanel { margin-top: 18px; display: grid; grid-template-columns: .9fr 1.1fr; gap: 18px; padding: clamp(28px,4vw,46px); border-radius: 34px; background: linear-gradient(145deg,#0b1822,#1d332d); color: #fffaf0; box-shadow: 0 28px 90px rgba(10,21,32,.2); }
+        .scaleNumber { color: var(--gold-light); font-family: Georgia, "Times New Roman", serif; font-size: clamp(58px,8vw,105px); font-weight: 900; line-height: .82; letter-spacing: -.07em; }
+        .scalePanel h2 { color: #fffaf0; }
+        .scalePanel p { color: rgba(255,250,240,.72); line-height: 1.72; }
+        .lensGrid, .outputGrid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 11px; }
+        .lens, .output { padding: 17px; border: 1px solid rgba(143,104,32,.27); border-radius: 19px; background: rgba(255,251,242,.88); color: #5d5445; line-height: 1.55; }
+        .lens { border-left: 3px solid var(--teal); }
+        .output::before { content: "✓"; margin-right: 9px; color: var(--teal); font-weight: 950; }
+        .lender { margin-top: 18px; padding: clamp(28px,4vw,44px); background: #fffaf0; }
+        .lender h2 { max-width: 960px; }
+        .lender p { max-width: 930px; color: #615747; font-size: 17px; line-height: 1.75; }
+        .steps { display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); gap: 10px; margin-top: 28px; }
+        .step { padding: 17px; border: 1px solid rgba(143,104,32,.26); border-radius: 20px; background: #f2e5cd; color: #5b513f; font-size: 13px; line-height: 1.55; }
+        .step strong { display: block; margin-bottom: 7px; color: #76551d; }
+        .neutrality { margin-top: 18px; padding: clamp(28px,4vw,44px); background: #ead9b9; }
+        .neutrality p { max-width: 930px; color: #594c38; font-size: 17px; line-height: 1.75; }
+        .boundary { margin-top: 22px; padding: 20px; border: 1px solid rgba(11,24,34,.18); border-radius: 20px; background: rgba(255,250,240,.55); color: #665a46; line-height: 1.65; }
+        .closingCard { margin: 18px 0 70px; padding: clamp(34px,5vw,60px); text-align: center; background: #fffaf0; }
+        .closingCard h2 { margin-left: auto; margin-right: auto; }
+        .closingCard .body { margin-left: auto; margin-right: auto; }
+        .closingCard .actions { justify-content: center; }
+        footer { padding: 0 0 40px; color: #7c7467; font-size: 12px; }
         @media (max-width: 900px) {
-          .hero-grid, .outside-grid, .receipt { grid-template-columns: 1fr; }
-          .witness-grid { grid-template-columns: 1fr; }
-          .steps { grid-template-columns: repeat(2, 1fr); }
+          .hero, .outside, .umbrellaGrid, .scalePanel { grid-template-columns: 1fr; }
+          .heroCopy, .heroSignal { min-height: auto; }
+          .signalGrid, .witnessGrid { grid-template-columns: 1fr; }
+          .steps { grid-template-columns: repeat(2,minmax(0,1fr)); }
         }
         @media (max-width: 680px) {
-          .shell { width: min(100% - 26px, 1180px); }
-          .hero { padding: 52px 0 54px; }
-          section { padding: 56px 0; }
-          .diagnoses, .signal-grid, .lens-grid, .output-grid, .steps { grid-template-columns: 1fr; }
-          .hero-card, .why-card, .weather, .solution, .lender, .neutrality { padding: 22px; }
-          .weather { min-height: 350px; }
-          .cta { width: 100%; }
+          .nav { align-items: flex-start; }
+          .navLink { display: none; }
+          .hero { padding-top: 12px; }
+          .heroCopy, .heroSignal, .darkPanel, .warmPanel, .lightPanel, .umbrellaScene, .umbrellaAnswer, .diagnosis, .lender, .neutrality, .closingCard { border-radius: 26px; }
+          .diagnosisGrid, .lensGrid, .outputGrid, .steps { grid-template-columns: 1fr; }
+          .primaryButton, .secondaryButton { width: 100%; }
+          .brandName { font-size: 16px; }
         }
       `}</style>
 
-      <header className="hero">
+      <div className="topbar">
         <div className="shell">
-          <div className="eyebrow">NULLWORKS // AI OPERATING MODEL AUDIT</div>
-          <div className="hero-grid">
-            <div>
-              <h1>Your company may not need more AI.</h1>
-              <p className="lead">
-                It may need an operating-model diagnosis. NULLWORKS observes one real workflow, maps how humans, software, specialized digital workers, physical conditions, and authority interact, then identifies the smallest intervention that improves the actual outcome.
-              </p>
-              <div className="chips">
-                <span className="chip">Tool-agnostic</span>
-                <span className="chip">Workflow-first</span>
-                <span className="chip">Outside-in perspective</span>
-                <span className="chip">Frontline evidence</span>
-                <span className="chip">Human Authority final</span>
-              </div>
-              <div className="cta-row">
-                <a className="cta" href="/ai-audit/intake">Start with one workflow</a>
-                <a className="cta secondary" href="#diagnosis">See the four outcomes</a>
+          <nav className="nav">
+            <div className="brand">
+              <div className="brandMark">NW</div>
+              <div>
+                <div className="brandEyebrow">NULLWORKS</div>
+                <div className="brandName">AI Operating Model Audit</div>
               </div>
             </div>
-            <aside className="hero-card">
-              <div className="metric">20 MIN</div>
-              <div className="metric-label">Provisional workflow triage</div>
-              <p>
-                Enough to identify the likely constraint, the smallest next test, and whether to stop, fix, forward deploy, install OISA capacity, or reset before adding anything else.
-              </p>
-            </aside>
-          </div>
+            <a className="navLink" href="#diagnosis">View the four outcomes</a>
+          </nav>
         </div>
+      </div>
+
+      <header className="shell hero">
+        <section className="heroCopy">
+          <div className="eyebrow">Workflow-first operating diagnosis</div>
+          <h1>Your company may not need more AI.</h1>
+          <p className="lead">
+            It may need an operating-model diagnosis. NULLWORKS observes one real workflow, maps how humans, software, specialized digital workers, physical conditions, and authority interact, then identifies the smallest intervention that improves the actual outcome.
+          </p>
+          <div className="chips">
+            <span className="chip">Tool-agnostic</span>
+            <span className="chip">Outside-in perspective</span>
+            <span className="chip">Frontline evidence</span>
+            <span className="chip">Human Authority final</span>
+          </div>
+          <div className="actions">
+            <a className="primaryButton" href="/ai-audit/intake">Start with one workflow</a>
+            <a className="secondaryButton" href="#diagnosis">See the diagnostic ladder</a>
+          </div>
+        </section>
+
+        <aside className="heroSignal">
+          <div className="darkLabel">Provisional workflow triage</div>
+          <div className="twenty">20 MIN<span>Enough to find the likely constraint and smallest next test</span></div>
+          <div className="seven">
+            <strong>May expose a seven-figure leak.</strong>
+            <p>A tiny recurring defect can become enormous when it repeats across enterprise volume, labor, rework, delay, and customer consequences.</p>
+          </div>
+          <div className="truthNote">Not a savings guarantee. The point is to determine whether a high-scale leak exists before buying a high-scale solution.</div>
+        </aside>
       </header>
 
-      <section>
-        <div className="shell">
-          <div className="section-label">The central question</div>
+      <section className="shell section">
+        <div className="sectionHeader">
+          <div className="sectionLabel">The central question</div>
           <h2>Is AI improving the work—or multiplying the mess?</h2>
-          <p className="body">
-            Companies often know they have AI-related pain but do not know whether the real cause is the model, the software, the workflow, the operating model, the hiring architecture, the authority structure, missing telemetry, or the absence of an Operational Intelligence Systems Architect.
-          </p>
-          <div className="signal-grid">
-            {warningSignals.map((signal) => <div className="signal" key={signal}>{signal}</div>)}
-          </div>
+          <p className="body">Companies often know they have AI-related pain but do not know whether the real cause is the model, software, workflow, operating model, hiring architecture, authority structure, missing telemetry, or the absence of an Operational Intelligence Systems Architect.</p>
+        </div>
+        <div className="signalGrid">
+          {warningSignals.map((signal, index) => (
+            <article className="card" key={signal}>
+              <div className="cardNumber">SIGNAL {String(index + 1).padStart(2, "0")}</div>
+              <p>{signal}</p>
+            </article>
+          ))}
         </div>
       </section>
 
-      <section>
-        <div className="shell">
-          <div className="section-label">Independent operating perspective</div>
-          <h2>The system cannot be its only witness.</h2>
-          <p className="body">
-            AI can check explicit rules. Engineers can verify code, uptime, latency, and integrations. Managers can confirm whether the documented process was followed. None of those perspectives alone can determine whether the whole operating system should be organized this way in the first place.
-          </p>
-          <div className="witness-grid">
-            <article className="witness-card">
-              <strong>AI layer</strong>
-              <h3>Checks the rule</h3>
-              <p>If the premise is wrong, an AI checker can validate the same wrong premise and produce confident, internally consistent wrongness.</p>
-            </article>
-            <article className="witness-card">
-              <strong>Software layer</strong>
-              <h3>Checks the tool</h3>
-              <p>The builder can determine whether the software performs as designed. The builder should not be the only auditor of the operating system surrounding it.</p>
-            </article>
-            <article className="witness-card primary">
-              <strong>OISA layer</strong>
-              <h3>Checks the whole work system</h3>
-              <p>Why does the workflow exist? What outcome should it produce? Why is it done this way? What was already tried? Who owns the consequence when it fails?</p>
-            </article>
-          </div>
+      <section className="shell darkPanel">
+        <div className="darkLabel">Independent operating perspective</div>
+        <h2>The system cannot be its only witness.</h2>
+        <p className="body">AI can check explicit rules. Engineers can verify code, uptime, latency, and integrations. Managers can confirm whether the documented process was followed. None of those perspectives alone can determine whether the whole operating system should be organized this way in the first place.</p>
+        <div className="witnessGrid">
+          <article className="witness">
+            <strong>AI layer</strong>
+            <h3>Checks the rule</h3>
+            <p>If the premise is wrong, an AI checker can validate the same wrong premise and produce confident, internally consistent wrongness.</p>
+          </article>
+          <article className="witness">
+            <strong>Software layer</strong>
+            <h3>Checks the tool</h3>
+            <p>The builder can determine whether the software performs as designed. The builder should not be the only auditor of the operating system surrounding it.</p>
+          </article>
+          <article className="witness primary">
+            <strong>OISA layer</strong>
+            <h3>Checks the whole work system</h3>
+            <p>Why does the workflow exist? What outcome should it produce? Why is it done this way? What was already tried? Who owns the consequence when it fails?</p>
+          </article>
         </div>
       </section>
 
-      <section>
-        <div className="shell">
-          <div className="section-label">Outside-in, inside-grounded</div>
+      <section className="shell section">
+        <div className="sectionHeader">
+          <div className="sectionLabel">Outside-in, inside-grounded</div>
           <h2>Start with the why. Then walk the work.</h2>
-          <div className="outside-grid">
-            <article className="why-card">
-              <div className="giant">WHY?</div>
-              <p>
-                The outside perspective is valuable because it is not trapped inside the assumptions, incentives, normalized friction, and status boundaries that created the current system. The audit still goes deep enough to preserve context, prior attempts, and the reasons behind the design.
-              </p>
+        </div>
+        <div className="outside">
+          <article className="warmPanel">
+            <div className="why">WHY?</div>
+            <p>The outside perspective is valuable because it is not trapped inside the assumptions, incentives, normalized friction, and status boundaries that created the current system. The audit still goes deep enough to preserve context, prior attempts, and the reasons behind the design.</p>
+          </article>
+          <div className="layerStack">
+            <article className="lightPanel">
+              <strong>Leadership</strong>
+              <h3>What is the intended outcome?</h3>
+              <p>Why does the organization exist, what is this workflow supposed to produce, and who depends on the result?</p>
             </article>
-            <div className="layers">
-              <article className="layer">
-                <div className="role">Leadership</div>
-                <h3>What is the intended outcome?</h3>
-                <p>Why does the organization exist, what is this workflow supposed to produce, and who depends on the result?</p>
-              </article>
-              <article className="layer">
-                <div className="role">Management</div>
-                <h3>How is the workflow supposed to operate?</h3>
-                <p>What process, authority, controls, tools, and escalation paths were designed?</p>
-              </article>
-              <article className="layer">
-                <div className="role">Frontline</div>
-                <h3>What actually happens?</h3>
-                <p>The person closest to the consequence often knows the failure mode the org chart cannot see. Disagreement between layers is telemetry.</p>
-              </article>
-            </div>
+            <article className="lightPanel">
+              <strong>Management</strong>
+              <h3>How is the workflow supposed to operate?</h3>
+              <p>What process, authority, controls, tools, and escalation paths were designed?</p>
+            </article>
+            <article className="lightPanel">
+              <strong>Frontline</strong>
+              <h3>What actually happens?</h3>
+              <p>The person closest to the consequence often knows the failure mode the org chart cannot see. Disagreement between layers is telemetry.</p>
+            </article>
           </div>
         </div>
       </section>
 
-      <section>
-        <div className="shell">
-          <div className="section-label">Real field receipt</div>
+      <section className="shell section">
+        <div className="sectionHeader">
+          <div className="sectionLabel">Real field receipt</div>
           <h2>The umbrella test.</h2>
-          <div className="receipt">
-            <article className="weather">
-              <div className="field">Observed in real operations</div>
-              <h3>A parking attendant could not reliably use a touchscreen in freezing sleet.</h3>
-              <p>
-                Frozen fingers made the interface difficult to operate. From inside a software frame, the failure looked like a tablet, application, training, or user-compliance problem.
-              </p>
-            </article>
-            <article className="solution">
-              <div className="not">The expensive-looking answers</div>
-              <div className="wrong">
-                <span>Replace the tablet</span>
-                <span>Rewrite the application</span>
-                <span>Retrain the attendant</span>
-                <span>Add AI assistance</span>
-              </div>
-              <div className="answer">ADD SHELTER.</div>
-              <p>
-                Protect the human and device from the actual environment. A basic physical intervention can solve what appears to be a major technology problem. The goal is not the most impressive treatment. It is the smallest change that restores the outcome.
-              </p>
-            </article>
-          </div>
+        </div>
+        <div className="umbrellaGrid">
+          <article className="umbrellaScene">
+            <strong>Observed in real operations</strong>
+            <h3>A parking attendant could not reliably use a touchscreen in freezing sleet.</h3>
+            <p>Frozen fingers made the interface difficult to operate. From inside a software frame, the failure looked like a tablet, application, training, or user-compliance problem.</p>
+          </article>
+          <article className="umbrellaAnswer">
+            <div className="darkLabel">The expensive-looking answers</div>
+            <div className="wrong">
+              <span>Replace the tablet</span>
+              <span>Rewrite the application</span>
+              <span>Retrain the attendant</span>
+              <span>Add AI assistance</span>
+            </div>
+            <div className="answer">ADD SHELTER.</div>
+            <p>Protect the human and device from the actual environment. A basic physical intervention can solve what appears to be a major technology problem. The goal is not the most impressive treatment. It is the smallest change that restores the outcome.</p>
+          </article>
         </div>
       </section>
 
-      <section id="diagnosis">
-        <div className="shell">
-          <div className="section-label">The four-level diagnosis</div>
+      <section className="shell section" id="diagnosis">
+        <div className="sectionHeader">
+          <div className="sectionLabel">The four-level diagnosis</div>
           <h2>The audit determines what level of help you actually need.</h2>
-          <div className="diagnoses">
-            {diagnoses.map((item) => (
-              <article className="diagnosis" key={item.number}>
-                <div className="number">{item.number}</div>
-                <h3>{item.name}</h3>
-                <div className="fit">{item.fit}</div>
-                <p>{item.body}</p>
-                <div className="action">{item.action}</div>
-              </article>
-            ))}
-          </div>
+        </div>
+        <div className="diagnosisGrid">
+          {diagnoses.map((item) => (
+            <article className="diagnosis" key={item.number}>
+              <div className="diagnosisNumber">{item.number}</div>
+              <h3>{item.name}</h3>
+              <div className="diagnosisFit">{item.fit}</div>
+              <p>{item.body}</p>
+              <div className="diagnosisAction">{item.action}</div>
+            </article>
+          ))}
         </div>
       </section>
 
-      <section>
-        <div className="shell">
-          <div className="section-label">What we inspect</div>
+      <section className="shell scalePanel">
+        <div>
+          <div className="darkLabel">Scale changes the mathematics</div>
+          <div className="scaleNumber">1 DEFECT × MILLIONS</div>
+        </div>
+        <div>
+          <h2>The problem does not need to be caused by AI to require OISA diagnosis.</h2>
+          <p>ORI TAC OPS began with an ordinary exception path: damaged or unreadable package labels, manual ambiguity, human verification, and re-entry into automated flow. At low volume it looks annoying. Repeated across a national-scale operation, the same leak compounds into labor, delay, rework, tracking breaks, customer exposure, and potentially seven-figure consequences.</p>
+          <p>An OISA does not ask which shiny AI product should replace the process. The first question is where the system loses the outcome—and whether a simpler intervention closes the leak.</p>
+        </div>
+      </section>
+
+      <section className="shell section">
+        <div className="sectionHeader">
+          <div className="sectionLabel">What we inspect</div>
           <h2>Not just the software. The operating system around it.</h2>
-          <div className="lens-grid">
-            {lenses.map((lens) => <div className="lens" key={lens}>{lens}</div>)}
-          </div>
+        </div>
+        <div className="lensGrid">
+          {lenses.map((lens) => <div className="lens" key={lens}>{lens}</div>)}
         </div>
       </section>
 
-      <section>
-        <div className="shell">
-          <div className="lender">
-            <div className="section-label">Level 2 receipt // LenderFlow</div>
-            <h3>Forward deploy. Learn the work. Build the missing layer. Hand it back.</h3>
-            <p>
-              LenderFlow demonstrates the bounded-engagement pattern. NULLWORKS learned the brokerage workflow with the domain expert, built a prototype operating layer, refined it through real feedback, preserved evidence and human review, and created a system the business could inspect without immediately requiring a permanent OISA position.
-            </p>
-            <div className="steps">
-              <div className="step"><strong>01 Observe</strong>Learn the actual workflow and failure points.</div>
-              <div className="step"><strong>02 Prototype</strong>Build the smallest usable operating layer.</div>
-              <div className="step"><strong>03 Validate</strong>Refine it with the people who know the work.</div>
-              <div className="step"><strong>04 Transfer</strong>Leave the client able to run and improve it.</div>
-            </div>
-          </div>
+      <section className="shell lender">
+        <div className="sectionLabel">Level 2 receipt // LenderFlow</div>
+        <h2>Forward deploy. Learn the work. Build the missing layer. Hand it back.</h2>
+        <p>LenderFlow demonstrates the bounded-engagement pattern. NULLWORKS learned the brokerage workflow with the domain expert, built a prototype operating layer, refined it through real feedback, preserved evidence and human review, and created a system the business could inspect without immediately requiring a permanent OISA position.</p>
+        <div className="steps">
+          <div className="step"><strong>01 Observe</strong>Learn the actual workflow and failure points.</div>
+          <div className="step"><strong>02 Prototype</strong>Build the smallest usable operating layer.</div>
+          <div className="step"><strong>03 Validate</strong>Refine it with the people who know the work.</div>
+          <div className="step"><strong>04 Transfer</strong>Leave the client able to run and improve it.</div>
         </div>
       </section>
 
-      <section>
-        <div className="shell">
-          <div className="section-label">What the full audit produces</div>
+      <section className="shell section">
+        <div className="sectionHeader">
+          <div className="sectionLabel">What the full audit produces</div>
           <h2>A diagnosis with receipts, not another AI strategy presentation.</h2>
-          <div className="output-grid">
-            {auditOutputs.map((output) => <div className="output" key={output}>{output}</div>)}
-          </div>
+        </div>
+        <div className="outputGrid">
+          {auditOutputs.map((output) => <div className="output" key={output}>{output}</div>)}
         </div>
       </section>
 
-      <section>
-        <div className="shell">
-          <div className="neutrality">
-            <div className="section-label">The trust mechanism</div>
-            <h2>We may tell you not to hire us.</h2>
-            <p>
-              The audit is structurally allowed to conclude that you need no new software, no new AI, no permanent OISA, and no further NULLWORKS engagement. The next step must be earned by the evidence. Otherwise the audit becomes disguised consulting sales.
-            </p>
-            <div className="truth">
-              A twenty-minute walkthrough can produce a provisional diagnosis and next test. It is triage, not a defensible enterprise-wide audit. Larger conclusions require workflow observation, evidence, interviews, system access, decision history, and telemetry.
-            </div>
-          </div>
+      <section className="shell neutrality">
+        <div className="sectionLabel">The trust mechanism</div>
+        <h2>We may tell you not to hire us.</h2>
+        <p>The audit is structurally allowed to conclude that you need no new software, no new AI, no permanent OISA, and no further NULLWORKS engagement. The next step must be earned by the evidence. Otherwise the audit becomes disguised consulting sales.</p>
+        <div className="boundary">A twenty-minute walkthrough can produce a provisional diagnosis and next test. It is triage, not a defensible enterprise-wide audit. Larger conclusions require workflow observation, evidence, interviews, system access, decision history, and telemetry.</div>
+      </section>
+
+      <section className="shell closingCard">
+        <div className="sectionLabel">Start small enough to see the truth</div>
+        <h2>Start with one real workflow.</h2>
+        <p className="body">Bring one person close to the work, one intended outcome, one recent success, one recent failure, the current AI and software touchpoints, the fixes already attempted, the approximate scale of the organization, and the named owner of the result.</p>
+        <div className="actions">
+          <a className="primaryButton" href="/ai-audit/intake">Request an operating-model triage</a>
         </div>
       </section>
 
-      <section className="closing">
-        <div className="shell">
-          <div className="section-label">Start small enough to see the truth</div>
-          <h2>Start with one real workflow.</h2>
-          <p className="body">
-            Bring one person close to the work, one intended outcome, one recent success, one recent failure, the current AI and software touchpoints, the fixes already attempted, and the named owner of the result.
-          </p>
-          <div className="cta-row">
-            <a className="cta" href="/ai-audit/intake">Request an operating-model triage</a>
-          </div>
-        </div>
-      </section>
-
-      <footer>
-        <div className="shell">
-          NULLWORKS // AI Operating Model Audit // Human Authority remains final.
-        </div>
-      </footer>
+      <footer className="shell">NULLWORKS // AI Operating Model Audit // Human Authority remains final.</footer>
     </main>
   );
 }
