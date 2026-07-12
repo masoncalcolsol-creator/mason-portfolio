@@ -7,6 +7,7 @@ type IntakeState = {
   company: string;
   role: string;
   email: string;
+  employeeCount: string;
   workflow: string;
   intendedOutcome: string;
   aiTools: string;
@@ -20,6 +21,7 @@ const initialState: IntakeState = {
   company: "",
   role: "",
   email: "",
+  employeeCount: "",
   workflow: "",
   intendedOutcome: "",
   aiTools: "",
@@ -27,6 +29,16 @@ const initialState: IntakeState = {
   priorAttempts: "",
   consequenceOwner: "",
 };
+
+const organizationSizes = [
+  "1–10 people",
+  "11–50 people",
+  "51–250 people",
+  "251–1,000 people",
+  "1,001–10,000 people",
+  "10,000+ people",
+  "Unknown / difficult to estimate",
+];
 
 export default function TriageIntake() {
   const [form, setForm] = useState<IntakeState>(initialState);
@@ -40,6 +52,7 @@ export default function TriageIntake() {
       `Company: ${form.company || "UNKNOWN"}`,
       `Role: ${form.role || "UNKNOWN"}`,
       `Email: ${form.email || "UNKNOWN"}`,
+      `Approximate organization size: ${form.employeeCount || "UNKNOWN"}`,
       "",
       "ONE REAL WORKFLOW",
       form.workflow || "UNKNOWN",
@@ -82,65 +95,116 @@ export default function TriageIntake() {
   }
 
   return (
-    <main className="intake-page">
+    <main className="intakePage">
       <style>{`
-        :root { color-scheme: dark; }
+        :root { color-scheme: light; }
         * { box-sizing: border-box; }
-        body { margin: 0; background: #070909; }
-        .intake-page {
+        body { margin: 0; background: #f3eee2; }
+        .intakePage {
           min-height: 100vh;
-          color: #f4f3ec;
+          color: #15211d;
           background:
-            radial-gradient(circle at 7% 0%, rgba(255,90,42,.17), transparent 30rem),
-            radial-gradient(circle at 92% 8%, rgba(215,255,47,.09), transparent 28rem),
-            #070909;
+            radial-gradient(circle at 8% 0%, rgba(46,104,112,.15), transparent 32rem),
+            radial-gradient(circle at 92% 7%, rgba(189,139,53,.18), transparent 30rem),
+            linear-gradient(rgba(42,57,52,.035) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(42,57,52,.035) 1px, transparent 1px),
+            #f3eee2;
+          background-size: auto, auto, 48px 48px, 48px 48px, auto;
           font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-          padding: 52px 0 80px;
+          padding: 18px 0 78px;
         }
-        .shell { width: min(980px, calc(100% - 32px)); margin: 0 auto; }
-        .back { display: inline-flex; color: #d7ff2f; text-decoration: none; font-weight: 850; margin-bottom: 30px; }
-        .eyebrow { color: #ff5a2a; font-size: 12px; font-weight: 950; letter-spacing: .17em; text-transform: uppercase; }
-        h1 { margin: 12px 0 20px; max-width: 850px; font-size: clamp(48px, 8vw, 92px); line-height: .9; letter-spacing: -.065em; }
-        .lead { max-width: 790px; color: #b7bcb5; font-size: 19px; line-height: 1.7; }
-        .boundary { margin: 28px 0 34px; padding: 20px; border: 1px solid #343b36; border-radius: 20px; color: #949b94; line-height: 1.6; background: #0b0f0e; }
-        form { display: grid; gap: 14px; }
+        .shell { width: min(980px, calc(100% - 28px)); margin: 0 auto; }
+        .header {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 12px;
+          padding: 13px 15px;
+          border: 1px solid rgba(143,104,32,.3);
+          border-radius: 24px;
+          background: rgba(255,251,242,.9);
+          box-shadow: 0 20px 70px rgba(49,41,27,.1);
+          backdrop-filter: blur(18px);
+        }
+        .brand { display: flex; align-items: center; gap: 12px; }
+        .mark { display: grid; width: 44px; height: 44px; place-items: center; border: 1px solid #bd8b35; border-radius: 50%; background: #0b1822; color: #efd69a; font-family: Georgia, "Times New Roman", serif; font-weight: 900; letter-spacing: -.08em; }
+        .brandTop, .eyebrow { color: #80601f; font-size: 10px; font-weight: 950; letter-spacing: .22em; text-transform: uppercase; }
+        .brandName { margin-top: 2px; font-family: Georgia, "Times New Roman", serif; font-size: 17px; font-weight: 800; }
+        .back { display: inline-flex; min-height: 40px; align-items: center; justify-content: center; padding: 9px 13px; border: 1px solid rgba(143,104,32,.36); border-radius: 999px; background: #fffaf0; color: #73531c; text-decoration: none; font-size: 12px; font-weight: 900; }
+        .intro { display: grid; grid-template-columns: 1.05fr .95fr; gap: 16px; margin-top: 16px; }
+        .introCopy, .boundary {
+          border: 1px solid rgba(143,104,32,.3);
+          border-radius: 32px;
+          box-shadow: 0 28px 90px rgba(49,41,27,.11);
+        }
+        .introCopy { padding: clamp(28px,5vw,52px); background: rgba(255,251,242,.95); }
+        .eyebrow { display: inline-flex; padding: 8px 11px; border: 1px solid rgba(184,138,52,.34); border-radius: 999px; background: #eee1c7; }
+        h1 { margin: 22px 0 18px; font-family: Georgia, "Times New Roman", serif; font-size: clamp(46px,7vw,78px); line-height: .94; letter-spacing: -.055em; }
+        .lead { margin: 0; color: #5c5345; font-size: 17px; line-height: 1.72; }
+        .boundary { display: flex; padding: clamp(26px,4vw,40px); justify-content: center; flex-direction: column; background: linear-gradient(155deg,#0b1822,#1d332d); color: #fffaf0; }
+        .boundary strong { color: #efd69a; font-family: Georgia, "Times New Roman", serif; font-size: clamp(31px,4vw,48px); line-height: 1.04; }
+        .boundary p { margin: 18px 0 0; color: rgba(255,250,240,.7); line-height: 1.7; }
+        form { display: grid; gap: 14px; margin-top: 16px; padding: clamp(24px,4vw,42px); border: 1px solid rgba(143,104,32,.3); border-radius: 32px; background: rgba(255,251,242,.95); box-shadow: 0 28px 90px rgba(49,41,27,.11); }
         .pair { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
-        label { display: grid; gap: 8px; color: #d9ddd5; font-size: 14px; font-weight: 850; }
-        input, textarea {
+        label { display: grid; gap: 8px; color: #39372f; font-size: 13px; font-weight: 900; }
+        input, textarea, select {
           width: 100%;
-          border: 1px solid #343b36;
+          border: 1px solid rgba(103,85,52,.34);
           border-radius: 17px;
-          background: #0b0f0e;
-          color: #f4f3ec;
+          background: #fffaf0;
+          color: #15211d;
           padding: 15px 16px;
           font: inherit;
           outline: none;
+          box-shadow: inset 0 1px 0 rgba(255,255,255,.8);
         }
-        input:focus, textarea:focus { border-color: rgba(255,90,42,.75); box-shadow: 0 0 0 3px rgba(255,90,42,.10); }
-        textarea { min-height: 125px; resize: vertical; line-height: 1.55; }
-        .hint { color: #7f867f; font-size: 12px; font-weight: 500; line-height: 1.45; }
-        .actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 12px; }
+        input:focus, textarea:focus, select:focus { border-color: #2e6870; box-shadow: 0 0 0 3px rgba(46,104,112,.12); }
+        textarea { min-height: 126px; resize: vertical; line-height: 1.55; }
+        select { appearance: none; background-image: linear-gradient(45deg,transparent 50%,#80601f 50%),linear-gradient(135deg,#80601f 50%,transparent 50%); background-position: calc(100% - 20px) 50%,calc(100% - 14px) 50%; background-size: 6px 6px,6px 6px; background-repeat: no-repeat; }
+        .hint { color: #817766; font-size: 12px; font-weight: 500; line-height: 1.48; }
+        .scaleNote { padding: 14px 16px; border-left: 3px solid #2e6870; border-radius: 14px; background: #edf2ec; color: #56635e; font-size: 12px; line-height: 1.55; }
+        .actions { display: flex; flex-wrap: wrap; gap: 11px; margin-top: 8px; }
         button { border: 0; border-radius: 999px; min-height: 48px; padding: 13px 19px; font: inherit; font-weight: 950; cursor: pointer; }
-        .primary { background: #ff5a2a; color: #160b08; }
-        .secondary { background: transparent; color: #d7ff2f; border: 1px solid #56643f; }
-        .note { margin-top: 18px; color: #7f867f; font-size: 13px; line-height: 1.6; }
-        @media (max-width: 680px) {
-          .intake-page { padding-top: 34px; }
-          .pair { grid-template-columns: 1fr; }
-          button { width: 100%; }
+        .primary { background: #0b1822; color: #fffaf0; box-shadow: 0 16px 38px rgba(10,21,32,.18); }
+        .secondary { background: #fffaf0; color: #73531c; border: 1px solid rgba(143,104,32,.42); }
+        .note { margin-top: 8px; color: #817766; font-size: 12px; line-height: 1.58; }
+        @media (max-width: 760px) {
+          .intro, .pair { grid-template-columns: 1fr; }
+          .header { align-items: flex-start; }
+          .brandName { font-size: 15px; }
+          .back { font-size: 11px; }
+        }
+        @media (max-width: 520px) {
+          .introCopy, .boundary, form { border-radius: 25px; }
+          .actions button { width: 100%; }
+          .header { padding: 11px 12px; }
+          .mark { width: 40px; height: 40px; }
         }
       `}</style>
 
       <div className="shell">
-        <a className="back" href="/ai-audit">← Back to the audit</a>
-        <div className="eyebrow">NULLWORKS // ONE-WORKFLOW INTAKE</div>
-        <h1>Show us one real workflow.</h1>
-        <p className="lead">
-          The goal is not to sell you more technology. It is to identify the intended outcome, what actually happens, where AI and software touch the work, what has already failed, and the smallest next test worth running.
-        </p>
-        <div className="boundary">
-          This prepares a provisional triage request. It is not a technical security audit, legal review, code review, or enterprise-wide finding. Human review is required before any consequential recommendation.
-        </div>
+        <header className="header">
+          <div className="brand">
+            <div className="mark">NW</div>
+            <div>
+              <div className="brandTop">NULLWORKS</div>
+              <div className="brandName">One-Workflow Intake</div>
+            </div>
+          </div>
+          <a className="back" href="/ai-audit">← Back to the audit</a>
+        </header>
+
+        <section className="intro">
+          <article className="introCopy">
+            <div className="eyebrow">Operating-model triage</div>
+            <h1>Show us one real workflow.</h1>
+            <p className="lead">The goal is not to sell you more technology. It is to identify the intended outcome, what actually happens, where AI and software touch the work, what has already failed, and the smallest next test worth running.</p>
+          </article>
+          <aside className="boundary">
+            <strong>Triage first. Claims later.</strong>
+            <p>This prepares a provisional request. It is not a technical security audit, legal review, code review, or enterprise-wide finding. Human review is required before any consequential recommendation.</p>
+          </aside>
+        </section>
 
         <form onSubmit={submit}>
           <div className="pair">
@@ -164,6 +228,17 @@ export default function TriageIntake() {
               <input required type="email" value={form.email} onChange={(event) => updateField("email", event.target.value)} />
             </label>
           </div>
+
+          <label>
+            Approximate number of employees
+            <select required value={form.employeeCount} onChange={(event) => updateField("employeeCount", event.target.value)}>
+              <option value="" disabled>Select the closest range</option>
+              {organizationSizes.map((size) => <option value={size} key={size}>{size}</option>)}
+            </select>
+            <span className="hint">This is a scale signal, not a budget question. A ten-person shop and a national logistics network require very different evidence and intervention boundaries.</span>
+          </label>
+
+          <div className="scaleNote">Organization size is only the first scale clue. During review we also look at workflow volume, number of operators touched, frequency of exceptions, and the consequence of one failure.</div>
 
           <label>
             One real workflow
@@ -205,9 +280,7 @@ export default function TriageIntake() {
             <button className="primary" type="submit">Open triage request email</button>
             <button className="secondary" type="button" onClick={copySummary}>{copied ? "Copied" : "Copy request summary"}</button>
           </div>
-          <div className="note">
-            The primary button opens your email application with the request prefilled. Nothing is submitted automatically.
-          </div>
+          <div className="note">The primary button opens your email application with the request prefilled. Nothing is submitted automatically.</div>
         </form>
       </div>
     </main>
