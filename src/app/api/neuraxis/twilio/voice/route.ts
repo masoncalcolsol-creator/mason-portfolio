@@ -1,3 +1,5 @@
+import { speak, twiml, xmlEscape } from "@/lib/neuraxis-twilio";
+
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
@@ -15,15 +17,6 @@ type HiveStatus = {
 const HIVE_REPO = process.env.HIVE_REPO || "masoncalcolsol-creator/nullworks-corporate-wifi-hive";
 const HIVE_BRANCH = process.env.HIVE_BRANCH || "main";
 const HIVE_TOKEN = process.env.HIVE_GITHUB_TOKEN || process.env.GITHUB_TOKEN || "";
-
-function xmlEscape(value: string): string {
-  return value
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&apos;");
-}
 
 function pickYamlValue(content: string, key: string): string | undefined {
   const match = content.match(new RegExp(`^${key}:\\s*["']?([^\\n"']+)`, "m"));
@@ -68,14 +61,6 @@ async function readHiveStatus(): Promise<HiveStatus> {
   }
 }
 
-function twiml(body: string): Response {
-  return new Response(body, { status: 200, headers: { "content-type": "text/xml; charset=utf-8", "cache-control": "no-store" } });
-}
-
-function say(text: string): string {
-  return `<Say voice="Polly.Matthew" language="en-US">${xmlEscape(text)}</Say>`;
-}
-
 async function handle(request: Request): Promise<Response> {
   const url = new URL(request.url);
   const room = url.searchParams.get("room") || "";
@@ -83,34 +68,37 @@ async function handle(request: Request): Promise<Response> {
 
   if (!room && !isLoop) {
     const menuUrl = new URL("/api/neuraxis/twilio/menu", request.url).toString();
+    const retryUrl = new URL("/api/neuraxis/twilio/voice", request.url).toString();
+    const prompt = "You are speaking with NEURAXIS, an AI-generated voice assistant. Press or say 1 for the shared workroom. Press or say 5 for AI audit. Press or say 9 for Mason's private Hive.";
     return twiml(`<?xml version="1.0" encoding="UTF-8"?>
 <Response>
-  <Gather input="dtmf" numDigits="1" timeout="10" method="POST" action="${xmlEscape(menuUrl)}">
-    ${say("NULLWORKS NEURAXIS private beta gateway. Press 1 for the shared workroom. Press 5 for the AI Operating Model Audit room. Press 9 for Mason's private Hive.")}
+  <Gather input="speech dtmf" numDigits="1" timeout="7" speechTimeout="2" actionOnEmptyResult="true" method="POST" action="${xmlEscape(menuUrl)}">
+    ${speak(prompt, request.url)}
   </Gather>
-  ${say("No selection received. Goodbye.")}
-  <Hangup/>
+  ${speak("I did not get a selection. Let's try once more.", request.url)}
+  <Redirect method="POST">${xmlEscape(retryUrl)}</Redirect>
 </Response>`);
   }
 
   const status = await readHiveStatus();
   const commandRoom = room === "private" ? "private" : "workroom";
   const commandUrl = new URL(`/api/neuraxis/twilio/command?room=${commandRoom}`, request.url).toString();
-  const statusLine = status.ok
-    ? `Hive Brain connected. Boot version ${status.bootVersion || "unknown"}. Company floor ${status.floorVersion || "unknown"}. ${status.company || "NULLWORKS"} is loaded.`
-    : `Neuraxis phone bridge is online, but Hive Brain is not live connected yet. Mode ${status.mode}. ${status.error || ""}`;
   const opener = isLoop
     ? "I'm listening."
-    : room === "private"
-      ? `Mason private lane online. ${statusLine} What are we working on?`
-      : `Shared NEURAXIS workroom online. ${statusLine} Speak naturally. What do you need?`;
+    : commandRoom === "private"
+      ? status.ok
+        ? "Mason's private Hive is online. What are we working on?"
+        : "Mason's private lane is online, but the Hive connection is unavailable. What do you need?"
+      : status.ok
+        ? "Shared NEURAXIS workroom online. What are we working on?"
+        : "The workroom is online, but the Hive connection is unavailable. What do you need?";
 
   return twiml(`<?xml version="1.0" encoding="UTF-8"?>
 <Response>
-  <Gather input="speech dtmf" timeout="8" speechTimeout="auto" method="POST" action="${xmlEscape(commandUrl)}">
-    ${say(opener)}
+  <Gather input="speech dtmf" timeout="8" speechTimeout="3" actionOnEmptyResult="true" method="POST" action="${xmlEscape(commandUrl)}">
+    ${speak(opener, request.url)}
   </Gather>
-  ${say("I did not catch that. Try again in one sentence.")}
+  ${speak("I did not catch that. Try one short sentence.", request.url)}
   <Redirect method="POST">${xmlEscape(new URL(`/api/neuraxis/twilio/voice?loop=1&room=${commandRoom}`, request.url).toString())}</Redirect>
 </Response>`);
 }
