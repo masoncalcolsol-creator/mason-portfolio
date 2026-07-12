@@ -1,3 +1,5 @@
+import { speak, twiml, xmlEscape } from "@/lib/neuraxis-twilio";
+
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
@@ -20,21 +22,11 @@ const HIVE_REPO = process.env.HIVE_REPO || "masoncalcolsol-creator/nullworks-cor
 const HIVE_BRANCH = process.env.HIVE_BRANCH || "main";
 const HIVE_TOKEN = process.env.HIVE_GITHUB_TOKEN || process.env.GITHUB_TOKEN || "";
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY || "";
-
 const DEFAULT_OPENAI_MODEL = "gpt-5.5";
 const RAW_OPENAI_MODEL = (process.env.OPENAI_MODEL || "").trim();
 const OPENAI_MODEL = !RAW_OPENAI_MODEL || RAW_OPENAI_MODEL.toLowerCase().includes("luna")
   ? DEFAULT_OPENAI_MODEL
   : RAW_OPENAI_MODEL;
-
-function xmlEscape(value: string): string {
-  return value
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&apos;");
-}
 
 function pickYamlValue(content: string, key: string): string | undefined {
   const match = content.match(new RegExp(`^${key}:\\s*["']?([^\\n"']+)`, "m"));
@@ -64,9 +56,7 @@ async function fetchHiveFile(path: string): Promise<string> {
 }
 
 async function readHiveStatus(): Promise<HiveStatus> {
-  if (!HIVE_TOKEN) {
-    return { ok: false, mode: "HIVE_TOKEN_MISSING", error: "Hosting environment is missing HIVE_GITHUB_TOKEN." };
-  }
+  if (!HIVE_TOKEN) return { ok: false, mode: "HIVE_TOKEN_MISSING", error: "Hosting environment is missing HIVE_GITHUB_TOKEN." };
   try {
     const boot = await fetchHiveFile("HIVE_BOOT.yaml");
     const floorPath = pickYamlValue(boot, "company_floor") || "hive/current/company_floor.yaml";
@@ -89,63 +79,34 @@ async function readHiveStatus(): Promise<HiveStatus> {
   }
 }
 
-function say(text: string): string {
-  return `<Say voice="Polly.Matthew" language="en-US">${xmlEscape(text)}</Say>`;
-}
-
-function twiml(body: string): Response {
-  return new Response(body, {
-    status: 200,
-    headers: { "content-type": "text/xml; charset=utf-8", "cache-control": "no-store" },
-  });
-}
-
 async function readCommand(request: Request): Promise<{ text: string; callSid: string }> {
-  const body = await request.text();
-  const params = new URLSearchParams(body);
-  const speech = params.get("SpeechResult") || "";
-  const digits = params.get("Digits") || "";
-  const callSid = params.get("CallSid") || "unknown-call";
-  return { text: `${speech} ${digits}`.trim(), callSid };
+  const params = new URLSearchParams(await request.text());
+  return {
+    text: `${params.get("SpeechResult") || ""} ${params.get("Digits") || ""}`.trim(),
+    callSid: params.get("CallSid") || "unknown-call",
+  };
 }
 
 function clampPhoneAnswer(text: string): string {
-  const cleaned = text
-    .replace(/[`*_#]/g, "")
-    .replace(/\s+/g, " ")
-    .trim();
-  if (cleaned.length <= 950) return cleaned;
-  return `${cleaned.slice(0, 900)}. I am trimming there for the phone call. Ask me to continue if you want the next part.`;
-}
-
-function summarizeOpenAIError(raw: string): string {
-  try {
-    const parsed = JSON.parse(raw) as { error?: { message?: string; type?: string; code?: string } };
-    const type = parsed.error?.type ? ` Type ${parsed.error.type}.` : "";
-    const code = parsed.error?.code ? ` Code ${parsed.error.code}.` : "";
-    const message = parsed.error?.message ? ` ${parsed.error.message}` : "";
-    return clampPhoneAnswer(`${type}${code}${message}`.trim());
-  } catch {
-    return clampPhoneAnswer(raw.slice(0, 420));
-  }
+  const cleaned = text.replace(/[`*_#]/g, "").replace(/\s+/g, " ").trim();
+  if (cleaned.length <= 460) return cleaned;
+  return `${cleaned.slice(0, 425)}. Ask me to continue if you want the next part.`;
 }
 
 function extractOutputText(data: unknown): string {
-  const record = data as { output_text?: string; output?: Array<{ content?: Array<{ text?: string; type?: string }> }> };
+  const record = data as { output_text?: string; output?: Array<{ content?: Array<{ text?: string }> }> };
   return record.output_text
-    || record.output?.flatMap(item => item.content || []).map(item => item.text || "").join(" ")
-    || "I heard you, but I did not get a usable model response.";
+    || record.output?.flatMap((item) => item.content || []).map((item) => item.text || "").join(" ")
+    || "I heard you, but I did not get a usable answer.";
 }
 
 async function askOpenAI(userSpeech: string, status: HiveStatus, callSid: string, room: "private" | "workroom"): Promise<string> {
-  if (!OPENAI_API_KEY) {
-    return "Natural conversation is not connected yet because OPENAI_API_KEY is missing in Vercel. I can still answer basic Hive status.";
-  }
+  if (!OPENAI_API_KEY) return "Natural conversation is temporarily unavailable. The phone gateway is still online.";
 
   const roomRule = room === "private"
     ? "This is Mason's caller-ID-gated private lane. Mason remains final Human Authority."
     : "This is the shared workroom. Do not expose compartmentalized or unnecessary private context.";
-  const instructions = `You are Neuraxis, the NULLWORKS phone gateway. ${roomRule} You are speaking over a phone call, so answer conversationally in 1 to 4 short spoken paragraphs. Use the Hive context below as current operating context. Do not claim live synchronization, deployment, endorsement, referral, interview, or institutional approval without a receipt. Do not expose secrets, tokens, private keys, passwords, or unnecessary protected personal details. If asked to save/write/log something to Hive, explain that direct phone writeback is not enabled yet unless the current code says otherwise. Be helpful, blunt, and operational. If uncertain, say what is unknown. Do not explain Operational Intelligence unless Mason asks. Prioritize the direct answer to the spoken words.`;
+  const instructions = `You are Neuraxis, the NULLWORKS phone gateway. ${roomRule} Speak conversationally. Answer the caller's immediate question in one to three short sentences. Give one step at a time. Never dump a status report, long list, implementation inventory, or generic explanation unless the caller explicitly asks. Ask at most one useful follow-up question. Use the Hive context as operating context. Do not claim live synchronization, deployment, endorsement, approval, or verification without a receipt. Do not expose secrets, credentials, protected personal data, or private compartmentalized context. If uncertain, say what is unknown. Be warm, blunt, and operational.`;
 
   const input = `CALL SID: ${callSid}
 ROOM: ${room}
@@ -156,7 +117,6 @@ COMPANY: ${status.company || "NULLWORKS"}
 CATEGORY: ${status.category || "Operational Intelligence systems architecture"}
 READINESS: ${status.readiness || status.floorStatus || "unknown"}
 EXACT NEXT ACTION: ${status.exactNextAction || "unknown"}
-MODEL REQUESTED: ${OPENAI_MODEL}
 
 HIVE BOOT EXCERPT:
 ${status.bootExcerpt || "unavailable"}
@@ -178,52 +138,52 @@ ${userSpeech || "status"}`;
         model: OPENAI_MODEL,
         instructions,
         input,
-        max_output_tokens: 260,
+        max_output_tokens: 140,
       }),
     });
 
     if (!response.ok) {
-      const err = await response.text();
-      return `Natural conversation reached OpenAI using ${OPENAI_MODEL}, but failed with status ${response.status}. ${summarizeOpenAIError(err)} The Hive bridge still works.`;
+      console.error("NEURAXIS OpenAI response failed", response.status, (await response.text()).slice(0, 500));
+      return "Natural conversation hit a temporary model error. Try the question once more.";
     }
 
-    const data = await response.json();
-    return clampPhoneAnswer(extractOutputText(data));
+    return clampPhoneAnswer(extractOutputText(await response.json()));
   } catch (error) {
-    const message = error instanceof Error ? error.message : "unknown network error";
-    return `Natural conversation failed during the OpenAI call using ${OPENAI_MODEL}. ${clampPhoneAnswer(message)} The Hive bridge is still online.`;
+    console.error("NEURAXIS OpenAI network failure", error);
+    return "Natural conversation is temporarily unavailable. Try again in a moment.";
   }
 }
 
 async function handle(request: Request): Promise<Response> {
-  const { text, callSid } = request.method === "POST" ? await readCommand(request) : { text: "status", callSid: "browser-test" };
+  const { text, callSid } = request.method === "POST"
+    ? await readCommand(request)
+    : { text: "status", callSid: "browser-test" };
   const command = text.toLowerCase();
   const room = new URL(request.url).searchParams.get("room") === "private" ? "private" : "workroom";
   const status = await readHiveStatus();
   const voiceUrl = new URL(`/api/neuraxis/twilio/voice?loop=1&room=${room}`, request.url).toString();
 
   let spoken: string;
-
-  if (!status.ok) {
-    spoken = `Neuraxis received your words, but Hive Brain is not live connected. Mode ${status.mode}. ${status.error || ""}`;
-  } else if (command === "1" || command.includes("hive status") || command === "status") {
-    spoken = `Hive status. Boot version ${status.bootVersion || "unknown"}. ${status.company || "NULLWORKS"}. Company floor ${status.floorVersion || "unknown"}. State ${status.floorStatus || "unknown"}.`;
+  if (command === "1" || command.includes("hive status") || command === "status") {
+    spoken = status.ok
+      ? `Hive connected. The current company floor is ${status.floorStatus || "loaded"}. What do you want to inspect?`
+      : "The phone line is online, but the Hive connection is unavailable.";
   } else if (command.includes("full spectrum") || command.includes("clone")) {
-    spoken = `Full Spectrum Clone route confirmed. Hive boot version ${status.bootVersion || "unknown"}. Company floor ${status.floorVersion || "unknown"}. Human Authority remains Mason Perry. Use current Hive files first, then project receipts. Do not overclaim.`;
+    spoken = "Full Spectrum Clone route confirmed. Current Hive files come first, Human Authority remains Mason, and unsupported claims stay marked unknown.";
   } else if (command.includes("log") || command.includes("receipt") || command.includes("save")) {
-    spoken = `I can understand the logging request, but direct phone writeback is not enabled yet. Use the Gmail drop box phrase: hashtag Neuraxis log into Hive. Then ask ChatGPT to retrieve the email and write the Hive receipt.`;
+    spoken = "I understand the logging request, but this workroom does not have direct writeback enabled yet. Tell Mason what should be preserved and I will keep the request concise.";
+  } else if (!status.ok) {
+    spoken = "I heard you, but the Hive connection is unavailable right now. Try a basic question or call again shortly.";
   } else {
     spoken = await askOpenAI(text, status, callSid, room);
   }
 
-  const response = `<?xml version="1.0" encoding="UTF-8"?>
+  return twiml(`<?xml version="1.0" encoding="UTF-8"?>
 <Response>
-  ${say(spoken)}
+  ${speak(spoken, request.url)}
   <Pause length="1"/>
   <Redirect method="POST">${xmlEscape(voiceUrl)}</Redirect>
-</Response>`;
-
-  return twiml(response);
+</Response>`);
 }
 
 export async function GET(request: Request) { return handle(request); }
