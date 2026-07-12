@@ -217,11 +217,11 @@ export default function HomePage() {
             <h1 className={styles.heroTitle}>I am not a software guy. I build the operating system around the work.</h1>
 
             <p className={styles.heroLead}>
-              NULLWORKS is the public evidence map of one blue-collar systems operator using AI as a coordinated digital company—not as one more individual productivity tool.
+              NULLWORKS is the public evidence map of one blue-collar systems operator force-multiplying a normal physical life with a second digital operating life: a coordinated company of specialist AI workrooms, not one more individual productivity tool.
             </p>
 
             <p className={styles.heroBody}>
-              The projects below are not a random pile of apps. Each one tests part of the same OISA thesis: understand the real workflow, preserve evidence and authority, expose the exception path, build the smallest useful operating layer, and measure whether the outcome actually improved.
+              The digital company does not replace Mason&apos;s physical life. It extends his reach across digital time and space through parallel specialists, memory, evidence, review, and continuity. The projects below test the same OISA thesis: understand the real workflow, preserve authority, expose the exception path, build the smallest useful operating layer, and measure whether the outcome actually improved.
             </p>
 
             <div className={styles.heroActions}>
@@ -235,7 +235,7 @@ export default function HomePage() {
 
             <div className={styles.proofRow}>
               <div className={styles.proof}><strong>Industrial reality</strong><span>Automation, logistics, electrical, mechanical, OCR, controls, and fault isolation.</span></div>
-              <div className={styles.proof}><strong>Digital company</strong><span>Specialist AI roles, scoped workrooms, evidence, review, continuity, and telemetry.</span></div>
+              <div className={styles.proof}><strong>Second digital life</strong><span>Specialist AI roles, scoped workrooms, evidence, review, continuity, and telemetry operating beside the physical one.</span></div>
               <div className={styles.proof}><strong>One thesis</strong><span>The model may be the worker. The operator still needs the factory.</span></div>
             </div>
           </div>
