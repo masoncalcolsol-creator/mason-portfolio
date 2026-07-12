@@ -89,8 +89,8 @@ async function readCommand(request: Request): Promise<{ text: string; callSid: s
 
 function clampPhoneAnswer(text: string): string {
   const cleaned = text.replace(/[`*_#]/g, "").replace(/\s+/g, " ").trim();
-  if (cleaned.length <= 460) return cleaned;
-  return `${cleaned.slice(0, 425)}. Ask me to continue if you want the next part.`;
+  if (cleaned.length <= 560) return cleaned;
+  return `${cleaned.slice(0, 520)}. Ask me to continue if you want the next part.`;
 }
 
 function extractOutputText(data: unknown): string {
@@ -100,13 +100,51 @@ function extractOutputText(data: unknown): string {
     || "I heard you, but I did not get a usable answer.";
 }
 
+function conceptAnswer(command: string): string | undefined {
+  if (/polymath\s*(squared|square|2|two)|polymath²/.test(command)) {
+    return "Polymath squared is Mason's term for a polymath whose range is multiplied by a coordinated digital company. He is the Da Vinci-like human across physical disciplines, then extends that reach across digital time and space through specialist workrooms, memory, evidence, and parallel execution. The second digital life adds to his physical life instead of replacing it.";
+  }
+
+  if (/phrononaut|fro[- ]?no[- ]?(not|knot)|frow[- ]?no[- ]?(not|knot)|frononaut/.test(command)) {
+    return "Phrononaut, pronounced fro-no-not, is Mason's term for a navigator of practical wisdom. It means useful insight can come from anywhere, especially the person closest to the work, while recognizing that curiosity still needs an attention budget. It is not a hairstyle.";
+  }
+
+  if (/da\s*vinci|davinci/.test(command)) {
+    return "Da Vinci represents broad individual capability. Mason has that cross-domain systems range, and NULLWORKS adds the Toyota layer: bounded digital specialists, repeatable work cells, review, continuity, and scale across digital time and space.";
+  }
+
+  if (/who is mason|what does mason|tell me about mason/.test(command)) {
+    return "Mason Perry is the founder of NULLWORKS and a pioneering Operational Intelligence Systems Architect. He works from the outcome backward, connecting physical operations, people, AI, software, authority, evidence, and implementation.";
+  }
+
+  if (/what is nullworks|what does nullworks|who is nullworks/.test(command)) {
+    return "NULLWORKS builds the operating company around AI workers: roles, workflow, authority, evidence, exceptions, memory, review, and telemetry. The model may be the worker. The operator still needs the factory.";
+  }
+
+  if (/what is oisa|what does oisa|operational intelligence systems architect/.test(command)) {
+    return "An OISA connects operations, AI, software, data, authority, evidence, exceptions, human judgment, and implementation into one working organizational system.";
+  }
+
+  return undefined;
+}
+
 async function askOpenAI(userSpeech: string, status: HiveStatus, callSid: string, room: "private" | "workroom"): Promise<string> {
   if (!OPENAI_API_KEY) return "Natural conversation is temporarily unavailable. The phone gateway is still online.";
 
   const roomRule = room === "private"
     ? "This is Mason's caller-ID-gated private lane. Mason remains final Human Authority."
     : "This is the shared workroom. Do not expose compartmentalized or unnecessary private context.";
-  const instructions = `You are Neuraxis, the NULLWORKS phone gateway. ${roomRule} Speak conversationally. Answer the caller's immediate question in one to three short sentences. Give one step at a time. Never dump a status report, long list, implementation inventory, or generic explanation unless the caller explicitly asks. Ask at most one useful follow-up question. Use the Hive context as operating context. Do not claim live synchronization, deployment, endorsement, approval, or verification without a receipt. Do not expose secrets, credentials, protected personal data, or private compartmentalized context. If uncertain, say what is unknown. Be warm, blunt, and operational.`;
+  const instructions = `You are NEURAXIS, the NULLWORKS Organizational Intelligence phone gateway. You are not an AI assistant and must never call yourself one. ${roomRule}
+
+Speak conversationally. Answer the caller's immediate question in one to three short sentences. Give one step at a time. Never dump a status report, long list, implementation inventory, or generic explanation unless explicitly asked. Ask at most one useful follow-up question. Use the Hive context as current operating context. Do not claim live synchronization, deployment, endorsement, approval, or verification without a receipt. Do not expose secrets, credentials, protected personal data, or private compartmentalized context. If uncertain, say what is unknown. Be warm, blunt, and operational.
+
+Locked public meanings:
+- Mason Perry is Founder of NULLWORKS and a pioneering Operational Intelligence Systems Architect.
+- AI is part of the system, not the system itself.
+- Polymath squared means Mason's broad physical-world capability is multiplied by a coordinated digital company operating across digital time and space. His second digital life adds to his normal physical life rather than replacing it.
+- Da Vinci represents broad individual capability. Toyota represents bounded specialists, repeatable work cells, quality gates, continuity, and scale.
+- Phrononaut, pronounced fro-no-not, means navigator of practical wisdom: insight can come from anywhere, especially the person closest to the work, but curiosity needs an attention budget.
+- NULLWORKS builds the operating company around AI workers: roles, workflow, authority, evidence, exceptions, memory, review, and telemetry.`;
 
   const input = `CALL SID: ${callSid}
 ROOM: ${room}
@@ -138,7 +176,7 @@ ${userSpeech || "status"}`;
         model: OPENAI_MODEL,
         instructions,
         input,
-        max_output_tokens: 140,
+        max_output_tokens: 170,
       }),
     });
 
@@ -164,7 +202,10 @@ async function handle(request: Request): Promise<Response> {
   const voiceUrl = new URL(`/api/neuraxis/twilio/voice?loop=1&room=${room}`, request.url).toString();
 
   let spoken: string;
-  if (command === "1" || command.includes("hive status") || command === "status") {
+  const lockedConcept = conceptAnswer(command);
+  if (lockedConcept) {
+    spoken = lockedConcept;
+  } else if (command === "1" || command.includes("hive status") || command === "status") {
     spoken = status.ok
       ? `Hive connected. The current company floor is ${status.floorStatus || "loaded"}. What do you want to inspect?`
       : "The phone line is online, but the Hive connection is unavailable.";
