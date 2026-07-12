@@ -1,30 +1,54 @@
-import { readTwilioForm, say, twiml, validateTwilioRequest, xmlEscape, normalizePhone } from "@/lib/neuraxis-twilio";
+import {
+  normalizePhone,
+  readTwilioForm,
+  say,
+  speak,
+  speechOrDigits,
+  twiml,
+  validateTwilioRequest,
+  xmlEscape,
+} from "@/lib/neuraxis-twilio";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
+function menuChoice(value: string): "1" | "5" | "9" | "" {
+  const normalized = value.toLowerCase().trim();
+  if (normalized === "1" || /\b(one|shared|workroom)\b/.test(normalized)) return "1";
+  if (normalized === "5" || /\b(five|audit|ai audit)\b/.test(normalized)) return "5";
+  if (normalized === "9" || /\b(nine|private|hive)\b/.test(normalized)) return "9";
+  return "";
+}
+
 export async function POST(request: Request) {
   const params = await readTwilioForm(request);
-  if (!validateTwilioRequest(request, params)) return twiml(`<?xml version="1.0" encoding="UTF-8"?><Response>${say("Access denied.")}<Hangup/></Response>`, 403);
+  if (!validateTwilioRequest(request, params)) {
+    return twiml(`<?xml version="1.0" encoding="UTF-8"?><Response>${say("Access denied.")}<Hangup/></Response>`, 403);
+  }
 
-  const digit = params.Digits || "";
+  const choice = menuChoice(speechOrDigits(params));
   const origin = new URL(request.url).origin;
-  if (digit === "1") {
+
+  if (choice === "1") {
     const target = `${origin}/api/neuraxis/twilio/voice?room=workroom`;
-    return twiml(`<?xml version="1.0" encoding="UTF-8"?><Response>${say("Opening the shared NEURAXIS workroom.")}<Redirect method="POST">${xmlEscape(target)}</Redirect></Response>`);
+    return twiml(`<?xml version="1.0" encoding="UTF-8"?><Response>${speak("Opening the shared workroom.", request.url)}<Redirect method="POST">${xmlEscape(target)}</Redirect></Response>`);
   }
-  if (digit === "5") {
+
+  if (choice === "5") {
     const target = `${origin}/api/neuraxis/twilio/audit/start`;
-    return twiml(`<?xml version="1.0" encoding="UTF-8"?><Response>${say("Opening the AI Operating Model Audit room.")}<Redirect method="POST">${xmlEscape(target)}</Redirect></Response>`);
+    return twiml(`<?xml version="1.0" encoding="UTF-8"?><Response><Redirect method="POST">${xmlEscape(target)}</Redirect></Response>`);
   }
-  if (digit === "9") {
+
+  if (choice === "9") {
     const allowed = normalizePhone(process.env.NEURAXIS_MASON_CALLER || "");
     const caller = normalizePhone(params.From || "");
-    if (!allowed || caller !== allowed) return twiml(`<?xml version="1.0" encoding="UTF-8"?><Response>${say("Mason private Hive access requires the approved caller number.")}<Hangup/></Response>`);
+    if (!allowed || caller !== allowed) {
+      return twiml(`<?xml version="1.0" encoding="UTF-8"?><Response>${speak("Mason's private Hive requires the approved caller number.", request.url)}<Hangup/></Response>`);
+    }
     const target = `${origin}/api/neuraxis/twilio/voice?room=private`;
-    return twiml(`<?xml version="1.0" encoding="UTF-8"?><Response>${say("Mason private lane accepted.")}<Redirect method="POST">${xmlEscape(target)}</Redirect></Response>`);
+    return twiml(`<?xml version="1.0" encoding="UTF-8"?><Response>${speak("Private lane accepted.", request.url)}<Redirect method="POST">${xmlEscape(target)}</Redirect></Response>`);
   }
 
   const retry = `${origin}/api/neuraxis/twilio/voice`;
-  return twiml(`<?xml version="1.0" encoding="UTF-8"?><Response>${say("Invalid selection.")}<Redirect method="POST">${xmlEscape(retry)}</Redirect></Response>`);
+  return twiml(`<?xml version="1.0" encoding="UTF-8"?><Response>${speak("I did not recognize that choice.", request.url)}<Redirect method="POST">${xmlEscape(retry)}</Redirect></Response>`);
 }
