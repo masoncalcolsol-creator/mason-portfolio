@@ -37,7 +37,7 @@ function xmlEscape(value: string): string {
 }
 
 function pickYamlValue(content: string, key: string): string | undefined {
-  const match = content.match(new RegExp(`^${key}:\\s*[\"']?([^\\n\"']+)`, "m"));
+  const match = content.match(new RegExp(`^${key}:\\s*["']?([^\\n"']+)`, "m"));
   return match?.[1]?.trim();
 }
 
@@ -90,7 +90,7 @@ async function readHiveStatus(): Promise<HiveStatus> {
 }
 
 function say(text: string): string {
-  return `<Say language="en-US">${xmlEscape(text)}</Say>`;
+  return `<Say voice="Polly.Matthew" language="en-US">${xmlEscape(text)}</Say>`;
 }
 
 function twiml(body: string): Response {
@@ -137,14 +137,18 @@ function extractOutputText(data: unknown): string {
     || "I heard you, but I did not get a usable model response.";
 }
 
-async function askOpenAI(userSpeech: string, status: HiveStatus, callSid: string): Promise<string> {
+async function askOpenAI(userSpeech: string, status: HiveStatus, callSid: string, room: "private" | "workroom"): Promise<string> {
   if (!OPENAI_API_KEY) {
     return "Natural conversation is not connected yet because OPENAI_API_KEY is missing in Vercel. I can still answer basic Hive status.";
   }
 
-  const instructions = `You are Neuraxis, the NULLWORKS phone gateway. You are speaking over a phone call, so answer conversationally in 1 to 4 short spoken paragraphs. Mason Perry is Founder and final Human Authority. Use the Hive context below as current operating context. Do not claim live synchronization, deployment, endorsement, referral, interview, or institutional approval without a receipt. Do not expose secrets, tokens, private keys, passwords, or unnecessary protected personal details. If asked to save/write/log something to Hive, explain that direct phone writeback is not enabled yet unless the current code says otherwise. Be helpful, blunt, and operational. If uncertain, say what is unknown. Do not explain Operational Intelligence unless Mason asks. Prioritize the direct answer to Mason's spoken words.`;
+  const roomRule = room === "private"
+    ? "This is Mason's caller-ID-gated private lane. Mason remains final Human Authority."
+    : "This is the shared workroom. Do not expose compartmentalized or unnecessary private context.";
+  const instructions = `You are Neuraxis, the NULLWORKS phone gateway. ${roomRule} You are speaking over a phone call, so answer conversationally in 1 to 4 short spoken paragraphs. Use the Hive context below as current operating context. Do not claim live synchronization, deployment, endorsement, referral, interview, or institutional approval without a receipt. Do not expose secrets, tokens, private keys, passwords, or unnecessary protected personal details. If asked to save/write/log something to Hive, explain that direct phone writeback is not enabled yet unless the current code says otherwise. Be helpful, blunt, and operational. If uncertain, say what is unknown. Do not explain Operational Intelligence unless Mason asks. Prioritize the direct answer to the spoken words.`;
 
   const input = `CALL SID: ${callSid}
+ROOM: ${room}
 HIVE MODE: ${status.mode}
 BOOT VERSION: ${status.bootVersion || "unknown"}
 FLOOR VERSION: ${status.floorVersion || "unknown"}
@@ -160,7 +164,7 @@ ${status.bootExcerpt || "unavailable"}
 COMPANY FLOOR EXCERPT:
 ${status.floorExcerpt || "unavailable"}
 
-MASON SAID:
+CALLER SAID:
 ${userSpeech || "status"}`;
 
   try {
@@ -194,8 +198,9 @@ ${userSpeech || "status"}`;
 async function handle(request: Request): Promise<Response> {
   const { text, callSid } = request.method === "POST" ? await readCommand(request) : { text: "status", callSid: "browser-test" };
   const command = text.toLowerCase();
+  const room = new URL(request.url).searchParams.get("room") === "private" ? "private" : "workroom";
   const status = await readHiveStatus();
-  const voiceUrl = new URL("/api/neuraxis/twilio/voice?loop=1", request.url).toString();
+  const voiceUrl = new URL(`/api/neuraxis/twilio/voice?loop=1&room=${room}`, request.url).toString();
 
   let spoken: string;
 
@@ -208,7 +213,7 @@ async function handle(request: Request): Promise<Response> {
   } else if (command.includes("log") || command.includes("receipt") || command.includes("save")) {
     spoken = `I can understand the logging request, but direct phone writeback is not enabled yet. Use the Gmail drop box phrase: hashtag Neuraxis log into Hive. Then ask ChatGPT to retrieve the email and write the Hive receipt.`;
   } else {
-    spoken = await askOpenAI(text, status, callSid);
+    spoken = await askOpenAI(text, status, callSid, room);
   }
 
   const response = `<?xml version="1.0" encoding="UTF-8"?>
@@ -221,10 +226,5 @@ async function handle(request: Request): Promise<Response> {
   return twiml(response);
 }
 
-export async function GET(request: Request) {
-  return handle(request);
-}
-
-export async function POST(request: Request) {
-  return handle(request);
-}
+export async function GET(request: Request) { return handle(request); }
+export async function POST(request: Request) { return handle(request); }
