@@ -1,123 +1,165 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1086" height="1448" viewBox="0 0 600 800" role="img" aria-labelledby="title desc">
-  <title id="title">NULLWORKS OI SUITe Executive Structure</title>
-  <desc id="desc">A self-contained NULLWORKS organizational architecture chart showing Mason Perry as final human authority, the AI Operator at the center, executive functions, specialist cells, NEURAXIS report-back, review gates, telemetry, and client boundaries.</desc>
+<svg xmlns="http://www.w3.org/2000/svg" width="1254" height="1254" viewBox="0 0 1254 1254" role="img" aria-labelledby="title desc">
+  <title id="title">NULLWORKS Executive Structure Around the AI Operator</title>
+  <desc id="desc">Mason Perry as final human authority above a human-led AI Operator, supported by eight digital executive functions, 65-plus specialist work cells, NEURAXIS report-back, source evidence, telemetry, and review gates.</desc>
   <defs>
-    <radialGradient id="bgGlow" cx="50%" cy="28%" r="65%">
-      <stop offset="0%" stop-color="#17202b"/>
-      <stop offset="58%" stop-color="#071019"/>
-      <stop offset="100%" stop-color="#04080d"/>
+    <radialGradient id="bg" cx="50%" cy="34%" r="76%">
+      <stop offset="0" stop-color="#102838"/>
+      <stop offset=".48" stop-color="#071722"/>
+      <stop offset="1" stop-color="#02080d"/>
     </radialGradient>
-    <linearGradient id="gold" x1="0" x2="1" y1="0" y2="1">
-      <stop offset="0%" stop-color="#f0d892"/>
-      <stop offset="45%" stop-color="#c9a45f"/>
-      <stop offset="100%" stop-color="#7d6134"/>
+    <linearGradient id="panel" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#0c2230"/>
+      <stop offset="1" stop-color="#041019"/>
     </linearGradient>
-    <filter id="softGlow" x="-40%" y="-40%" width="180%" height="180%">
-      <feGaussianBlur stdDeviation="4" result="blur"/>
-      <feColorMatrix in="blur" type="matrix" values="1 0 0 0 0.75  0 1 0 0 0.55  0 0 1 0 0.22  0 0 0 0.72 0"/>
-      <feMerge>
-        <feMergeNode/>
-        <feMergeNode in="SourceGraphic"/>
-      </feMerge>
+    <linearGradient id="armor" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#d1c7ae"/>
+      <stop offset=".35" stop-color="#7c674b"/>
+      <stop offset=".7" stop-color="#20292f"/>
+      <stop offset="1" stop-color="#080d11"/>
+    </linearGradient>
+    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="5" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
     </filter>
+    <pattern id="grid" width="42" height="42" patternUnits="userSpaceOnUse">
+      <path d="M42 0H0V42" fill="none" stroke="#55c9da" stroke-opacity=".035"/>
+    </pattern>
     <style>
-      .small { font-family: Arial, Helvetica, sans-serif; font-size: 9px; letter-spacing: 2.4px; font-weight: 800; text-transform: uppercase; }
-      .micro { font-family: Arial, Helvetica, sans-serif; font-size: 8px; letter-spacing: 1.4px; font-weight: 700; }
-      .body { font-family: Georgia, 'Times New Roman', serif; font-size: 13px; fill: #efe6d4; }
-      .label { font-family: Arial, Helvetica, sans-serif; font-size: 10px; letter-spacing: 2px; font-weight: 900; fill: #d8b56a; text-transform: uppercase; }
-      .title { font-family: Georgia, 'Times New Roman', serif; font-size: 25px; font-weight: 700; fill: #f5ecdd; }
-      .nodeTitle { font-family: Georgia, 'Times New Roman', serif; font-size: 16px; font-weight: 700; fill: #f5ecdd; }
-      .nodeText { font-family: Arial, Helvetica, sans-serif; font-size: 10px; fill: #cfc4b3; }
-      .line { stroke: #b8914d; stroke-width: 1.2; opacity: 0.78; fill: none; }
-      .dash { stroke: #b8914d; stroke-width: 1.1; opacity: 0.56; fill: none; stroke-dasharray: 4 7; }
-      .box { fill: rgba(9,14,20,0.92); stroke: #8b6d38; stroke-width: 1.2; rx: 10; }
-      .softBox { fill: rgba(12,18,25,0.88); stroke: #6c562f; stroke-width: 1; rx: 12; }
+      .s{font-family:Arial,Helvetica,sans-serif}.g{font-family:Georgia,'Times New Roman',serif}
+      .gold{fill:#e3b561}.cream{fill:#f1d9a7}.muted{fill:#c9c0ae}.cyan{fill:#58cddd}
+      .ey{font:700 18px Arial;letter-spacing:6px}.node{font:700 17px Arial;letter-spacing:4px}.role{font:700 29px Georgia}.desc{font:500 14px Arial}.cell{font:700 12px Arial;letter-spacing:2px}
     </style>
   </defs>
 
-  <rect width="600" height="800" fill="url(#bgGlow)"/>
-  <rect x="22" y="22" width="556" height="756" rx="28" fill="none" stroke="#7a6337" stroke-opacity="0.52"/>
-  <circle cx="300" cy="336" r="154" fill="none" stroke="#d8b56a" stroke-opacity="0.08" stroke-width="28"/>
-  <circle cx="300" cy="336" r="108" fill="none" stroke="#d8b56a" stroke-opacity="0.18" stroke-dasharray="2 6"/>
+  <rect width="1254" height="1254" fill="url(#bg)"/>
+  <rect width="1254" height="1254" fill="url(#grid)"/>
+  <rect x="16" y="16" width="1222" height="1222" rx="22" fill="none" stroke="#8d632d" stroke-width="2"/>
+  <path d="M42 16H16V42M1212 16h26v26M16 1212v26h26M1238 1212v26h-26" fill="none" stroke="#c49345" stroke-width="3"/>
 
-  <text x="300" y="54" text-anchor="middle" class="small" fill="#d8b56a">NULLWORKS // Operational Intelligence</text>
-  <text x="300" y="86" text-anchor="middle" class="title">Executive Structure Around the AI Operator</text>
-  <text x="300" y="111" text-anchor="middle" class="micro" fill="#bdb2a1">Human authority • scoped workrooms • source evidence • telemetry • review gates</text>
+  <text x="627" y="58" text-anchor="middle" class="s ey gold">NULLWORKS // OPERATIONAL INTELLIGENCE</text>
+  <text x="627" y="110" text-anchor="middle" class="g gold" font-size="53" font-weight="700">Executive Structure Around the AI Operator</text>
+  <text x="627" y="145" text-anchor="middle" class="s muted" font-size="16" font-weight="700" letter-spacing="4">HUMAN AUTHORITY • SCOPED WORKROOMS • SOURCE EVIDENCE • TELEMETRY • REVIEW GATES</text>
 
-  <rect x="169" y="135" width="262" height="54" rx="13" class="box"/>
-  <text x="300" y="157" text-anchor="middle" class="label">Final Human Authority</text>
-  <text x="300" y="178" text-anchor="middle" class="nodeTitle">Mason Perry</text>
-  <path d="M300 189 L300 228" class="line"/>
+  <g>
+    <rect x="425" y="164" width="404" height="78" rx="12" fill="url(#panel)" stroke="#c8994d" stroke-width="2.5"/>
+    <line x1="438" y1="176" x2="816" y2="176" stroke="#8e6732" stroke-opacity=".5"/>
+    <line x1="438" y1="230" x2="816" y2="230" stroke="#8e6732" stroke-opacity=".5"/>
+    <text x="627" y="191" text-anchor="middle" class="s node gold">FINAL HUMAN AUTHORITY</text>
+    <text x="627" y="226" text-anchor="middle" class="g cream" font-size="31" font-weight="700">Mason Perry</text>
+  </g>
 
-  <rect x="202" y="228" width="196" height="58" rx="14" fill="rgba(13,18,24,0.95)" stroke="#d8b56a" stroke-width="1.3"/>
-  <text x="300" y="250" text-anchor="middle" class="label">Executive Directive</text>
-  <text x="300" y="272" text-anchor="middle" class="body">human outcomes govern the system</text>
-  <path d="M300 286 L300 316" class="line"/>
+  <path d="M627 242V306" stroke="#d6a14c" stroke-width="2"/>
+  <circle cx="627" cy="306" r="5" fill="#f4cd78" filter="url(#glow)"/>
+  <text x="627" y="298" text-anchor="middle" class="s node gold" font-size="16">EXECUTIVE DIRECTIVE</text>
+  <text x="627" y="323" text-anchor="middle" class="s desc muted">human outcomes govern the system</text>
 
-  <circle cx="300" cy="366" r="64" fill="#0b1118" stroke="url(#gold)" stroke-width="2.1" filter="url(#softGlow)"/>
-  <text x="300" y="355" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif" font-size="31" font-weight="800" fill="#f6eee1">AI</text>
-  <text x="300" y="382" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif" font-size="23" font-weight="800" fill="#f6eee1">OPERATOR</text>
-  <text x="300" y="404" text-anchor="middle" class="nodeText">coordination • synthesis • execution support</text>
+  <g fill="none" transform="translate(627 500)">
+    <circle r="226" stroke="#c49142" stroke-opacity=".28" stroke-width="2"/>
+    <circle r="196" stroke="#58cddd" stroke-opacity=".18" stroke-dasharray="3 10" stroke-width="2"/>
+    <circle r="162" stroke="#d6a14c" stroke-opacity=".28"/>
+    <circle r="129" stroke="#58cddd" stroke-opacity=".18" stroke-dasharray="2 8"/>
+  </g>
 
-  <rect x="55" y="246" width="116" height="76" rx="12" class="softBox"/>
-  <text x="113" y="268" text-anchor="middle" class="label">Knox</text>
-  <text x="113" y="288" text-anchor="middle" class="nodeTitle">Ops</text>
-  <text x="113" y="307" text-anchor="middle" class="nodeText">intake • routing</text>
+  <!-- executive connectors -->
+  <g fill="none" stroke="#c9923f" stroke-width="2" stroke-opacity=".78">
+    <path d="M362 239C430 239 445 400 480 446"/><path d="M362 386C430 386 443 445 480 470"/>
+    <path d="M362 533C430 533 443 515 480 508"/><path d="M362 680C430 680 443 585 480 548"/>
+    <path d="M892 239C824 239 809 400 774 446"/><path d="M892 386C824 386 811 445 774 470"/>
+    <path d="M892 533C824 533 811 515 774 508"/><path d="M892 680C824 680 811 585 774 548"/>
+  </g>
 
-  <rect x="55" y="360" width="116" height="76" rx="12" class="softBox"/>
-  <text x="113" y="382" text-anchor="middle" class="label">Kaizen</text>
-  <text x="113" y="402" text-anchor="middle" class="nodeTitle">QA</text>
-  <text x="113" y="421" text-anchor="middle" class="nodeText">waste • gates</text>
+  <!-- left executives -->
+  <g>
+    <path d="M80 183H350L362 195V283L350 295H80L68 283V195Z" fill="url(#panel)" stroke="#9f7132" stroke-width="2"/>
+    <polygon points="120,199 151,217 151,252 120,270 89,252 89,217" fill="#07202a" stroke="#4cd0e0"/><circle cx="120" cy="235" r="17" fill="none" stroke="#56c6d8" stroke-width="2"/>
+    <text x="120" y="242" text-anchor="middle" class="s cyan" font-size="17" font-weight="700">K</text><text x="188" y="215" class="s node gold">KNOX</text><text x="188" y="247" class="g role cream">Ops</text><text x="188" y="271" class="s desc muted">intake • routing</text>
 
-  <rect x="429" y="246" width="116" height="76" rx="12" class="softBox"/>
-  <text x="487" y="268" text-anchor="middle" class="label">Crow</text>
-  <text x="487" y="288" text-anchor="middle" class="nodeTitle">Advisor</text>
-  <text x="487" y="307" text-anchor="middle" class="nodeText">pattern • risk</text>
+    <path d="M80 330H350L362 342V430L350 442H80L68 430V342Z" fill="url(#panel)" stroke="#9f7132" stroke-width="2"/>
+    <polygon points="120,346 151,364 151,399 120,417 89,399 89,364" fill="#07202a" stroke="#4cd0e0"/><circle cx="120" cy="382" r="17" fill="none" stroke="#56c6d8" stroke-width="2"/>
+    <text x="120" y="389" text-anchor="middle" class="s cyan" font-size="17" font-weight="700">K</text><text x="188" y="362" class="s node gold">KAIZEN</text><text x="188" y="394" class="g role cream">QA</text><text x="188" y="418" class="s desc muted">waste • gates</text>
 
-  <rect x="429" y="360" width="116" height="76" rx="12" class="softBox"/>
-  <text x="487" y="382" text-anchor="middle" class="label">NT2</text>
-  <text x="487" y="402" text-anchor="middle" class="nodeTitle">Historian</text>
-  <text x="487" y="421" text-anchor="middle" class="nodeText">continuity</text>
+    <path d="M80 477H350L362 489V577L350 589H80L68 577V489Z" fill="url(#panel)" stroke="#9f7132" stroke-width="2"/>
+    <polygon points="120,493 151,511 151,546 120,564 89,546 89,511" fill="#07202a" stroke="#4cd0e0"/><circle cx="120" cy="529" r="17" fill="none" stroke="#56c6d8" stroke-width="2"/>
+    <text x="120" y="536" text-anchor="middle" class="s cyan" font-size="17" font-weight="700">J</text><text x="188" y="509" class="s node gold">JUMPER</text><text x="188" y="541" class="g role cream">Builder</text><text x="188" y="565" class="s desc muted">artifacts • implementation</text>
 
-  <path d="M171 284 C221 284 228 346 236 360" class="line"/>
-  <path d="M171 398 C221 398 226 382 237 374" class="line"/>
-  <path d="M429 284 C379 284 372 346 364 360" class="line"/>
-  <path d="M429 398 C379 398 374 382 363 374" class="line"/>
+    <path d="M80 624H350L362 636V724L350 736H80L68 724V636Z" fill="url(#panel)" stroke="#9f7132" stroke-width="2"/>
+    <polygon points="120,640 151,658 151,693 120,711 89,693 89,658" fill="#07202a" stroke="#4cd0e0"/><circle cx="120" cy="676" r="17" fill="none" stroke="#56c6d8" stroke-width="2"/>
+    <text x="120" y="683" text-anchor="middle" class="s cyan" font-size="17" font-weight="700">S</text><text x="188" y="656" class="s node gold">SHOJI</text><text x="188" y="679" class="g role cream" font-size="27">Public</text><text x="188" y="706" class="g role cream" font-size="27">Intelligence</text><text x="188" y="727" class="s desc muted">training • translation</text>
+  </g>
 
-  <rect x="84" y="478" width="432" height="58" rx="14" fill="rgba(12,18,25,0.94)" stroke="#8b6d38" stroke-width="1.2"/>
-  <text x="300" y="500" text-anchor="middle" class="label">Specialist Work Cells</text>
-  <text x="300" y="522" text-anchor="middle" class="body">bounded missions • time-bound work • return-and-report discipline</text>
-  <path d="M300 430 L300 478" class="line"/>
+  <!-- right executives -->
+  <g>
+    <path d="M904 183H1174L1186 195V283L1174 295H904L892 283V195Z" fill="url(#panel)" stroke="#9f7132" stroke-width="2"/>
+    <polygon points="944,199 975,217 975,252 944,270 913,252 913,217" fill="#07202a" stroke="#4cd0e0"/><circle cx="944" cy="235" r="17" fill="none" stroke="#56c6d8" stroke-width="2"/>
+    <text x="944" y="242" text-anchor="middle" class="s cyan" font-size="17" font-weight="700">C</text><text x="1012" y="215" class="s node gold">CROW</text><text x="1012" y="247" class="g role cream">Advisor</text><text x="1012" y="271" class="s desc muted">pattern • risk</text>
 
-  <rect x="44" y="576" width="120" height="70" rx="12" class="softBox"/>
-  <text x="104" y="603" text-anchor="middle" class="label">Investigate</text>
-  <text x="104" y="624" text-anchor="middle" class="nodeText">source discovery</text>
+    <path d="M904 330H1174L1186 342V430L1174 442H904L892 430V342Z" fill="url(#panel)" stroke="#9f7132" stroke-width="2"/>
+    <polygon points="944,346 975,364 975,399 944,417 913,399 913,364" fill="#07202a" stroke="#4cd0e0"/><circle cx="944" cy="382" r="17" fill="none" stroke="#56c6d8" stroke-width="2"/>
+    <text x="944" y="389" text-anchor="middle" class="s cyan" font-size="17" font-weight="700">N</text><text x="1012" y="362" class="s node gold">NT2</text><text x="1012" y="394" class="g role cream">Historian</text><text x="1012" y="418" class="s desc muted">continuity</text>
 
-  <rect x="184" y="576" width="120" height="70" rx="12" class="softBox"/>
-  <text x="244" y="603" text-anchor="middle" class="label">Build</text>
-  <text x="244" y="624" text-anchor="middle" class="nodeText">artifact execution</text>
+    <path d="M904 477H1174L1186 489V577L1174 589H904L892 577V489Z" fill="url(#panel)" stroke="#9f7132" stroke-width="2"/>
+    <polygon points="944,493 975,511 975,546 944,564 913,546 913,511" fill="#07202a" stroke="#4cd0e0"/><circle cx="944" cy="529" r="17" fill="none" stroke="#56c6d8" stroke-width="2"/>
+    <text x="944" y="536" text-anchor="middle" class="s cyan" font-size="17" font-weight="700">E</text><text x="1012" y="509" class="s node gold">ELEVEN</text><text x="1012" y="541" class="g role cream">Sentinel</text><text x="1012" y="559" class="s muted" font-size="13">security • authority</text><text x="1012" y="576" class="s muted" font-size="13">boundaries</text>
 
-  <rect x="324" y="576" width="120" height="70" rx="12" class="softBox"/>
-  <text x="384" y="603" text-anchor="middle" class="label">Verify</text>
-  <text x="384" y="624" text-anchor="middle" class="nodeText">QA + evidence</text>
+    <path d="M904 624H1174L1186 636V724L1174 736H904L892 724V636Z" fill="url(#panel)" stroke="#9f7132" stroke-width="2"/>
+    <polygon points="944,640 975,658 975,693 944,711 913,693 913,658" fill="#07202a" stroke="#4cd0e0"/><circle cx="944" cy="676" r="17" fill="none" stroke="#56c6d8" stroke-width="2"/>
+    <text x="944" y="683" text-anchor="middle" class="s cyan" font-size="17" font-weight="700">C</text><text x="1012" y="656" class="s node gold">CHAIRMAN MEOW</text><text x="1012" y="679" class="g role cream" font-size="27">Emotional</text><text x="1012" y="706" class="g role cream" font-size="27">Telemetry</text><text x="1012" y="727" class="s desc muted">morale • emotional signal</text>
+  </g>
 
-  <rect x="464" y="576" width="92" height="70" rx="12" class="softBox"/>
-  <text x="510" y="603" text-anchor="middle" class="label">Ship</text>
-  <text x="510" y="624" text-anchor="middle" class="nodeText">delivery</text>
+  <g>
+    <circle cx="362" cy="239" r="7" fill="#f2c66e" filter="url(#glow)"/><circle cx="362" cy="386" r="7" fill="#f2c66e" filter="url(#glow)"/><circle cx="362" cy="533" r="7" fill="#f2c66e" filter="url(#glow)"/><circle cx="362" cy="680" r="7" fill="#f2c66e" filter="url(#glow)"/>
+    <circle cx="892" cy="239" r="7" fill="#f2c66e" filter="url(#glow)"/><circle cx="892" cy="386" r="7" fill="#f2c66e" filter="url(#glow)"/><circle cx="892" cy="533" r="7" fill="#f2c66e" filter="url(#glow)"/><circle cx="892" cy="680" r="7" fill="#f2c66e" filter="url(#glow)"/>
+  </g>
 
-  <path d="M104 576 L104 548 L300 548 L300 536" class="dash"/>
-  <path d="M244 576 L244 548" class="dash"/>
-  <path d="M384 576 L384 548" class="dash"/>
-  <path d="M510 576 L510 548 L300 548" class="dash"/>
+  <!-- armored AI Operator -->
+  <g>
+    <ellipse cx="627" cy="437" rx="50" ry="58" fill="#8b6a4e" stroke="#c79b61" stroke-width="2"/>
+    <path d="M586 435Q627 398 668 435Q662 403 627 393Q592 403 586 435Z" fill="#161514"/>
+    <path d="M516 526L566 477L688 477L738 526L700 683L554 683Z" fill="url(#armor)" stroke="#d0ab6e" stroke-width="2.5"/>
+    <path d="M516 526L460 560L437 677L500 699L554 683L566 477Z" fill="#172026" stroke="#8a6a3e" stroke-width="2"/>
+    <path d="M738 526L794 560L817 677L754 699L700 683L688 477Z" fill="#172026" stroke="#8a6a3e" stroke-width="2"/>
+    <path d="M553 505L627 541L701 505L684 622L627 665L570 622Z" fill="#0b1217" stroke="#9f7c47" stroke-width="2"/>
+    <path d="M566 477L627 511L688 477L668 545L627 566L586 545Z" fill="#b9a27e" stroke="#1a2429" stroke-width="3"/>
+    <circle cx="627" cy="551" r="31" fill="#06141c" stroke="#58d0e1" stroke-width="3" filter="url(#glow)"/>
+    <circle cx="627" cy="551" r="23" fill="none" stroke="#b78538" stroke-width="2"/>
+    <text x="627" y="559" text-anchor="middle" class="s cyan" font-size="20" font-weight="700">NW</text>
+    <path d="M554 683L522 760H584L612 684M700 683L732 760H670L642 684" fill="#10171c" stroke="#7d623c" stroke-width="2"/>
+    <text x="627" y="641" text-anchor="middle" class="g cream" font-size="42" font-weight="700">AI</text>
+    <text x="627" y="681" text-anchor="middle" class="g cream" font-size="36" font-weight="700">OPERATOR</text>
+    <text x="627" y="711" text-anchor="middle" class="s desc muted">coordination • synthesis • execution support</text>
+  </g>
 
-  <rect x="163" y="684" width="274" height="58" rx="14" fill="rgba(13,18,24,0.94)" stroke="#d8b56a" stroke-opacity="0.7"/>
-  <text x="300" y="707" text-anchor="middle" class="label">NEURAXIS Report Back</text>
-  <text x="300" y="729" text-anchor="middle" class="body">learn • compress • preserve receipts • evolve</text>
+  <!-- specialist work cells -->
+  <path d="M92 772H1162L1182 792V982L1162 1002H92L72 982V792Z" fill="#06131c" stroke="#a87330" stroke-width="2.5"/>
+  <text x="627" y="806" text-anchor="middle" class="s ey gold" font-size="21">65+ SPECIALIST WORK CELLS</text>
+  <line x1="96" y1="825" x2="1158" y2="825" stroke="#8b642f" stroke-width="2"/>
 
-  <path d="M104 646 L104 713 L163 713" class="line"/>
-  <path d="M244 646 L244 684" class="line"/>
-  <path d="M384 646 L384 684" class="line"/>
-  <path d="M510 646 L510 713 L437 713" class="line"/>
+  <g class="s">
+    <g transform="translate(96 826)"><rect width="106" height="153" fill="#081721" stroke="#6d502b"/><text x="53" y="28" text-anchor="middle" class="cell gold">INVESTIGATE</text><circle cx="53" cy="69" r="18" fill="none" stroke="#57c9dc" stroke-width="2"/><text x="53" y="76" text-anchor="middle" class="cyan" font-size="18" font-weight="700">I</text><text x="53" y="111" text-anchor="middle" class="muted" font-size="12">source</text><text x="53" y="128" text-anchor="middle" class="muted" font-size="12">discovery</text></g>
+    <g transform="translate(202 826)"><rect width="106" height="153" fill="#081721" stroke="#6d502b"/><text x="53" y="28" text-anchor="middle" class="cell gold">BUILD</text><circle cx="53" cy="69" r="18" fill="none" stroke="#57c9dc" stroke-width="2"/><text x="53" y="76" text-anchor="middle" class="cyan" font-size="18" font-weight="700">B</text><text x="53" y="111" text-anchor="middle" class="muted" font-size="12">artifact</text><text x="53" y="128" text-anchor="middle" class="muted" font-size="12">execution</text></g>
+    <g transform="translate(308 826)"><rect width="106" height="153" fill="#081721" stroke="#6d502b"/><text x="53" y="28" text-anchor="middle" class="cell gold">VERIFY</text><circle cx="53" cy="69" r="18" fill="none" stroke="#57c9dc" stroke-width="2"/><text x="53" y="76" text-anchor="middle" class="cyan" font-size="18" font-weight="700">V</text><text x="53" y="111" text-anchor="middle" class="muted" font-size="12">QA +</text><text x="53" y="128" text-anchor="middle" class="muted" font-size="12">evidence</text></g>
+    <g transform="translate(414 826)"><rect width="106" height="153" fill="#081721" stroke="#6d502b"/><text x="53" y="28" text-anchor="middle" class="cell gold">SHIP</text><circle cx="53" cy="69" r="18" fill="none" stroke="#57c9dc" stroke-width="2"/><text x="53" y="76" text-anchor="middle" class="cyan" font-size="18" font-weight="700">S</text><text x="53" y="111" text-anchor="middle" class="muted" font-size="12">delivery</text><text x="53" y="128" text-anchor="middle" class="muted" font-size="12">execution</text></g>
+    <g transform="translate(520 826)"><rect width="106" height="153" fill="#081721" stroke="#6d502b"/><text x="53" y="28" text-anchor="middle" class="cell gold">RESEARCH</text><circle cx="53" cy="69" r="18" fill="none" stroke="#57c9dc" stroke-width="2"/><text x="53" y="76" text-anchor="middle" class="cyan" font-size="18" font-weight="700">R</text><text x="53" y="111" text-anchor="middle" class="muted" font-size="12">knowledge</text><text x="53" y="128" text-anchor="middle" class="muted" font-size="12">expansion</text></g>
+    <g transform="translate(626 826)"><rect width="106" height="153" fill="#081721" stroke="#6d502b"/><text x="53" y="28" text-anchor="middle" class="cell gold">DESIGN</text><circle cx="53" cy="69" r="18" fill="none" stroke="#57c9dc" stroke-width="2"/><text x="53" y="76" text-anchor="middle" class="cyan" font-size="18" font-weight="700">D</text><text x="53" y="111" text-anchor="middle" class="muted" font-size="12">systems +</text><text x="53" y="128" text-anchor="middle" class="muted" font-size="12">interfaces</text></g>
+    <g transform="translate(732 826)"><rect width="106" height="153" fill="#081721" stroke="#6d502b"/><text x="53" y="28" text-anchor="middle" class="cell gold">ANALYZE</text><circle cx="53" cy="69" r="18" fill="none" stroke="#57c9dc" stroke-width="2"/><text x="53" y="76" text-anchor="middle" class="cyan" font-size="18" font-weight="700">A</text><text x="53" y="111" text-anchor="middle" class="muted" font-size="12">insight +</text><text x="53" y="128" text-anchor="middle" class="muted" font-size="12">modeling</text></g>
+    <g transform="translate(838 826)"><rect width="106" height="153" fill="#081721" stroke="#6d502b"/><text x="53" y="28" text-anchor="middle" class="cell gold">AUDIT</text><circle cx="53" cy="69" r="18" fill="none" stroke="#57c9dc" stroke-width="2"/><text x="53" y="76" text-anchor="middle" class="cyan" font-size="18" font-weight="700">U</text><text x="53" y="111" text-anchor="middle" class="muted" font-size="12">compliance +</text><text x="53" y="128" text-anchor="middle" class="muted" font-size="12">assurance</text></g>
+    <g transform="translate(944 826)"><rect width="106" height="153" fill="#081721" stroke="#6d502b"/><text x="53" y="28" text-anchor="middle" class="cell gold">MEMORY</text><circle cx="53" cy="69" r="18" fill="none" stroke="#57c9dc" stroke-width="2"/><text x="53" y="76" text-anchor="middle" class="cyan" font-size="18" font-weight="700">M</text><text x="53" y="111" text-anchor="middle" class="muted" font-size="12">knowledge</text><text x="53" y="128" text-anchor="middle" class="muted" font-size="12">preservation</text></g>
+    <g transform="translate(1050 826)"><rect width="106" height="153" fill="#081721" stroke="#6d502b"/><text x="53" y="28" text-anchor="middle" class="cell gold">COMMS</text><circle cx="53" cy="69" r="18" fill="none" stroke="#57c9dc" stroke-width="2"/><text x="53" y="76" text-anchor="middle" class="cyan" font-size="18" font-weight="700">C</text><text x="53" y="111" text-anchor="middle" class="muted" font-size="12">alignment +</text><text x="53" y="128" text-anchor="middle" class="muted" font-size="12">broadcast</text></g>
+  </g>
 
-  <text x="300" y="766" text-anchor="middle" class="micro" fill="#8d8273">No independent canon. No hidden authority. The human remains accountable for the outcome.</text>
+  <path d="M300 1019H954L974 1039V1097L954 1117H300L280 1097V1039Z" fill="#071722" stroke="#a97936" stroke-width="2"/>
+  <text x="627" y="1054" text-anchor="middle" class="s ey gold" font-size="19">NEURAXIS REPORT BACK</text>
+  <text x="627" y="1087" text-anchor="middle" class="s muted" font-size="15" font-weight="700" letter-spacing="4">LEARN • COMPRESS • PRESERVE RECEIPTS • EVOLVE</text>
+  <path d="M627 1002V1019M627 1117V1134" stroke="#d09b44" stroke-width="2"/>
+  <circle cx="627" cy="1134" r="5" fill="#f0c66e" filter="url(#glow)"/>
+  <text x="627" y="1158" text-anchor="middle" class="g gold" font-size="16">No independent canon. No hidden authority. The human remains accountable for the outcome.</text>
+  <line x1="72" y1="1173" x2="1182" y2="1173" stroke="#805b2d" stroke-width="1.5"/>
+
+  <g class="s gold">
+    <text x="207" y="1211" text-anchor="middle" font-size="37" font-weight="700">65+</text><text x="207" y="1235" text-anchor="middle" font-size="13" font-weight="700" letter-spacing="3">SPECIALISTS</text>
+    <line x1="408" y1="1188" x2="408" y2="1238" stroke="#73522d"/>
+    <text x="627" y="1211" text-anchor="middle" font-size="37" font-weight="700">800+</text><text x="627" y="1235" text-anchor="middle" font-size="13" font-weight="700" letter-spacing="3">WORKROOMS</text>
+    <line x1="846" y1="1188" x2="846" y2="1238" stroke="#73522d"/>
+    <text x="1045" y="1211" text-anchor="middle" font-size="37" font-weight="700">119+</text><text x="1045" y="1234" text-anchor="middle" font-size="12" font-weight="700" letter-spacing="2">FAILURE RECEIPTS</text>
+  </g>
 </svg>
