@@ -25,8 +25,57 @@ export function twiml(body: string, status = 200): Response {
   });
 }
 
+/**
+ * Safe Twilio-native fallback. The normal NEURAXIS path uses OpenAI Marin
+ * through <Play>; this remains available for hard failures and access denial.
+ */
 export function say(text: string): string {
-  return `<Say voice="Polly.Matthew" language="en-US">${xmlEscape(text)}</Say>`;
+  return `<Say voice="Polly.Joanna-Generative" language="en-US">${xmlEscape(text)}</Say>`;
+}
+
+function stateSecret(): string {
+  return process.env.NEURAXIS_STATE_SECRET
+    || process.env.TWILIO_AUTH_TOKEN
+    || "NULLWORKS-NEURAXIS-LOCAL-STATE";
+}
+
+function stateKey(): Buffer {
+  return crypto.createHash("sha256").update(stateSecret(), "utf8").digest();
+}
+
+export function encodeState(value: unknown): string {
+  const iv = crypto.randomBytes(12);
+  const cipher = crypto.createCipheriv("aes-256-gcm", stateKey(), iv);
+  const plaintext = Buffer.from(JSON.stringify(value), "utf8");
+  const ciphertext = Buffer.concat([cipher.update(plaintext), cipher.final()]);
+  const tag = cipher.getAuthTag();
+  return Buffer.concat([iv, tag, ciphertext]).toString("base64url");
+}
+
+export function decodeState<T>(token: string): T | null {
+  try {
+    const payload = Buffer.from(token, "base64url");
+    if (payload.length < 29) return null;
+    const iv = payload.subarray(0, 12);
+    const tag = payload.subarray(12, 28);
+    const ciphertext = payload.subarray(28);
+    const decipher = crypto.createDecipheriv("aes-256-gcm", stateKey(), iv);
+    decipher.setAuthTag(tag);
+    const plaintext = Buffer.concat([decipher.update(ciphertext), decipher.final()]).toString("utf8");
+    return JSON.parse(plaintext) as T;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Uses the OpenAI Marin TTS route without exposing spoken text in the URL.
+ */
+export function speak(text: string, requestUrl: string): string {
+  const origin = new URL(requestUrl).origin;
+  const token = encodeState({ text: String(text).slice(0, 4000) });
+  const audioUrl = `${origin}/api/neuraxis/twilio/tts?q=${encodeURIComponent(token)}`;
+  return `<Play>${xmlEscape(audioUrl)}</Play>`;
 }
 
 export function normalizePhone(value: string): string {
@@ -49,9 +98,81 @@ export function validateTwilioRequest(request: Request, params: TwilioForm): boo
   return left.length === right.length && crypto.timingSafeEqual(left, right);
 }
 
+export function speechOrDigits(params: TwilioForm): string {
+  return `${params.SpeechResult || ""} ${params.Digits || ""}`.trim();
+}
+
+export function isAffirmative(value: string): boolean {
+  const normalized = value.toLowerCase().trim();
+  return /^(yes|yeah|yep|yup|correct|affirmative|we do|i do|we are|i am)\b/.test(normalized)
+    || normalized === "1";
+}
+
+export function isNegative(value: string): boolean {
+  const normalized = value.toLowerCase().trim();
+  return /^(no|nope|nah|negative|not yet|we don't|we do not|i don't|i do not)\b/.test(normalized)
+    || normalized === "2";
+}
+
 export function auditReference(callSid: string): string {
-  const digest = crypto.createHash("sha256").update(`${callSid}:${Date.now()}:${crypto.randomUUID()}`).digest("hex").slice(0, 8).toUpperCase();
+  const digest = crypto
+    .createHash("sha256")
+    .update(`${callSid}:${Date.now()}:${crypto.randomUUID()}`)
+    .digest("hex")
+    .slice(0, 8)
+    .toUpperCase();
   return `NW-${digest}`;
+}
+
+export function phoenixGreeting(date = new Date()): {
+  greeting: "morning" | "afternoon" | "evening";
+  hour: number;
+  minute: number;
+  clock: string;
+} {
+  const parts = new Intl.DateTimeFormat("en-US", {
+    timeZone: "America/Phoenix",
+    hour: "numeric",
+    minute: "2-digit",
+    hour12: false,
+  }).formatToParts(date);
+  const hour = Number(parts.find((part) => part.type === "hour")?.value || "12") % 24;
+  const minute = Number(parts.find((part) => part.type === "minute")?.value || "0");
+  const greeting = hour < 12 ? "morning" : hour < 17 ? "afternoon" : "evening";
+  const displayHour = hour % 12 || 12;
+  return { greeting, hour, minute, clock: `${displayHour}:${String(minute).padStart(2, "0")}` };
+}
+
+export async function lookupCallerName(phone: string): Promise<{
+  name?: string;
+  type?: string;
+  error?: string;
+}> {
+  const normalized = normalizePhone(phone);
+  const accountSid = process.env.TWILIO_ACCOUNT_SID || "";
+  const authToken = process.env.TWILIO_AUTH_TOKEN || "";
+  if (!normalized || !accountSid || !authToken) return {};
+
+  try {
+    const response = await fetch(
+      `https://lookups.twilio.com/v2/PhoneNumbers/${encodeURIComponent(normalized)}?Fields=caller_name`,
+      {
+        headers: {
+          Authorization: `Basic ${Buffer.from(`${accountSid}:${authToken}`).toString("base64")}`,
+        },
+        cache: "no-store",
+      },
+    );
+    if (!response.ok) return { error: `Lookup ${response.status}` };
+    const data = await response.json() as {
+      caller_name?: { caller_name?: string | null; caller_type?: string | null } | null;
+    };
+    const name = data.caller_name?.caller_name?.trim() || undefined;
+    const type = data.caller_name?.caller_type?.trim() || undefined;
+    return { name, type };
+  } catch (error) {
+    return { error: error instanceof Error ? error.message : "Caller lookup failed" };
+  }
 }
 
 export async function sendTwilioSms(input: {
