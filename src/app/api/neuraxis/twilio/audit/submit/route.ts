@@ -65,9 +65,16 @@ export async function POST(request: Request) {
     },
   }).catch(() => undefined);
 
-  const spoken = sms.ok
-    ? `Your provisional audit intake is logged as ${reference}. The text request was accepted by Twilio with status ${sms.status || "queued"}. Open the link in that text to confirm your email or add anything I missed. Human review remains required.`
-    : `Your provisional audit intake is logged as ${reference}, but I could not confirm the text was queued. The failure was ${sms.error || "unknown"}. Please give Mason the reference ${reference}.`;
+  let spoken: string;
+  if (sms.ok && receipt.ok) {
+    spoken = `Your provisional audit intake is stored as ${reference}. Twilio accepted the continuation text with status ${sms.status || "queued"}. Open that link to confirm your email or add anything I missed. Human review remains required.`;
+  } else if (sms.ok && !receipt.ok) {
+    spoken = `Twilio accepted the continuation text for ${reference}, but I could not confirm that the spoken transcript was stored in the Hive. Open the text link and submit the continuation form so the handoff is preserved. The storage error was ${receipt.error || "unknown"}.`;
+  } else if (!sms.ok && receipt.ok) {
+    spoken = `Your spoken intake is stored as ${reference}, but I could not confirm the continuation text was queued. The text error was ${sms.error || "unknown"}. Keep the reference ${reference} and give it to Mason.`;
+  } else {
+    spoken = `I generated reference ${reference}, but neither the text nor the Hive receipt could be confirmed. Text error: ${sms.error || "unknown"}. Receipt error: ${receipt.error || "unknown"}. Please give Mason the reference ${reference}.`;
+  }
 
   return twiml(`<?xml version="1.0" encoding="UTF-8"?><Response>${say(spoken)}<Hangup/></Response>`);
 }
