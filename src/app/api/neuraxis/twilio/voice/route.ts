@@ -1,7 +1,23 @@
-import { speak, twiml, xmlEscape } from "@/lib/neuraxis-twilio";
+import { after } from "next/server";
+
+import {
+  lookupCallerName,
+  normalizePhone,
+  readTwilioForm,
+  say,
+  speak,
+  twiml,
+  validateTwilioRequest,
+  xmlEscape,
+} from "@/lib/neuraxis-twilio";
+import {
+  ensureIncomingNumberStatusCallback,
+  startCallTelemetry,
+} from "@/lib/neuraxis-call-telemetry";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
+export const maxDuration = 30;
 
 type HiveStatus = {
   ok: boolean;
@@ -62,13 +78,53 @@ async function readHiveStatus(): Promise<HiveStatus> {
 }
 
 async function handle(request: Request): Promise<Response> {
+  const params = request.method === "POST" ? await readTwilioForm(request) : {};
+  if (request.method === "POST" && !validateTwilioRequest(request, params)) {
+    return twiml(`<?xml version="1.0" encoding="UTF-8"?><Response>${say("Access denied.")}<Hangup/></Response>`, 403);
+  }
+
   const url = new URL(request.url);
   const room = url.searchParams.get("room") || "";
   const isLoop = url.searchParams.get("loop") === "1";
+  const telemetrySeen = url.searchParams.get("telemetry") === "1";
 
   if (!room && !isLoop) {
+    if (request.method === "POST" && params.CallSid && !telemetrySeen) {
+      const event = {
+        callSid: params.CallSid,
+        caller: params.From || "",
+        called: params.To || "",
+        direction: params.Direction || "inbound",
+        callStatus: params.CallStatus || "in-progress",
+        requestUrl: request.url,
+      };
+      after(async () => {
+        try {
+          const caller = normalizePhone(event.caller);
+          const approvedMason = normalizePhone(process.env.NEURAXIS_MASON_CALLER || "");
+          const lookup = caller && approvedMason && caller === approvedMason
+            ? { name: "Mason", type: "APPROVED_CALLER" }
+            : await lookupCallerName(caller);
+          await Promise.allSettled([
+            startCallTelemetry({
+              callSid: event.callSid,
+              caller: event.caller,
+              callerName: lookup.name || params.CallerName,
+              callerType: lookup.type,
+              called: event.called,
+              direction: event.direction,
+              callStatus: event.callStatus,
+            }),
+            ensureIncomingNumberStatusCallback(event.requestUrl),
+          ]);
+        } catch (error) {
+          console.error("NEURAXIS call-start telemetry failed", error);
+        }
+      });
+    }
+
     const menuUrl = new URL("/api/neuraxis/twilio/menu", request.url).toString();
-    const retryUrl = new URL("/api/neuraxis/twilio/voice", request.url).toString();
+    const retryUrl = new URL("/api/neuraxis/twilio/voice?telemetry=1", request.url).toString();
     const prompt = "NEURAXIS is online. We are Organizational Intelligence, and we are ready to help. Press or say 1 for the shared workroom. Press or say 5 for the operating model audit. Press or say 9 for Mason's private Hive.";
     return twiml(`<?xml version="1.0" encoding="UTF-8"?>
 <Response>
