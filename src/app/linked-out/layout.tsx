@@ -45,7 +45,7 @@ export default function LinkedOutLayout({ children }: { children: ReactNode }) {
           aspect-ratio: 2 / 3 !important;
           padding: 0 !important;
           border-radius: 24px !important;
-          background: #030405 url("/images/linked-out-afterword-poster.webp") center / contain no-repeat !important;
+          background: #030405 url("/images/linked-out-parallel-universe-poster.svg?v=linked-out-paper-2") center / contain no-repeat !important;
           box-shadow: 0 35px 110px rgba(0,0,0,.52) !important;
         }
 
