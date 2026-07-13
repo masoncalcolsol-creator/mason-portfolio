@@ -1,3 +1,5 @@
+import { after } from "next/server";
+
 import {
   normalizePhone,
   readTwilioForm,
@@ -8,6 +10,7 @@ import {
   validateTwilioRequest,
   xmlEscape,
 } from "@/lib/neuraxis-twilio";
+import { recordRoomSelection } from "@/lib/neuraxis-call-telemetry";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -26,8 +29,25 @@ export async function POST(request: Request) {
     return twiml(`<?xml version="1.0" encoding="UTF-8"?><Response>${say("Access denied.")}<Hangup/></Response>`, 403);
   }
 
-  const choice = menuChoice(speechOrDigits(params));
+  const spokenSelection = speechOrDigits(params);
+  const choice = menuChoice(spokenSelection);
   const origin = new URL(request.url).origin;
+  const room = choice === "1" ? "workroom" : choice === "5" ? "audit" : choice === "9" ? "private" : undefined;
+
+  if (room && params.CallSid) {
+    after(async () => {
+      try {
+        await recordRoomSelection({
+          callSid: params.CallSid,
+          room,
+          caller: params.From,
+          selection: spokenSelection,
+        });
+      } catch (error) {
+        console.error("NEURAXIS room-selection telemetry failed", error);
+      }
+    });
+  }
 
   if (choice === "1") {
     const target = `${origin}/api/neuraxis/twilio/voice?room=workroom`;
@@ -49,6 +69,6 @@ export async function POST(request: Request) {
     return twiml(`<?xml version="1.0" encoding="UTF-8"?><Response>${speak("Private lane accepted.", request.url)}<Redirect method="POST">${xmlEscape(target)}</Redirect></Response>`);
   }
 
-  const retry = `${origin}/api/neuraxis/twilio/voice`;
+  const retry = `${origin}/api/neuraxis/twilio/voice?telemetry=1`;
   return twiml(`<?xml version="1.0" encoding="UTF-8"?><Response>${speak("I did not recognize that choice.", request.url)}<Redirect method="POST">${xmlEscape(retry)}</Redirect></Response>`);
 }
