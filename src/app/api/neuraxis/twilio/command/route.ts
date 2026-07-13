@@ -1,4 +1,14 @@
-import { speak, twiml, xmlEscape } from "@/lib/neuraxis-twilio";
+import { after } from "next/server";
+
+import {
+  readTwilioForm,
+  say,
+  speak,
+  twiml,
+  validateTwilioRequest,
+  xmlEscape,
+} from "@/lib/neuraxis-twilio";
+import { appendCallTurn } from "@/lib/neuraxis-call-telemetry";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -77,14 +87,6 @@ async function readHiveStatus(): Promise<HiveStatus> {
   } catch (error) {
     return { ok: false, mode: "HIVE_READ_FAILED", error: error instanceof Error ? error.message : "Unknown Hive read failure" };
   }
-}
-
-async function readCommand(request: Request): Promise<{ text: string; callSid: string }> {
-  const params = new URLSearchParams(await request.text());
-  return {
-    text: `${params.get("SpeechResult") || ""} ${params.get("Digits") || ""}`.trim(),
-    callSid: params.get("CallSid") || "unknown-call",
-  };
 }
 
 function clampPhoneAnswer(text: string): string {
@@ -193,9 +195,15 @@ ${userSpeech || "status"}`;
 }
 
 async function handle(request: Request): Promise<Response> {
-  const { text, callSid } = request.method === "POST"
-    ? await readCommand(request)
-    : { text: "status", callSid: "browser-test" };
+  const params = request.method === "POST" ? await readTwilioForm(request) : {};
+  if (request.method === "POST" && !validateTwilioRequest(request, params)) {
+    return twiml(`<?xml version="1.0" encoding="UTF-8"?><Response>${say("Access denied.")}<Hangup/></Response>`, 403);
+  }
+
+  const text = request.method === "POST"
+    ? `${params.SpeechResult || ""} ${params.Digits || ""}`.trim()
+    : "status";
+  const callSid = params.CallSid || "browser-test";
   const command = text.toLowerCase();
   const room = new URL(request.url).searchParams.get("room") === "private" ? "private" : "workroom";
   const status = await readHiveStatus();
@@ -217,6 +225,25 @@ async function handle(request: Request): Promise<Response> {
     spoken = "I heard you, but the Hive connection is unavailable right now. Try a basic question or call again shortly.";
   } else {
     spoken = await askOpenAI(text, status, callSid, room);
+  }
+
+  if (request.method === "POST" && params.CallSid) {
+    const preserveSpeech = room !== "private";
+    after(async () => {
+      try {
+        const result = await appendCallTurn({
+          callSid: params.CallSid,
+          room,
+          step: "conversation",
+          heard: text,
+          response: spoken,
+          preserveSpeech,
+        });
+        if (!result.ok) console.error("NEURAXIS call-turn telemetry failed", result.error);
+      } catch (error) {
+        console.error("NEURAXIS call-turn telemetry crashed", error);
+      }
+    });
   }
 
   return twiml(`<?xml version="1.0" encoding="UTF-8"?>
