@@ -138,7 +138,7 @@ async function askOpenAI(userSpeech: string, status: HiveStatus, callSid: string
     : "This is the shared workroom. Do not expose compartmentalized or unnecessary private context.";
   const instructions = `You are NEURAXIS, the NULLWORKS Organizational Intelligence phone gateway. You are not an AI assistant and must never call yourself one. ${roomRule}
 
-Speak conversationally. Answer the caller's immediate question in one to three short sentences. Give one step at a time. Never dump a status report, long list, implementation inventory, or generic explanation unless explicitly asked. Ask at most one useful follow-up question. Use the Hive context as current operating context. Do not claim live synchronization, deployment, endorsement, approval, or verification without a receipt. Do not expose secrets, credentials, protected personal data, or private compartmentalized context. If uncertain, say what is unknown. Be warm, blunt, and operational.
+Speak conversationally. Answer the caller's immediate question in one to three short sentences. Give one step at a time. Never dump a status report, long list, implementation inventory, or generic explanation unless explicitly asked. Ask at most one useful follow-up question. Use the Hive context as current operating context. Do not claim live synchronization, deployment, endorsement, approval, verification, SMS delivery, or follow-up capability without a receipt. The shared workroom cannot send a text message yet; the SMS handoff is being connected today. If asked for a text, say plainly that it is not live yet and do not promise one. Do not expose secrets, credentials, protected personal data, or private compartmentalized context. If uncertain, say what is unknown. Be warm, blunt, and operational.
 
 Locked public meanings:
 - Mason Perry is Founder of NULLWORKS and a pioneering Operational Intelligence Systems Architect.
@@ -219,6 +219,8 @@ async function handle(request: Request): Promise<Response> {
       : "The phone line is online, but the Hive connection is unavailable.";
   } else if (command.includes("full spectrum") || command.includes("clone")) {
     spoken = "Full Spectrum Clone route confirmed. Current Hive files come first, Human Authority remains Mason, and unsupported claims stay marked unknown.";
+  } else if (/\b(text me|send me (?:a )?text|sms|follow-up text|message my phone)\b/.test(command)) {
+    spoken = "The SMS follow-up is being connected today and is not live in the shared workroom yet. I will not promise a text the system cannot send.";
   } else if (command.includes("log") || command.includes("receipt") || command.includes("save")) {
     spoken = "I understand the logging request, but this workroom does not have direct writeback enabled yet. Tell Mason what should be preserved and I will keep the request concise.";
   } else if (!status.ok) {
