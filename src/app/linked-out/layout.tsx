@@ -38,6 +38,23 @@ export default function LinkedOutLayout({ children }: { children: ReactNode }) {
           margin: 13px 8px 4px !important;
         }
 
+        .linkedOutRoute .posterWrap .poster {
+          width: min(760px, 100%) !important;
+          margin: 0 auto !important;
+          min-height: 0 !important;
+          aspect-ratio: 2 / 3 !important;
+          padding: 0 !important;
+          border-radius: 24px !important;
+          background: #030405 url("/images/linked-out-afterword-poster.webp") center / contain no-repeat !important;
+          box-shadow: 0 35px 110px rgba(0,0,0,.52) !important;
+        }
+
+        .linkedOutRoute .posterWrap .poster > *,
+        .linkedOutRoute .posterWrap .poster::after,
+        .linkedOutRoute .posterWrap .caption {
+          display: none !important;
+        }
+
         @media (min-width: 1000px) {
           .linkedOutRoute .hero {
             padding-bottom: 90px !important;
@@ -57,6 +74,12 @@ export default function LinkedOutLayout({ children }: { children: ReactNode }) {
 
           .linkedOutRoute .hero .poster img {
             border-radius: 14px !important;
+          }
+
+          .linkedOutRoute .posterWrap .poster {
+            width: 100% !important;
+            padding: 0 !important;
+            border-radius: 18px !important;
           }
         }
       `}</style>
