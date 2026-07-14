@@ -20,7 +20,16 @@ export const metadata: Metadata = {
     "The founding definition, professional scope, field method, and proof system for the Operational Intelligence Systems Architect role.",
 };
 
-const mandates = [
+type Mandate = {
+  icon: typeof Workflow;
+  tag: string;
+  title: string;
+  body: string;
+};
+
+type TextPair = [title: string, body: string];
+
+const mandates: Mandate[] = [
   {
     icon: Workflow,
     tag: "01 // Discover",
@@ -59,7 +68,7 @@ const mandates = [
   },
 ];
 
-const roles = [
+const roles: TextPair[] = [
   ["AI engineer", "Builds and improves intelligent capabilities and model-enabled systems."],
   ["Software engineer", "Builds, tests, secures, scales, and maintains software systems."],
   ["Solutions architect", "Designs technical solutions and integrations around business requirements."],
@@ -68,7 +77,7 @@ const roles = [
   ["OISA", "Designs the combined operating system across humans, AI workers, software, evidence, authority, exceptions, recovery, telemetry, and organizational intent."],
 ];
 
-const method = [
+const method: TextPair[] = [
   ["Observe", "Walk the real work and preserve failures, workarounds, constraints, and operator language."],
   ["Map", "Name the outcome, people, systems, sources, handoffs, rules, authority, and exception path."],
   ["Diagnose", "Determine whether the constraint is workflow, software, data, physical conditions, governance, organization design, or a collision between them."],
@@ -81,7 +90,7 @@ const method = [
   ["Improve", "Version the roles, authority, sources, controls, interfaces, telemetry, and reasons for change."],
 ];
 
-const proofs = [
+const proofs: TextPair[] = [
   ["The Hive", "Continuity, bounded roles, organizational memory, policy enforcement, and failure receipts."],
   ["LenderFlow", "Forward-deployed discovery, messy input to structured data, rule matching, review, and existing-system export."],
   ["LegalFlow", "Source-linked evidence, provenance, uncertainty separation, chronology, and human review."],
