@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { ArrowRight, Mail, ShieldCheck } from "lucide-react";
-import styles from "./oisa.module.css";
+import styles from "./founding.module.css";
 
 export const metadata: Metadata = {
   title: "Operational Intelligence Systems Architect (OISA) | NULLWORKS",
