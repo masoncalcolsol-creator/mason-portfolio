@@ -3,6 +3,7 @@ export default function OisaCategoryPage() {
     <main style={{ minHeight: "100vh", background: "#f4efe4", color: "#171914", padding: "24px" }}>
       <div style={{ width: "min(960px, 100%)", margin: "0 auto" }}>
         <a href="/" style={{ color: "#76551d", fontWeight: 800, textDecoration: "none" }}>NULLWORKS</a>
+        <p style={{ margin: "12px 0 0", color: "#766c59", fontSize: "12px", fontWeight: 750, letterSpacing: "0.04em" }}>Field definition v0.1 · Founded by Mason Perry / NULLWORKS · July 2026</p>
         <p style={{ marginTop: "48px", color: "#8b6520", fontSize: "12px", fontWeight: 900, letterSpacing: "0.16em" }}>EMERGING PROFESSION // FOUNDED THROUGH FIELD WORK</p>
         <h1 style={{ margin: "18px 0 0", fontFamily: "Georgia, serif", fontSize: "clamp(46px, 8vw, 88px)", lineHeight: 0.95, letterSpacing: "-0.055em" }}>Operational Intelligence Systems Architect</h1>
         <h2 style={{ maxWidth: "820px", marginTop: "28px", color: "#4d4639", fontSize: "clamp(20px, 3vw, 30px)", lineHeight: 1.4 }}>The AI engineer builds the worker. The OISA builds the operating company the worker needs.</h2>
