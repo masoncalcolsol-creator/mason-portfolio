@@ -1,40 +1,39 @@
-.mrSlothLuxury{color-scheme:light!important;background:#eee5d2!important;color:#231d18!important;min-height:100vh!important;font-family:Arial,Helvetica,sans-serif!important;forced-color-adjust:none!important}
-.mrSlothLuxury main,.mrSlothLuxury .shell{background:#eee5d2!important;color:#231d18!important}
+.mrSlothLuxury{color-scheme:light!important;background:#efe6d2!important;color:#2b211a!important;min-height:100vh!important;font-family:Georgia,'Times New Roman',serif!important;forced-color-adjust:none!important}
+.mrSlothLuxury,.mrSlothLuxury main,.mrSlothLuxury .shell,.mrSlothLuxury header,.mrSlothLuxury section,.mrSlothLuxury footer{background:#efe6d2!important;background-image:none!important;color:#2b211a!important}
 .mrSlothLuxury .shell{max-width:1120px!important}
-.mrSlothLuxury .nav{background:#1d2928!important;border:1px solid #9f8357!important;border-radius:0 0 18px 18px!important;padding:0 22px!important;color:#f6eddc!important;box-shadow:0 10px 28px rgba(39,30,20,.18)!important}
-.mrSlothLuxury .brand{color:#f6eddc!important}.mrSlothLuxury .brand span{color:#c94831!important}
-.mrSlothLuxury .links,.mrSlothLuxury .links a{color:#f6eddc!important;opacity:1!important}
-.mrSlothLuxury .hero{background:linear-gradient(135deg,#eee5d2 0%,#f8f2e5 55%,#dbc8a5 100%)!important;margin-top:24px!important;padding:46px!important;border:1px solid #aa8a58!important;box-shadow:0 22px 60px rgba(65,48,28,.13)!important}
-.mrSlothLuxury .eyebrow,.mrSlothLuxury .label{color:#9b2f22!important;opacity:1!important}
-.mrSlothLuxury h1,.mrSlothLuxury h2,.mrSlothLuxury h3,.mrSlothLuxury .jpquote{color:#22201b!important;text-shadow:none!important;opacity:1!important}
-.mrSlothLuxury .hero h1 span{color:#34524f!important;opacity:1!important}
-.mrSlothLuxury .lead{color:#3c4d49!important;opacity:1!important}
-.mrSlothLuxury .copy,.mrSlothLuxury .translation,.mrSlothLuxury .boundary,.mrSlothLuxury .card p{color:#554f46!important;opacity:1!important}
-.mrSlothLuxury .primary{background:#9b2f22!important;color:#fff8ec!important;border:1px solid #9b2f22!important}
-.mrSlothLuxury .secondary{background:#f8f2e5!important;color:#324b47!important;border:1px solid #7e6947!important}
-.mrSlothLuxury .heroArt{background-color:#2d3835!important;background-size:contain!important;background-repeat:no-repeat!important;background-position:center!important;border:8px solid #f7efdf!important;outline:1px solid #96794f!important;box-shadow:0 26px 60px rgba(44,34,24,.25)!important;min-height:650px!important;image-rendering:auto!important}
-.mrSlothLuxury section{border-top:1px solid #ad9877!important;background:#eee5d2!important}
-.mrSlothLuxury .card{background:#f8f2e5!important;border:1px solid #bca681!important;box-shadow:0 8px 22px rgba(63,49,31,.08)!important}
-.mrSlothLuxury .card strong{color:#34524f!important;opacity:1!important}
-.mrSlothLuxury .letter{background:#304b47!important;color:#fff8eb!important;border:1px solid #a88958!important;box-shadow:0 16px 40px rgba(40,52,49,.2)!important}
+.mrSlothLuxury .nav{background:#2b2823!important;border:1px solid #8b6b45!important;border-radius:0 0 16px 16px!important;padding:0 22px!important;color:#f7efdf!important;box-shadow:0 10px 28px rgba(39,30,20,.18)!important}
+.mrSlothLuxury .brand,.mrSlothLuxury .brand span,.mrSlothLuxury .links,.mrSlothLuxury .links a{color:#f7efdf!important;opacity:1!important}.mrSlothLuxury .brand span{color:#b23a2a!important}
+.mrSlothLuxury .hero{background:#f6eedf!important;margin-top:24px!important;padding:46px!important;border:1px solid #9f7b50!important;box-shadow:0 22px 60px rgba(65,48,28,.13)!important}
+.mrSlothLuxury .eyebrow,.mrSlothLuxury .label{color:#a33528!important;opacity:1!important;font-family:Arial,Helvetica,sans-serif!important;letter-spacing:.16em!important}
+.mrSlothLuxury h1,.mrSlothLuxury h2,.mrSlothLuxury h3,.mrSlothLuxury .jpquote{color:#2a211a!important;text-shadow:none!important;opacity:1!important}
+.mrSlothLuxury .hero h1 span{color:#7a5b38!important;opacity:1!important}
+.mrSlothLuxury .lead{color:#43372e!important;opacity:1!important}
+.mrSlothLuxury .copy,.mrSlothLuxury .translation,.mrSlothLuxury .boundary,.mrSlothLuxury .card p,.mrSlothLuxury p,.mrSlothLuxury li{color:#5b4b3e!important;opacity:1!important}
+.mrSlothLuxury .primary{background:#a33528!important;color:#fff8eb!important;border:1px solid #77241b!important;font-family:Arial,Helvetica,sans-serif!important}
+.mrSlothLuxury .secondary{background:#efe0c5!important;color:#30251c!important;border:1px solid #8d6c43!important;font-family:Arial,Helvetica,sans-serif!important}
+.mrSlothLuxury .heroArt{background-color:#d7bf96!important;background-size:100% 100%!important;background-repeat:no-repeat!important;background-position:center!important;border:10px solid #f8f0df!important;outline:1px solid #8f6c43!important;box-shadow:0 24px 52px rgba(44,34,24,.24)!important;width:min(100%,420px)!important;aspect-ratio:280/383!important;min-height:0!important;height:auto!important;margin-inline:auto!important;image-rendering:auto!important}
+.mrSlothLuxury section{border-top:1px solid #aa8b65!important;background:#efe6d2!important}
+.mrSlothLuxury .card{background:#f8f0df!important;border:1px solid #b89b72!important;box-shadow:0 8px 22px rgba(63,49,31,.08)!important}
+.mrSlothLuxury .card strong{color:#6b4b2f!important;opacity:1!important}
+.mrSlothLuxury .letter{background:#5a4330!important;color:#fff8eb!important;border:1px solid #9a7449!important;box-shadow:0 16px 40px rgba(40,30,22,.2)!important}
 .mrSlothLuxury .letter h3,.mrSlothLuxury .letter p{color:#fff8eb!important;opacity:1!important}
-.mrSlothLuxury .seal{background:#efe3c9!important;color:#9b2f22!important;border-color:#9b2f22!important}
-.mrSlothLuxury .boundary{background:#f8f2e5!important;border:1px solid #c3ad89!important;border-left:5px solid #9b2f22!important;padding:18px!important}
-.mrSlothLuxury .quote{background:#c9a05e!important;color:#211c15!important;border:1px solid #8d6f42!important;box-shadow:0 12px 30px rgba(70,51,26,.15)!important}
-.mrSlothLuxury .status{background:#f8f2e5!important;border-color:#9d855e!important;color:#2b3936!important}.mrSlothLuxury .dot{background:#9b2f22!important}
-.mrSlothLuxury .footer{color:#665f54!important}
+.mrSlothLuxury .seal{background:#efe3c9!important;color:#a33528!important;border-color:#a33528!important}
+.mrSlothLuxury .boundary{background:#f8f0df!important;border:1px solid #c1a47b!important;border-left:5px solid #a33528!important;padding:18px!important}
+.mrSlothLuxury .quote{background:#cda464!important;color:#251b13!important;border:1px solid #8d6f42!important;box-shadow:0 12px 30px rgba(70,51,26,.15)!important}
+.mrSlothLuxury .status{background:#f8f0df!important;border-color:#9d855e!important;color:#3b2e24!important}.mrSlothLuxury .dot{background:#a33528!important}
+.mrSlothLuxury .footer{color:#66584b!important}
 @media(max-width:820px){
  .mrSlothLuxury .shell{padding:0 14px!important}
  .mrSlothLuxury .nav{margin:0 -14px!important;border-radius:0 0 16px 16px!important;padding:0 18px!important}
  .mrSlothLuxury .hero{margin-top:16px!important;padding:28px 20px!important;gap:22px!important}
  .mrSlothLuxury .hero h1{font-size:54px!important;line-height:.92!important}
  .mrSlothLuxury .lead{font-size:25px!important;line-height:1.25!important}
- .mrSlothLuxury .copy{font-size:17px!important;line-height:1.68!important}
- .mrSlothLuxury .heroArt{min-height:520px!important;background-size:contain!important;background-position:center!important;border-width:6px!important}
+ .mrSlothLuxury .copy,.mrSlothLuxury p{font-size:17px!important;line-height:1.68!important}
+ .mrSlothLuxury .heroArt{width:min(100%,300px)!important;min-height:0!important;aspect-ratio:280/383!important;background-size:100% 100%!important;border-width:7px!important}
  .mrSlothLuxury section{padding:42px 4px!important}
  .mrSlothLuxury h2{font-size:40px!important;line-height:1!important}
  .mrSlothLuxury .card{padding:22px!important}
  .mrSlothLuxury .letter{padding:26px 22px!important}
  .mrSlothLuxury .quote{padding:26px 22px!important;font-size:36px!important}
 }
-@media(max-width:420px){.mrSlothLuxury .heroArt{min-height:470px!important}.mrSlothLuxury .hero h1{font-size:49px!important}.mrSlothLuxury .hero{padding:24px 17px!important}}
+@media(max-width:420px){.mrSlothLuxury .heroArt{width:min(100%,280px)!important}.mrSlothLuxury .hero h1{font-size:49px!important}.mrSlothLuxury .hero{padding:24px 17px!important}}
