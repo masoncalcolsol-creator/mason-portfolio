@@ -29,52 +29,52 @@ type PublicLink = {
 
 const foundations: PublicLink[] = [
   {
-    title: "Operational Intelligence Field Notes",
-    tag: "Start here",
-    body: "A six-part public briefing series explaining the progression from AI assistant to governed digital workforce, OI SUITe, OISA, workflow compression, and Digital Toyota.",
-    auditFit: "Explains the operating doctrine behind the audit.",
-    href: "/field-notes",
-    icon: FileSearch,
+    title: "Operational Systems",
+    tag: "Commercial front door",
+    body: "The real-world problem, industrial operating method, and bridge from physical systems to human-AI operations.",
+    auditFit: "Makes the work legible before asking the visitor to learn new category language.",
+    href: "/operational-systems",
+    icon: Factory,
+  },
+  {
+    title: "Operational Intelligence Systems Architect",
+    tag: "The role",
+    body: "The emerging systems function connecting human experts, AI workers, software, evidence, authority, exceptions, recovery, telemetry, and organizational intent.",
+    auditFit: "Names who owns the whole operating system rather than one technical component.",
+    href: "/oisa-category",
+    icon: UserRoundCheck,
   },
   {
     title: "OI SUITe",
-    tag: "Operating layer",
-    body: "The human-readable system around AI workers: roles, workrooms, evidence, authority, memory, exception paths, review gates, and telemetry.",
-    auditFit: "Defines the layers an audit inspects after the workflow is understood.",
+    tag: "The product",
+    body: "The model-agnostic operating layer around AI workers: roles, workrooms, evidence, authority, continuity, exception paths, review gates, and telemetry.",
+    auditFit: "Defines the framework installed after the real workflow and authority boundary are understood.",
     href: "/field-notes/oi-suite",
     icon: Network,
   },
   {
-    title: "The OI Architect",
-    tag: "OISA role",
-    body: "Why organizations need a systems function that can connect live operations, software, AI, evidence, authority, human judgment, and implementation.",
-    auditFit: "Clarifies when a company needs a permanent or fractional OISA function.",
-    href: "/field-notes/the-oi-architect",
-    icon: UserRoundCheck,
-  },
-  {
-    title: "Da Vinci or Toyota?",
-    tag: "Digital organization",
-    body: "One brilliant generalist can do almost anything. A coordinated company of bounded specialists can do it repeatedly, visibly, and at scale.",
-    auditFit: "Tests whether AI work is organized as a company or trapped inside one overloaded assistant.",
-    href: "/field-notes/da-vinci-vs-toyota",
-    icon: Factory,
-  },
-  {
-    title: "Workflow Compression",
-    tag: "Value measurement",
-    body: "The practical difference between adding tools and changing the operating system: less searching, waiting, retyping, duplication, rework, and uncertainty.",
-    auditFit: "Provides the measurement frame for deciding whether an intervention created value.",
-    href: "/field-notes/horse-cart-to-toyota",
-    icon: Gauge,
-  },
-  {
     title: "AI Operating Model Audit",
-    tag: "Diagnostic front door",
+    tag: "The entry point",
     body: "A workflow-first assessment of whether AI is improving the work, multiplying the mess, or exposing a deeper operating-model problem.",
     auditFit: "Starts with one real workflow and determines the smallest defensible next move.",
     href: "/ai-audit",
     icon: ShieldCheck,
+  },
+  {
+    title: "Operational Intelligence Field Notes",
+    tag: "The doctrine",
+    body: "A six-part public briefing series explaining expert augmentation, digital workforce design, OI SUITe, OISA, workflow compression, and Digital Toyota.",
+    auditFit: "Explains the operating doctrine behind the role and product.",
+    href: "/field-notes",
+    icon: FileSearch,
+  },
+  {
+    title: "Complete Operating Map",
+    tag: "Table of contents",
+    body: "The canonical inventory connecting the role, product, work cells, receipts, research pages, field notes, and external public systems.",
+    auditFit: "Lets each visitor enter the system at the level they already understand.",
+    href: "/operating-map",
+    icon: Boxes,
   },
 ];
 
@@ -86,6 +86,14 @@ const systems: PublicLink[] = [
     auditFit: "Shows how a field exception becomes a system redesign instead of another software feature request.",
     href: "/tac-ops",
     icon: ScanLine,
+  },
+  {
+    title: "LINKED-OUT",
+    tag: "Hiring-system receipt",
+    body: "A field thesis on nonlinear candidates, AI screening, missing whole-path ownership, and the person capable of redesigning the system being rejected by it.",
+    auditFit: "Shows how a filter can optimize each local step while failing the complete organizational outcome.",
+    href: "/linked-out",
+    icon: BriefcaseBusiness,
   },
   {
     title: "LenderFlow / LENA",
@@ -169,7 +177,7 @@ function PublicCard({ item }: { item: PublicLink }) {
       <h3 className={styles.cardTitle}>{item.title}</h3>
       <p className={styles.cardBody}>{item.body}</p>
       <div className={styles.auditFit}>
-        <strong>OISA audit connection</strong>
+        <strong>OISA connection</strong>
         <span>{item.auditFit}</span>
       </div>
       <a
@@ -199,6 +207,9 @@ export default function HomePage() {
           </a>
 
           <div className={styles.headerActions}>
+            <a href="/operating-map" className={styles.headerLink}>
+              <Boxes size={15} /> Page Index
+            </a>
             <a href="/ai-audit" className={styles.headerLink}>
               <ShieldCheck size={15} /> AI Audit
             </a>
@@ -221,12 +232,12 @@ export default function HomePage() {
             </p>
 
             <p className={styles.heroBody}>
-              The digital company does not replace Mason&apos;s physical life. It extends his reach across digital time and space through parallel specialists, memory, evidence, review, and continuity. The projects below test the same OISA thesis: understand the real workflow, preserve authority, expose the exception path, build the smallest useful operating layer, and measure whether the outcome actually improved.
+              The public system is now organized explicitly: OISA is the role. OI SUITe is the product. OI work cells are the deployments. Receipts are the proof. The projects below test the same systems thesis across industrial operations, lending, evidence, hiring, OCR, creative production, voice continuity, and organizational design.
             </p>
 
             <div className={styles.heroActions}>
-              <a href="#start" className={styles.primaryButton}>
-                Explore the operating map <ArrowRight size={17} />
+              <a href="/operating-map" className={styles.primaryButton}>
+                Open the complete operating map <ArrowRight size={17} />
               </a>
               <a href="/ai-audit" className={styles.secondaryButton}>
                 Start with one workflow <ShieldCheck size={17} />
@@ -234,9 +245,9 @@ export default function HomePage() {
             </div>
 
             <div className={styles.proofRow}>
-              <div className={styles.proof}><strong>Industrial reality</strong><span>Automation, logistics, electrical, mechanical, OCR, controls, and fault isolation.</span></div>
-              <div className={styles.proof}><strong>Second digital life</strong><span>Specialist AI roles, scoped workrooms, evidence, review, continuity, and telemetry operating beside the physical one.</span></div>
-              <div className={styles.proof}><strong>One thesis</strong><span>The model may be the worker. The operator still needs the factory.</span></div>
+              <div className={styles.proof}><strong>OISA · The role</strong><span>Own the complete human-AI operating system, not one isolated tool.</span></div>
+              <div className={styles.proof}><strong>OI SUITe · The product</strong><span>Roles, evidence, authority, continuity, review, exceptions, recovery, and telemetry.</span></div>
+              <div className={styles.proof}><strong>Work cells + receipts</strong><span>Bounded deployments measured through real outcomes, corrections, and failures.</span></div>
             </div>
           </div>
 
@@ -264,7 +275,7 @@ export default function HomePage() {
         <section className={styles.thesis}>
           <div className={styles.thesisIntro}>
             <div className={styles.darkEyebrow}>What this portfolio proves</div>
-            <h2 className={styles.thesisTitle}>The work crosses software, operations, evidence, organization design, physical reality, and human judgment.</h2>
+            <h2 className={styles.thesisTitle}>The applications are proof vehicles. The reusable factory is the product.</h2>
           </div>
           <div className={styles.thesisBody}>
             <p>
@@ -280,9 +291,9 @@ export default function HomePage() {
         <section id="start" className={styles.section}>
           <div className={styles.sectionHeader}>
             <div>
-              <div className={styles.sectionEyebrow}>01 // Understand the category</div>
-              <h2 className={styles.sectionTitle}>Start with the operating thesis.</h2>
-              <p className={styles.sectionBody}>These pages explain why organizational capability does not automatically appear when model capability improves.</p>
+              <div className={styles.sectionEyebrow}>01 // Role → product → deployment → proof</div>
+              <h2 className={styles.sectionTitle}>Understand what NULLWORKS actually is.</h2>
+              <p className={styles.sectionBody}>Begin with the real-world operating problem, then move through the OISA role, OI SUITe product, work-cell deployments, and field receipts.</p>
             </div>
           </div>
           <div className={styles.mapGrid}>
@@ -294,7 +305,7 @@ export default function HomePage() {
           <div className={styles.loopHeader}>
             <div className={styles.darkEyebrow}>02 // The OISA operating loop</div>
             <h2 className={styles.loopTitle}>From real workflow to measurable change.</h2>
-            <p className={styles.loopLead}>The projects differ. The systems method stays recognizable.</p>
+            <p className={styles.loopLead}>The domains differ. The systems method stays recognizable.</p>
           </div>
           <div className={styles.loopSteps}>
             {loop.map(([title, body], index) => (
@@ -310,9 +321,9 @@ export default function HomePage() {
         <section className={styles.section}>
           <div className={styles.sectionHeader}>
             <div>
-              <div className={styles.sectionEyebrow}>03 // Working systems and field receipts</div>
-              <h2 className={styles.sectionTitle}>Different domains. The same systems instinct.</h2>
-              <p className={styles.sectionBody}>Each public system tests a different failure boundary: operations, lending, evidence, OCR, talent, creative production, voice continuity, or digital organization.</p>
+              <div className={styles.sectionEyebrow}>03 // OI work cells and field receipts</div>
+              <h2 className={styles.sectionTitle}>Different domains. The same operating architecture.</h2>
+              <p className={styles.sectionBody}>Each public system tests a different failure boundary while preserving the same core pattern: messy input, source evidence, authority, human review, exceptions, recovery, and measurable output.</p>
             </div>
           </div>
           <div className={styles.mapGrid}>
@@ -339,6 +350,7 @@ export default function HomePage() {
           <p className={styles.ctaBody}>We will start with the intended outcome, walk the actual work, preserve what has already been tried, find the constraint, and determine the smallest next test worth running.</p>
           <div className={styles.ctaActions}>
             <a href="/ai-audit" className={styles.primaryButton}>Open the AI Operating Model Audit <ArrowRight size={17} /></a>
+            <a href="/operating-map" className={styles.secondaryButton}><Boxes size={16} /> Browse every public page</a>
             <a href="https://github.com/masoncalcolsol-creator" target="_blank" rel="noreferrer" className={styles.secondaryButton}><GitBranch size={16} /> GitHub receipts</a>
           </div>
         </section>
