@@ -16,6 +16,18 @@ export default function OiSuitePage() {
     >
       <Lead>Most AI products concentrate on the worker: the model, the agent, the prompt, the retrieval layer, or the tool call. The OI SUITe concentrates on the operating environment around the AI Operator.</Lead>
 
+      <div style={{ margin: "28px 0 38px", padding: "24px", borderRadius: "22px", background: "#0b1720", color: "#f7f0df" }}>
+        <div style={{ color: "#efad4f", fontSize: "11px", fontWeight: 900, letterSpacing: ".15em" }}>NULLWORKS PRODUCT ARCHITECTURE</div>
+        <h2 style={{ margin: "12px 0 0", color: "#fff8e8", fontFamily: "Georgia, serif", fontSize: "clamp(28px, 4vw, 42px)", lineHeight: 1.05 }}>OISA is the role. OI SUITe is the product.</h2>
+        <p style={{ margin: "16px 0 0", color: "#c4d0d6", fontSize: "17px", lineHeight: 1.65 }}>The OISA discovers and designs the operating model. The OI SUITe is the model-agnostic framework installed around the work. OI work cells are bounded deployments inside specific workflows. Receipts show whether the intervention actually created value.</p>
+        <div style={{ display: "flex", flexWrap: "wrap", gap: "10px", marginTop: "20px" }}>
+          <a href="/oisa-category" style={{ padding: "11px 15px", borderRadius: "999px", background: "#efad4f", color: "#111820", fontWeight: 900, textDecoration: "none" }}>01 // OISA role</a>
+          <a href="/operating-map#work-cells" style={{ padding: "11px 15px", borderRadius: "999px", border: "1px solid #546b78", color: "#f7f0df", fontWeight: 900, textDecoration: "none" }}>03 // Work cells</a>
+          <a href="/operating-map#receipts" style={{ padding: "11px 15px", borderRadius: "999px", border: "1px solid #546b78", color: "#f7f0df", fontWeight: 900, textDecoration: "none" }}>04 // Receipts</a>
+          <a href="/operating-map" style={{ padding: "11px 15px", borderRadius: "999px", border: "1px solid #546b78", color: "#f7f0df", fontWeight: 900, textDecoration: "none" }}>Full operating map</a>
+        </div>
+      </div>
+
       <P>A useful organization is not merely a collection of intelligent people. It is also priorities, roles, permissions, handoffs, records, workspaces, standards, escalation paths, quality gates, decisions, and feedback. A useful AI workforce needs the same kinds of coordinating structures—translated into a form humans can inspect and control.</P>
 
       <Quote>The AI Operator coordinates capability. Operational Intelligence is the connected operating system around the workforce.</Quote>
