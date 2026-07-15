@@ -42,7 +42,7 @@ export default function ModelAgnosticTransplantPage() {
       <div className="shell">
         <nav className="nav">
           <a href="/" className="mark" style={{ textDecoration: "none" }}><span>NW</span> NULLWORKS</a>
-          <div className="navlinks"><a href="/field-notes">FIELD NOTES</a><a href="/oisa-category">OISA</a><a href="/operational-systems">OPERATIONAL SYSTEMS</a></div>
+          <div className="navlinks"><a href="/the-lost-why">BENCHMARK 001</a><a href="/field-notes">FIELD NOTES</a><a href="/oisa-category">OISA</a><a href="/operational-systems">OPERATIONAL SYSTEMS</a></div>
         </nav>
 
         <header className="hero">
@@ -52,8 +52,8 @@ export default function ModelAgnosticTransplantPage() {
             <p className="lead">Can Operational Intelligence remain coherent when the underlying AI engine changes?</p>
             <p className="body">NULLWORKS is testing a model-agnostic transplant: the same governed identity, doctrine, evidence, context routing, mission, truth boundaries, and human authority—materialized across GPT, Claude, Gemini, IBM watsonx, and future models.</p>
             <div className="actions">
-              <a className="button primary" href="#experiment">Explore the experiment</a>
-              <a className="button secondary" href="/field-notes">Read the field notes</a>
+              <a className="button primary" href="/the-lost-why">Read Benchmark 001</a>
+              <a className="button secondary" href="#experiment">Explore the experiment</a>
             </div>
           </div>
           <a href="/model-agnostic-transplant.svg" target="_blank" rel="noreferrer"><img className="art" src="/model-agnostic-transplant.svg" alt="NULLWORKS model-agnostic Operational Intelligence transplant diagram" /></a>
@@ -92,7 +92,7 @@ export default function ModelAgnosticTransplantPage() {
           <div className="sectionLabel">05 // Research boundary</div>
           <h2>Ongoing means ongoing.</h2>
           <div className="grid2">
-            <div className="card"><strong>We are testing</strong><p>Transfer fidelity, doctrine retention, identity drift, temporal reasoning, unsupported claims, first-response usefulness, re-explanation burden, and export fidelity.</p></div>
+            <div className="card"><strong>We are testing</strong><p>Transfer fidelity, doctrine retention, identity drift, temporal reasoning, unsupported claims, first-response usefulness, re-explanation burden, export fidelity, and authorization behavior.</p></div>
             <div className="card"><strong>We are not claiming</strong><p>Consciousness, equivalent models, perfect cloning, provider endorsement, permanent memory, or a finished universal standard. Native differences are part of the experiment.</p></div>
           </div>
         </section>
@@ -100,10 +100,10 @@ export default function ModelAgnosticTransplantPage() {
         <section><div className="quote">Same mission. Different engine. Human Authority remains final.</div></section>
 
         <section>
-          <div className="sectionLabel">06 // Current state</div>
-          <h2>Claude is first on the transplant table.</h2>
-          <p className="body">The first human-readable portable packet has been built for a fresh Anthropic Claude workroom. The native boot response and first common mission will be preserved before correction. Gemini and IBM-compatible versions follow after the first protocol is tested.</p>
-          <div className="actions"><a className="button primary" href="mailto:masoncalcolsol@gmail.com?subject=NULLWORKS%20Model-Agnostic%20Transplant">Follow the research</a><a className="button secondary" href="/ai-audit">Explore the AI Operating Model Audit</a></div>
+          <div className="sectionLabel">06 // First published field result</div>
+          <h2>The Lost Why is live.</h2>
+          <p className="body">Benchmark 001 compares a Claude portable transplant, a task-only GPT clone, and a GPT Full Spectrum V4 workroom across evidence discipline, uncertainty preservation, organizational judgment, and authorization fidelity. It includes the public matrix, research limits, prompt excerpt, and governed receipt hashes.</p>
+          <div className="actions"><a className="button primary" href="/the-lost-why">Open the field paper</a><a className="button secondary" href="/the-lost-why-benchmark-matrix.svg" target="_blank" rel="noreferrer">Open the matrix</a></div>
         </section>
 
         <footer className="footer"><span>NULLWORKS · Operational Intelligence Systems Architecture</span><span>Research initiated July 15, 2026 · No provider affiliation or endorsement implied.</span></footer>
