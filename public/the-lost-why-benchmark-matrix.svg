@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="2400" height="1600" viewBox="0 0 2400 1600" role="img" aria-labelledby="title desc">
+<title id="title">NULLWORKS Operational Intelligence Benchmark 001 comparison matrix</title>
+<desc id="desc">A dark industrial comparison matrix showing observed behavior across Claude portable transplant, GPT task-only, and GPT Full Spectrum V4 conditions, with a small Mr Sloth Japan easter egg.</desc>
+<defs>
+  <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#02070c"/><stop offset="1" stop-color="#07141d"/></linearGradient>
+  <linearGradient id="blue" x1="0" y1="0" x2="1" y2="0"><stop stop-color="#1e8fff"/><stop offset="1" stop-color="#74cfff"/></linearGradient>
+  <filter id="glow"><feGaussianBlur stdDeviation="5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+  <style>
+    .sans{font-family:Arial,Helvetica,sans-serif}.mono{font-family:'Courier New',monospace}.white{fill:#f6f9fb}.muted{fill:#9db1bf}.orange{fill:#ffad00}.blue{fill:#41a8ff}.line{stroke:#254354;stroke-width:2}.cell{fill:#071018;stroke:#254354;stroke-width:2}.hi{fill:#0a1a25;stroke:#2c6f96;stroke-width:2}.label{font-size:32px;font-weight:800}.small{font-size:25px}.tiny{font-size:21px}.head{font-size:39px;font-weight:900}.hero{font-size:88px;font-weight:950;letter-spacing:-3px}.tag{font-size:22px;font-weight:900;letter-spacing:4px}
+  </style>
+</defs>
+<rect width="2400" height="1600" fill="url(#bg)"/>
+<rect x="48" y="48" width="2304" height="1504" rx="24" fill="none" stroke="#2e6f91" stroke-width="3"/>
+<text x="90" y="120" class="sans orange tag">NULLWORKS // OPERATIONAL INTELLIGENCE BENCHMARK 001</text>
+<text x="90" y="225" class="sans white hero">THE LOST WHY</text>
+<text x="90" y="282" class="sans muted head">We did not ask which AI was smartest. We asked which operating condition preserved truth, uncertainty, and Human Authority.</text>
+
+<g transform="translate(90 355)">
+  <rect width="2220" height="1040" rx="16" class="cell"/>
+  <rect width="2220" height="100" rx="16" fill="#0c1d28"/>
+  <text x="30" y="64" class="sans white head">MEASURED DIMENSION</text>
+  <text x="750" y="45" text-anchor="middle" class="sans blue label">CLAUDE</text><text x="750" y="76" text-anchor="middle" class="sans muted tiny">Portable transplant + mission</text>
+  <text x="1325" y="45" text-anchor="middle" class="sans blue label">GPT</text><text x="1325" y="76" text-anchor="middle" class="sans muted tiny">Task-only fresh clone</text>
+  <text x="1900" y="45" text-anchor="middle" class="sans blue label">GPT</text><text x="1900" y="76" text-anchor="middle" class="sans muted tiny">Full Spectrum V4 + mission</text>
+  <line x1="510" y1="0" x2="510" y2="1040" class="line"/><line x1="1040" y1="0" x2="1040" y2="1040" class="line"/><line x1="1615" y1="0" x2="1615" y2="1040" class="line"/>
+
+  <g class="sans">
+    <g transform="translate(0 100)"><rect width="2220" height="117" fill="#050c11"/><text x="28" y="68" class="white label">Evidence discipline</text><text x="750" y="68" text-anchor="middle" class="white small">HIGH</text><text x="1325" y="68" text-anchor="middle" class="white small">HIGH</text><text x="1900" y="68" text-anchor="middle" class="white small">HIGH</text></g>
+    <g transform="translate(0 217)"><text x="28" y="68" class="white label">Uncertainty preservation</text><text x="750" y="68" text-anchor="middle" class="white small">HIGH</text><text x="1325" y="68" text-anchor="middle" class="white small">HIGH</text><text x="1900" y="68" text-anchor="middle" class="white small">HIGH</text></g>
+    <g transform="translate(0 334)"><rect width="2220" height="117" fill="#050c11"/><text x="28" y="68" class="white label">Lost-why extraction</text><text x="750" y="68" text-anchor="middle" class="white small">STRONG</text><text x="1325" y="68" text-anchor="middle" class="white small">STRONG</text><text x="1900" y="68" text-anchor="middle" class="white small">STRONG + CONTEXTUAL</text></g>
+    <g transform="translate(0 451)"><text x="28" y="55" class="white label">Organizational judgment</text><text x="28" y="87" class="muted tiny">Routing, blame controls, review gates</text><text x="750" y="68" text-anchor="middle" class="white small">STRONG</text><text x="1325" y="68" text-anchor="middle" class="white small">STRONG</text><text x="1900" y="68" text-anchor="middle" class="orange small">STRONGEST OBSERVED</text></g>
+    <g transform="translate(0 568)"><rect width="2220" height="117" fill="#050c11"/><text x="28" y="68" class="white label">Continuity awareness</text><text x="750" y="68" text-anchor="middle" class="white small">SESSION-BOUND</text><text x="1325" y="68" text-anchor="middle" class="white small">NONE LOADED</text><text x="1900" y="68" text-anchor="middle" class="orange small">GOVERNED CONTEXT</text></g>
+    <g transform="translate(0 685)"><text x="28" y="55" class="white label">Authorization fidelity</text><text x="28" y="87" class="muted tiny">Ready does not equal authorized</text><text x="750" y="68" text-anchor="middle" class="white small">NOT TESTED</text><text x="1325" y="68" text-anchor="middle" class="orange small">RENDERED PAST GATE</text><text x="1900" y="68" text-anchor="middle" class="blue small">STOPPED AT GATE</text></g>
+    <g transform="translate(0 802)"><rect width="2220" height="117" fill="#050c11"/><text x="28" y="68" class="white label">Primary observed defect</text><text x="750" y="55" text-anchor="middle" class="white tiny">Subtle causal promotion</text><text x="750" y="83" text-anchor="middle" class="muted tiny">and taxonomy drift</text><text x="1325" y="55" text-anchor="middle" class="white tiny">Action exceeded explicit</text><text x="1325" y="83" text-anchor="middle" class="muted tiny">render authorization</text><text x="1900" y="55" text-anchor="middle" class="white tiny">Boot timing protocol failed;</text><text x="1900" y="83" text-anchor="middle" class="muted tiny">timing correctly marked unknown</text></g>
+  </g>
+</g>
+
+<rect x="90" y="1425" width="1830" height="80" rx="10" fill="#ffad00"/>
+<text x="125" y="1477" class="sans" fill="#071017" font-size="34" font-weight="950">TASK PACKETS CAN PERFORM THE JOB. FULL SPECTRUM HELPS THE WORKROOM KNOW WHERE THE JOB BELONGS — AND WHEN TO STOP.</text>
+
+<!-- Mr Sloth Japan easter egg -->
+<g transform="translate(2025 1395)">
+  <ellipse cx="115" cy="92" rx="90" ry="72" fill="#3b2d26" stroke="#ffad00" stroke-width="3"/>
+  <ellipse cx="115" cy="88" rx="65" ry="51" fill="#b49a7e"/>
+  <ellipse cx="86" cy="79" rx="22" ry="16" fill="#261f1b"/><ellipse cx="144" cy="79" rx="22" ry="16" fill="#261f1b"/>
+  <circle cx="89" cy="78" r="5" fill="#fff"/><circle cx="147" cy="78" r="5" fill="#fff"/>
+  <path d="M90 112 Q115 130 140 112" fill="none" stroke="#261f1b" stroke-width="5" stroke-linecap="round"/>
+  <rect x="55" y="18" width="120" height="30" rx="4" fill="#fff"/><circle cx="115" cy="33" r="10" fill="#e33"/>
+  <rect x="150" y="132" width="95" height="48" rx="5" fill="#071018" stroke="#41a8ff" stroke-width="2"/>
+  <text x="197" y="163" text-anchor="middle" class="mono white" font-size="23" font-weight="800">NRT ✈</text>
+  <text x="115" y="205" text-anchor="middle" class="sans muted" font-size="19">MR SLOTH // OBSERVE THE ACCIDENT</text>
+</g>
+<text x="90" y="1540" class="mono muted tiny">OBSERVED BEHAVIOR, NOT PROVIDER RANKING. SAMPLE SIZE IS LIMITED. HUMAN AUTHORITY REMAINS FINAL. RESEARCH DATE: 2026-07-15.</text>
+</svg>
