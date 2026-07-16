@@ -28,8 +28,7 @@ export const metadata: Metadata = {
     "A proposed classroom pilot where students create, compare, and discuss curriculum-grounded songs in genres they already care about.",
 };
 
-const ALBUM_ART =
-  "https://raw.githubusercontent.com/masoncalcolsol-creator/mason-portfolio/af16798917f82934117d6aa939516fcdea4fc1cc/public/learn-it-loud/big-ditch-energy-slothers.svg";
+const ALBUM_ART = "/learn-it-loud/album-art?v=3";
 
 const subjectExamples = [
   "The Panama Canal",
