@@ -1,6 +1,4 @@
 import type { Metadata } from "next";
-import { readFileSync } from "node:fs";
-import path from "node:path";
 import {
   ArrowLeft,
   ArrowRight,
@@ -30,27 +28,11 @@ export const metadata: Metadata = {
     "A proposed classroom pilot where students create, compare, and discuss curriculum-grounded songs in genres they already care about.",
 };
 
-const albumArtSvg = readFileSync(
-  path.join(
-    process.cwd(),
-    "public",
-    "learn-it-loud",
-    "big-ditch-energy-slothers.svg",
-  ),
-  "utf8",
-);
-const albumArtMatch = albumArtSvg.match(
-  /href="data:image\/jpeg;base64,([^"]+)"/s,
-);
-
-if (!albumArtMatch) {
-  throw new Error("Big Ditch Energy album-art payload is missing.");
-}
-
-// Decode the image out of the SVG wrapper during the production build and
-// send the browser a direct JPEG data URI. This removes both the failing API
-// route and the Android SVG/progressive-JPEG rendering problem.
-const ALBUM_ART = `data:image/jpeg;base64,${albumArtMatch[1]}`;
+// Match the working Mr. Sloth implementation: one ordinary <img> pointed
+// directly at a stable image URL. No API route, no runtime fetch, no embed,
+// no data URI, and no image transformation layer.
+const ALBUM_ART =
+  "https://mason-portfolio-main.vercel.app/learn-it-loud/big-ditch-energy-slothers.svg?v=7";
 
 const subjectExamples = [
   "The Panama Canal",
@@ -146,6 +128,8 @@ export default function LearnItLoudPage() {
               src={ALBUM_ART}
               alt="Big Ditch Energy by Kikigaki and the Slothers, a ska sloth band performing beside the Panama Canal"
               className={styles.albumArt}
+              loading="eager"
+              decoding="async"
             />
             <a
               href="https://suno.com/s/hUAYoK5UBjL1Wgaa"
