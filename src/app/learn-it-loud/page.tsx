@@ -112,24 +112,25 @@ export default function LearnItLoudPage() {
             <p>
               One song is not the product. It demonstrates the compressed production loop that makes the classroom exercise possible.
             </p>
-            <a className={styles.sunoLink} href="https://suno.com/s/hUAYoK5UBjL1Wgaa" target="_blank" rel="noreferrer">
-              Open the original song on Suno <ArrowRight size={16} />
-            </a>
           </div>
           <div className={styles.playerCard}>
             <div className={styles.playerHeader}>
               <span><Music2 size={18} /> CLASSROOM DEMO</span>
               <small>Panama Canal · ska-inspired</small>
             </div>
-            <iframe
-              title="Big Ditch Energy by NULLWORKS on Suno"
-              src="https://suno.com/embed/hUAYoK5UBjL1Wgaa"
-              className={styles.player}
-              allow="autoplay; encrypted-media; fullscreen"
+            <img
+              src="/learn-it-loud/big-ditch-energy-slothers.svg"
+              alt="Big Ditch Energy by Kikigaki and the Slothers, a ska sloth band performing beside the Panama Canal"
+              className={styles.albumArt}
             />
-            <div className={styles.playerFallback}>
-              Player not loading? <a href="https://suno.com/s/hUAYoK5UBjL1Wgaa" target="_blank" rel="noreferrer">Play it directly on Suno.</a>
-            </div>
+            <a
+              href="https://suno.com/s/hUAYoK5UBjL1Wgaa"
+              target="_blank"
+              rel="noreferrer"
+              className={styles.playButton}
+            >
+              <Play size={18} /> Play Big Ditch Energy
+            </a>
           </div>
         </section>
 
