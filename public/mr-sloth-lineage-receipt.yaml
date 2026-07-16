@@ -1,0 +1,219 @@
+schema_name: architecture_lineage_receipt
+schema_version: "0.1"
+receipt_id: "NW-LINEAGE-MR-SLOTH-001"
+created_at: "2026-07-16"
+updated_at: "2026-07-16"
+
+artifact:
+  title: "ナマケモノ氏 / Mr. Sloth"
+  artifact_type: "governed cultural identity"
+  current_status: "active"
+  description: >-
+    A deliberately authorized NULLWORKS cultural role whose current identity is informed by,
+    but not retroactively validated by, an earlier mistaken label.
+
+human_authority:
+  final_authority_name: "Mason Perry"
+  authority_basis: "Founder and final Human Authority for NULLWORKS organizational canon"
+  approval_status: "approved"
+  approval_receipt: "Current governed organizational context and explicit reauthorization"
+
+origin:
+  problem_first_identified_by: "Not applicable; the first occurrence was an unsupported labeling error"
+  originating_concepts:
+    - concept: "Mr. Sloth as an accidental incorrect label"
+      originator: "UNKNOWN"
+      first_fixed_at: "Sequence event E-001; exact timestamp not asserted in this receipt"
+      supporting_artifact: "Preserved conversation and organizational correction record"
+      evidence_class: "USER_REPORTED"
+    - concept: "ナマケモノ氏 as KIKIGAKI’s First Observer"
+      originator: "Mason Perry / NULLWORKS"
+      first_fixed_at: "Sequence event E-004; exact timestamp not asserted in this receipt"
+      supporting_artifact: "Explicit Human Authority reauthorization"
+      evidence_class: "USER_REPORTED"
+  first_working_instantiation:
+    created_by: "Mason Perry with AI-assisted organizational documentation"
+    created_at: "Exact timestamp not asserted"
+    artifact: "Authorized KIKIGAKI First Observer role"
+    status: "active"
+
+source_artifacts:
+  - artifact_id: "SRC-001"
+    title: "Original mistaken Mr. Sloth label"
+    artifact_type: "conversation record"
+    created_at: "Exact timestamp not asserted"
+    location: "Governed organizational history"
+    integrity_receipt: "Historical mistake preserved rather than erased"
+    notes: "Not authoritative organizational truth"
+  - artifact_id: "SRC-002"
+    title: "Correction removing the mistaken identity from canon"
+    artifact_type: "correction record"
+    created_at: "Exact timestamp not asserted"
+    location: "Governed organizational history"
+    integrity_receipt: "Current truth changed; historical event retained"
+    notes: "Human Authority correction"
+  - artifact_id: "SRC-003"
+    title: "Explicit reauthorization as ナマケモノ氏 / KIKIGAKI First Observer"
+    artifact_type: "authorization record"
+    created_at: "Exact timestamp not asserted"
+    location: "Current governed organizational context"
+    integrity_receipt: "New role authorized separately from the original error"
+    notes: "Authoritative current identity"
+
+access_record:
+  - actor: "NULLWORKS workrooms"
+    accessed_artifact: "Preserved correction history"
+    accessed_at: "During governed reorientation and continuity work"
+    access_basis: "authorized"
+    supporting_receipt: "Permitted organizational context"
+
+lineage_events:
+  - event_id: "E-001"
+    sequence: 1
+    event_type: "origin"
+    occurred_at: "Exact timestamp not asserted"
+    actor: "UNKNOWN"
+    authority: "none established"
+    input_artifacts: []
+    action: "An unsupported label, Mr. Sloth, appeared in output"
+    output_artifacts:
+      - "Mistaken identity reference"
+    what_changed: "A non-authoritative identity entered the visible record"
+    what_did_not_change: "NULLWORKS organizational canon and Human Authority"
+    model_contribution: "The system produced or propagated the unsupported label"
+    human_contribution: "No supported human authorization at this stage"
+    evidence:
+      - "Preserved historical correction context"
+    uncertainty: "Exact originating workroom and timestamp are not asserted here"
+
+  - event_id: "E-002"
+    sequence: 2
+    event_type: "correction"
+    occurred_at: "Exact timestamp not asserted"
+    actor: "Mason Perry"
+    authority: "Final Human Authority"
+    input_artifacts:
+      - "Mistaken identity reference"
+    action: "Removed Mr. Sloth from authoritative organizational canon"
+    output_artifacts:
+      - "Corrected organizational record"
+    what_changed: "Current authoritative truth"
+    what_did_not_change: "The fact that the mistake had occurred"
+    model_contribution: "Assisted in applying and documenting the correction"
+    human_contribution: "Identified the error and issued the authoritative correction"
+    evidence:
+      - "Governed correction record"
+    uncertainty: "None regarding the authority boundary"
+
+  - event_id: "E-003"
+    sequence: 3
+    event_type: "transformation"
+    occurred_at: "After E-002"
+    actor: "NULLWORKS continuity system"
+    authority: "Mason Perry"
+    input_artifacts:
+      - "Mistaken identity reference"
+      - "Corrected organizational record"
+    action: "Preserved the mistake as a continuity scar instead of deleting it"
+    output_artifacts:
+      - "Reviewable error lineage"
+    what_changed: "The mistake gained evidentiary value as a historical receipt"
+    what_did_not_change: "The mistake remained non-authoritative"
+    model_contribution: "Preserved and explained the lineage distinction"
+    human_contribution: "Authorized preservation of the scar"
+    evidence:
+      - "Continuity record"
+    uncertainty: "Exact storage implementation may vary by workroom"
+
+  - event_id: "E-004"
+    sequence: 4
+    event_type: "reauthorization"
+    occurred_at: "After E-003"
+    actor: "Mason Perry"
+    authority: "Final Human Authority"
+    input_artifacts:
+      - "Reviewable error lineage"
+      - "KIKIGAKI cultural role design"
+    action: "Deliberately authorized a new Mr. Sloth identity as ナマケモノ氏, KIKIGAKI’s First Observer"
+    output_artifacts:
+      - "Current governed Mr. Sloth role"
+    what_changed: "A new, valid identity and mission entered the canon"
+    what_did_not_change: "The original unsupported label did not become retroactively valid"
+    model_contribution: "Helped reconstruct, express, and document the new role"
+    human_contribution: "Originated or approved the role, mission, authority, and canon status"
+    evidence:
+      - "Explicit Human Authority reauthorization"
+    uncertainty: "No uninterrupted historical identity is claimed"
+
+transformation_analysis:
+  preserved_elements:
+    - "The name Mr. Sloth"
+    - "The historical memory of the original error"
+  renamed_elements:
+    - original: "Unsupported accidental label"
+      replacement: "ナマケモノ氏 / governed KIKIGAKI First Observer"
+  formalized_elements:
+    - "Role"
+    - "Mission"
+    - "Authority boundary"
+    - "Lineage distinction"
+  recombined_elements:
+    - "Prior error scar"
+    - "KIKIGAKI continuity doctrine"
+    - "Deliberate cultural identity design"
+  genuinely_added_elements:
+    - "First Observer role"
+    - "Explicit Human Authority authorization"
+    - "Current governed mission"
+  removed_attribution: []
+  unresolved_similarity: []
+
+ai_contribution:
+  provider: "Multiple NULLWORKS workrooms may have participated"
+  model: "Not fixed by this receipt"
+  role: "reconstruction | documentation | continuity support"
+  source_context_supplied: "Governed organizational context and Human Authority corrections"
+  outputs_produced:
+    - "Lineage explanation"
+    - "Structured receipt"
+    - "Role documentation"
+  disclosed_limitations:
+    - "AI involvement does not establish origination"
+    - "Exact dates and original workroom are not asserted without receipts"
+  independent_origination_claimed: false
+
+classification:
+  current: "acknowledged_influence"
+  confidence: "high"
+  supporting_reasons:
+    - "The current identity explicitly draws from a preserved earlier error"
+    - "Human Authority separately authorized the later role"
+    - "The record preserves the discontinuity between error and valid role"
+  contradictory_evidence: []
+  unresolved_questions:
+    - "Exact timestamp and workroom of the first mistaken label"
+  classified_by: "Mason Perry / NULLWORKS"
+  classified_at: "2026-07-16"
+
+current_boundary:
+  evidence_supports:
+    - "The first Mr. Sloth label was an unsupported error"
+    - "The error was corrected without erasing its history"
+    - "A later, separate role was deliberately authorized"
+    - "The current role is informed by the prior scar"
+  evidence_does_not_support:
+    - "That Mr. Sloth was always part of NULLWORKS"
+    - "That the original label had authority"
+    - "That later authorization retroactively validates the original error"
+  next_required_receipt:
+    - "Exact source timestamp if a date-precise public chronology is needed"
+
+legal_and_ethics_boundary:
+  statement: >-
+    This receipt is an organizational provenance example. It preserves identity history,
+    correction, influence, and authorization for human review. It is not a legal conclusion.
+
+signoff:
+  human_authority: "Mason Perry"
+  signed_at: "2026-07-16"
+  disposition: "accept"
