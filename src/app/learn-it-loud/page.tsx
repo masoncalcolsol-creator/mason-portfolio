@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import { readFileSync } from "node:fs";
+import path from "node:path";
 import {
   ArrowLeft,
   ArrowRight,
@@ -28,7 +30,27 @@ export const metadata: Metadata = {
     "A proposed classroom pilot where students create, compare, and discuss curriculum-grounded songs in genres they already care about.",
 };
 
-const ALBUM_ART = "/learn-it-loud/album-art?v=3";
+const albumArtSvg = readFileSync(
+  path.join(
+    process.cwd(),
+    "public",
+    "learn-it-loud",
+    "big-ditch-energy-slothers.svg",
+  ),
+  "utf8",
+);
+const albumArtMatch = albumArtSvg.match(
+  /href="data:image\/jpeg;base64,([^"]+)"/s,
+);
+
+if (!albumArtMatch) {
+  throw new Error("Big Ditch Energy album-art payload is missing.");
+}
+
+// Decode the image out of the SVG wrapper during the production build and
+// send the browser a direct JPEG data URI. This removes both the failing API
+// route and the Android SVG/progressive-JPEG rendering problem.
+const ALBUM_ART = `data:image/jpeg;base64,${albumArtMatch[1]}`;
 
 const subjectExamples = [
   "The Panama Canal",
