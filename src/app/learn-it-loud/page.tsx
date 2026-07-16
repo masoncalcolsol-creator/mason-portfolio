@@ -16,7 +16,6 @@ import {
   Play,
   ShieldCheck,
   SlidersHorizontal,
-  Sparkles,
   ThumbsUp,
   Users,
   WandSparkles,
@@ -267,7 +266,7 @@ export default function LearnItLoudPage() {
             </p>
           </div>
           <div className={styles.invitationButtons}>
-            <a href="mailto:mason@nullworks.ai?subject=Learn%20It%20Loud%20Pilot" className={styles.primaryButton}>Discuss the pilot <ArrowRight size={17} /></a>
+            <a href="/" className={styles.primaryButton}>Open Mason’s portfolio <ArrowRight size={17} /></a>
             <a href="https://suno.com/s/hUAYoK5UBjL1Wgaa" target="_blank" rel="noreferrer" className={styles.secondaryButton}>Hear Big Ditch Energy <Play size={17} /></a>
           </div>
         </section>
