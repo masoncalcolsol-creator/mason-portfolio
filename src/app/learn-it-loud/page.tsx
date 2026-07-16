@@ -28,6 +28,11 @@ export const metadata: Metadata = {
     "A proposed classroom pilot where students create, compare, and discuss curriculum-grounded songs in genres they already care about.",
 };
 
+// Match the proven Mr. Sloth implementation: a normal <img> pointed at a
+// stable, immutable image URL instead of an embedded player or generated wrapper.
+const ALBUM_ART =
+  "https://raw.githubusercontent.com/masoncalcolsol-creator/mason-portfolio/32a2ddbfbcf2c9967e0a8edb83be8be2662748be/public/learn-it-loud/big-ditch-energy-slothers.svg";
+
 const subjectExamples = [
   "The Panama Canal",
   "The Bill of Rights",
@@ -119,7 +124,7 @@ export default function LearnItLoudPage() {
               <small>Panama Canal · ska-inspired</small>
             </div>
             <img
-              src="/learn-it-loud/big-ditch-energy-slothers.svg"
+              src={ALBUM_ART}
               alt="Big Ditch Energy by Kikigaki and the Slothers, a ska sloth band performing beside the Panama Canal"
               className={styles.albumArt}
             />
