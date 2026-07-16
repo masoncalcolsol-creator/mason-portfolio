@@ -1,30 +1,37 @@
-import { readFile } from "node:fs/promises";
-import path from "node:path";
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
 
-export const dynamic = "force-static";
+const SOURCE_SVG =
+  "https://raw.githubusercontent.com/masoncalcolsol-creator/mason-portfolio/main/public/learn-it-loud/big-ditch-energy-slothers.svg";
 
 export async function GET() {
-  const svgPath = path.join(
-    process.cwd(),
-    "public",
-    "learn-it-loud",
-    "big-ditch-energy-slothers.svg",
-  );
+  try {
+    const source = await fetch(SOURCE_SVG, { cache: "no-store" });
 
-  const svg = await readFile(svgPath, "utf8");
-  const match = svg.match(/href="data:image\/jpeg;base64,([^"]+)"/s);
+    if (!source.ok) {
+      return new Response(`Album art source failed: ${source.status}`, {
+        status: 502,
+      });
+    }
 
-  if (!match) {
-    return new Response("Album art payload not found", { status: 404 });
+    const svg = await source.text();
+    const match = svg.match(/href="data:image\/jpeg;base64,([^"]+)"/s);
+
+    if (!match) {
+      return new Response("Album art payload not found", { status: 404 });
+    }
+
+    const image = Buffer.from(match[1], "base64");
+
+    return new Response(new Uint8Array(image), {
+      headers: {
+        "Content-Type": "image/jpeg",
+        "Content-Length": String(image.byteLength),
+        "Cache-Control": "public, max-age=86400, s-maxage=86400",
+      },
+    });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Unknown error";
+    return new Response(`Album art route failed: ${message}`, { status: 500 });
   }
-
-  const image = Buffer.from(match[1], "base64");
-
-  return new Response(image, {
-    headers: {
-      "Content-Type": "image/jpeg",
-      "Content-Length": String(image.byteLength),
-      "Cache-Control": "public, max-age=31536000, immutable",
-    },
-  });
 }
