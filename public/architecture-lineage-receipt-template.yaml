@@ -1,0 +1,125 @@
+schema_name: architecture_lineage_receipt
+schema_version: "0.1"
+receipt_id: ""
+created_at: ""
+updated_at: ""
+
+artifact:
+  title: ""
+  artifact_type: "architecture | research | product | identity | workflow | other"
+  current_status: "draft | active | retired | disputed | unresolved"
+  description: ""
+
+human_authority:
+  final_authority_name: ""
+  authority_basis: ""
+  approval_status: "pending | approved | rejected | unresolved"
+  approval_receipt: ""
+
+origin:
+  problem_first_identified_by: ""
+  originating_concepts:
+    - concept: ""
+      originator: ""
+      first_fixed_at: ""
+      supporting_artifact: ""
+      evidence_class: "FACT | USER_REPORTED | AI_INFERENCE | UNKNOWN"
+  first_working_instantiation:
+    created_by: ""
+    created_at: ""
+    artifact: ""
+    status: ""
+
+source_artifacts:
+  - artifact_id: ""
+    title: ""
+    artifact_type: "post | file | diagram | prototype | commit | recording | other"
+    created_at: ""
+    location: ""
+    integrity_receipt: ""
+    notes: ""
+
+access_record:
+  - actor: ""
+    accessed_artifact: ""
+    accessed_at: ""
+    access_basis: "public | authorized | inferred | unknown"
+    supporting_receipt: ""
+
+lineage_events:
+  - event_id: "E-001"
+    sequence: 1
+    event_type: "origin | exposure | transformation | correction | retirement | reauthorization | publication | dispute"
+    occurred_at: ""
+    actor: ""
+    authority: ""
+    input_artifacts:
+      - ""
+    action: ""
+    output_artifacts:
+      - ""
+    what_changed: ""
+    what_did_not_change: ""
+    model_contribution: ""
+    human_contribution: ""
+    evidence:
+      - ""
+    uncertainty: ""
+
+transformation_analysis:
+  preserved_elements:
+    - ""
+  renamed_elements:
+    - original: ""
+      replacement: ""
+  formalized_elements:
+    - ""
+  recombined_elements:
+    - ""
+  genuinely_added_elements:
+    - ""
+  removed_attribution:
+    - ""
+  unresolved_similarity:
+    - ""
+
+ai_contribution:
+  provider: ""
+  model: ""
+  role: "retrieval | reconstruction | comparison | translation | generation | review | other"
+  source_context_supplied: ""
+  outputs_produced:
+    - ""
+  disclosed_limitations:
+    - ""
+  independent_origination_claimed: false
+
+classification:
+  current: "independent_convergence | acknowledged_influence | derivative_reconstruction | unattributed_duplication | unresolved"
+  confidence: "low | medium | high"
+  supporting_reasons:
+    - ""
+  contradictory_evidence:
+    - ""
+  unresolved_questions:
+    - ""
+  classified_by: ""
+  classified_at: ""
+
+current_boundary:
+  evidence_supports:
+    - ""
+  evidence_does_not_support:
+    - ""
+  next_required_receipt:
+    - ""
+
+legal_and_ethics_boundary:
+  statement: >-
+    This receipt preserves chronology, attribution, access, transformation, and uncertainty for human review.
+    It is not, by itself, a legal determination of ownership, infringement, inventorship, or liability.
+
+signoff:
+  human_authority: ""
+  signed_at: ""
+  disposition: "accept | revise | quarantine | reject | unresolved"
