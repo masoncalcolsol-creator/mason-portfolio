@@ -18,25 +18,47 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v6
 
-      - name: Verify clean mobile test URL
-        env:
-          URL: https://cdn.jsdelivr.net/gh/masoncalcolsol-creator/mason-portfolio@d451ef3e54eb0af477c25a34bc185a21047fde7c/public/nullworks-scroll-lab.html
+      - name: Find a direct clean HTML endpoint
         run: |
           set -euo pipefail
-          curl --fail --location --silent --show-error \
-            --dump-header headers.txt \
-            --output page.html \
-            "$URL"
-          grep -qi '^content-type: text/html' headers.txt
-          grep -q '<title>NULLWORKS Scroll Lab</title>' page.html
-          grep -q 'THE COMPANY' page.html
+          COMMIT=d451ef3e54eb0af477c25a34bc185a21047fde7c
+          CANDIDATES=(
+            "https://cdn.jsdelivr.net/gh/masoncalcolsol-creator/mason-portfolio@${COMMIT}/public/nullworks-scroll-lab.html"
+            "https://rawcdn.githack.com/masoncalcolsol-creator/mason-portfolio/${COMMIT}/public/nullworks-scroll-lab.html"
+            "https://cdn.statically.io/gh/masoncalcolsol-creator/mason-portfolio/${COMMIT}/public/nullworks-scroll-lab.html"
+          )
+          WINNER=""
+          : > diagnostics.txt
+          for URL in "${CANDIDATES[@]}"; do
+            rm -f headers.txt page.html
+            STATUS=$(curl --location --silent --show-error \
+              --dump-header headers.txt \
+              --output page.html \
+              --write-out '%{http_code}' \
+              "$URL" || true)
+            TYPE=$(grep -i '^content-type:' headers.txt | tail -1 | tr -d '\r' || true)
+            TITLE=no
+            HERO=no
+            grep -q '<title>NULLWORKS Scroll Lab</title>' page.html 2>/dev/null && TITLE=yes || true
+            grep -q 'THE COMPANY' page.html 2>/dev/null && HERO=yes || true
+            printf 'URL=%s\nHTTP=%s\n%s\nTITLE=%s\nHERO=%s\n---\n' "$URL" "$STATUS" "$TYPE" "$TITLE" "$HERO" | tee -a diagnostics.txt
+            if [[ "$STATUS" == "200" ]] && echo "$TYPE" | grep -qi 'text/html' && [[ "$TITLE" == yes ]] && [[ "$HERO" == yes ]]; then
+              WINNER="$URL"
+              break
+            fi
+          done
+          if [[ -z "$WINNER" ]]; then
+            echo 'No clean direct HTML endpoint passed all checks.' >&2
+            cat diagnostics.txt >&2
+            exit 1
+          fi
           {
             echo "NULLWORKS_SCROLL_LAB_LIVE=VERIFIED"
-            echo "URL=$URL"
+            echo "URL=$WINNER"
             echo "VERIFIED_AT=$(date -u +'%Y-%m-%dT%H:%M:%SZ')"
-            echo "SOURCE_COMMIT=d451ef3e54eb0af477c25a34bc185a21047fde7c"
-            grep -i '^content-type:' headers.txt | tr -d '\r'
-            grep -i '^x-jsd-version:' headers.txt | tr -d '\r' || true
+            echo "SOURCE_COMMIT=$COMMIT"
+            echo
+            cat diagnostics.txt
           } > public/nullworks-scroll-lab-live-receipt.txt
 
       - name: Commit verification receipt
