@@ -16,17 +16,20 @@ function token() {
     || "";
 }
 
-async function github(path: string, init: RequestInit = {}) {
+function headers(contentType = true) {
+  return {
+    Accept: "application/vnd.github+json",
+    Authorization: `Bearer ${token()}`,
+    "X-GitHub-Api-Version": "2022-11-28",
+    "user-agent": "NULLWORKS-Mr-Smith-Image-Ingest",
+    ...(contentType ? { "content-type": "application/json" } : {}),
+  };
+}
+
+async function githubRest(path: string, init: RequestInit = {}) {
   const response = await fetch(`https://api.github.com/repos/${REPO}${path}`, {
     ...init,
-    headers: {
-      Accept: "application/vnd.github+json",
-      Authorization: `Bearer ${token()}`,
-      "X-GitHub-Api-Version": "2022-11-28",
-      "content-type": "application/json",
-      "user-agent": "NULLWORKS-Mr-Smith-Image-Ingest",
-      ...(init.headers || {}),
-    },
+    headers: { ...headers(), ...(init.headers || {}) },
     cache: "no-store",
   });
 
@@ -42,25 +45,88 @@ async function github(path: string, init: RequestInit = {}) {
 async function lockExists() {
   const response = await fetch(
     `https://api.github.com/repos/${REPO}/contents/${LOCK_PATH}?ref=${BRANCH}`,
-    {
-      headers: {
-        Accept: "application/vnd.github+json",
-        Authorization: `Bearer ${token()}`,
-        "X-GitHub-Api-Version": "2022-11-28",
-        "user-agent": "NULLWORKS-Mr-Smith-Image-Ingest",
-      },
-      cache: "no-store",
-    },
+    { headers: headers(false), cache: "no-store" },
   );
   return response.ok;
 }
 
-async function createTextBlob(content: string) {
-  const result = await github("/git/blobs", {
+async function commitWithGraphQL(writes: Array<{ path: string; content: string }>) {
+  const headRef = await githubRest(`/git/ref/heads/${BRANCH}`);
+  const expectedHeadOid = String(headRef.object.sha);
+  const query = `
+    mutation InstallChainsawPhotos($input: CreateCommitOnBranchInput!) {
+      createCommitOnBranch(input: $input) {
+        commit { oid url }
+      }
+    }
+  `;
+  const variables = {
+    input: {
+      branch: { repositoryNameWithOwner: REPO, branchName: BRANCH },
+      message: { headline: "Install chainsaw photos with Mr Smith asset pipeline" },
+      expectedHeadOid,
+      fileChanges: {
+        additions: writes.map((write) => ({
+          path: write.path,
+          contents: Buffer.from(write.content, "utf8").toString("base64"),
+        })),
+      },
+    },
+  };
+
+  const response = await fetch("https://api.github.com/graphql", {
     method: "POST",
-    body: JSON.stringify({ content, encoding: "utf-8" }),
+    headers: headers(),
+    body: JSON.stringify({ query, variables }),
+    cache: "no-store",
   });
-  return String(result.sha);
+  const result = await response.json() as Record<string, any>;
+  if (!response.ok || result.errors?.length || !result.data?.createCommitOnBranch?.commit?.oid) {
+    throw new Error(`GitHub GraphQL ${response.status}: ${JSON.stringify(result.errors || result).slice(0, 900)}`);
+  }
+  return String(result.data.createCommitOnBranch.commit.oid);
+}
+
+function encodePath(path: string) {
+  return path.split("/").map(encodeURIComponent).join("/");
+}
+
+async function putContent(path: string, content: string, message: string) {
+  let sha: string | undefined;
+  const current = await fetch(
+    `https://api.github.com/repos/${REPO}/contents/${encodePath(path)}?ref=${BRANCH}`,
+    { headers: headers(false), cache: "no-store" },
+  );
+  if (current.ok) {
+    const data = await current.json() as Record<string, any>;
+    sha = String(data.sha || "") || undefined;
+  } else if (current.status !== 404) {
+    throw new Error(`GitHub ${current.status}: unable to inspect ${path}`);
+  }
+
+  const result = await githubRest(`/contents/${encodePath(path)}`, {
+    method: "PUT",
+    body: JSON.stringify({
+      message,
+      branch: BRANCH,
+      content: Buffer.from(content, "utf8").toString("base64"),
+      ...(sha ? { sha } : {}),
+    }),
+  });
+  return String(result.commit?.sha || "");
+}
+
+async function commitWithContentsApi(writes: Array<{ path: string; content: string }>) {
+  let lastCommit = "";
+  for (let index = 0; index < writes.length; index += 1) {
+    const write = writes[index];
+    lastCommit = await putContent(
+      write.path,
+      write.content,
+      `Install chainsaw photo payload ${index + 1}/${writes.length}`,
+    );
+  }
+  return lastCommit;
 }
 
 export async function POST(request: Request) {
@@ -95,21 +161,9 @@ export async function POST(request: Request) {
         { length: Math.ceil(payload.length / CHUNK_SIZE) },
         (_, chunkIndex) => payload.slice(chunkIndex * CHUNK_SIZE, (chunkIndex + 1) * CHUNK_SIZE),
       );
-
-      chunks.forEach((chunk, chunkIndex) => {
-        writes.push({
-          path: `src/app/chainsaw/photo-data/photo${index}-chunks/chunk${chunkIndex}.ts`,
-          content: `export default ${JSON.stringify(chunk)};\n`,
-        });
-      });
-
-      const imports = chunks
-        .map((_, chunkIndex) => `import chunk${chunkIndex} from "./photo${index}-chunks/chunk${chunkIndex}";`)
-        .join("\n");
-      const joined = chunks.map((_, chunkIndex) => `chunk${chunkIndex}`).join(" + ");
       writes.push({
         path: `src/app/chainsaw/photo-data/photo${index}.ts`,
-        content: `${imports}\n\nexport const photo${index} = ${joined};\n`,
+        content: `export const photo${index} = [\n${chunks.map((chunk) => `  ${JSON.stringify(chunk)}`).join(",\n")}\n].join("");\n`,
       });
     }
 
@@ -129,40 +183,21 @@ export async function POST(request: Request) {
       content: `export const chainsawPhotoUploadComplete = ${JSON.stringify(new Date().toISOString())};\n`,
     });
 
-    const headRef = await github(`/git/ref/heads/${BRANCH}`);
-    const parentSha = String(headRef.object.sha);
-    const parentCommit = await github(`/git/commits/${parentSha}`);
-
-    const blobEntries = await Promise.all(
-      writes.map(async (write) => ({
-        path: write.path,
-        mode: "100644",
-        type: "blob",
-        sha: await createTextBlob(write.content),
-      })),
-    );
-
-    const tree = await github("/git/trees", {
-      method: "POST",
-      body: JSON.stringify({ base_tree: parentCommit.tree.sha, tree: blobEntries }),
-    });
-    const commit = await github("/git/commits", {
-      method: "POST",
-      body: JSON.stringify({
-        message: `Install ${files.length} chainsaw photos with Mr Smith asset pipeline`,
-        tree: tree.sha,
-        parents: [parentSha],
-      }),
-    });
-    await github(`/git/refs/heads/${BRANCH}`, {
-      method: "PATCH",
-      body: JSON.stringify({ sha: commit.sha, force: false }),
-    });
+    let commit = "";
+    let transport = "graphql-createCommitOnBranch";
+    try {
+      commit = await commitWithGraphQL(writes);
+    } catch (graphqlError) {
+      transport = "contents-api-fallback";
+      commit = await commitWithContentsApi(writes);
+      if (!commit) throw graphqlError;
+    }
 
     return Response.json({
       ok: true,
       count: files.length,
-      commit: commit.sha,
+      commit,
+      transport,
       message: "Photo payload committed. Vercel deployment is starting.",
     });
   } catch (error) {
