@@ -50,24 +50,24 @@ export default function ChainsawPage() {
         a{color:inherit}
         .page{min-height:100vh;background:radial-gradient(circle at 84% 0%,rgba(216,77,0,.10),transparent 25%),linear-gradient(180deg,#f4ecdf 0%,#dfd2be 100%);font-family:Arial,Helvetica,sans-serif;color:#101820}
         .shell{width:min(1120px,100%);margin:auto;padding:0 24px}
-        .nav{height:76px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #725f49;color:#101820}
-        .brand{font-weight:950;letter-spacing:.15em;text-decoration:none;font-size:14px;color:#101820}.brand span{color:#c84400}
-        .back{display:inline-flex;align-items:center;gap:8px;text-decoration:none;font-size:13px;font-weight:900;color:#101820}
-        .hero{display:grid;grid-template-columns:1.05fr .95fr;gap:42px;align-items:center;padding:68px 0 74px;border-bottom:1px solid #87745e}
-        .heroCopy{background:#fffaf2;border:1px solid #806c54;padding:34px;box-shadow:10px 10px 0 rgba(200,68,0,.15);color:#101820}
-        .kicker{display:inline-flex;align-items:center;gap:8px;font-size:12px;font-weight:950;letter-spacing:.14em;text-transform:uppercase;color:#8d2e00}
-        h1,h2,h3{margin:0;color:#101820;letter-spacing:-.045em}
-        h1{font-size:clamp(58px,9vw,108px);line-height:.86;margin-top:22px}
-        h1 span{display:block;color:#c84400}
-        .lead{font-family:Georgia,serif;font-size:clamp(28px,4vw,42px);line-height:1.23;margin:28px 0 0;color:#101820!important;font-weight:700;text-shadow:none!important;opacity:1!important}
+        .page .nav{height:76px;display:flex;align-items:center;justify-content:space-between;border:0!important;border-bottom:1px solid #725f49!important;background:transparent!important;border-radius:0!important;padding:0!important;box-shadow:none!important;backdrop-filter:none!important;color:#101820!important}
+        .page .brand{margin:0!important;font-weight:950;letter-spacing:.15em;text-decoration:none;font-size:14px;color:#101820!important}.page .brand span{color:#c84400!important}
+        .page .back{display:inline-flex;align-items:center;gap:8px;text-decoration:none;font-size:13px;font-weight:900;color:#101820!important}
+        .page .hero{display:grid;grid-template-columns:1.05fr .95fr;gap:42px;align-items:center;padding:68px 0 74px!important;border-bottom:1px solid #87745e}
+        .heroCopy{background:#fffaf2;border:1px solid #806c54;padding:34px;box-shadow:10px 10px 0 rgba(200,68,0,.15);color:#101820!important}
+        .page .kicker{display:inline-flex;align-items:center;gap:8px;font-size:12px;font-weight:950;letter-spacing:.14em;text-transform:uppercase;color:#8d2e00!important}
+        .page h1,.page h2,.page h3{margin:0;color:#101820;letter-spacing:-.045em}
+        .page .hero h1{max-width:none!important;font-size:clamp(58px,9vw,108px)!important;line-height:.86!important;margin:22px 0 0!important;color:#101820!important;font-weight:950!important;letter-spacing:-.045em!important;opacity:1!important;text-shadow:none!important;-webkit-text-fill-color:#101820!important}
+        .page .hero h1 span{display:block;color:#c84400!important;-webkit-text-fill-color:#c84400!important}
+        .page .lead,.page .hero .lead{font-family:Georgia,serif;font-size:clamp(28px,4vw,42px)!important;line-height:1.23!important;margin:28px 0 0;color:#101820!important;font-weight:700;text-shadow:none!important;opacity:1!important;-webkit-text-fill-color:#101820!important}
         .copy{font-size:18px;line-height:1.78;color:#20262c!important;max-width:760px;opacity:1!important;text-shadow:none!important}
-        .heroCopy .copy{margin-bottom:0;color:#20262c!important}
+        .heroCopy .copy{margin-bottom:0;color:#20262c!important;-webkit-text-fill-color:#20262c!important}
         .actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:28px}
         .button{display:inline-flex;align-items:center;justify-content:center;gap:9px;padding:15px 18px;text-decoration:none;font-weight:950;border:1px solid #101820;text-transform:uppercase;letter-spacing:.04em;font-size:12px}
         .primary{background:#d84d00;color:#fff;border-color:#923300}.secondary{background:#101820;color:#fff;border-color:#101820}.ghost{background:#fffaf2;color:#101820;border-color:#62513d}
         .visual{position:relative;min-height:590px;background:#121922;border:1px solid #101820;box-shadow:18px 18px 0 #d84d00;overflow:hidden}
         .visual:before{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(9,14,20,.04),rgba(9,14,20,.88)),url("${SUNO_PREVIEW}") center/cover no-repeat;filter:saturate(.80) contrast(1.12)}
-        .visual.hasPhoto:before{background:linear-gradient(180deg,rgba(9,14,20,.03),rgba(9,14,20,.86)),url("/api/assets/chainsaw/0?v=mr-smith-v1") center/cover no-repeat;filter:saturate(.92) contrast(1.06)}
+        .visual.hasPhoto:before{background:linear-gradient(180deg,rgba(9,14,20,.03),rgba(9,14,20,.86)),url("/api/assets/chainsaw/0?v=mr-smith-v2") center/cover no-repeat;filter:saturate(.92) contrast(1.06)}
         .visualText{position:absolute;inset:auto 28px 30px;z-index:1;color:#fff}.visualText small{display:block;font-weight:950;letter-spacing:.14em;color:#ff9a60;margin-bottom:12px}.visualText strong{display:block;font-family:Georgia,serif;font-size:42px;line-height:1.02;color:#fff}.visualText span{display:block;margin-top:14px;color:#fff;line-height:1.5;text-shadow:0 1px 3px #000}
         section{padding:70px 0;border-bottom:1px solid #87745e}.eyebrow{font-size:12px;font-weight:950;letter-spacing:.17em;text-transform:uppercase;color:#8d2e00;margin-bottom:14px}.sectionTitle{font-size:clamp(42px,6vw,76px);line-height:1;margin-bottom:24px;color:#101820}
         .statement{background:#101820;color:#fff;padding:42px;border-left:8px solid #d84d00;font-family:Georgia,serif;font-size:clamp(34px,5vw,64px);line-height:1.12}.statement em{color:#ff8a4a;font-style:normal}
@@ -79,7 +79,7 @@ export default function ChainsawPage() {
         .final{display:grid;grid-template-columns:1fr auto;gap:28px;align-items:center}.final h2{font-size:clamp(48px,8vw,94px);line-height:.9;color:#101820}.final h2 span{color:#c84400}.badge{width:190px;height:190px;border-radius:50%;background:#101820;color:#fff;display:grid;place-items:center;text-align:center;font-weight:950;letter-spacing:.08em;border:10px solid #d84d00}
         footer{padding:34px 0 58px;font-size:13px;color:#20262c;display:flex;justify-content:space-between;gap:18px;flex-wrap:wrap}footer span{display:inline-flex;align-items:center;gap:7px}
         @media(max-width:780px){
-          .shell{padding:0 16px}.nav{height:68px}.hero{grid-template-columns:1fr;padding:34px 0 54px;gap:28px}.heroCopy{padding:24px 20px;box-shadow:7px 7px 0 rgba(200,68,0,.16)}.heroCopy,.heroCopy *{opacity:1!important}.heroCopy .lead{color:#101820!important;font-size:31px}.heroCopy .copy{color:#20262c!important;font-size:16px}.visual{min-height:470px;box-shadow:10px 10px 0 #d84d00}.visualText{inset:auto 20px 22px}.visualText strong{font-size:34px}.photoGallery{grid-template-columns:1fr}.photoFrame:first-child{grid-column:auto}.photoFrame img,.photoFrame:first-child img{min-height:0;aspect-ratio:auto;max-height:none}.storyGrid,.music,.final{grid-template-columns:1fr}.rules{grid-template-columns:1fr}.dark{margin:0 -16px;padding-left:16px;padding-right:16px}.timelineItem{grid-template-columns:1fr;gap:7px}.statement{padding:28px 22px}.copy{font-size:16px}.badge{width:150px;height:150px}.sectionTitle{font-size:43px}section{padding:52px 0}.songCard{min-height:360px}.button{width:100%}.actions{display:grid;grid-template-columns:1fr}.nav .back{font-size:0}.nav .back svg{width:20px;height:20px}}
+          .shell{padding:0 16px}.page .nav{height:68px}.page .hero{grid-template-columns:1fr;padding:34px 0 54px!important;gap:28px}.heroCopy{padding:24px 20px;box-shadow:7px 7px 0 rgba(200,68,0,.16)}.heroCopy,.heroCopy *{opacity:1!important}.page .hero h1{font-size:clamp(56px,18vw,82px)!important;line-height:.84!important;color:#101820!important;-webkit-text-fill-color:#101820!important}.page .hero h1 span{color:#c84400!important;-webkit-text-fill-color:#c84400!important}.page .heroCopy .lead{color:#101820!important;font-size:31px!important;-webkit-text-fill-color:#101820!important}.heroCopy .copy{color:#20262c!important;font-size:16px;-webkit-text-fill-color:#20262c!important}.visual{min-height:470px;box-shadow:10px 10px 0 #d84d00}.visualText{inset:auto 20px 22px}.visualText strong{font-size:34px}.photoGallery{grid-template-columns:1fr}.photoFrame:first-child{grid-column:auto}.photoFrame img,.photoFrame:first-child img{min-height:0;aspect-ratio:auto;max-height:none}.storyGrid,.music,.final{grid-template-columns:1fr}.rules{grid-template-columns:1fr}.dark{margin:0 -16px;padding-left:16px;padding-right:16px}.timelineItem{grid-template-columns:1fr;gap:7px}.statement{padding:28px 22px}.copy{font-size:16px}.badge{width:150px;height:150px}.sectionTitle{font-size:43px}section{padding:52px 0}.songCard{min-height:360px}.button{width:100%}.actions{display:grid;grid-template-columns:1fr}.page .nav .back{font-size:0}.page .nav .back svg{width:20px;height:20px}}
       `}</style>
 
       <div className="page">
@@ -116,7 +116,7 @@ export default function ChainsawPage() {
               <div className="photoGallery">
                 {Array.from({ length: chainsawPhotoCount }, (_, index) => (
                   <figure className="photoFrame" key={index}>
-                    <img src={`/api/assets/chainsaw/${index}?v=mr-smith-v1`} alt={`Inherited orange Stihl chainsaw field photo ${index + 1}`} />
+                    <img src={`/api/assets/chainsaw/${index}?v=mr-smith-v2`} alt={`Inherited orange Stihl chainsaw field photo ${index + 1}`} />
                     <figcaption>{index === 0 ? "The operator and the inherited saw" : `Field receipt ${String(index + 1).padStart(2, "0")}`}</figcaption>
                   </figure>
                 ))}
