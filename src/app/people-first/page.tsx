@@ -86,7 +86,7 @@ export default function PeopleFirstPage() {
 
           <figure className={styles.photoFrame}>
             <img
-              src="/api/assets/people-first-driveway?v=20260716-2"
+              src="/api/assets/people-first-driveway?v=20260717-1"
               alt="Two young people working in a driveway, one sanding wood and one repairing a vehicle"
               className={styles.photo}
             />
