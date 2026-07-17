@@ -12,6 +12,7 @@ import {
   UserRoundCheck,
   Wrench,
 } from "lucide-react";
+import { chainsawPhotoCount } from "./photo-manifest";
 
 export const metadata: Metadata = {
   title: "Still Starts | AI Is a Tool",
@@ -66,9 +67,11 @@ export default function ChainsawPage() {
         .primary{background:#d84d00;color:#fff;border-color:#923300}.secondary{background:#101820;color:#fff;border-color:#101820}.ghost{background:#fffaf2;color:#101820;border-color:#62513d}
         .visual{position:relative;min-height:590px;background:#121922;border:1px solid #101820;box-shadow:18px 18px 0 #d84d00;overflow:hidden}
         .visual:before{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(9,14,20,.04),rgba(9,14,20,.88)),url("${SUNO_PREVIEW}") center/cover no-repeat;filter:saturate(.80) contrast(1.12)}
+        .visual.hasPhoto:before{background:linear-gradient(180deg,rgba(9,14,20,.03),rgba(9,14,20,.86)),url("/api/assets/chainsaw/0?v=mr-smith-v1") center/cover no-repeat;filter:saturate(.92) contrast(1.06)}
         .visualText{position:absolute;inset:auto 28px 30px;z-index:1;color:#fff}.visualText small{display:block;font-weight:950;letter-spacing:.14em;color:#ff9a60;margin-bottom:12px}.visualText strong{display:block;font-family:Georgia,serif;font-size:42px;line-height:1.02;color:#fff}.visualText span{display:block;margin-top:14px;color:#fff;line-height:1.5;text-shadow:0 1px 3px #000}
         section{padding:70px 0;border-bottom:1px solid #87745e}.eyebrow{font-size:12px;font-weight:950;letter-spacing:.17em;text-transform:uppercase;color:#8d2e00;margin-bottom:14px}.sectionTitle{font-size:clamp(42px,6vw,76px);line-height:1;margin-bottom:24px;color:#101820}
         .statement{background:#101820;color:#fff;padding:42px;border-left:8px solid #d84d00;font-family:Georgia,serif;font-size:clamp(34px,5vw,64px);line-height:1.12}.statement em{color:#ff8a4a;font-style:normal}
+        .photoGallery{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}.photoFrame{margin:0;background:#101820;border:1px solid #101820;padding:10px;box-shadow:10px 10px 0 #d84d00}.photoFrame:first-child{grid-column:1/-1}.photoFrame img{display:block;width:100%;height:100%;max-height:760px;min-height:280px;object-fit:cover;background:#101820}.photoFrame:first-child img{aspect-ratio:4/5}.photoFrame figcaption{padding:13px 8px 4px;color:#fff;font-size:12px;font-weight:900;letter-spacing:.08em;text-transform:uppercase}
         .storyGrid{display:grid;grid-template-columns:.9fr 1.1fr;gap:28px;align-items:start}.legacyCard{background:#fff8ee;border:1px solid #6d5f4e;padding:28px;color:#101820;box-shadow:8px 8px 0 rgba(216,77,0,.18)}.legacyCard svg{color:#d84d00}.legacyCard h3{font-size:34px;margin:18px 0 12px;color:#101820}.legacyCard p{margin:0;color:#20262c;line-height:1.72}
         .rules{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin-top:28px}.rule{background:#fffaf3;border:1px solid #766957;padding:24px;color:#101820}.rule svg{color:#d84d00}.rule strong{display:block;font-size:22px;margin:12px 0 10px;color:#101820}.rule p{margin:0;line-height:1.7;color:#20262c}
         .dark{background:#101820;color:#fff;margin:0 -24px;padding-left:24px;padding-right:24px}.dark .sectionTitle,.dark h3{color:#fff}.dark .eyebrow{color:#ff8a4a}.dark .copy{color:#eef2f5!important}.timeline{display:grid;gap:12px;margin-top:30px}.timelineItem{display:grid;grid-template-columns:180px 1fr;gap:22px;padding:20px 0;border-top:1px solid #52606c}.timelineItem strong{color:#ff9a60;font-size:18px}.timelineItem span{color:#fff;line-height:1.62}.proofFooter{display:flex;justify-content:space-between;align-items:center;gap:20px;margin-top:28px;padding-top:24px;border-top:1px solid #52606c;flex-wrap:wrap}.proofFooter>span{display:inline-flex;align-items:center;gap:8px;color:#fff;font-weight:850}
@@ -76,7 +79,7 @@ export default function ChainsawPage() {
         .final{display:grid;grid-template-columns:1fr auto;gap:28px;align-items:center}.final h2{font-size:clamp(48px,8vw,94px);line-height:.9;color:#101820}.final h2 span{color:#c84400}.badge{width:190px;height:190px;border-radius:50%;background:#101820;color:#fff;display:grid;place-items:center;text-align:center;font-weight:950;letter-spacing:.08em;border:10px solid #d84d00}
         footer{padding:34px 0 58px;font-size:13px;color:#20262c;display:flex;justify-content:space-between;gap:18px;flex-wrap:wrap}footer span{display:inline-flex;align-items:center;gap:7px}
         @media(max-width:780px){
-          .shell{padding:0 16px}.nav{height:68px}.hero{grid-template-columns:1fr;padding:34px 0 54px;gap:28px}.heroCopy{padding:24px 20px;box-shadow:7px 7px 0 rgba(200,68,0,.16)}.heroCopy,.heroCopy *{opacity:1!important}.heroCopy .lead{color:#101820!important;font-size:31px}.heroCopy .copy{color:#20262c!important;font-size:16px}.visual{min-height:470px;box-shadow:10px 10px 0 #d84d00}.visualText{inset:auto 20px 22px}.visualText strong{font-size:34px}.storyGrid,.music,.final{grid-template-columns:1fr}.rules{grid-template-columns:1fr}.dark{margin:0 -16px;padding-left:16px;padding-right:16px}.timelineItem{grid-template-columns:1fr;gap:7px}.statement{padding:28px 22px}.copy{font-size:16px}.badge{width:150px;height:150px}.sectionTitle{font-size:43px}section{padding:52px 0}.songCard{min-height:360px}.button{width:100%}.actions{display:grid;grid-template-columns:1fr}.nav .back{font-size:0}.nav .back svg{width:20px;height:20px}}
+          .shell{padding:0 16px}.nav{height:68px}.hero{grid-template-columns:1fr;padding:34px 0 54px;gap:28px}.heroCopy{padding:24px 20px;box-shadow:7px 7px 0 rgba(200,68,0,.16)}.heroCopy,.heroCopy *{opacity:1!important}.heroCopy .lead{color:#101820!important;font-size:31px}.heroCopy .copy{color:#20262c!important;font-size:16px}.visual{min-height:470px;box-shadow:10px 10px 0 #d84d00}.visualText{inset:auto 20px 22px}.visualText strong{font-size:34px}.photoGallery{grid-template-columns:1fr}.photoFrame:first-child{grid-column:auto}.photoFrame img,.photoFrame:first-child img{min-height:0;aspect-ratio:auto;max-height:none}.storyGrid,.music,.final{grid-template-columns:1fr}.rules{grid-template-columns:1fr}.dark{margin:0 -16px;padding-left:16px;padding-right:16px}.timelineItem{grid-template-columns:1fr;gap:7px}.statement{padding:28px 22px}.copy{font-size:16px}.badge{width:150px;height:150px}.sectionTitle{font-size:43px}section{padding:52px 0}.songCard{min-height:360px}.button{width:100%}.actions{display:grid;grid-template-columns:1fr}.nav .back{font-size:0}.nav .back svg{width:20px;height:20px}}
       `}</style>
 
       <div className="page">
@@ -97,7 +100,7 @@ export default function ChainsawPage() {
                 <a className="button secondary" href="#proof"><ArrowRight size={17}/> See the receipt</a>
               </div>
             </div>
-            <div className="visual" role="img" aria-label="They Don't Make Them Like Us Anymore chainsaw song artwork">
+            <div className={`visual ${chainsawPhotoCount > 0 ? "hasPhoto" : ""}`} role="img" aria-label="Mason Perry with the inherited orange Stihl chainsaw">
               <div className="visualText"><small>OLD STEEL // NEW TOOL</small><strong>They Don’t Make Them Like Us Anymore</strong><span>Dad’s old orange Stihl. Beat up, inherited, heavy, loud—and still ready when there is work at the door.</span></div>
             </div>
           </header>
@@ -105,6 +108,21 @@ export default function ChainsawPage() {
           <section>
             <div className="statement">The danger is real. <em>So is the leverage.</em></div>
           </section>
+
+          {chainsawPhotoCount > 0 && (
+            <section>
+              <p className="eyebrow">THE ACTUAL TOOL // ACTUAL RECEIPTS</p>
+              <h2 className="sectionTitle">Old steel. Real scars. Still working.</h2>
+              <div className="photoGallery">
+                {Array.from({ length: chainsawPhotoCount }, (_, index) => (
+                  <figure className="photoFrame" key={index}>
+                    <img src={`/api/assets/chainsaw/${index}?v=mr-smith-v1`} alt={`Inherited orange Stihl chainsaw field photo ${index + 1}`} />
+                    <figcaption>{index === 0 ? "The operator and the inherited saw" : `Field receipt ${String(index + 1).padStart(2, "0")}`}</figcaption>
+                  </figure>
+                ))}
+              </div>
+            </section>
+          )}
 
           <section>
             <div className="storyGrid">
