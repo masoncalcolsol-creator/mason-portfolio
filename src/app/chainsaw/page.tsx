@@ -9,7 +9,6 @@ import {
   Music2,
   Play,
   ShieldAlert,
-  Sparkles,
   UserRoundCheck,
   Wrench,
 } from "lucide-react";
