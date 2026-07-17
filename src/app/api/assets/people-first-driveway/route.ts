@@ -10,7 +10,7 @@ export function GET() {
       "Content-Type": "image/webp",
       "Content-Length": String(image.byteLength),
       "Cache-Control": "public, max-age=31536000, immutable",
-      "X-NULLWORKS-Asset": "people-first-driveway-v1",
+      "X-NULLWORKS-Asset": "people-first-driveway-v2",
     },
   });
 }
