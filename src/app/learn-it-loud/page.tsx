@@ -21,18 +21,13 @@ import {
   WandSparkles,
 } from "lucide-react";
 import styles from "./page.module.css";
+import { ALBUM_ART_DATA_URI } from "./albumArt";
 
 export const metadata: Metadata = {
   title: "Learn It Loud | A 30-Minute Music Learning Lab",
   description:
     "A proposed classroom pilot where students create, compare, and discuss curriculum-grounded songs in genres they already care about.",
 };
-
-// Match the working Mr. Sloth implementation: one ordinary <img> pointed
-// directly at a stable image URL. No API route, no runtime fetch, no embed,
-// no data URI, and no image transformation layer.
-const ALBUM_ART =
-  "https://mason-portfolio-main.vercel.app/learn-it-loud/big-ditch-energy-slothers.svg?v=7";
 
 const subjectExamples = [
   "The Panama Canal",
@@ -125,11 +120,11 @@ export default function LearnItLoudPage() {
               <small>Panama Canal · ska-inspired</small>
             </div>
             <img
-              src={ALBUM_ART}
+              src={ALBUM_ART_DATA_URI}
               alt="Big Ditch Energy by Kikigaki and the Slothers, a ska sloth band performing beside the Panama Canal"
               className={styles.albumArt}
               loading="eager"
-              decoding="async"
+              decoding="sync"
             />
             <a
               href="https://suno.com/s/hUAYoK5UBjL1Wgaa"
