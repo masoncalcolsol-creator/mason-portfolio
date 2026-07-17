@@ -1,4 +1,4 @@
-name: Deploy NULLWORKS Scroll Lab
+name: Verify NULLWORKS Scroll Lab Live URL
 
 on:
   push:
@@ -10,37 +10,23 @@ on:
 
 permissions:
   contents: read
-  pages: write
-  id-token: write
-
-concurrency:
-  group: nullworks-scroll-lab-pages
-  cancel-in-progress: true
 
 jobs:
-  deploy:
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+  verify-live-url:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v6
-
-      - name: Prepare static site
+      - name: Verify clean mobile test URL
+        env:
+          URL: https://cdn.jsdelivr.net/gh/masoncalcolsol-creator/mason-portfolio@d451ef3e54eb0af477c25a34bc185a21047fde7c/public/nullworks-scroll-lab.html
         run: |
-          mkdir -p _site
-          cp public/nullworks-scroll-lab.html _site/index.html
-          touch _site/.nojekyll
-
-      - name: Configure Pages
-        uses: actions/configure-pages@v5
-
-      - name: Upload Pages artifact
-        uses: actions/upload-pages-artifact@v4
-        with:
-          path: _site
-
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+          set -euo pipefail
+          curl --fail --location --silent --show-error \
+            --dump-header headers.txt \
+            --output page.html \
+            "$URL"
+          grep -qi '^content-type: text/html' headers.txt
+          grep -q '<title>NULLWORKS Scroll Lab</title>' page.html
+          grep -q 'THE COMPANY' page.html
+          echo "Verified live URL: $URL"
+          echo "Response headers:"
+          cat headers.txt
