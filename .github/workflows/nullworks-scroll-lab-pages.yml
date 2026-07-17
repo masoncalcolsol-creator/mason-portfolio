@@ -9,12 +9,15 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   verify-live-url:
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
       - name: Verify clean mobile test URL
         env:
           URL: https://cdn.jsdelivr.net/gh/masoncalcolsol-creator/mason-portfolio@d451ef3e54eb0af477c25a34bc185a21047fde7c/public/nullworks-scroll-lab.html
@@ -27,6 +30,19 @@ jobs:
           grep -qi '^content-type: text/html' headers.txt
           grep -q '<title>NULLWORKS Scroll Lab</title>' page.html
           grep -q 'THE COMPANY' page.html
-          echo "Verified live URL: $URL"
-          echo "Response headers:"
-          cat headers.txt
+          {
+            echo "NULLWORKS_SCROLL_LAB_LIVE=VERIFIED"
+            echo "URL=$URL"
+            echo "VERIFIED_AT=$(date -u +'%Y-%m-%dT%H:%M:%SZ')"
+            echo "SOURCE_COMMIT=d451ef3e54eb0af477c25a34bc185a21047fde7c"
+            grep -i '^content-type:' headers.txt | tr -d '\r'
+            grep -i '^x-jsd-version:' headers.txt | tr -d '\r' || true
+          } > public/nullworks-scroll-lab-live-receipt.txt
+
+      - name: Commit verification receipt
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add public/nullworks-scroll-lab-live-receipt.txt
+          git commit -m "Verify NULLWORKS Scroll Lab live CDN URL" || exit 0
+          git push
