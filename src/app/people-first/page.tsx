@@ -11,7 +11,6 @@ import {
   Wrench,
 } from "lucide-react";
 import styles from "./people-first.module.css";
-import { photoSmall } from "./photo-small";
 
 export const metadata: Metadata = {
   title: "The Point Was Never More AI | NULLWORKS",
@@ -87,7 +86,7 @@ export default function PeopleFirstPage() {
 
           <figure className={styles.photoFrame}>
             <img
-              src={`data:image/webp;base64,${photoSmall}`}
+              src="/api/assets/people-first-driveway?v=20260716-2"
               alt="Two young people working in a driveway, one sanding wood and one repairing a vehicle"
               className={styles.photo}
             />
