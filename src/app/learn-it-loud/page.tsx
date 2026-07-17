@@ -21,7 +21,6 @@ import {
   WandSparkles,
 } from "lucide-react";
 import styles from "./page.module.css";
-import { ALBUM_ART_DATA_URI } from "./albumArt";
 
 export const metadata: Metadata = {
   title: "Learn It Loud | A 30-Minute Music Learning Lab",
@@ -119,13 +118,6 @@ export default function LearnItLoudPage() {
               <span><Music2 size={18} /> CLASSROOM DEMO</span>
               <small>Panama Canal · ska-inspired</small>
             </div>
-            <img
-              src={ALBUM_ART_DATA_URI}
-              alt="Big Ditch Energy by Kikigaki and the Slothers, a ska sloth band performing beside the Panama Canal"
-              className={styles.albumArt}
-              loading="eager"
-              decoding="sync"
-            />
             <a
               href="https://suno.com/s/hUAYoK5UBjL1Wgaa"
               target="_blank"
