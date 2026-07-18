@@ -1,1 +1,1 @@
-export const chainsawPhotoCount = 5;
+export const chainsawPhotoCount = 4;
