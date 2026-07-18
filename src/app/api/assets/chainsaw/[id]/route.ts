@@ -26,10 +26,10 @@ export async function GET(
   const image = Buffer.from(payload, "base64");
   return new Response(image, {
     headers: {
-      "Content-Type": "image/webp",
+      "Content-Type": "image/avif",
       "Content-Length": String(image.byteLength),
       "Cache-Control": "public, max-age=31536000, immutable",
-      "X-NULLWORKS-Asset": `chainsaw-photo-${index}-v1`,
+      "X-NULLWORKS-Asset": `chainsaw-photo-${index}-v6`,
     },
   });
 }
