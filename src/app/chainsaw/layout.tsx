@@ -40,6 +40,9 @@ export default function ChainsawLayout({ children }: { children: ReactNode }) {
           opacity: 1 !important;
           text-shadow: none !important;
         }
+        .page .photoFrame figcaption {
+          display: none !important;
+        }
         @media (max-width: 780px) {
           .page .nav {
             margin-left: -16px !important;
