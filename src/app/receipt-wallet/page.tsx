@@ -22,6 +22,7 @@ import {
   Workflow,
 } from "lucide-react";
 import styles from "./receipt-wallet.module.css";
+import OscilloscopeBackground from "./OscilloscopeBackground";
 
 type EvidenceLevel = "external" | "evidence" | "positioning";
 
@@ -197,6 +198,7 @@ export default function ReceiptWalletPage() {
 
   return (
     <main className={styles.page}>
+      <OscilloscopeBackground />
       <div className={styles.progressTrack} aria-hidden="true">
         <div className={styles.progressBar} style={{ transform: `scaleX(${progress})` }} />
       </div>
