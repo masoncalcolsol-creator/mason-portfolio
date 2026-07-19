@@ -7,6 +7,7 @@ export const metadata: Metadata = {
   description: signal.summary,
 };
 
+// Explicit route receipt: keep this page separate from the dynamic sample route so production cannot omit it.
 export default function BleedingMatrixPage() {
   return (
     <main className="bleeding-page">
@@ -167,7 +168,7 @@ export default function BleedingMatrixPage() {
         <div className="shell">
           <article className="closing-card">
             <div className="section-label">NULLWORKS Living Signal Framework</div>
-            <strong>Background atmosphere. Foreground interruption. One page that appears to bleed.</strong>
+            <strong>The page bleeds in layers.</strong>
             <p>The code, liquid trails, and top-edge drips create the environmental field. The featured drop is a separate pointer-transparent layer above the entire interface.</p>
             <div className="cta-row">
               <a className="cta" href="/living-signals">Open the sample library</a>
