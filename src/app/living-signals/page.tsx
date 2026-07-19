@@ -1,10 +1,13 @@
 import type { Metadata } from "next";
+import { bleedingSignal } from "./bleedingSignal";
 import { livingSignals } from "./signals";
+
+const allSignals = [...livingSignals, bleedingSignal];
 
 export const metadata: Metadata = {
   title: "NULLWORKS Living Signal Framework | Visual Systems Library",
   description:
-    "Eight shareable landing-page samples that reuse one atmospheric motion framework across sonar, industrial faults, evidence packets, conveyor recovery, memory continuity, operator orchestration, music systems, and a Matrix-style context waterfall.",
+    "Nine shareable landing-page samples that reuse one atmospheric motion framework across sonar, industrial faults, evidence packets, conveyor recovery, memory continuity, operator orchestration, music systems, Matrix context, and a foreground bleeding interface.",
 };
 
 export default function LivingSignalsLibraryPage() {
@@ -109,7 +112,7 @@ export default function LivingSignalsLibraryPage() {
             <span>Make the motion mean something.</span>
           </h1>
           <p className="lead">
-            Eight live landing-page samples built from one NULLWORKS framework: fixed atmospheric canvas, theme-specific scanner, rare meaningful events, translucent structured content, mobile performance boundaries, and an explicit line between simulated atmosphere and real telemetry.
+            Nine live landing-page samples built from one NULLWORKS framework: fixed atmospheric canvas, theme-specific scanner, rare meaningful events, translucent structured content, mobile performance boundaries, and an explicit line between simulated atmosphere and real telemetry.
           </p>
           <div className="system-line">
             <span>01 // FIXED ATMOSPHERIC CANVAS</span>
@@ -125,7 +128,7 @@ export default function LivingSignalsLibraryPage() {
           <div className="shelf-head">
             <div>
               <div className="section-label">Current framework variants</div>
-              <h2>One engine. Eight different operational stories.</h2>
+              <h2>One engine. Nine different operational stories.</h2>
             </div>
             <p>
               Each card opens a complete mobile-ready sample page with its own animation, explanation, best-fit uses, production rules, and adjacent-sample navigation. Share the individual URL when pitching a visual direction.
@@ -133,7 +136,7 @@ export default function LivingSignalsLibraryPage() {
           </div>
 
           <div className="grid">
-            {livingSignals.map((signal, index) => (
+            {allSignals.map((signal, index) => (
               <article
                 className="signal-card"
                 key={signal.slug}
@@ -166,7 +169,7 @@ export default function LivingSignalsLibraryPage() {
               Every sample uses one primary motion language. Rare events remain rare. Foreground content never drifts with the canvas. Reduced-motion users do not lose the page. Simulated backgrounds are labeled honestly. And the reusable framework is preserved separately from any one client, brand, project, or color system.
             </p>
             <div className="cta-row">
-              <a className="cta" href="/living-signals/matrix-waterfall">Try Matrix Waterfall</a>
+              <a className="cta" href="/living-signals/bleeding-matrix">Open Bleeding Matrix</a>
               <a className="cta secondary" href="mailto:masoncalcolsol@gmail.com?subject=NULLWORKS%20Living%20Signal%20Framework">Use this framework</a>
             </div>
           </article>
