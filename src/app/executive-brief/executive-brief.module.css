@@ -1,0 +1,590 @@
+.page {
+  position: relative;
+  min-height: 100vh;
+  overflow-x: hidden;
+  color: #f3f0e6;
+  background:
+    radial-gradient(circle at 12% 0%, rgba(196, 154, 63, 0.17), transparent 30rem),
+    radial-gradient(circle at 88% 22%, rgba(63, 196, 180, 0.1), transparent 28rem),
+    #0a0e11;
+}
+
+.grid {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-image:
+    linear-gradient(rgba(255,255,255,.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,.025) 1px, transparent 1px);
+  background-size: 34px 34px;
+  mask-image: linear-gradient(to bottom, black, transparent 84%);
+}
+
+.shell {
+  position: relative;
+  z-index: 1;
+  width: min(1180px, calc(100% - 28px));
+  margin: 0 auto;
+  padding: 16px 0 56px;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 13px 15px;
+  border: 1px solid rgba(224, 183, 94, 0.26);
+  border-radius: 22px;
+  background: rgba(14, 19, 23, 0.88);
+  box-shadow: 0 20px 60px rgba(0,0,0,.32);
+  backdrop-filter: blur(18px);
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  min-width: 0;
+  color: inherit;
+  text-decoration: none;
+}
+
+.brandMark {
+  display: grid;
+  width: 44px;
+  height: 44px;
+  place-items: center;
+  flex: 0 0 auto;
+  border: 1px solid #d1a64f;
+  border-radius: 50%;
+  background: #141d22;
+  color: #f0c96f;
+  font-family: Georgia, "Times New Roman", serif;
+  font-weight: 800;
+  letter-spacing: -0.08em;
+}
+
+.brand strong,
+.brand small {
+  display: block;
+}
+
+.brand strong {
+  font-size: 15px;
+  letter-spacing: .1em;
+}
+
+.brand small {
+  margin-top: 2px;
+  color: #a8b0b2;
+  font-size: 11px;
+}
+
+.headerAction,
+.primaryButton,
+.secondaryButton,
+.offerCard a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border-radius: 999px;
+  font-weight: 850;
+  text-decoration: none;
+  transition: transform 160ms ease, box-shadow 160ms ease;
+}
+
+.headerAction:hover,
+.primaryButton:hover,
+.secondaryButton:hover,
+.offerCard a:hover {
+  transform: translateY(-1px);
+}
+
+.headerAction {
+  padding: 11px 14px;
+  background: #f0c96f;
+  color: #111517;
+  font-size: 12px;
+}
+
+.hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(330px, .9fr);
+  gap: 20px;
+  margin-top: 16px;
+}
+
+.heroCopy,
+.twentySecondCard {
+  border: 1px solid rgba(224, 183, 94, 0.22);
+  border-radius: 30px;
+  background: rgba(16, 22, 26, 0.9);
+  box-shadow: 0 34px 110px rgba(0,0,0,.34);
+}
+
+.heroCopy {
+  padding: clamp(30px, 5vw, 62px);
+}
+
+.eyebrow,
+.sectionHeading > span,
+.finalSection > span,
+.offerCard > span,
+.definitionStrip span {
+  color: #e3b659;
+  font-size: 10px;
+  font-weight: 950;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+}
+
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 12px;
+  border: 1px solid rgba(224, 183, 94, .25);
+  border-radius: 999px;
+  background: rgba(224, 183, 94, .08);
+}
+
+.hero h1 {
+  max-width: 760px;
+  margin: 24px 0 0;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(44px, 6.2vw, 82px);
+  line-height: .95;
+  letter-spacing: -.055em;
+}
+
+.lead {
+  max-width: 760px;
+  margin: 25px 0 0;
+  color: #c7c9c5;
+  font-size: clamp(17px, 1.55vw, 21px);
+  font-weight: 600;
+  line-height: 1.62;
+}
+
+.actions,
+.finalActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 28px;
+}
+
+.primaryButton,
+.secondaryButton {
+  min-height: 48px;
+  padding: 13px 17px;
+  font-size: 13px;
+}
+
+.primaryButton {
+  background: #f0c96f;
+  color: #101416;
+  box-shadow: 0 14px 34px rgba(224, 183, 94, .14);
+}
+
+.secondaryButton {
+  border: 1px solid rgba(240, 201, 111, .45);
+  background: rgba(255,255,255,.035);
+  color: #f3f0e6;
+}
+
+.truthLine {
+  display: flex;
+  gap: 9px;
+  align-items: flex-start;
+  margin-top: 24px;
+  padding: 14px 15px;
+  border-left: 2px solid #68c8b7;
+  background: rgba(104, 200, 183, .06);
+  color: #aeb8b7;
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.twentySecondCard {
+  display: flex;
+  min-height: 100%;
+  padding: 22px;
+  flex-direction: column;
+  justify-content: center;
+  background:
+    radial-gradient(circle at 80% 10%, rgba(104,200,183,.13), transparent 16rem),
+    linear-gradient(155deg, rgba(27,35,40,.98), rgba(10,14,17,.98));
+}
+
+.cardTopline {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  color: #7f8a8e;
+  font-size: 9px;
+  font-weight: 900;
+  letter-spacing: .14em;
+}
+
+.cardStatement {
+  padding: 22px 0;
+  border-bottom: 1px solid rgba(255,255,255,.1);
+}
+
+.cardStatement span {
+  display: block;
+  color: #68c8b7;
+  font-size: 10px;
+  font-weight: 950;
+  letter-spacing: .16em;
+}
+
+.cardStatement strong {
+  display: block;
+  margin-top: 8px;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(22px, 2.5vw, 31px);
+  line-height: 1.12;
+  letter-spacing: -.035em;
+}
+
+.cardFooter {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  margin-top: 22px;
+  padding: 16px;
+  border: 1px solid rgba(224,183,94,.2);
+  border-radius: 18px;
+  background: rgba(224,183,94,.06);
+  color: #e9c873;
+}
+
+.cardFooter strong,
+.cardFooter span {
+  display: block;
+}
+
+.cardFooter strong {
+  font-size: 14px;
+}
+
+.cardFooter span {
+  margin-top: 3px;
+  color: #9ea6a7;
+  font-size: 12px;
+}
+
+.definitionStrip {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.definitionStrip > div {
+  padding: 16px;
+  border: 1px solid rgba(255,255,255,.1);
+  border-radius: 18px;
+  background: rgba(255,255,255,.025);
+}
+
+.definitionStrip strong {
+  display: block;
+  margin-top: 7px;
+  color: #c6cbca;
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.stepsSection,
+.fitSection,
+.finalSection {
+  margin-top: 72px;
+}
+
+.sectionHeading {
+  max-width: 860px;
+}
+
+.sectionHeading h2,
+.finalSection h2,
+.offerCard h2 {
+  margin: 10px 0 0;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(36px, 5.6vw, 68px);
+  line-height: .98;
+  letter-spacing: -.05em;
+}
+
+.stepsGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.stepCard {
+  min-height: 310px;
+  padding: 22px;
+  border: 1px solid rgba(255,255,255,.11);
+  border-radius: 22px;
+  background: rgba(255,255,255,.025);
+}
+
+.stepTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: #68c8b7;
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: .14em;
+}
+
+.stepCard h3 {
+  margin: 82px 0 0;
+  font-size: 25px;
+  letter-spacing: -.035em;
+}
+
+.stepCard p {
+  margin: 12px 0 0;
+  color: #9fa8a8;
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+.fitSection {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(300px, .85fr);
+  gap: 18px;
+  align-items: stretch;
+}
+
+.fitCopy {
+  padding: 34px;
+  border: 1px solid rgba(255,255,255,.1);
+  border-radius: 26px;
+  background: rgba(255,255,255,.025);
+}
+
+.fitCopy > p {
+  max-width: 760px;
+  margin: 22px 0 0;
+  color: #aeb6b5;
+  font-size: 16px;
+  line-height: 1.72;
+}
+
+.fitTags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 22px;
+}
+
+.fitTags span {
+  padding: 9px 11px;
+  border: 1px solid rgba(104,200,183,.25);
+  border-radius: 999px;
+  background: rgba(104,200,183,.055);
+  color: #b9d8d1;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.offerCard {
+  display: flex;
+  padding: 30px;
+  flex-direction: column;
+  border: 1px solid rgba(224,183,94,.24);
+  border-radius: 26px;
+  background: linear-gradient(150deg, rgba(224,183,94,.09), rgba(255,255,255,.02));
+}
+
+.offerCard > svg {
+  color: #f0c96f;
+}
+
+.offerCard > span {
+  margin-top: 26px;
+}
+
+.offerCard h2 {
+  font-size: clamp(34px, 4.5vw, 56px);
+}
+
+.offerCard p {
+  margin: 18px 0 0;
+  color: #adb5b5;
+  line-height: 1.72;
+}
+
+.offerCard a {
+  width: fit-content;
+  margin-top: auto;
+  padding: 12px 15px;
+  background: #f0c96f;
+  color: #101416;
+  font-size: 12px;
+}
+
+.finalSection {
+  padding: clamp(32px, 6vw, 70px);
+  border: 1px solid rgba(224,183,94,.22);
+  border-radius: 30px;
+  background:
+    radial-gradient(circle at 80% 20%, rgba(104,200,183,.1), transparent 20rem),
+    rgba(255,255,255,.025);
+  text-align: center;
+}
+
+.finalSection h2 {
+  max-width: 940px;
+  margin-inline: auto;
+}
+
+.finalActions {
+  justify-content: center;
+}
+
+.footer {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 18px;
+  margin-top: 44px;
+  padding-top: 20px;
+  border-top: 1px solid rgba(255,255,255,.1);
+  color: #7f898a;
+  font-size: 12px;
+}
+
+.footer strong,
+.footer span {
+  display: block;
+}
+
+.footer strong {
+  color: #f3f0e6;
+}
+
+.footer span {
+  margin-top: 4px;
+}
+
+.footer a {
+  color: #e4bf67;
+  font-weight: 800;
+  text-decoration: none;
+}
+
+@media (max-width: 860px) {
+  .hero,
+  .fitSection {
+    grid-template-columns: 1fr;
+  }
+
+  .definitionStrip,
+  .stepsGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .stepCard {
+    min-height: 230px;
+  }
+
+  .stepCard h3 {
+    margin-top: 42px;
+  }
+}
+
+@media (max-width: 560px) {
+  .shell {
+    width: min(100% - 12px, 1180px);
+    padding-top: 6px;
+  }
+
+  .header {
+    border-radius: 18px;
+  }
+
+  .brand small {
+    display: none;
+  }
+
+  .headerAction {
+    padding: 10px 12px;
+    font-size: 0;
+  }
+
+  .headerAction::after {
+    content: "Contact";
+    font-size: 11px;
+  }
+
+  .heroCopy,
+  .twentySecondCard,
+  .fitCopy,
+  .offerCard,
+  .finalSection {
+    border-radius: 22px;
+  }
+
+  .heroCopy {
+    padding: 28px 20px;
+  }
+
+  .hero h1 {
+    font-size: clamp(42px, 14vw, 62px);
+  }
+
+  .lead {
+    font-size: 16px;
+  }
+
+  .actions,
+  .finalActions {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .primaryButton,
+  .secondaryButton {
+    width: 100%;
+  }
+
+  .cardTopline {
+    display: grid;
+  }
+
+  .definitionStrip {
+    gap: 7px;
+  }
+
+  .stepsSection,
+  .fitSection,
+  .finalSection {
+    margin-top: 54px;
+  }
+
+  .sectionHeading h2,
+  .finalSection h2 {
+    font-size: clamp(36px, 12vw, 52px);
+  }
+
+  .fitCopy,
+  .offerCard {
+    padding: 24px 20px;
+  }
+
+  .footer {
+    display: grid;
+    text-align: center;
+  }
+}
