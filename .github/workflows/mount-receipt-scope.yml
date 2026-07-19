@@ -1,0 +1,47 @@
+name: Mount Receipt Wallet oscilloscope
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - src/app/receipt-wallet/OscilloscopeBackground.tsx
+      - .github/workflows/mount-receipt-scope.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  mount:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Patch Receipt Wallet page
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          path = Path('src/app/receipt-wallet/page.tsx')
+          text = path.read_text()
+          import_line = 'import OscilloscopeBackground from "./OscilloscopeBackground";\n'
+          if import_line not in text:
+              text = text.replace('import styles from "./receipt-wallet.module.css";\n', 'import styles from "./receipt-wallet.module.css";\n' + import_line)
+          mount = '      <OscilloscopeBackground />\n'
+          marker = '      <div className={styles.progressTrack} aria-hidden="true">\n'
+          if mount not in text:
+              text = text.replace(marker, mount + marker)
+          path.write_text(text)
+          PY
+      - name: Commit mounted scope
+        shell: bash
+        run: |
+          if git diff --quiet; then
+            echo "Already mounted."
+            exit 0
+          fi
+          git config user.name "nullworks-build-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add src/app/receipt-wallet/page.tsx
+          git commit -m "Mount analog oscilloscope on Receipt Wallet"
+          git push
