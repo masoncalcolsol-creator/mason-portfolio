@@ -5,7 +5,8 @@ export type LivingSignalMode =
   | "conveyor"
   | "memory"
   | "orbit"
-  | "audio";
+  | "audio"
+  | "matrix";
 
 export type LivingSignalConfig = {
   slug: string;
@@ -256,6 +257,39 @@ export const livingSignals: LivingSignalConfig[] = [
       "Motion supports the musical concept without becoming a nightclub visualizer.",
     ],
     demoNote: "Watch the loose particles gather, compare, and settle into one approved signal lane.",
+  },
+  {
+    slug: "matrix-waterfall",
+    mode: "matrix",
+    name: "Matrix Waterfall",
+    eyebrow: "LIVING SIGNAL 08 // HUMAN-READABLE CONTEXT INSIDE THE MACHINE",
+    headline: "The system sees a torrent.",
+    outlinedHeadline: "The operator needs one legible line.",
+    summary:
+      "A green text waterfall descends from the top of the page in narrow coded streams. Most of it remains atmospheric machine noise. At controlled intervals, one NULLWORKS principle resolves into a readable signal lock before dissolving back into the flow.",
+    accent: "#82ff58",
+    accentRgb: "130,255,88",
+    secondary: "#4c7b45",
+    signalLanguage: "Data volume, machine context, human-readable doctrine, signal extraction, and cognitive continuity.",
+    communicates: [
+      "More information is not automatically more understanding.",
+      "A system becomes useful when important context can resolve into language a human can inspect.",
+      "Doctrine should emerge from governed records rather than float permanently as decoration.",
+      "The readable signal remains rare enough to feel discovered inside the machine flow.",
+    ],
+    bestFor: [
+      "AI systems, digital workrooms, and technical portfolio pages",
+      "Context, memory, continuity, and knowledge-architecture stories",
+      "Cyber, data, software, and systems-engineering concepts",
+      "NULLWORKS doctrine, Hive, and Corporate WiFi interfaces",
+    ],
+    rules: [
+      "Readable phrases appear intermittently; the page does not shout doctrine continuously.",
+      "Falling characters remain atmospheric and never imply access to private data.",
+      "Only approved public phrases enter the sample waterfall.",
+      "The effect must remain behind the content and preserve mobile readability.",
+    ],
+    demoNote: "Watch the rain from the top. A human-readable NULLWORKS principle should lock into focus within a few seconds.",
   },
 ];
 
