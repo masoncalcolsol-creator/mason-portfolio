@@ -89,18 +89,18 @@ export default function OperationalSystemsPage() {
         <section className={styles.hero}>
           <div className={styles.heroCopy}>
             <div className={styles.eyebrow}>
-              <Factory size={16} /> Industrial systems builder · Founder of NULLWORKS
+              <Factory size={16} /> Operational transformation · Founder of NULLWORKS
             </div>
-            <h1>I improve the flow of work.</h1>
+            <h1>I reconnect intent to execution.</h1>
             <p className={styles.heroLead}>
-              I have spent my career repairing physical systems. Today I apply the same engineering mindset to organizational systems, knowledge work, and human-AI operations.
+              I have spent years inside real operational systems, where people adapt faster than procedures and the documented process slowly separates from reality.
             </p>
             <p className={styles.heroBody}>
-              The materials changed. The operating philosophy never did: observe the real work, find the constraint, build a repeatable system, preserve evidence, measure the outcome, and improve again.
+              NULLWORKS walks the actual work, recovers the missing context, maps authority and exceptions, and prototypes the smallest governable human-AI intervention capable of improving the outcome.
             </p>
             <div className={styles.heroActions}>
-              <a href="#architecture" className={styles.primaryButton}>
-                See the NULLWORKS architecture <ArrowRight size={17} />
+              <a href="/executive-brief" className={styles.primaryButton}>
+                Read the 20-second executive brief <ArrowRight size={17} />
               </a>
               <a href="#receipts" className={styles.secondaryButton}>
                 See operational receipts <CircuitBoard size={17} />

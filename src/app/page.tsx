@@ -201,7 +201,7 @@ export default function HomePage() {
           <a href="/" className={styles.brand}>
             <div className={styles.brandMark}>NW</div>
             <div>
-              <div className={styles.brandEyebrow}>NULLWORKS PUBLIC OPERATING MAP</div>
+              <div className={styles.brandEyebrow}>NULLWORKS · OPERATIONAL TRANSFORMATION</div>
               <div className={styles.brandName}>Mason Perry · Founder / OISA</div>
             </div>
           </a>
@@ -222,22 +222,22 @@ export default function HomePage() {
         <section className={styles.hero}>
           <div className={styles.heroCopy}>
             <div className={styles.eyebrow}>
-              <Workflow size={15} /> Forward-Deployed Operational Architecture
+              <Workflow size={15} /> Operational transformation for the AI era
             </div>
 
-            <h1 className={styles.heroTitle}>I am not a software guy. I build the operating system around the work.</h1>
+            <h1 className={styles.heroTitle}>I find where intent and execution have drifted apart—and build the operating system that reconnects them.</h1>
 
             <p className={styles.heroLead}>
-              NULLWORKS is the public evidence map of one blue-collar systems operator force-multiplying a normal physical life with a second digital operating life: a coordinated company of specialist AI workrooms, not one more individual productivity tool.
+              NULLWORKS enters one high-friction workflow, learns how the work really happens, identifies where intent, authority, evidence, and execution have separated, and prototypes a governable human-AI operating system around it.
             </p>
 
             <p className={styles.heroBody}>
-              The public system is now organized explicitly: OISA is the role. OI SUITe is the product. OI work cells are the deployments. Receipts are the proof. The projects below test the same systems thesis across industrial operations, lending, evidence, hiring, OCR, creative production, voice continuity, and organizational design.
+              The strongest fit is an organization where operational failure is expensive and people are already compensating for broken handoffs, outdated procedures, hidden workarounds, or missing context. AI is one worker inside the system. Human authority remains final.
             </p>
 
             <div className={styles.heroActions}>
-              <a href="/operating-map" className={styles.primaryButton}>
-                Open the complete operating map <ArrowRight size={17} />
+              <a href="/executive-brief" className={styles.primaryButton}>
+                Read the 20-second executive brief <ArrowRight size={17} />
               </a>
               <a href="/ai-audit" className={styles.secondaryButton}>
                 Start with one workflow <ShieldCheck size={17} />
@@ -245,9 +245,9 @@ export default function HomePage() {
             </div>
 
             <div className={styles.proofRow}>
-              <div className={styles.proof}><strong>OISA · The role</strong><span>Own the complete human-AI operating system, not one isolated tool.</span></div>
-              <div className={styles.proof}><strong>OI SUITe · The product</strong><span>Roles, evidence, authority, continuity, review, exceptions, recovery, and telemetry.</span></div>
-              <div className={styles.proof}><strong>Work cells + receipts</strong><span>Bounded deployments measured through real outcomes, corrections, and failures.</span></div>
+              <div className={styles.proof}><strong>Learn the real work</strong><span>Walk one consequential workflow with the people closest to the outcome.</span></div>
+              <div className={styles.proof}><strong>Reconnect the system</strong><span>Map where intent, authority, evidence, and execution have drifted apart.</span></div>
+              <div className={styles.proof}><strong>Prove before scaling</strong><span>Prototype the smallest intervention, preserve the receipt, and measure what changed.</span></div>
             </div>
           </div>
 
