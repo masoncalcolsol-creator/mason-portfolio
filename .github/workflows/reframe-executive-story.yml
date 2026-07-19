@@ -1,0 +1,70 @@
+name: Reframe NULLWORKS executive story
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/reframe-executive-story.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  reframe:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Patch public front doors
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          home = Path('src/app/page.tsx')
+          text = home.read_text()
+          replacements = {
+            'NULLWORKS PUBLIC OPERATING MAP': 'NULLWORKS · OPERATIONAL TRANSFORMATION',
+            '<Workflow size={15} /> Forward-Deployed Operational Architecture': '<Workflow size={15} /> Operational transformation for the AI era',
+            'I am not a software guy. I build the operating system around the work.': 'I find where intent and execution have drifted apart—and build the operating system that reconnects them.',
+            'NULLWORKS is the public evidence map of one blue-collar systems operator force-multiplying a normal physical life with a second digital operating life: a coordinated company of specialist AI workrooms, not one more individual productivity tool.': 'NULLWORKS enters one high-friction workflow, learns how the work really happens, identifies where intent, authority, evidence, and execution have separated, and prototypes a governable human-AI operating system around it.',
+            'The public system is now organized explicitly: OISA is the role. OI SUITe is the product. OI work cells are the deployments. Receipts are the proof. The projects below test the same systems thesis across industrial operations, lending, evidence, hiring, OCR, creative production, voice continuity, and organizational design.': 'The strongest fit is an organization where operational failure is expensive and people are already compensating for broken handoffs, outdated procedures, hidden workarounds, or missing context. AI is one worker inside the system. Human authority remains final.',
+            '<a href="/operating-map" className={styles.primaryButton}>\n                Open the complete operating map <ArrowRight size={17} />\n              </a>': '<a href="/executive-brief" className={styles.primaryButton}>\n                Read the 20-second executive brief <ArrowRight size={17} />\n              </a>',
+            '<div className={styles.proof}><strong>OISA · The role</strong><span>Own the complete human-AI operating system, not one isolated tool.</span></div>': '<div className={styles.proof}><strong>Learn the real work</strong><span>Walk one consequential workflow with the people closest to the outcome.</span></div>',
+            '<div className={styles.proof}><strong>OI SUITe · The product</strong><span>Roles, evidence, authority, continuity, review, exceptions, recovery, and telemetry.</span></div>': '<div className={styles.proof}><strong>Reconnect the system</strong><span>Map where intent, authority, evidence, and execution have drifted apart.</span></div>',
+            '<div className={styles.proof}><strong>Work cells + receipts</strong><span>Bounded deployments measured through real outcomes, corrections, and failures.</span></div>': '<div className={styles.proof}><strong>Prove before scaling</strong><span>Prototype the smallest intervention, preserve the receipt, and measure what changed.</span></div>',
+          }
+          for old, new in replacements.items():
+              if old not in text:
+                  raise SystemExit(f'Missing homepage text: {old[:80]}')
+              text = text.replace(old, new)
+          home.write_text(text)
+
+          operational = Path('src/app/operational-systems/page.tsx')
+          text = operational.read_text()
+          replacements = {
+            '<Factory size={16} /> Industrial systems builder · Founder of NULLWORKS': '<Factory size={16} /> Operational transformation · Founder of NULLWORKS',
+            '<h1>I improve the flow of work.</h1>': '<h1>I reconnect intent to execution.</h1>',
+            'I have spent my career repairing physical systems. Today I apply the same engineering mindset to organizational systems, knowledge work, and human-AI operations.': 'I have spent years inside real operational systems, where people adapt faster than procedures and the documented process slowly separates from reality.',
+            'The materials changed. The operating philosophy never did: observe the real work, find the constraint, build a repeatable system, preserve evidence, measure the outcome, and improve again.': 'NULLWORKS walks the actual work, recovers the missing context, maps authority and exceptions, and prototypes the smallest governable human-AI intervention capable of improving the outcome.',
+            '<a href="#architecture" className={styles.primaryButton}>\n                See the NULLWORKS architecture <ArrowRight size={17} />\n              </a>': '<a href="/executive-brief" className={styles.primaryButton}>\n                Read the 20-second executive brief <ArrowRight size={17} />\n              </a>',
+          }
+          for old, new in replacements.items():
+              if old not in text:
+                  raise SystemExit(f'Missing operational text: {old[:80]}')
+              text = text.replace(old, new)
+          operational.write_text(text)
+          PY
+      - name: Commit public reframe
+        shell: bash
+        run: |
+          if git diff --quiet; then
+            echo "No changes needed."
+            exit 0
+          fi
+          git config user.name "nullworks-build-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add src/app/page.tsx src/app/operational-systems/page.tsx
+          git commit -m "Reframe public story for CEO recognition"
+          git push
