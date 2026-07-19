@@ -8,7 +8,7 @@ export const bleedingSignal: LivingSignalConfig = {
   headline: "The data falls behind the page.",
   outlinedHeadline: "The blood crosses in front of it.",
   summary:
-    "A crimson code waterfall descends behind the content while digital streams stretch into slow bleeding trails. At controlled intervals, a glossy foreground blood drop forms above the interface and runs from the top of the viewport to the bottom, crossing directly over text and cards before disappearing.",
+    "A crimson code waterfall descends behind the content while faint liquid traces move slowly in one direction. Every 30 seconds, one small glossy foreground blood drop forms above the interface and travels from the top of the viewport to the bottom, crossing directly over text and cards before disappearing.",
   accent: "#ff3048",
   accentRgb: "255,48,72",
   secondary: "#7d1c2b",
@@ -27,9 +27,9 @@ export const bleedingSignal: LivingSignalConfig = {
   ],
   rules: [
     "Code rain and background bleeding remain behind the content layer.",
-    "Only the occasional featured drop crosses in front of text and controls.",
+    "Only one featured drop crosses in front of text and controls every 30 seconds.",
     "Foreground drops remain pointer-transparent and never block interaction.",
     "The blood is stylized interface atmosphere with no wounds, bodies, or implied real event.",
   ],
-  demoNote: "Wait a moment. A foreground drop should form above the page and bleed across the text from top to bottom.",
+  demoNote: "The foreground drop now appears once every 30 seconds and descends slowly without a trailing streak.",
 };
