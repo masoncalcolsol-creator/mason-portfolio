@@ -1,0 +1,4 @@
+NULLWORKS deployment receipt
+route=/living-signals/bleeding-matrix
+commit_trigger=production redeploy
+created=2026-07-19
