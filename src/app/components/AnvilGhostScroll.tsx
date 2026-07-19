@@ -4,7 +4,6 @@ import { useEffect, useMemo, useState } from "react";
 import { usePathname } from "next/navigation";
 
 const pageWords: Record<string, [string, string, string]> = {
-  "/monster-music": ["ATHLETE", "OWNS", "THE SOUND"],
   "/sound-library": ["HEAR", "THE", "RANGE"],
   "/anvil-records": ["BUILD", "THE", "ARTIST"],
 };
