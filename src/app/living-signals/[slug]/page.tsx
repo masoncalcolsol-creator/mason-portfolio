@@ -1,11 +1,19 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import BleedingMatrix from "../BleedingMatrix";
 import LivingSignalCanvas from "../LivingSignalCanvas";
 import MatrixWaterfall from "../MatrixWaterfall";
+import { bleedingSignal } from "../bleedingSignal";
 import { livingSignalBySlug, livingSignals } from "../signals";
 
+const allSignals = [...livingSignals, bleedingSignal];
+const allSignalBySlug = {
+  ...livingSignalBySlug,
+  [bleedingSignal.slug]: bleedingSignal,
+};
+
 export function generateStaticParams() {
-  return livingSignals.map((signal) => ({ slug: signal.slug }));
+  return allSignals.map((signal) => ({ slug: signal.slug }));
 }
 
 export async function generateMetadata({
@@ -14,7 +22,7 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
-  const signal = livingSignalBySlug[slug];
+  const signal = allSignalBySlug[slug];
   if (!signal) return {};
   return {
     title: `${signal.name} | NULLWORKS Living Signal Framework`,
@@ -28,12 +36,12 @@ export default async function LivingSignalSamplePage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const signal = livingSignalBySlug[slug];
+  const signal = allSignalBySlug[slug];
   if (!signal) notFound();
 
-  const currentIndex = livingSignals.findIndex((item) => item.slug === slug);
-  const previous = livingSignals[(currentIndex - 1 + livingSignals.length) % livingSignals.length];
-  const next = livingSignals[(currentIndex + 1) % livingSignals.length];
+  const currentIndex = allSignals.findIndex((item) => item.slug === slug);
+  const previous = allSignals[(currentIndex - 1 + allSignals.length) % allSignals.length];
+  const next = allSignals[(currentIndex + 1) % allSignals.length];
 
   return (
     <main
@@ -44,7 +52,9 @@ export default async function LivingSignalSamplePage({
         "--secondary": signal.secondary,
       } as React.CSSProperties}
     >
-      {signal.mode === "matrix" ? (
+      {signal.slug === "bleeding-matrix" ? (
+        <BleedingMatrix accentRgb={signal.accentRgb} />
+      ) : signal.mode === "matrix" ? (
         <MatrixWaterfall accentRgb={signal.accentRgb} />
       ) : (
         <LivingSignalCanvas mode={signal.mode} accentRgb={signal.accentRgb} />
@@ -268,7 +278,7 @@ export default async function LivingSignalSamplePage({
 
       <footer>
         <div className="shell">
-          NULLWORKS Living Signal Framework // Simulated visual-system samples with explicit truth boundaries. <a href="/living-signals">Browse all eight →</a>
+          NULLWORKS Living Signal Framework // Simulated visual-system samples with explicit truth boundaries. <a href="/living-signals">Browse all nine →</a>
         </div>
       </footer>
     </main>
