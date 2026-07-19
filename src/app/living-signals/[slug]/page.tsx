@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import LivingSignalCanvas from "../LivingSignalCanvas";
+import MatrixWaterfall from "../MatrixWaterfall";
 import { livingSignalBySlug, livingSignals } from "../signals";
 
 export function generateStaticParams() {
@@ -43,7 +44,11 @@ export default async function LivingSignalSamplePage({
         "--secondary": signal.secondary,
       } as React.CSSProperties}
     >
-      <LivingSignalCanvas mode={signal.mode} accentRgb={signal.accentRgb} />
+      {signal.mode === "matrix" ? (
+        <MatrixWaterfall accentRgb={signal.accentRgb} />
+      ) : (
+        <LivingSignalCanvas mode={signal.mode} accentRgb={signal.accentRgb} />
+      )}
       <style>{`
         :root { color-scheme: dark; }
         * { box-sizing: border-box; }
@@ -263,7 +268,7 @@ export default async function LivingSignalSamplePage({
 
       <footer>
         <div className="shell">
-          NULLWORKS Living Signal Framework // Simulated visual-system samples with explicit truth boundaries. <a href="/living-signals">Browse all seven →</a>
+          NULLWORKS Living Signal Framework // Simulated visual-system samples with explicit truth boundaries. <a href="/living-signals">Browse all eight →</a>
         </div>
       </footer>
     </main>
