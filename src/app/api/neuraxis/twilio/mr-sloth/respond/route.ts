@@ -30,7 +30,6 @@ async function handle(request: Request): Promise<Response> {
   if (isMrSlothExit(speech)) {
     return twiml(`<?xml version="1.0" encoding="UTF-8"?>
 <Response>
-  <Pause length="1"/>
   ${mrSlothSpeak("Then let the quiet be enough.", request.url)}
   <Hangup/>
 </Response>`);
@@ -48,13 +47,12 @@ async function handle(request: Request): Promise<Response> {
 
   const answer = await askMrSloth(speech);
   const responseUrl = `${origin}/api/neuraxis/twilio/mr-sloth/respond`;
+  const spokenTurn = `${answer} You may ask another question, leave an observation, or go in peace.`;
 
   return twiml(`<?xml version="1.0" encoding="UTF-8"?>
 <Response>
-  ${mrSlothSpeak(answer, request.url)}
-  <Pause length="1"/>
-  <Gather input="speech" timeout="4" speechTimeout="auto" method="POST" action="${xmlEscape(responseUrl)}" hints="ask another question, leave an observation, repeat, goodbye">
-    ${mrSlothSpeak("You may ask another question, leave an observation, or go in peace.", request.url)}
+  <Gather input="speech" timeout="3" speechTimeout="auto" method="POST" action="${xmlEscape(responseUrl)}" hints="ask another question, leave an observation, repeat, goodbye">
+    ${mrSlothSpeak(spokenTurn, request.url)}
   </Gather>
   ${mrSlothSpeak("Carry the question carefully.", request.url)}
   <Hangup/>
