@@ -24,21 +24,18 @@ async function handle(request: Request): Promise<Response> {
   const repeat = url.searchParams.get("repeat") === "1";
   const offering = dailyMrSlothObservation();
   const responseUrl = new URL("/api/neuraxis/twilio/mr-sloth/respond", request.url).toString();
-  const opening = repeat ? "The observation again." : "Ah. You found the quiet booth.";
+  const spokenOffering = repeat
+    ? `The observation again. ${offering.text}`
+    : `Ah. You found me. I should explain. I move slowly. That is me, not the machinery. Today's observation. ${offering.text}`;
 
   return twiml(`<?xml version="1.0" encoding="UTF-8"?>
 <Response>
-  <Pause length="2"/>
-  ${mrSlothSpeak(opening, request.url)}
-  <Pause length="2"/>
-  ${mrSlothSpeak("Today's observation.", request.url)}
   <Pause length="1"/>
-  ${mrSlothSpeak(offering.text, request.url)}
-  <Pause length="3"/>
-  <Gather input="speech" timeout="5" speechTimeout="auto" method="POST" action="${xmlEscape(responseUrl)}" hints="ask a question, leave an observation, repeat, goodbye">
-    ${mrSlothSpeak("You may ask a question, leave an observation, ask me to repeat it, or simply remain quiet.", request.url)}
+  ${mrSlothSpeak(spokenOffering, request.url)}
+  <Pause length="1"/>
+  <Gather input="speech" timeout="4" speechTimeout="auto" method="POST" action="${xmlEscape(responseUrl)}" hints="ask a question, leave an observation, repeat, goodbye">
+    ${mrSlothSpeak("You may ask a question, leave an observation, or simply remain quiet.", request.url)}
   </Gather>
-  <Pause length="3"/>
   ${mrSlothSpeak("Take it with you. Return when you need the quiet.", request.url)}
   <Hangup/>
 </Response>`);
