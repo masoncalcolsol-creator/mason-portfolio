@@ -10,7 +10,7 @@ type RainColumn = {
   seed: number;
 };
 
-type LogoGlyph = {
+type LogoCell = {
   targetX: number;
   targetY: number;
   paintAt: number;
@@ -34,6 +34,8 @@ const RED_SWEEP_END = 11800;
 const FORMATION_END = 21800;
 const DARK_LOCK_END = 25800;
 const SEQUENCE_SETTLED = 27000;
+const SOLIDIFY_DELAY = 1000;
+const FIRST_DROP_START = RED_SWEEP_END + (FORMATION_END - RED_SWEEP_END) / 2;
 
 export default function CorruptionSequence() {
   const backgroundRef = useRef<HTMLCanvasElement>(null);
@@ -72,7 +74,7 @@ export default function CorruptionSequence() {
     let lastFrame = 0;
     let lastTime = performance.now();
     let rain: RainColumn[] = [];
-    let logoGlyphs: LogoGlyph[] = [];
+    let logoCells: LogoCell[] = [];
     let logoY = 0;
     let logoLeft = 0;
     let logoWidth = 0;
@@ -137,7 +139,8 @@ export default function CorruptionSequence() {
         }
       }
 
-      logoGlyphs = points.map((point, index) => {
+      const landingWindow = FORMATION_END - RED_SWEEP_END - SOLIDIFY_DELAY;
+      logoCells = points.map((point, index) => {
         const vertical = clamp((point.y - logoTop) / Math.max(1, logoBottom - logoTop));
         const horizontal = clamp((point.x - logoLeft) / Math.max(1, logoWidth));
         const columnStagger = ((Math.floor(horizontal * 17) + index) % 7) / 7;
@@ -145,7 +148,7 @@ export default function CorruptionSequence() {
         return {
           targetX: point.x,
           targetY: point.y,
-          paintAt: RED_SWEEP_END + paintProgress * (FORMATION_END - RED_SWEEP_END),
+          paintAt: RED_SWEEP_END + paintProgress * landingWindow,
           char: glyphs[(index * 11 + Math.floor(Math.random() * glyphs.length)) % glyphs.length],
         };
       });
@@ -220,24 +223,40 @@ export default function CorruptionSequence() {
       const red = Math.round(mix(255, 126, darken));
       const green = Math.round(mix(38, 0, darken));
       const blue = Math.round(mix(62, 20, darken));
+      const blockSize = fontSize * 1.04;
 
       context.save();
       context.font = `800 ${fontSize}px ui-monospace, SFMono-Regular, Menlo, monospace`;
       context.textAlign = "center";
       context.textBaseline = "middle";
 
-      logoGlyphs.forEach((logoGlyph) => {
+      logoCells.forEach((cell) => {
         const arrivalWindow = 720;
-        if (elapsed < logoGlyph.paintAt - arrivalWindow) return;
-        const arrival = clamp((elapsed - (logoGlyph.paintAt - arrivalWindow)) / arrivalWindow);
-        const y = mix(logoGlyph.targetY - 130, logoGlyph.targetY, arrival);
-        const locked = elapsed >= logoGlyph.paintAt;
-        const alpha = locked ? 0.96 : 0.18 + arrival * 0.72;
+        if (elapsed < cell.paintAt - arrivalWindow) return;
+
+        const solidAt = cell.paintAt + SOLIDIFY_DELAY;
+        if (elapsed >= solidAt) {
+          context.fillStyle = `rgba(${red},${green},${blue},.98)`;
+          context.shadowColor = `rgba(${Math.min(255, red + 45)},${green},${Math.min(255, blue + 25)},.86)`;
+          context.shadowBlur = 8 + darken * 4;
+          context.fillRect(
+            cell.targetX - blockSize / 2,
+            cell.targetY - blockSize / 2,
+            blockSize,
+            blockSize,
+          );
+          return;
+        }
+
+        const arrival = clamp((elapsed - (cell.paintAt - arrivalWindow)) / arrivalWindow);
+        const y = mix(cell.targetY - 130, cell.targetY, arrival);
+        const landed = elapsed >= cell.paintAt;
+        const alpha = landed ? 0.98 : 0.18 + arrival * 0.72;
 
         context.fillStyle = `rgba(${red},${green},${blue},${alpha})`;
         context.shadowColor = `rgba(${Math.min(255, red + 45)},${green},${Math.min(255, blue + 25)},.82)`;
-        context.shadowBlur = locked ? 7 + darken * 4 : 4;
-        context.fillText(logoGlyph.char, logoGlyph.targetX, y);
+        context.shadowBlur = landed ? 7 : 4;
+        context.fillText(cell.char, cell.targetX, y);
       });
 
       context.restore();
@@ -297,7 +316,7 @@ export default function CorruptionSequence() {
       if (elapsed < BLACKOUT_END) setPhase("BLACKOUT");
       else if (elapsed < GREEN_END) setPhase("GREEN MATRIX RAIN");
       else if (elapsed < RED_SWEEP_END) setPhase("DIAGONAL RED SWEEP");
-      else if (elapsed < FORMATION_END) setPhase("NULLWORKS PAINT");
+      else if (elapsed < FORMATION_END) setPhase("NULLWORKS PAINT + SOLIDIFY");
       else if (elapsed < DARK_LOCK_END) setPhase("BLOOD RED LOCK");
       else setPhase("TWO-DROP BLEED");
 
@@ -334,7 +353,7 @@ export default function CorruptionSequence() {
     const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const drops: ForegroundDrop[] = [
       { xRatio: 0.28, startDelay: 0, speed: 48, radius: 8.5 },
-      { xRatio: 0.72, startDelay: 2400, speed: 56, radius: 7.5 },
+      { xRatio: 0.72, startDelay: 1000, speed: 56, radius: 7.5 },
     ];
     let animationFrame = 0;
     let width = 0;
@@ -413,7 +432,7 @@ export default function CorruptionSequence() {
       const elapsed = reducedMotion || skipRef.current
         ? SEQUENCE_SETTLED
         : time - sequenceStartRef.current;
-      const dropElapsed = elapsed - DARK_LOCK_END;
+      const dropElapsed = elapsed - FIRST_DROP_START;
 
       if (dropElapsed >= 0) {
         drops.forEach((drop) => {
@@ -461,7 +480,7 @@ export default function CorruptionSequence() {
           <div className="eyebrow">LIVING SIGNAL 11 // CINEMATIC IDENTITY FORMATION</div>
           <h1>Rain paints the identity.<span>The identity darkens into blood.</span></h1>
           <p>
-            Twenty-plus green streams establish the machine field. A diagonal red wave climbs from the bottom-left to the top-right, then same-size falling glyphs spend ten seconds painting NULLWORKS before two slow foreground drops cross the completed blood-red system.
+            Twenty-plus green streams establish the machine field. A diagonal red wave climbs from the bottom-left to the top-right, then same-size falling glyphs paint NULLWORKS. Each landed glyph becomes a solid red mask cell after one second while two slow foreground drops cross during formation.
           </p>
           <div className="actions">
             <button type="button" onClick={replay}>Replay from black</button>
