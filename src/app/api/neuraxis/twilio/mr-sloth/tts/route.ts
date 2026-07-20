@@ -31,7 +31,7 @@ export async function GET(request: Request) {
         voice: process.env.MR_SLOTH_TTS_VOICE || "onyx",
         input: text,
         instructions:
-          "Elderly male voice, early eighties. Deep baritone worn by age, slightly rough and breathy, with no youthful brightness. Speak in a measured, unhurried meter, but keep the words connected smoothly inside each thought. Slow the cadence. Keep pauses at commas and periods very short, roughly a quarter to half second. Never create long dramatic gaps. The measured tone is simply his lifelong way of speaking, not a technological delay. Wise, dry warmth; a workshop elder and keeper of forgotten craft. Never sound like an announcer, presenter, cartoon, mascot, salesman, or imitation of a Japanese accent.",
+          "Elderly male voice, early eighties. Deep baritone worn by age, slightly rough and breathy, with no youthful brightness. Speak in a measured, unhurried meter, but keep the words connected smoothly inside each thought. Keep the speaking cadence exactly steady and unchanged. Use brief comma pauses of roughly a quarter to two-fifths of a second, and sentence-ending pauses of roughly six-tenths to three-quarters of a second—about fifty percent longer than before. Do not create theatrical or multi-second gaps. The measured tone is simply his lifelong way of speaking, not a technological delay. Wise, dry warmth; a workshop elder and keeper of forgotten craft. Never sound like an announcer, presenter, cartoon, mascot, salesman, or imitation of a Japanese accent.",
         response_format: "mp3",
         speed: 0.82,
       }),
