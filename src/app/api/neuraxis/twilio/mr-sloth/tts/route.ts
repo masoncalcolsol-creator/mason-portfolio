@@ -31,9 +31,9 @@ export async function GET(request: Request) {
         voice: process.env.MR_SLOTH_TTS_VOICE || "onyx",
         input: text,
         instructions:
-          "Older male voice, around seventy, low and weathered, warm but slightly dry. Speak deliberately without dragging. Use small natural hesitations rather than long dramatic pauses. Sound like a careful keeper of workshop knowledge. Never sound like an announcer, a young presenter, a cartoon, a mascot, a salesman, or an imitation of a Japanese accent.",
+          "Elderly male voice, early eighties. Deep baritone worn by age, slightly rough and breathy, with no youthful brightness. Speak in a measured, unhurried meter, but keep the words connected smoothly inside each thought. Slow the cadence. Keep pauses at commas and periods very short, roughly a quarter to half second. Never create long dramatic gaps. The measured tone is simply his lifelong way of speaking, not a technological delay. Wise, dry warmth; a workshop elder and keeper of forgotten craft. Never sound like an announcer, presenter, cartoon, mascot, salesman, or imitation of a Japanese accent.",
         response_format: "mp3",
-        speed: 0.96,
+        speed: 0.82,
       }),
       cache: "no-store",
     });
