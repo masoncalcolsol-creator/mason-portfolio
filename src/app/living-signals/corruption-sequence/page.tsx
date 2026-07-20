@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import CorruptionSequence from "../CorruptionSequence";
+import CorruptionSequenceMasked from "../CorruptionSequenceMasked";
 
 export const metadata: Metadata = {
   title: "NULLWORKS — Corruption Sequence",
@@ -8,5 +8,5 @@ export const metadata: Metadata = {
 };
 
 export default function CorruptionSequencePage() {
-  return <CorruptionSequence />;
+  return <CorruptionSequenceMasked />;
 }
