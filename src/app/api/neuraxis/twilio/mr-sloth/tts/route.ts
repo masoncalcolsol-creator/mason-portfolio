@@ -28,12 +28,12 @@ export async function GET(request: Request) {
       },
       body: JSON.stringify({
         model: process.env.OPENAI_TTS_MODEL || "gpt-4o-mini-tts",
-        voice: process.env.MR_SLOTH_TTS_VOICE || "cedar",
+        voice: process.env.MR_SLOTH_TTS_VOICE || "onyx",
         input: text,
         instructions:
-          "Low, warm, weathered voice. Slow but natural. Quiet confidence, generous pauses, and no announcer energy. Sound like a careful keeper of workshop knowledge, never a cartoon, mascot, salesman, or imitation of a Japanese accent.",
+          "Older male voice, around seventy, low and weathered, warm but slightly dry. Speak deliberately without dragging. Use small natural hesitations rather than long dramatic pauses. Sound like a careful keeper of workshop knowledge. Never sound like an announcer, a young presenter, a cartoon, a mascot, a salesman, or an imitation of a Japanese accent.",
         response_format: "mp3",
-        speed: 0.9,
+        speed: 0.96,
       }),
       cache: "no-store",
     });
