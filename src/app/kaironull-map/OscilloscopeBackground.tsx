@@ -2,6 +2,16 @@
 
 import { useEffect, useRef } from "react";
 
+type ScopeColor = {
+  red: number;
+  green: number;
+  blue: number;
+};
+
+type ThemeChangeDetail = {
+  scopeRgb?: readonly [number, number, number];
+};
+
 export default function OscilloscopeBackground() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -18,6 +28,31 @@ export default function OscilloscopeBackground() {
     let height = 0;
     let dpr = 1;
     let lastFrame = 0;
+    let scopeColor: ScopeColor = { red: 155, green: 121, blue: 189 };
+
+    const clamp = (value: number) => Math.max(0, Math.min(255, Math.round(value)));
+    const rgba = (alpha: number, lift = 0) =>
+      `rgba(${clamp(scopeColor.red + lift)}, ${clamp(scopeColor.green + lift)}, ${clamp(scopeColor.blue + lift)}, ${alpha})`;
+
+    const readColorFromPage = () => {
+      const page = document.querySelector<HTMLElement>(".kn-page");
+      if (!page) return;
+      const raw = window.getComputedStyle(page).getPropertyValue("--scope-rgb").trim();
+      const parts = raw.split(",").map((part) => Number(part.trim()));
+      if (parts.length === 3 && parts.every(Number.isFinite)) {
+        scopeColor = { red: parts[0], green: parts[1], blue: parts[2] };
+      }
+    };
+
+    const handleThemeChange = (event: Event) => {
+      const detail = (event as CustomEvent<ThemeChangeDetail>).detail;
+      const rgb = detail?.scopeRgb;
+      if (rgb && rgb.length === 3) {
+        scopeColor = { red: rgb[0], green: rgb[1], blue: rgb[2] };
+      } else {
+        readColorFromPage();
+      }
+    };
 
     const resize = () => {
       dpr = Math.min(window.devicePixelRatio || 1, 1.5);
@@ -53,7 +88,7 @@ export default function OscilloscopeBackground() {
       const minor = 28;
       const major = minor * 5;
 
-      context.strokeStyle = "rgba(153, 119, 191, 0.028)";
+      context.strokeStyle = rgba(0.028);
       context.beginPath();
       for (let x = 0; x <= width; x += minor) {
         context.moveTo(x + 0.5, 0);
@@ -65,7 +100,7 @@ export default function OscilloscopeBackground() {
       }
       context.stroke();
 
-      context.strokeStyle = "rgba(153, 119, 191, 0.055)";
+      context.strokeStyle = rgba(0.055);
       context.beginPath();
       for (let x = 0; x <= width; x += major) {
         context.moveTo(x + 0.5, 0);
@@ -77,7 +112,7 @@ export default function OscilloscopeBackground() {
       }
       context.stroke();
 
-      context.strokeStyle = "rgba(176, 145, 211, 0.085)";
+      context.strokeStyle = rgba(0.085, 20);
       context.beginPath();
       context.moveTo(0, height * 0.5 + 0.5);
       context.lineTo(width, height * 0.5 + 0.5);
@@ -106,20 +141,20 @@ export default function OscilloscopeBackground() {
       }
 
       context.lineWidth = 1.1;
-      context.strokeStyle = `rgba(177, 145, 211, ${alpha})`;
-      context.shadowColor = "rgba(153, 119, 191, 0.62)";
+      context.strokeStyle = rgba(alpha, 18);
+      context.shadowColor = rgba(0.62);
       context.shadowBlur = 6;
       context.stroke();
 
       context.shadowBlur = 0;
       const sweepGradient = context.createLinearGradient(sweep - 160, 0, sweep + 25, 0);
-      sweepGradient.addColorStop(0, "rgba(140, 104, 181, 0)");
-      sweepGradient.addColorStop(0.72, "rgba(140, 104, 181, 0.025)");
-      sweepGradient.addColorStop(1, "rgba(190, 162, 222, 0.16)");
+      sweepGradient.addColorStop(0, rgba(0));
+      sweepGradient.addColorStop(0.72, rgba(0.025));
+      sweepGradient.addColorStop(1, rgba(0.16, 34));
       context.fillStyle = sweepGradient;
       context.fillRect(sweep - 160, 0, 185, height);
 
-      context.strokeStyle = "rgba(196, 169, 226, 0.22)";
+      context.strokeStyle = rgba(0.22, 42);
       context.beginPath();
       context.moveTo(sweep, 0);
       context.lineTo(sweep, height);
@@ -142,13 +177,16 @@ export default function OscilloscopeBackground() {
       if (!reducedMotion) animationFrame = requestAnimationFrame(render);
     };
 
+    readColorFromPage();
     resize();
     window.addEventListener("resize", resize);
+    window.addEventListener("kaironull:themechange", handleThemeChange);
     animationFrame = requestAnimationFrame(render);
 
     return () => {
       cancelAnimationFrame(animationFrame);
       window.removeEventListener("resize", resize);
+      window.removeEventListener("kaironull:themechange", handleThemeChange);
     };
   }, []);
 
@@ -172,7 +210,8 @@ export default function OscilloscopeBackground() {
         style={{
           position: "absolute",
           inset: 0,
-          background: "repeating-linear-gradient(to bottom, rgba(177,145,211,0.012) 0, rgba(177,145,211,0.012) 1px, transparent 1px, transparent 4px)",
+          background:
+            "repeating-linear-gradient(to bottom, rgba(var(--scope-rgb, 155, 121, 189), 0.012) 0, rgba(var(--scope-rgb, 155, 121, 189), 0.012) 1px, transparent 1px, transparent 4px)",
         }}
       />
       <div
