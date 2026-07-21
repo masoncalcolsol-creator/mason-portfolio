@@ -12,6 +12,25 @@ const requiredFields = [
   "consent",
 ] as const;
 
+type ChallengeRecord = {
+  receiptId: string;
+  createdAt: string;
+  documentVersion: string;
+  reviewState: string;
+  name: string;
+  email: string;
+  role: string;
+  target: string;
+  contributionType: string;
+  argument: string;
+  evidence: string;
+  attachmentName: string;
+  attribution: string;
+  quotePermission: string;
+  conflict: string;
+  consent: boolean;
+};
+
 function clean(value: unknown, max: number) {
   return String(value ?? "")
     .replace(/[\u0000-\u001f\u007f]/g, " ")
@@ -20,7 +39,7 @@ function clean(value: unknown, max: number) {
     .slice(0, max);
 }
 
-function buildEmail(record: Record<string, unknown>) {
+function buildEmail(record: ChallengeRecord) {
   return [
     `INSTANTIATION RED-TEAM RECEIPT: ${record.receiptId}`,
     `Created: ${record.createdAt}`,
@@ -38,16 +57,16 @@ function buildEmail(record: Record<string, unknown>) {
     `Attachment named by submitter: ${record.attachmentName || "None"}`,
     "",
     "ARGUMENT OR CONTRIBUTION",
-    String(record.argument),
+    record.argument,
     "",
     "SUPPORTING EVIDENCE",
-    String(record.evidence || "Not supplied"),
+    record.evidence || "Not supplied",
     "",
     "This is the private delivery receipt. It does not publish or directly edit the paper.",
   ].join("\n");
 }
 
-async function deliverEmail(record: Record<string, unknown>) {
+async function deliverEmail(record: ChallengeRecord) {
   const apiKey = process.env.RESEND_API_KEY;
   if (!apiKey) {
     return { delivered: false, reason: "RESEND_API_KEY is not configured." };
@@ -69,13 +88,13 @@ async function deliverEmail(record: Record<string, unknown>) {
       body: JSON.stringify({
         from: fromEmail,
         to: [reviewEmail],
-        reply_to: String(record.email),
+        reply_to: record.email,
         subject: `INSTANTIATION challenge ${record.receiptId}`,
         text: buildEmail(record),
         tags: [
           { name: "system", value: "instantiation" },
           { name: "document_version", value: "0_8" },
-          { name: "receipt", value: String(record.receiptId) },
+          { name: "receipt", value: record.receiptId },
         ],
       }),
       cache: "no-store",
@@ -102,7 +121,7 @@ async function deliverEmail(record: Record<string, unknown>) {
   }
 }
 
-async function deliverWebhook(record: Record<string, unknown>) {
+async function deliverWebhook(record: ChallengeRecord) {
   const webhook = process.env.INSTANTIATION_INTAKE_WEBHOOK_URL;
   const webhookToken = process.env.INSTANTIATION_INTAKE_WEBHOOK_TOKEN;
   if (!webhook) return false;
@@ -179,7 +198,7 @@ export async function POST(request: NextRequest) {
     `INST-RT-${createdAt.slice(0, 10).replaceAll("-", "")}-` +
     randomUUID().slice(0, 8).toUpperCase();
 
-  const record = {
+  const record: ChallengeRecord = {
     receiptId,
     createdAt,
     documentVersion: "0.8",
