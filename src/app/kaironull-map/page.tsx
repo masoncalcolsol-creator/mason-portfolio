@@ -4,9 +4,7 @@ import {
   Archive,
   ArrowDown,
   BadgeCheck,
-  Binary,
   BookOpenCheck,
-  Boxes,
   BrainCircuit,
   CheckCircle2,
   CircleHelp,
@@ -16,12 +14,8 @@ import {
   Eye,
   FileCheck2,
   Fingerprint,
-  Gauge,
   GitBranch,
-  KeyRound,
   Layers3,
-  LockKeyhole,
-  Network,
   Radar,
   ScanLine,
   ShieldCheck,
@@ -30,12 +24,12 @@ import {
   Workflow,
   Wrench,
 } from "lucide-react";
-import OscilloscopeBackground from "../receipt-wallet/OscilloscopeBackground";
+import OscilloscopeBackground from "./OscilloscopeBackground";
 
 export const metadata: Metadata = {
-  title: "KairoNull, Translated for Mason | NULLWORKS Study Map",
+  title: "KairoNull Review Workspace | NULLWORKS",
   description:
-    "A public-source, NULLWORKS-style comprehension map of KairoNull's AI governance evidence infrastructure before an independent pressure test.",
+    "A shareable, public-source orientation map, pressure-test roadmap, and outcome-independent case-study workspace for KairoNull.",
   robots: {
     index: false,
     follow: false,
@@ -142,7 +136,7 @@ const notThis = [
   },
   {
     title: "Not proof the decision was good",
-    body: "A valid chain can prove a record was preserved. The pressure test still has to ask whether the governing rule, authority, inputs, exceptions, and outcome were valid.",
+    body: "A valid chain can prove a record was preserved. The review still has to ask whether the governing rule, authority, inputs, exceptions, and outcome were valid.",
     icon: TriangleAlert,
   },
 ];
@@ -169,6 +163,39 @@ const deployment = [
     number: "03",
     title: "Enterprise governance infrastructure",
     body: "Extend the evidence layer across multiple systems or business units with custom invariants, governance reporting, regulatory monitoring, and audit support.",
+  },
+];
+
+const reviewStages = [
+  {
+    number: "01",
+    status: "COMPLETE",
+    title: "Public-source orientation",
+    body: "Translate the public website into one understandable system map, separate claims from verified facts, and establish the vocabulary used during the review.",
+  },
+  {
+    number: "02",
+    status: "READY",
+    title: "Representative path selection",
+    body: "Choose one real decision path that is important enough to matter and bounded enough to inspect end to end during the session.",
+  },
+  {
+    number: "03",
+    status: "PENDING",
+    title: "Live pressure test",
+    body: "Walk the selected path through authority, contemporaneous evidence, exceptions, bypass conditions, export, and independent verification.",
+  },
+  {
+    number: "04",
+    status: "LOCKED FORMAT",
+    title: "Evidence classification",
+    body: "Record each material claim as verified, gap, unknown, or out of scope. Preserve the source, the boundary, and the exact reason for the classification.",
+  },
+  {
+    number: "05",
+    status: "AFTER REVIEW",
+    title: "Independent case-study receipt",
+    body: "Publish what actually survived. Dane verifies quotations and factual descriptions; the independent conclusions are not predetermined or softened.",
   },
 ];
 
@@ -238,6 +265,24 @@ const claimsToTest = [
   "The exported package remains useful after KairoNull, its staff, or its infrastructure is unavailable.",
 ];
 
+const outcomes = [
+  {
+    label: "IF IT HOLDS",
+    title: "Independent confidence",
+    body: "The result is a concrete receipt showing which public claims survived a representative-path challenge and what evidence supported them.",
+  },
+  {
+    label: "IF A GAP APPEARS",
+    title: "Early remediation",
+    body: "The result is a precisely bounded weakness found before a customer, regulator, auditor, court, or hostile reviewer finds it first.",
+  },
+  {
+    label: "IF THE RESULT IS MIXED",
+    title: "A trustworthy boundary",
+    body: "The result separates what is demonstrably strong from what remains unknown, untested, unsupported, or dependent on future work.",
+  },
+];
+
 const sourceLinks = [
   ["Original homepage", "https://kaironull.com/"],
   ["Solutions by sector", "https://kaironull.com/solutions"],
@@ -255,25 +300,27 @@ export default function KairoNullMapPage() {
         :root { color-scheme: dark; }
         * { box-sizing: border-box; }
         html { scroll-behavior: smooth; }
-        body { margin: 0; background: #040806; }
+        body { margin: 0; background: #050507; }
         .kn-page {
-          --phosphor: #91ff4d;
-          --phosphor-soft: rgba(145,255,77,.14);
-          --amber: #ffb347;
-          --amber-soft: rgba(255,179,71,.14);
-          --paper: #eef6e9;
-          --muted: #a8b7aa;
-          --panel: rgba(5,12,8,.88);
-          --line: rgba(207,255,188,.15);
+          --signal: #c5c7cc;
+          --signal-soft: rgba(197,199,204,.12);
+          --wine: #9a3651;
+          --wine-bright: #b24a68;
+          --wine-soft: rgba(154,54,81,.14);
+          --purple: #9b79bd;
+          --paper: #f0f0f2;
+          --muted: #aaaab1;
+          --panel: rgba(9,9,13,.89);
+          --line: rgba(220,220,226,.14);
           min-height: 100vh;
           position: relative;
           isolation: isolate;
           overflow-x: hidden;
           color: var(--paper);
           background:
-            radial-gradient(circle at 12% 8%, rgba(145,255,77,.10), transparent 28rem),
-            radial-gradient(circle at 88% 31%, rgba(255,179,71,.08), transparent 31rem),
-            linear-gradient(180deg, rgba(4,8,6,.82), rgba(4,8,6,.96));
+            radial-gradient(circle at 12% 8%, rgba(155,121,189,.085), transparent 28rem),
+            radial-gradient(circle at 88% 31%, rgba(154,54,81,.075), transparent 31rem),
+            linear-gradient(180deg, rgba(5,5,7,.84), rgba(5,5,7,.97));
           font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
         }
         .kn-page::before {
@@ -282,10 +329,10 @@ export default function KairoNullMapPage() {
           inset: 0;
           z-index: 0;
           pointer-events: none;
-          opacity: .18;
+          opacity: .15;
           background-image:
-            linear-gradient(rgba(255,255,255,.035) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(255,255,255,.035) 1px, transparent 1px);
+            linear-gradient(rgba(255,255,255,.03) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(255,255,255,.03) 1px, transparent 1px);
           background-size: 46px 46px;
           mask-image: linear-gradient(to bottom, #000, transparent 90%);
         }
@@ -296,117 +343,132 @@ export default function KairoNullMapPage() {
           top: 0;
           z-index: 90 !important;
           border-bottom: 1px solid var(--line);
-          background: rgba(4,8,6,.84);
+          background: rgba(5,5,7,.86);
           backdrop-filter: blur(18px);
         }
         .nav-inner { min-height: 64px; display: flex; align-items: center; justify-content: space-between; gap: 18px; }
         .brand { color: #fff; text-decoration: none; font-weight: 950; letter-spacing: .13em; font-size: 12px; }
-        .brand span { color: var(--phosphor); }
+        .brand span { color: var(--signal); }
         .nav-links { display: flex; gap: 7px; flex-wrap: wrap; justify-content: flex-end; }
-        .nav-links a { color: #c5d2c4; text-decoration: none; border: 1px solid rgba(255,255,255,.14); border-radius: 999px; padding: 8px 10px; font-size: 11px; font-weight: 850; }
-        .nav-links a:hover { color: #040806; background: var(--phosphor); border-color: var(--phosphor); }
+        .nav-links a { color: #c5c5ca; text-decoration: none; border: 1px solid rgba(255,255,255,.14); border-radius: 999px; padding: 8px 10px; font-size: 11px; font-weight: 850; }
+        .nav-links a:hover { color: #08080b; background: var(--signal); border-color: var(--signal); }
         .hero { min-height: calc(100svh - 64px); display: grid; align-items: center; border-bottom: 1px solid var(--line); }
         .hero-grid { display: grid; grid-template-columns: 1.2fr .8fr; gap: 28px; align-items: end; padding: 82px 0 70px; }
-        .eyebrow { display: flex; align-items: center; gap: 9px; color: var(--phosphor); font: 900 11px/1.3 ui-monospace, SFMono-Regular, Menlo, monospace; letter-spacing: .17em; text-transform: uppercase; }
-        h1 { margin: 18px 0 0; max-width: 900px; font-size: clamp(58px, 10vw, 128px); line-height: .82; letter-spacing: -.075em; }
-        h1 span { display: block; color: transparent; -webkit-text-stroke: 1px rgba(238,246,233,.62); }
-        .lead { max-width: 820px; margin: 28px 0 0; color: #c7d3c5; font-size: clamp(20px, 2.35vw, 28px); line-height: 1.5; }
-        .lead strong { color: var(--amber); }
+        .eyebrow { display: flex; align-items: center; gap: 9px; color: var(--signal); font: 900 11px/1.3 ui-monospace, SFMono-Regular, Menlo, monospace; letter-spacing: .17em; text-transform: uppercase; }
+        h1 { margin: 18px 0 0; max-width: 930px; font-size: clamp(58px, 10vw, 128px); line-height: .82; letter-spacing: -.075em; }
+        h1 span { display: block; color: transparent; -webkit-text-stroke: 1px rgba(240,240,242,.6); }
+        .lead { max-width: 840px; margin: 28px 0 0; color: #c8c8cc; font-size: clamp(20px, 2.35vw, 28px); line-height: 1.5; }
+        .lead strong { color: #d39aab; }
         .hero-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 30px; }
-        .button { display: inline-flex; align-items: center; justify-content: center; gap: 9px; min-height: 48px; padding: 13px 17px; border-radius: 999px; background: var(--phosphor); color: #041006; text-decoration: none; font-weight: 950; }
-        .button.secondary { color: var(--phosphor); background: rgba(4,8,6,.48); border: 1px solid rgba(145,255,77,.4); }
-        .status-card { border: 1px solid rgba(145,255,77,.34); border-radius: 28px; padding: 25px; background: linear-gradient(145deg, rgba(145,255,77,.105), rgba(255,179,71,.035), rgba(5,12,8,.84)); box-shadow: 0 34px 100px rgba(0,0,0,.44); }
-        .status-chip { display: inline-flex; gap: 8px; align-items: center; color: var(--phosphor); border: 1px solid rgba(145,255,77,.27); border-radius: 999px; padding: 8px 10px; font: 900 10px ui-monospace, monospace; letter-spacing: .12em; }
+        .button { display: inline-flex; align-items: center; justify-content: center; gap: 9px; min-height: 48px; padding: 13px 17px; border-radius: 999px; background: var(--signal); color: #09090c; text-decoration: none; font-weight: 950; }
+        .button.secondary { color: #e4e4e7; background: rgba(8,8,11,.55); border: 1px solid rgba(197,199,204,.32); }
+        .status-card { border: 1px solid rgba(197,199,204,.24); border-radius: 28px; padding: 25px; background: linear-gradient(145deg, rgba(197,199,204,.075), rgba(154,54,81,.055), rgba(9,9,13,.87)); box-shadow: 0 34px 100px rgba(0,0,0,.44); }
+        .status-chip { display: inline-flex; gap: 8px; align-items: center; color: var(--signal); border: 1px solid rgba(197,199,204,.23); border-radius: 999px; padding: 8px 10px; font: 900 10px ui-monospace, monospace; letter-spacing: .12em; }
         .status-card strong { display: block; margin-top: 21px; font-size: clamp(35px, 5vw, 58px); line-height: .95; letter-spacing: -.055em; }
-        .status-card p { color: #b8c5b7; line-height: 1.65; }
-        .signal { margin-top: 22px; border-top: 1px solid rgba(255,255,255,.11); padding-top: 19px; font: 800 12px/1.65 ui-monospace, monospace; color: #819181; }
-        .signal b { color: var(--amber); }
+        .status-card p { color: #b9b9bf; line-height: 1.65; }
+        .signal { margin-top: 22px; border-top: 1px solid rgba(255,255,255,.11); padding-top: 19px; font: 800 12px/1.65 ui-monospace, monospace; color: #8d8d94; }
+        .signal b { color: #c17189; }
         .quick-map { padding: 72px 0; border-bottom: 1px solid var(--line); }
-        .section-label { color: var(--phosphor); font: 900 11px ui-monospace, monospace; letter-spacing: .16em; text-transform: uppercase; }
+        .section-label { color: var(--signal); font: 900 11px ui-monospace, monospace; letter-spacing: .16em; text-transform: uppercase; }
         .quick-map h2, .section h2 { margin: 12px 0 26px; max-width: 980px; font-size: clamp(42px, 7vw, 84px); line-height: .92; letter-spacing: -.06em; }
         .map-strip { display: grid; grid-template-columns: repeat(7, auto); gap: 8px; align-items: center; overflow-x: auto; padding: 18px 2px 13px; scrollbar-width: thin; }
-        .map-node { min-width: 155px; min-height: 118px; display: grid; align-content: space-between; border: 1px solid rgba(255,255,255,.14); border-radius: 20px; padding: 15px; background: rgba(5,12,8,.77); }
-        .map-node b { color: var(--amber); font: 900 10px ui-monospace, monospace; letter-spacing: .12em; }
+        .map-node { min-width: 155px; min-height: 118px; display: grid; align-content: space-between; border: 1px solid rgba(255,255,255,.13); border-radius: 20px; padding: 15px; background: rgba(9,9,13,.8); }
+        .map-node b { color: #c17189; font: 900 10px ui-monospace, monospace; letter-spacing: .12em; }
         .map-node span { font-size: 16px; font-weight: 850; line-height: 1.2; }
-        .map-arrow { color: var(--phosphor); }
-        .translation { margin-top: 27px; border-left: 4px solid var(--amber); padding: 20px 22px; background: rgba(255,179,71,.07); color: #d6dfd3; font-size: clamp(20px, 2.3vw, 27px); line-height: 1.55; }
-        .translation strong { color: var(--amber); }
+        .map-arrow { color: var(--signal); }
+        .translation { margin-top: 27px; border-left: 4px solid var(--wine); padding: 20px 22px; background: rgba(154,54,81,.075); color: #d7d7db; font-size: clamp(20px, 2.3vw, 27px); line-height: 1.55; }
+        .translation strong { color: #d39aab; }
         .process { border-bottom: 1px solid var(--line); }
         .process-intro { padding: 80px 0 34px; }
-        .process-intro p { max-width: 840px; color: #afbcad; font-size: 19px; line-height: 1.7; }
+        .process-intro p { max-width: 840px; color: #b1b1b7; font-size: 19px; line-height: 1.7; }
         .step-stack { padding-bottom: 68px; }
         .step { min-height: 72svh; display: grid; align-items: center; padding: 28px 0; }
         .step:nth-child(even) .step-card { margin-left: auto; }
-        .step-card { width: min(670px, 100%); border: 1px solid rgba(255,255,255,.16); border-radius: 29px; padding: clamp(24px, 4vw, 38px); background: rgba(5,12,8,.91); backdrop-filter: blur(15px); box-shadow: 0 30px 90px rgba(0,0,0,.43); }
+        .step-card { width: min(670px, 100%); border: 1px solid rgba(255,255,255,.15); border-radius: 29px; padding: clamp(24px, 4vw, 38px); background: rgba(9,9,13,.92); backdrop-filter: blur(15px); box-shadow: 0 30px 90px rgba(0,0,0,.43); }
         .step-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 18px; }
-        .step-number { color: var(--phosphor); font: 950 clamp(48px, 8vw, 86px)/.8 ui-monospace, monospace; }
-        .step-icon { width: 46px; height: 46px; display: grid; place-items: center; border: 1px solid rgba(255,179,71,.38); border-radius: 50%; color: var(--amber); background: rgba(255,179,71,.08); }
-        .step-label { margin-top: 23px; color: var(--amber); font: 900 11px ui-monospace, monospace; letter-spacing: .17em; }
+        .step-number { color: var(--signal); font: 950 clamp(48px, 8vw, 86px)/.8 ui-monospace, monospace; }
+        .step-icon { width: 46px; height: 46px; display: grid; place-items: center; border: 1px solid rgba(154,54,81,.4); border-radius: 50%; color: #c17189; background: rgba(154,54,81,.08); }
+        .step-label { margin-top: 23px; color: #c17189; font: 900 11px ui-monospace, monospace; letter-spacing: .17em; }
         .step-card h3 { margin: 10px 0; font-size: clamp(35px, 5vw, 58px); line-height: .94; letter-spacing: -.052em; }
-        .step-card p { color: #b9c4b7; font-size: 18px; line-height: 1.67; }
-        .plain { margin-top: 22px; padding-top: 19px; border-top: 1px solid rgba(255,255,255,.11); color: var(--phosphor); font: 950 15px ui-monospace, monospace; letter-spacing: .1em; text-transform: uppercase; }
+        .step-card p { color: #bcbcc1; font-size: 18px; line-height: 1.67; }
+        .plain { margin-top: 22px; padding-top: 19px; border-top: 1px solid rgba(255,255,255,.11); color: var(--signal); font: 950 15px ui-monospace, monospace; letter-spacing: .1em; text-transform: uppercase; }
         .section { padding: 86px 0; border-bottom: 1px solid var(--line); }
-        .intro-copy { max-width: 860px; color: #b6c2b4; font-size: 19px; line-height: 1.7; }
+        .intro-copy { max-width: 860px; color: #b8b8bd; font-size: 19px; line-height: 1.7; }
         .dictionary { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 34px; }
-        .term { min-height: 225px; border: 1px solid rgba(255,255,255,.14); border-radius: 23px; padding: 19px; background: rgba(255,255,255,.025); }
-        .term-icon { color: var(--phosphor); }
-        .term b { display: block; margin-top: 40px; color: var(--amber); font: 900 11px ui-monospace, monospace; letter-spacing: .12em; }
-        .term p { margin-bottom: 0; color: #c1cbc0; line-height: 1.52; }
+        .term { min-height: 225px; border: 1px solid rgba(255,255,255,.13); border-radius: 23px; padding: 19px; background: rgba(255,255,255,.022); }
+        .term-icon { color: var(--signal); }
+        .term b { display: block; margin-top: 40px; color: #c17189; font: 900 11px ui-monospace, monospace; letter-spacing: .12em; }
+        .term p { margin-bottom: 0; color: #c4c4c8; line-height: 1.52; }
         .not-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 13px; margin-top: 30px; }
-        .not-card { border-left: 4px solid var(--amber); padding: 22px; background: rgba(255,255,255,.032); }
-        .not-card svg { color: var(--amber); }
+        .not-card { border-left: 4px solid var(--wine); padding: 22px; background: rgba(255,255,255,.03); }
+        .not-card svg { color: #c17189; }
         .not-card h3 { margin: 18px 0 8px; font-size: 27px; }
-        .not-card p { margin: 0; color: #b8c3b6; line-height: 1.62; }
-        .example-shell { border: 1px solid rgba(145,255,77,.28); border-radius: 28px; overflow: hidden; background: rgba(3,9,6,.88); }
+        .not-card p { margin: 0; color: #bcbcc1; line-height: 1.62; }
+        .example-shell { border: 1px solid rgba(197,199,204,.22); border-radius: 28px; overflow: hidden; background: rgba(7,7,10,.9); }
         .example-head { display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 20px; border-bottom: 1px solid rgba(255,255,255,.12); }
         .example-head strong { font-size: 24px; }
-        .live { display: inline-flex; align-items: center; gap: 8px; color: var(--phosphor); font: 900 10px ui-monospace, monospace; letter-spacing: .12em; }
-        .live::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--phosphor); box-shadow: 0 0 15px var(--phosphor); }
+        .live { display: inline-flex; align-items: center; gap: 8px; color: var(--signal); font: 900 10px ui-monospace, monospace; letter-spacing: .12em; }
+        .live::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--signal); box-shadow: 0 0 13px rgba(197,199,204,.5); }
         .example-flow { display: grid; grid-template-columns: repeat(5, 1fr); }
         .example-cell { min-height: 190px; padding: 20px; border-right: 1px solid rgba(255,255,255,.10); }
         .example-cell:last-child { border-right: 0; }
-        .example-cell b { color: var(--amber); font: 900 10px ui-monospace, monospace; letter-spacing: .11em; }
+        .example-cell b { color: #c17189; font: 900 10px ui-monospace, monospace; letter-spacing: .11em; }
         .example-cell h3 { margin: 18px 0 8px; font-size: 22px; }
-        .example-cell p { color: #aebbad; line-height: 1.5; }
+        .example-cell p { color: #b1b1b6; line-height: 1.5; }
         .sector-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
-        .sector { min-height: 190px; border: 1px solid rgba(255,255,255,.13); border-radius: 23px; padding: 21px; background: linear-gradient(145deg, rgba(145,255,77,.055), rgba(255,179,71,.025)); }
-        .sector b { color: var(--phosphor); font: 900 11px ui-monospace, monospace; letter-spacing: .13em; }
-        .sector p { color: #bac5b8; font-size: 17px; line-height: 1.6; }
+        .sector { min-height: 190px; border: 1px solid rgba(255,255,255,.13); border-radius: 23px; padding: 21px; background: linear-gradient(145deg, rgba(197,199,204,.035), rgba(154,54,81,.025)); }
+        .sector b { color: var(--signal); font: 900 11px ui-monospace, monospace; letter-spacing: .13em; }
+        .sector p { color: #bdbdc2; font-size: 17px; line-height: 1.6; }
         .deployment-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 13px; }
-        .deploy-card { border: 1px solid rgba(255,179,71,.27); border-radius: 25px; padding: 23px; background: rgba(255,179,71,.045); }
-        .deploy-card strong { color: var(--amber); font: 950 49px/.85 ui-monospace, monospace; }
+        .deploy-card { border: 1px solid rgba(154,54,81,.28); border-radius: 25px; padding: 23px; background: rgba(154,54,81,.05); }
+        .deploy-card strong { color: #c17189; font: 950 49px/.85 ui-monospace, monospace; }
         .deploy-card h3 { font-size: 28px; margin: 22px 0 10px; }
-        .deploy-card p { color: #b5c0b3; line-height: 1.62; }
-        .pressure { background: linear-gradient(180deg, rgba(7,17,10,.83), rgba(4,8,6,.96)); }
+        .deploy-card p { color: #b8b8bd; line-height: 1.62; }
+        .roadmap-grid { display: grid; gap: 11px; }
+        .roadmap-card { display: grid; grid-template-columns: 76px 1fr auto; gap: 18px; align-items: start; border: 1px solid rgba(255,255,255,.13); border-radius: 22px; padding: 20px; background: rgba(255,255,255,.024); }
+        .roadmap-number { color: var(--signal); font: 950 38px/.9 ui-monospace, monospace; }
+        .roadmap-copy h3 { margin: 0 0 8px; font-size: 26px; }
+        .roadmap-copy p { margin: 0; color: #b9b9be; line-height: 1.6; }
+        .roadmap-status { white-space: nowrap; color: #d6a5b4; border: 1px solid rgba(154,54,81,.33); border-radius: 999px; padding: 7px 9px; font: 900 10px ui-monospace, monospace; letter-spacing: .1em; }
+        .pressure { background: linear-gradient(180deg, rgba(12,9,14,.82), rgba(5,5,7,.97)); }
         .pressure-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
-        .question { border: 1px solid rgba(145,255,77,.23); border-radius: 27px; padding: 24px; background: rgba(5,12,8,.83); }
+        .question { border: 1px solid rgba(197,199,204,.2); border-radius: 27px; padding: 24px; background: rgba(9,9,13,.86); }
         .q-top { display: flex; justify-content: space-between; gap: 14px; align-items: flex-start; }
-        .q-number { color: var(--phosphor); font: 950 47px/.9 ui-monospace, monospace; }
-        .q-icon { color: var(--amber); }
+        .q-number { color: var(--signal); font: 950 47px/.9 ui-monospace, monospace; }
+        .q-icon { color: #c17189; }
         .question h3 { font-size: clamp(28px, 4vw, 43px); line-height: 1; letter-spacing: -.04em; margin: 25px 0 12px; }
-        .question > p { color: #bcc7ba; line-height: 1.65; }
+        .question > p { color: #bfc0c4; line-height: 1.65; }
         .inspect { display: grid; gap: 7px; margin-top: 20px; }
-        .inspect span { display: flex; align-items: center; gap: 9px; color: #d1d9cf; font-size: 14px; }
-        .inspect svg { color: var(--phosphor); flex: 0 0 auto; }
+        .inspect span { display: flex; align-items: center; gap: 9px; color: #d5d5d8; font-size: 14px; }
+        .inspect svg { color: var(--signal); flex: 0 0 auto; }
         .claim-list { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 30px; }
-        .claim { display: flex; align-items: flex-start; gap: 11px; border: 1px solid rgba(255,255,255,.12); border-radius: 18px; padding: 16px; color: #c5cec3; line-height: 1.48; background: rgba(255,255,255,.025); }
-        .claim svg { color: var(--amber); flex: 0 0 auto; margin-top: 2px; }
-        .public-state { border: 1px solid rgba(255,179,71,.34); border-radius: 28px; padding: clamp(24px, 5vw, 44px); background: linear-gradient(145deg, rgba(255,179,71,.10), rgba(145,255,77,.045)); }
+        .claim { display: flex; align-items: flex-start; gap: 11px; border: 1px solid rgba(255,255,255,.12); border-radius: 18px; padding: 16px; color: #c7c7cb; line-height: 1.48; background: rgba(255,255,255,.023); }
+        .claim svg { color: #c17189; flex: 0 0 auto; margin-top: 2px; }
+        .outcome-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 13px; }
+        .outcome { min-height: 245px; border: 1px solid rgba(255,255,255,.13); border-radius: 25px; padding: 23px; background: linear-gradient(145deg, rgba(197,199,204,.035), rgba(154,54,81,.035)); }
+        .outcome b { color: #d39aab; font: 900 10px ui-monospace, monospace; letter-spacing: .12em; }
+        .outcome h3 { margin: 46px 0 10px; font-size: 30px; }
+        .outcome p { color: #babac0; line-height: 1.62; }
+        .findings-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 30px; }
+        .finding { min-height: 170px; border: 1px dashed rgba(255,255,255,.18); border-radius: 22px; padding: 20px; background: rgba(255,255,255,.018); }
+        .finding b { color: var(--signal); font: 900 11px ui-monospace, monospace; letter-spacing: .12em; }
+        .finding p { margin-top: 44px; color: #88888f; line-height: 1.55; }
+        .public-state { border: 1px solid rgba(154,54,81,.32); border-radius: 28px; padding: clamp(24px, 5vw, 44px); background: linear-gradient(145deg, rgba(154,54,81,.095), rgba(197,199,204,.035)); }
         .public-state strong { display: block; max-width: 940px; font-size: clamp(38px, 6vw, 72px); line-height: .94; letter-spacing: -.055em; }
-        .public-state p { max-width: 850px; color: #c0c9be; font-size: 18px; line-height: 1.67; }
-        .truth-boundary { margin-top: 20px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,.12); color: #829182; font-size: 14px; line-height: 1.65; }
+        .public-state p { max-width: 850px; color: #c2c2c6; font-size: 18px; line-height: 1.67; }
+        .truth-boundary { margin-top: 20px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,.12); color: #898990; font-size: 14px; line-height: 1.65; }
         .source-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 28px; }
-        .source-link { display: flex; align-items: center; justify-content: space-between; gap: 10px; min-height: 74px; border: 1px solid rgba(255,255,255,.13); border-radius: 18px; padding: 16px; color: #d4dcd2; text-decoration: none; font-weight: 850; background: rgba(255,255,255,.025); }
-        .source-link:hover { border-color: rgba(145,255,77,.45); color: var(--phosphor); }
-        footer { padding: 42px 0 72px; color: #7f8c7e; font-size: 14px; line-height: 1.7; }
-        footer a { color: var(--phosphor); }
+        .source-link { display: flex; align-items: center; justify-content: space-between; gap: 10px; min-height: 74px; border: 1px solid rgba(255,255,255,.13); border-radius: 18px; padding: 16px; color: #d5d5d8; text-decoration: none; font-weight: 850; background: rgba(255,255,255,.024); }
+        .source-link:hover { border-color: rgba(197,199,204,.4); color: #fff; }
+        footer { padding: 42px 0 72px; color: #85858c; font-size: 14px; line-height: 1.7; }
+        footer a { color: #d39aab; }
         @media (max-width: 940px) {
           .hero-grid { grid-template-columns: 1fr; align-items: start; }
           .dictionary { grid-template-columns: 1fr 1fr; }
           .example-flow { grid-template-columns: 1fr; }
           .example-cell { border-right: 0; border-bottom: 1px solid rgba(255,255,255,.10); }
           .example-cell:last-child { border-bottom: 0; }
-          .deployment-grid { grid-template-columns: 1fr; }
+          .deployment-grid, .outcome-grid { grid-template-columns: 1fr; }
           .source-grid { grid-template-columns: 1fr 1fr; }
         }
         @media (max-width: 680px) {
@@ -421,21 +483,24 @@ export default function KairoNullMapPage() {
           .process-intro { padding-top: 61px; }
           .step { min-height: auto; padding: 17px 0; }
           .step-card { margin: 0 !important; }
-          .dictionary, .not-grid, .sector-grid, .pressure-grid, .claim-list, .source-grid { grid-template-columns: 1fr; }
+          .dictionary, .not-grid, .sector-grid, .pressure-grid, .claim-list, .source-grid, .findings-grid { grid-template-columns: 1fr; }
           .term { min-height: 190px; }
           .example-head { align-items: flex-start; flex-direction: column; }
+          .roadmap-card { grid-template-columns: 56px 1fr; }
+          .roadmap-status { grid-column: 2; justify-self: start; }
         }
       `}</style>
 
-      <nav className="nav" aria-label="KairoNull comprehension map navigation">
+      <nav className="nav" aria-label="KairoNull review workspace navigation">
         <div className="shell nav-inner">
           <a className="brand" href="/">
-            NULLWORKS <span>FIELD TRANSLATION</span>
+            NULLWORKS <span>INDEPENDENT REVIEW</span>
           </a>
           <div className="nav-links">
-            <a href="#loop">The loop</a>
-            <a href="#dictionary">Dictionary</a>
-            <a href="#pressure">Pressure test</a>
+            <a href="#map">System map</a>
+            <a href="#roadmap">Roadmap</a>
+            <a href="#pressure">Review lenses</a>
+            <a href="#findings">Findings</a>
           </div>
         </div>
       </nav>
@@ -445,21 +510,24 @@ export default function KairoNullMapPage() {
           <div>
             <div className="eyebrow">
               <ScanLine size={15} />
-              PUBLIC-SOURCE STUDY MAP // NOT A SALES PAGE
+              PUBLIC-SOURCE ORIENTATION // SHAREABLE REVIEW WORKSPACE
             </div>
             <h1>
-              KairoNull,
-              <span>translated for Mason.</span>
+              KairoNull
+              <span>review workspace.</span>
             </h1>
             <p className="lead">
-              The clean mental model: <strong>a flight recorder, policy gate, evidence seal, and export system around AI decisions.</strong>
+              A clean map of <strong>what the system claims to do, how one representative path will be examined, and how the final evidence will be published.</strong>
             </p>
             <div className="hero-actions">
               <a className="button" href="#map">
-                See the ten-second map <ArrowDown size={17} />
+                See the system map <ArrowDown size={17} />
+              </a>
+              <a className="button secondary" href="#roadmap">
+                See the review roadmap <Workflow size={16} />
               </a>
               <a className="button secondary" href="https://kaironull.com/" target="_blank" rel="noreferrer">
-                Open the original site <ExternalLink size={16} />
+                Open KairoNull <ExternalLink size={16} />
               </a>
             </div>
           </div>
@@ -467,14 +535,14 @@ export default function KairoNullMapPage() {
           <aside className="status-card">
             <span className="status-chip">
               <BadgeCheck size={14} />
-              PUBLIC MATERIALS SNAPSHOT // 20 JUL 2026
+              STAGE 01 COMPLETE // ORIENTATION
             </span>
-            <strong>The website speaks to regulators. This page follows the machine.</strong>
+            <strong>Understand first. Pressure-test second. Publish exactly what survives.</strong>
             <p>
-              It reorganizes KairoNull's public claims into a literal runtime path: what enters, what the system does, what survives, who can verify it, and what Mason should try to break on Friday.
+              This workspace is safe to share with Dane throughout the process. It separates public claims, planned evaluation, observed evidence, and final findings without exposing confidential materials or NULLWORKS internal methods.
             </p>
             <div className="signal">
-              <b>SCOPE:</b> public website only. No confidential KairoNull material. No NULLWORKS proprietary method disclosed.
+              <b>CURRENT STATE:</b> public-source map complete. Representative-path review ready. Live findings not yet recorded.
             </div>
           </aside>
         </div>
@@ -482,7 +550,7 @@ export default function KairoNullMapPage() {
 
       <section className="quick-map" id="map">
         <div className="shell">
-          <div className="section-label">The entire product in one line</div>
+          <div className="section-label">The entire public product in one line</div>
           <h2>One AI call goes in. A verifiable decision receipt comes out.</h2>
           <div className="map-strip" aria-label="KairoNull simplified system flow">
             {[
@@ -504,7 +572,7 @@ export default function KairoNullMapPage() {
             ))}
           </div>
           <div className="translation">
-            <strong>Goblin translation:</strong> The AI still does the work. KairoNull tries to make sure nobody can quietly rewrite the story of what the AI saw, which rule applied, what it produced, and when it happened.
+            <strong>Plain-language translation:</strong> The AI still does the work. KairoNull tries to make sure nobody can quietly rewrite the story of what the AI saw, which rule applied, what it produced, and when it happened.
           </div>
         </div>
       </section>
@@ -512,9 +580,9 @@ export default function KairoNullMapPage() {
       <section className="process" id="loop">
         <div className="shell process-intro">
           <div className="section-label">Observe → Evaluate → Record → Prove</div>
-          <h2>The four movements.</h2>
+          <h2>The four public movements.</h2>
           <p>
-            KairoNull calls this the Umbra Trust Protocol. The visual language on the original site is dense because it is selling evidentiary credibility. Mechanically, the public architecture resolves into four actions.
+            KairoNull calls this the Umbra Trust Protocol. The public architecture resolves into four understandable actions that can later be followed through one real path.
           </p>
         </div>
         <div className="step-stack">
@@ -542,10 +610,10 @@ export default function KairoNullMapPage() {
 
       <section className="section" id="dictionary">
         <div className="shell">
-          <div className="section-label">Words on the site, translated</div>
+          <div className="section-label">Public vocabulary, translated</div>
           <h2>The noun decoder.</h2>
           <p className="intro-copy">
-            These are the main objects moving through the architecture. Once the nouns stop sounding like governance fog, the product is easier to inspect.
+            These are the main objects moving through the architecture. Once the nouns are stable, the product becomes easier to inspect and discuss accurately.
           </p>
           <div className="dictionary">
             {dictionary.map((item) => {
@@ -640,12 +708,34 @@ export default function KairoNullMapPage() {
         </div>
       </section>
 
+      <section className="section" id="roadmap">
+        <div className="shell">
+          <div className="section-label">Shareable review roadmap</div>
+          <h2>Where the work goes from here.</h2>
+          <p className="intro-copy">
+            The roadmap exposes the process and its evidence states without exposing proprietary internal methods. It can remain visible before, during, and after the review.
+          </p>
+          <div className="roadmap-grid">
+            {reviewStages.map((stage) => (
+              <article className="roadmap-card" key={stage.number}>
+                <div className="roadmap-number">{stage.number}</div>
+                <div className="roadmap-copy">
+                  <h3>{stage.title}</h3>
+                  <p>{stage.body}</p>
+                </div>
+                <div className="roadmap-status">{stage.status}</div>
+              </article>
+            ))}
+          </div>
+        </div>
+      </section>
+
       <section className="section pressure" id="pressure">
         <div className="shell">
-          <div className="section-label">Friday pressure-test map</div>
-          <h2>Do not review the marketing page. Follow one decision path.</h2>
+          <div className="section-label">Representative-path review lenses</div>
+          <h2>Do not review a marketing page. Follow one real decision path.</h2>
           <p className="intro-copy">
-            Dane agreed to a representative-path test. These four questions keep the session on actual execution rather than architecture theatre.
+            These four agreed questions keep the review on actual execution while leaving the internal pressure-test method and confidential materials outside the public workspace.
           </p>
           <div className="pressure-grid">
             {pressureQuestions.map((question) => {
@@ -672,8 +762,8 @@ export default function KairoNullMapPage() {
 
       <section className="section">
         <div className="shell">
-          <div className="section-label">Public claims worth making concrete</div>
-          <h2>What Mason should ask Dane to demonstrate.</h2>
+          <div className="section-label">Public claims to make observable</div>
+          <h2>What the review should be able to demonstrate or bound.</h2>
           <div className="claim-list">
             {claimsToTest.map((claim) => (
               <div className="claim" key={claim}>
@@ -687,14 +777,54 @@ export default function KairoNullMapPage() {
 
       <section className="section">
         <div className="shell">
+          <div className="section-label">Outcome-independent value</div>
+          <h2>Every honest result moves the system forward.</h2>
+          <div className="outcome-grid">
+            {outcomes.map((outcome) => (
+              <article className="outcome" key={outcome.label}>
+                <b>{outcome.label}</b>
+                <h3>{outcome.title}</h3>
+                <p>{outcome.body}</p>
+              </article>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="section" id="findings">
+        <div className="shell">
+          <div className="section-label">Final report surface</div>
+          <h2>The findings will land on this page.</h2>
+          <p className="intro-copy">
+            After the session, this section becomes the independent receipt. Each material result will include its evidence class, source, boundary, and current status.
+          </p>
+          <div className="findings-grid">
+            <article className="finding">
+              <b>VERIFIED</b>
+              <p>Awaiting representative-path evidence.</p>
+            </article>
+            <article className="finding">
+              <b>GAP</b>
+              <p>Awaiting representative-path evidence.</p>
+            </article>
+            <article className="finding">
+              <b>UNKNOWN / OUT OF SCOPE</b>
+              <p>Awaiting representative-path evidence.</p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section className="section">
+        <div className="shell">
           <article className="public-state">
             <div className="section-label">Public stage snapshot</div>
             <strong>Production-running infrastructure. Publicly stated external-pilot gap.</strong>
             <p>
-              KairoNull's public press page says the system is running in production and self-monitoring its own deployment pipeline, while also stating that no external customer pilot had been signed at the time of the snapshot. That makes Friday useful: the architecture can be examined without pretending public market validation already exists.
+              KairoNull's public press page says the system is running in production and self-monitoring its own deployment pipeline, while also stating that no external customer pilot had been signed at the time of the public snapshot. The review can examine the architecture without pretending public market validation already exists.
             </p>
             <div className="truth-boundary">
-              This page does not validate KairoNull's technical, legal, regulatory, latency, scalability, evidentiary, or customer-adoption claims. It translates those public claims into a map that can be tested. A valid cryptographic record can prove integrity of a captured event; it does not automatically prove that the right event was captured, that every path was covered, that the policy was correct, or that institutional authority behaved as documented.
+              This page does not validate KairoNull's technical, legal, regulatory, latency, scalability, evidentiary, or customer-adoption claims. It translates public claims into a map that can be tested. A valid cryptographic record can prove integrity of a captured event; it does not automatically prove that the right event was captured, that every path was covered, that the policy was correct, or that institutional authority behaved as documented.
             </div>
           </article>
         </div>
@@ -717,7 +847,7 @@ export default function KairoNullMapPage() {
 
       <footer>
         <div className="shell">
-          Independent comprehension aid by Mason Perry / NULLWORKS, based only on public KairoNull materials available on 20 July 2026. Not affiliated with, sponsored by, approved by, or presented as a substitute for KairoNull. KairoNull and Umbra Trust Protocol are names used by their respective owner. This page is intentionally no-index and exists to help Mason understand the system before an independently scoped pressure test. <a href="https://kaironull.com/" target="_blank" rel="noreferrer">Read the original site →</a>
+          Independent review workspace by Mason Perry / NULLWORKS, based on public KairoNull materials. Not affiliated with, sponsored by, approved by, or presented as a substitute for KairoNull. KairoNull and Umbra Trust Protocol are names used by their respective owner. Confidential KairoNull materials, direct quotations, and factual descriptions supplied during the review remain governed by the agreed review scope and mutual NDA. The final conclusions remain independent. <a href="https://kaironull.com/" target="_blank" rel="noreferrer">Read the original site →</a>
         </div>
       </footer>
     </main>
