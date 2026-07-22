@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import LivingSignalCanvas from "../../living-signals/LivingSignalCanvas";
 import styles from "./page.module.css";
 
 const canonical =
@@ -78,11 +79,31 @@ export default function LaboratoryLeakPage() {
   };
 
   return (
-    <main className={styles.page}>
+    <main
+      className={styles.page}
+      style={{ position: "relative", isolation: "isolate" }}
+    >
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
       />
+
+      <div
+        aria-hidden="true"
+        style={{
+          position: "fixed",
+          inset: 0,
+          zIndex: -1,
+          pointerEvents: "none",
+          opacity: 0.28,
+          WebkitMaskImage:
+            "linear-gradient(to bottom, rgba(0,0,0,0.96) 0%, rgba(0,0,0,0.86) 58%, rgba(0,0,0,0.32) 100%)",
+          maskImage:
+            "linear-gradient(to bottom, rgba(0,0,0,0.96) 0%, rgba(0,0,0,0.86) 58%, rgba(0,0,0,0.32) 100%)",
+        }}
+      >
+        <LivingSignalCanvas mode="conveyor" accentRgb="212, 154, 74" />
+      </div>
 
       <header className={styles.nav}>
         <a href="/" className={styles.brand} aria-label="NULLWORKS home">
@@ -93,18 +114,6 @@ export default function LaboratoryLeakPage() {
       </header>
 
       <section className={styles.hero}>
-        <div className={styles.sonar} aria-hidden="true">
-          <span className={`${styles.ring} ${styles.ringOne}`} />
-          <span className={`${styles.ring} ${styles.ringTwo}`} />
-          <span className={`${styles.ring} ${styles.ringThree}`} />
-          <span className={styles.sweep} />
-          <span className={`${styles.blip} ${styles.blipOne}`} />
-          <span className={`${styles.blip} ${styles.blipTwo}`} />
-          <span className={`${styles.fish} ${styles.fishOne}`} />
-          <span className={`${styles.fish} ${styles.fishTwo}`} />
-          <span className={`${styles.fish} ${styles.fishThree}`} />
-        </div>
-
         <div className={styles.shell}>
           <p className={styles.eyebrow}>
             NULLWORKS / OPERATIONAL SYSTEMS ARCHITECTURE
