@@ -3,11 +3,10 @@ import BleedingMatrix from "../BleedingMatrix";
 import { bleedingSignal as signal } from "../bleedingSignal";
 
 export const metadata: Metadata = {
-  title: `${signal.name} | NULLWORKS Living Signal Framework`,
+  title: `${signal.name} Android Test | NULLWORKS Living Signals`,
   description: signal.summary,
 };
 
-// Explicit route receipt: keep this page separate from the dynamic sample route so production cannot omit it.
 export default function BleedingMatrixPage() {
   return (
     <main className="bleeding-page">
@@ -25,82 +24,71 @@ export default function BleedingMatrixPage() {
           isolation: isolate;
           overflow-x: hidden;
           color: #fff4f5;
-          background:
-            radial-gradient(circle at 84% 4%, rgba(var(--accent-rgb), .11), transparent 29rem),
-            radial-gradient(circle at 5% 44%, rgba(var(--accent-rgb), .055), transparent 31rem),
-            linear-gradient(rgba(5,2,4,.72), rgba(5,2,4,.86));
+          background: linear-gradient(rgba(5,2,4,.48), rgba(5,2,4,.68));
           font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
         }
-        .shell { width: min(1180px, calc(100% - 38px)); margin: 0 auto; }
+        .shell { width: min(1120px, calc(100% - 34px)); margin: 0 auto; }
         .nav, .hero, .section, .closing, footer { position: relative; z-index: 2; }
         .nav {
           position: sticky;
           top: 0;
           z-index: 80;
           border-bottom: 1px solid rgba(var(--accent-rgb), .2);
-          background: rgba(5,2,4,.78);
+          background: rgba(5,2,4,.73);
           backdrop-filter: blur(18px);
         }
-        .nav-inner { min-height: 64px; display: flex; align-items: center; justify-content: space-between; gap: 18px; }
-        .brand { color: #fff; font-size: 13px; font-weight: 950; letter-spacing: .13em; text-decoration: none; }
-        .brand span { color: var(--accent); text-shadow: 0 0 20px rgba(var(--accent-rgb), .35); }
-        .nav-links { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px; }
-        .nav-links a { color: #d1c3c6; text-decoration: none; border: 1px solid rgba(255,255,255,.13); border-radius: 999px; padding: 8px 11px; font-size: 12px; font-weight: 850; }
-        .nav-links a:hover { color: #050204; background: var(--accent); border-color: var(--accent); }
-        .hero { min-height: calc(100svh - 64px); display: grid; align-items: center; border-bottom: 1px solid rgba(var(--accent-rgb), .17); }
-        .hero-grid { display: grid; grid-template-columns: 1.15fr .85fr; gap: 30px; align-items: end; padding: 82px 0 72px; }
-        .eyebrow { color: var(--accent); font: 900 12px ui-monospace, SFMono-Regular, Menlo, monospace; letter-spacing: .17em; text-transform: uppercase; }
-        h1 { max-width: 1020px; margin: 18px 0 0; font-size: clamp(58px, 9.7vw, 128px); line-height: .82; letter-spacing: -.072em; }
-        h1 span { display: block; color: transparent; -webkit-text-stroke: 1px rgba(var(--accent-rgb), .72); }
-        .lead { max-width: 860px; margin-top: 28px; color: #d2c4c7; font-size: clamp(19px, 2.25vw, 26px); line-height: 1.55; }
-        .demo-note { margin-top: 24px; display: inline-flex; align-items: center; gap: 10px; border: 1px solid rgba(var(--accent-rgb), .34); border-radius: 999px; padding: 10px 13px; color: #eadcdf; background: rgba(5,2,4,.68); font-size: 12px; font-weight: 800; }
-        .demo-note::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 18px rgba(var(--accent-rgb), .82); animation: bleedPulse 1.55s ease-in-out infinite; }
-        @keyframes bleedPulse { 0%, 100% { opacity: .45; transform: scale(.8); } 50% { opacity: 1; transform: scale(1.4); } }
-        .hero-card { border: 1px solid rgba(var(--accent-rgb), .38); border-radius: 30px; padding: 27px; background: linear-gradient(145deg, rgba(var(--accent-rgb), .1), rgba(10,3,5,.82)); box-shadow: 0 32px 100px rgba(0,0,0,.5); backdrop-filter: blur(9px); }
-        .hero-card b { display: block; color: var(--accent); font: 900 11px ui-monospace, monospace; letter-spacing: .14em; }
-        .hero-card strong { display: block; margin-top: 18px; font-size: clamp(34px, 4.8vw, 58px); line-height: .94; letter-spacing: -.052em; }
+        .nav-inner { min-height: 62px; display: flex; align-items: center; justify-content: space-between; gap: 14px; }
+        .brand { color: #fff; font-size: 12px; font-weight: 950; letter-spacing: .13em; text-decoration: none; }
+        .brand span { color: var(--accent); }
+        .nav-links { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 7px; }
+        .nav-links a { color: #d1c3c6; text-decoration: none; border: 1px solid rgba(255,255,255,.13); border-radius: 999px; padding: 8px 10px; font-size: 11px; font-weight: 850; }
+        .hero { min-height: calc(100svh - 62px); display: grid; align-items: center; border-bottom: 1px solid rgba(var(--accent-rgb), .17); }
+        .hero-grid { display: grid; grid-template-columns: 1.2fr .8fr; gap: 26px; align-items: end; padding: 76px 0 148px; }
+        .eyebrow { color: var(--accent); font: 900 11px ui-monospace, monospace; letter-spacing: .16em; text-transform: uppercase; }
+        h1 { max-width: 960px; margin: 17px 0 0; font-size: clamp(56px, 9.2vw, 122px); line-height: .82; letter-spacing: -.072em; }
+        h1 span { display: block; color: transparent; -webkit-text-stroke: 1px rgba(var(--accent-rgb), .75); }
+        .lead { max-width: 810px; margin-top: 26px; color: #d2c4c7; font-size: clamp(18px, 2.1vw, 25px); line-height: 1.55; }
+        .demo-note { margin-top: 22px; display: inline-flex; border: 1px solid rgba(var(--accent-rgb), .36); border-radius: 999px; padding: 10px 13px; color: #f0dfe2; background: rgba(5,2,4,.7); font-size: 12px; font-weight: 850; }
+        .hero-card { border: 1px solid rgba(var(--accent-rgb), .38); border-radius: 28px; padding: 25px; background: linear-gradient(145deg, rgba(var(--accent-rgb), .11), rgba(10,3,5,.82)); box-shadow: 0 32px 100px rgba(0,0,0,.5); backdrop-filter: blur(9px); }
+        .hero-card b { display: block; color: var(--accent); font: 900 10px ui-monospace, monospace; letter-spacing: .14em; }
+        .hero-card strong { display: block; margin-top: 16px; font-size: clamp(31px, 4.4vw, 54px); line-height: .94; letter-spacing: -.052em; }
         .hero-card p { color: #c5b6ba; line-height: 1.67; }
-        .hero-card small { display: block; margin-top: 18px; color: #917d82; line-height: 1.55; }
-        .section { padding: 86px 0; border-bottom: 1px solid rgba(var(--accent-rgb), .15); background: rgba(5,2,4,.45); }
-        .section-head { display: grid; grid-template-columns: 1.08fr .92fr; gap: 28px; align-items: end; margin-bottom: 30px; }
-        .section-label { color: var(--accent); font: 900 11px ui-monospace, monospace; letter-spacing: .16em; text-transform: uppercase; }
-        h2 { max-width: 970px; margin: 12px 0 0; font-size: clamp(42px, 6.5vw, 82px); line-height: .93; letter-spacing: -.057em; }
-        .section-head p { color: #c2b3b7; font-size: 18px; line-height: 1.68; }
-        .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
-        .card { min-height: 224px; display: flex; flex-direction: column; justify-content: space-between; border: 1px solid rgba(var(--accent-rgb), .2); border-radius: 24px; padding: 21px; background: linear-gradient(145deg, rgba(var(--accent-rgb), .045), rgba(10,3,5,.78)); backdrop-filter: blur(7px); }
-        .card b { color: var(--accent); font: 900 11px ui-monospace, monospace; letter-spacing: .13em; }
-        .card p { margin: 36px 0 0; color: #d0c2c5; font-size: 16px; line-height: 1.55; }
-        .use-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 13px; }
-        .use { min-height: 150px; display: flex; align-items: flex-end; border-left: 3px solid var(--accent); border-radius: 0 20px 20px 0; padding: 20px; background: rgba(10,3,5,.74); color: #d1c4c7; font-size: 18px; font-weight: 800; line-height: 1.45; backdrop-filter: blur(7px); }
-        .rule-list { display: grid; gap: 10px; }
-        .rule { display: grid; grid-template-columns: 46px 1fr; gap: 15px; align-items: center; border: 1px solid rgba(var(--accent-rgb), .18); border-radius: 21px; padding: 16px; background: rgba(10,3,5,.74); }
-        .rule b { display: grid; place-items: center; width: 42px; height: 42px; border-radius: 50%; color: #050204; background: var(--accent); font: 950 12px ui-monospace, monospace; }
-        .rule span { color: #cabcc0; line-height: 1.55; }
-        .closing { padding: 88px 0; border-bottom: 1px solid rgba(var(--accent-rgb), .15); }
-        .closing-card { border: 1px solid rgba(var(--accent-rgb), .38); border-radius: 31px; padding: clamp(26px, 5vw, 48px); background: linear-gradient(145deg, rgba(var(--accent-rgb), .1), rgba(10,3,5,.82)); backdrop-filter: blur(9px); }
-        .closing-card strong { display: block; max-width: 960px; font-size: clamp(38px, 6vw, 76px); line-height: .94; letter-spacing: -.056em; }
-        .closing-card p { max-width: 890px; color: #c9babe; font-size: 18px; line-height: 1.68; }
-        .cta-row { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 25px; }
-        .cta { display: inline-flex; align-items: center; justify-content: center; padding: 13px 17px; border-radius: 999px; background: var(--accent); color: #050204; text-decoration: none; font-weight: 950; box-shadow: 0 0 28px rgba(var(--accent-rgb), .18); }
-        .cta.secondary { color: var(--accent); background: rgba(5,2,4,.6); border: 1px solid rgba(var(--accent-rgb), .46); box-shadow: none; }
-        footer { padding: 44px 0 75px; color: #8f7d82; }
+        .hero-card small { display: block; color: #927f84; line-height: 1.5; }
+        .section { padding: 80px 0; border-bottom: 1px solid rgba(var(--accent-rgb), .15); background: rgba(5,2,4,.46); }
+        .section-head { display: grid; grid-template-columns: 1.06fr .94fr; gap: 26px; align-items: end; margin-bottom: 27px; }
+        .section-label { color: var(--accent); font: 900 10px ui-monospace, monospace; letter-spacing: .16em; text-transform: uppercase; }
+        h2 { max-width: 900px; margin: 11px 0 0; font-size: clamp(40px, 6.2vw, 78px); line-height: .94; letter-spacing: -.057em; }
+        .section-head p { color: #c2b3b7; font-size: 17px; line-height: 1.65; }
+        .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 11px; }
+        .card { min-height: 205px; display: flex; flex-direction: column; justify-content: space-between; border: 1px solid rgba(var(--accent-rgb), .22); border-radius: 22px; padding: 19px; background: rgba(10,3,5,.74); backdrop-filter: blur(8px); }
+        .card b { color: var(--accent); font: 900 10px ui-monospace, monospace; letter-spacing: .13em; }
+        .card p { margin: 32px 0 0; color: #d0c2c5; font-size: 15px; line-height: 1.55; }
+        .rule-list { display: grid; gap: 9px; }
+        .rule { display: grid; grid-template-columns: 44px 1fr; gap: 14px; align-items: center; border: 1px solid rgba(var(--accent-rgb), .19); border-radius: 20px; padding: 14px; background: rgba(10,3,5,.74); }
+        .rule b { display: grid; place-items: center; width: 40px; height: 40px; border-radius: 50%; color: #160106; background: var(--accent); font: 950 11px ui-monospace, monospace; }
+        .rule span { color: #cabcc0; line-height: 1.52; }
+        .closing { padding: 82px 0 160px; }
+        .closing-card { border: 1px solid rgba(var(--accent-rgb), .4); border-radius: 29px; padding: clamp(24px, 5vw, 44px); background: linear-gradient(145deg, rgba(var(--accent-rgb), .11), rgba(10,3,5,.83)); backdrop-filter: blur(9px); }
+        .closing-card strong { display: block; max-width: 900px; font-size: clamp(36px, 5.7vw, 70px); line-height: .95; letter-spacing: -.056em; }
+        .closing-card p { max-width: 820px; color: #c9babe; font-size: 17px; line-height: 1.65; }
+        .cta-row { display: flex; flex-wrap: wrap; gap: 9px; margin-top: 23px; }
+        .cta { display: inline-flex; padding: 12px 15px; border-radius: 999px; background: var(--accent); color: #160106; text-decoration: none; font-weight: 950; }
+        .cta.secondary { color: var(--accent); background: rgba(5,2,4,.62); border: 1px solid rgba(var(--accent-rgb), .46); }
+        footer { padding: 36px 0 150px; color: #8f7d82; }
         footer a { color: var(--accent); }
-        @media (max-width: 940px) {
+        @media (max-width: 900px) {
           .hero-grid, .section-head { grid-template-columns: 1fr; }
           .grid { grid-template-columns: 1fr 1fr; }
         }
         @media (max-width: 680px) {
-          .shell { width: min(100% - 26px, 1180px); }
-          .nav-inner { align-items: flex-start; padding: 12px 0; }
-          .nav-links { gap: 5px; }
-          .nav-links a { padding: 7px 9px; font-size: 10px; }
-          .hero-grid { padding: 58px 0 56px; }
-          h1 { font-size: clamp(54px, 17vw, 82px); }
-          .section, .closing { padding: 62px 0; }
-          .grid, .use-grid { grid-template-columns: 1fr; }
-        }
-        @media (prefers-reduced-motion: reduce) {
-          .demo-note::before { animation: none; }
+          .shell { width: min(100% - 24px, 1120px); }
+          .nav-inner { align-items: flex-start; padding: 11px 0; }
+          .nav-links a { padding: 7px 8px; font-size: 9px; }
+          .hero-grid { padding: 54px 0 164px; }
+          h1 { font-size: clamp(52px, 16.5vw, 80px); }
+          .section { padding: 58px 0; }
+          .grid { grid-template-columns: 1fr; }
+          .closing { padding: 60px 0 170px; }
         }
       `}</style>
 
@@ -109,8 +97,8 @@ export default function BleedingMatrixPage() {
           <a className="brand" href="/">NULLWORKS <span>LIVING SIGNALS</span></a>
           <div className="nav-links">
             <a href="/living-signals">All samples</a>
-            <a href="#meaning">Meaning</a>
-            <a href="#rules">Rules</a>
+            <a href="#test">Test notes</a>
+            <a href="#rules">Controls</a>
           </div>
         </div>
       </nav>
@@ -124,19 +112,19 @@ export default function BleedingMatrixPage() {
             <div className="demo-note">{signal.demoNote}</div>
           </div>
           <aside className="hero-card">
-            <b>SIGNAL LANGUAGE</b>
-            <strong>{signal.name}</strong>
-            <p>{signal.signalLanguage}</p>
-            <small>This is simulated visual atmosphere. It does not represent real blood, injury, telemetry, or a live event.</small>
+            <b>ANDROID TEST BUILD</b>
+            <strong>Fill. Slosh. Pour. Refill.</strong>
+            <p>Use the fixed control deck at the bottom. Touch works immediately. Tap Enable Tilt before testing the physical phone gesture.</p>
+            <small>Simulated visual atmosphere only. No real blood, injury, telemetry, or live event is represented.</small>
           </aside>
         </div>
       </header>
 
-      <section className="section" id="meaning">
+      <section className="section" id="test">
         <div className="shell">
           <div className="section-head">
-            <div><div className="section-label">What the motion communicates</div><h2>The page has two visual planes—and one of them breaks the boundary.</h2></div>
-            <p>Code rain and liquid trails remain behind the interface. The rare featured drop crosses above the page, creating a controlled foreground interruption without blocking interaction.</p>
+            <div><div className="section-label">What changed</div><h2>The viewport is now a vessel.</h2></div>
+            <p>The original falling-code atmosphere remains, but the foreground system now tracks volume, surface angle, wave energy, drainage, empty state, and refill state.</p>
           </div>
           <div className="grid">
             {signal.communicates.map((item, index) => <article className="card" key={item}><b>{String(index + 1).padStart(2, "0")}</b><p>{item}</p></article>)}
@@ -144,21 +132,11 @@ export default function BleedingMatrixPage() {
         </div>
       </section>
 
-      <section className="section">
-        <div className="shell">
-          <div className="section-head">
-            <div><div className="section-label">Best-fit deployments</div><h2>Use it where a polished interface needs one unsettling event.</h2></div>
-            <p>The visual is dramatic, but the architecture remains disciplined: fixed canvas, mobile frame cap, rare event timing, pointer transparency, and readable content.</p>
-          </div>
-          <div className="use-grid">{signal.bestFor.map((item) => <div className="use" key={item}>{item}</div>)}</div>
-        </div>
-      </section>
-
       <section className="section" id="rules">
         <div className="shell">
           <div className="section-head">
-            <div><div className="section-label">Production boundaries</div><h2>The foreground drop stays rare enough to remain a discovery.</h2></div>
-            <p>The effect never blocks controls, never implies a physical event, and never becomes a constant curtain over the copy.</p>
+            <div><div className="section-label">Mobile test controls</div><h2>Sensor first. Touch fallback always.</h2></div>
+            <p>Portrait lets the vessel fill. Landscape drains it after tilt is enabled. The slider changes surface angle, Hold to Pour forces drainage, and Reset starts a fresh cycle.</p>
           </div>
           <div className="rule-list">{signal.rules.map((item, index) => <div className="rule" key={item}><b>{String(index + 1).padStart(2, "0")}</b><span>{item}</span></div>)}</div>
         </div>
@@ -168,17 +146,17 @@ export default function BleedingMatrixPage() {
         <div className="shell">
           <article className="closing-card">
             <div className="section-label">NULLWORKS Living Signal Framework</div>
-            <strong>The page bleeds in layers.</strong>
-            <p>The code, liquid trails, and top-edge drips create the environmental field. The featured drop is a separate pointer-transparent layer above the entire interface.</p>
+            <strong>The data does not just fall anymore. It accumulates.</strong>
+            <p>This is the Android browser prototype for the physical Bleeding Matrix interaction. The next truth gate is owner testing on Mason&apos;s phone: visual feel, tilt response, pour direction, refill timing, readability, and frame rate.</p>
             <div className="cta-row">
-              <a className="cta" href="/living-signals">Open the sample library</a>
-              <a className="cta secondary" href="/living-signals/matrix-waterfall">Compare Matrix Waterfall</a>
+              <a className="cta" href="#">Restart at the top</a>
+              <a className="cta secondary" href="/living-signals">Open the sample library</a>
             </div>
           </article>
         </div>
       </section>
 
-      <footer><div className="shell">NULLWORKS Living Signal Framework // Bleeding Matrix sample with explicit simulated-atmosphere boundary. <a href="/living-signals">Browse all samples →</a></div></footer>
+      <footer><div className="shell">NULLWORKS Living Signals // Bleeding Matrix Android liquid test. <a href="/living-signals">Browse all samples →</a></div></footer>
     </main>
   );
 }
