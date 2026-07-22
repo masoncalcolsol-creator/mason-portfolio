@@ -24,7 +24,15 @@ type MatrixParticle = {
   size: number;
 };
 
+type ImpactRipple = {
+  x: number;
+  age: number;
+  life: number;
+  strength: number;
+};
+
 type MotionState = "idle" | "enabled" | "denied" | "unsupported";
+type LockState = "idle" | "locked" | "failed" | "unsupported";
 
 const glyphs = "01ABCDEFGHIJKLMNOPQRSTUVWXYZ{}[]<>/\\|:+-=アイウエオカキクケコサシスセソタチツテト";
 const clamp = (value: number, min: number, max: number) => Math.min(max, Math.max(min, value));
@@ -34,9 +42,9 @@ export default function BleedingMatrix({ accentRgb }: Props) {
   const motionEnabledRef = useRef(false);
   const deviceTiltRef = useRef(0);
   const touchTiltRef = useRef(0);
-  const manualPourRef = useRef(false);
   const resetCounterRef = useRef(0);
   const [motionState, setMotionState] = useState<MotionState>("idle");
+  const [lockState, setLockState] = useState<LockState>("idle");
   const [fillPercent, setFillPercent] = useState(7);
   const [cycleState, setCycleState] = useState("FILLING");
 
@@ -64,34 +72,37 @@ export default function BleedingMatrix({ accentRgb }: Props) {
     let waveEnergy = 0.18;
     let previousTargetTilt = 0;
     let previousResetCounter = resetCounterRef.current;
+    let pourHold = 0;
     let rainStreams: RainStream[] = [];
     let particles: MatrixParticle[] = [];
+    let ripples: ImpactRipple[] = [];
 
     const randomGlyph = () => glyphs[Math.floor(Math.random() * glyphs.length)];
     const rgba = (alpha: number) => `rgba(${accentRgb}, ${alpha})`;
 
     const rebuildScene = () => {
       const rainFontSize = width < 680 ? 13 : 16;
-      const columnWidth = rainFontSize * 1.25;
+      const columnWidth = rainFontSize * 1.22;
       const columnCount = Math.ceil(width / columnWidth) + 2;
       rainStreams = Array.from({ length: columnCount }, (_, index) => ({
         x: index * columnWidth,
-        y: -Math.random() * height * 1.4,
-        speed: 28 + Math.random() * 78,
-        length: 6 + Math.floor(Math.random() * 18),
+        y: -Math.random() * height * 1.2,
+        speed: 34 + Math.random() * 74,
+        length: 8 + Math.floor(Math.random() * 20),
         phase: Math.random() * Math.PI * 2,
       }));
 
-      const particleCount = width < 680 ? 105 : 190;
+      const particleCount = width < 680 ? 118 : 205;
       particles = Array.from({ length: particleCount }, () => ({
         x: Math.random() * width,
         y: Math.random() * height,
-        speed: 5 + Math.random() * 17,
-        drift: -8 + Math.random() * 16,
+        speed: 7 + Math.random() * 18,
+        drift: -7 + Math.random() * 14,
         phase: Math.random() * Math.PI * 2,
         glyph: randomGlyph(),
         size: width < 680 ? 10 + Math.random() * 4 : 11 + Math.random() * 6,
       }));
+      ripples = [];
     };
 
     const resize = () => {
@@ -109,7 +120,13 @@ export default function BleedingMatrix({ accentRgb }: Props) {
     const onOrientation = (event: DeviceOrientationEvent) => {
       if (!motionEnabledRef.current) return;
       const gamma = typeof event.gamma === "number" ? event.gamma : 0;
-      deviceTiltRef.current = clamp(gamma, -80, 80);
+      const beta = typeof event.beta === "number" ? event.beta : 0;
+      const orientationAngle = screen.orientation?.angle ?? 0;
+
+      let sideTilt = gamma;
+      if (orientationAngle === 90) sideTilt = -beta;
+      if (orientationAngle === 270 || orientationAngle === -90) sideTilt = beta;
+      deviceTiltRef.current = clamp(sideTilt, -82, 82);
     };
 
     const drawGrid = () => {
@@ -129,7 +146,57 @@ export default function BleedingMatrix({ accentRgb }: Props) {
       context.restore();
     };
 
-    const drawRain = (time: number, dt: number) => {
+    const slopeForTilt = () => -Math.tan((clamp(tilt, -72, 72) * Math.PI) / 180) * 0.34;
+
+    const waveOffset = (x: number, time: number) => {
+      const primaryWave = Math.sin(x * 0.018 + time * 0.0024) * (3.5 + waveEnergy * 10);
+      const secondaryWave = Math.sin(x * 0.041 - time * 0.0031) * (1.7 + waveEnergy * 5);
+      return primaryWave + secondaryWave;
+    };
+
+    const surfaceAt = (x: number, time: number, base: number) =>
+      base + (x - width / 2) * slopeForTilt() + waveOffset(x, time);
+
+    const solveSurfaceBase = (time: number) => {
+      const targetAverageDepth = fillLevel * height;
+      let low = -height * 2;
+      let high = height * 3;
+      const samples = 52;
+
+      for (let iteration = 0; iteration < 14; iteration += 1) {
+        const candidate = (low + high) / 2;
+        let depthSum = 0;
+        for (let sample = 0; sample < samples; sample += 1) {
+          const x = ((sample + 0.5) / samples) * width;
+          const y = surfaceAt(x, time, candidate);
+          depthSum += clamp(height - y, 0, height);
+        }
+        const averageDepth = depthSum / samples;
+        if (averageDepth > targetAverageDepth) low = candidate;
+        else high = candidate;
+      }
+
+      return (low + high) / 2;
+    };
+
+    const buildLiquidPath = (time: number, base: number) => {
+      const step = Math.max(8, Math.floor(width / 54));
+      context.beginPath();
+      context.moveTo(0, surfaceAt(0, time, base));
+      for (let x = step; x < width; x += step) context.lineTo(x, surfaceAt(x, time, base));
+      context.lineTo(width, surfaceAt(width, time, base));
+      context.lineTo(width, height + 40);
+      context.lineTo(0, height + 40);
+      context.closePath();
+    };
+
+    const addImpact = (x: number) => {
+      if (ripples.length > 24) ripples.shift();
+      ripples.push({ x, age: 0, life: 0.75 + Math.random() * 0.45, strength: 0.5 + Math.random() * 0.55 });
+      waveEnergy = clamp(waveEnergy + 0.045, 0.08, 1.35);
+    };
+
+    const drawRain = (time: number, dt: number, base: number) => {
       const fontSize = width < 680 ? 13 : 16;
       context.save();
       context.font = `700 ${fontSize}px ui-monospace, SFMono-Regular, Menlo, monospace`;
@@ -138,81 +205,79 @@ export default function BleedingMatrix({ accentRgb }: Props) {
 
       rainStreams.forEach((stream) => {
         stream.y += stream.speed * dt;
-        if (stream.y - stream.length * fontSize > height + 80) {
-          stream.y = -80 - Math.random() * height * 0.8;
-          stream.speed = 28 + Math.random() * 78;
-          stream.length = 6 + Math.floor(Math.random() * 18);
+        const liquidSurface = surfaceAt(stream.x, time, base);
+
+        if (stream.y >= liquidSurface) {
+          addImpact(stream.x);
+          stream.y = -60 - Math.random() * height * 0.65;
+          stream.speed = 34 + Math.random() * 74;
+          stream.length = 8 + Math.floor(Math.random() * 20);
+          stream.phase = Math.random() * Math.PI * 2;
         }
 
         for (let index = 0; index < stream.length; index += 1) {
-          const y = stream.y - index * fontSize * 1.08;
-          if (y < -30 || y > height + 30) continue;
+          const y = stream.y - index * fontSize * 1.06;
+          if (y < -30 || y >= liquidSurface + 2) continue;
+          const head = index === 0;
           const decay = 1 - index / stream.length;
-          const flicker = 0.7 + Math.sin(time * 0.003 + stream.phase + index) * 0.24;
-          context.fillStyle = rgba(Math.max(0.018, decay * decay * 0.19 * flicker));
+          const flicker = 0.72 + Math.sin(time * 0.003 + stream.phase + index) * 0.24;
+          const alpha = head ? 0.78 : Math.max(0.025, decay * decay * 0.3 * flicker);
+          context.fillStyle = head ? "rgba(255,205,210,.9)" : rgba(alpha);
+          context.shadowColor = rgba(head ? 0.78 : 0.24);
+          context.shadowBlur = head ? 10 : 2;
           context.fillText(randomGlyph(), stream.x, y);
         }
       });
       context.restore();
     };
 
-    const surfaceY = (x: number, time: number) => {
-      const baseY = height * (1 - fillLevel);
-      const slope = Math.tan((tilt * Math.PI) / 180) * 0.31;
-      const centeredX = x - width / 2;
-      const primaryWave = Math.sin(x * 0.018 + time * 0.0024) * (4 + waveEnergy * 12);
-      const secondaryWave = Math.sin(x * 0.041 - time * 0.0031) * (2 + waveEnergy * 6);
-      return baseY + centeredX * slope + primaryWave + secondaryWave;
-    };
-
-    const buildLiquidPath = (time: number) => {
-      const step = Math.max(9, Math.floor(width / 48));
-      context.beginPath();
-      context.moveTo(0, surfaceY(0, time));
-      for (let x = step; x < width; x += step) context.lineTo(x, surfaceY(x, time));
-      context.lineTo(width, surfaceY(width, time));
-      context.lineTo(width, height + 40);
-      context.lineTo(0, height + 40);
-      context.closePath();
-    };
-
-    const drawLiquid = (time: number, dt: number, pouring: boolean) => {
+    const drawLiquid = (time: number, dt: number, pouring: boolean, base: number) => {
       context.save();
-      buildLiquidPath(time);
-      const liquidGradient = context.createLinearGradient(0, Math.max(0, height * (1 - fillLevel) - 80), 0, height);
-      liquidGradient.addColorStop(0, "rgba(255,64,82,.82)");
-      liquidGradient.addColorStop(0.12, "rgba(171,7,29,.91)");
-      liquidGradient.addColorStop(0.58, "rgba(77,0,14,.94)");
-      liquidGradient.addColorStop(1, "rgba(30,0,8,.98)");
+      buildLiquidPath(time, base);
+      const topReference = clamp(base - 90, 0, height);
+      const liquidGradient = context.createLinearGradient(0, topReference, 0, height);
+      liquidGradient.addColorStop(0, "rgba(255,64,82,.84)");
+      liquidGradient.addColorStop(0.13, "rgba(171,7,29,.92)");
+      liquidGradient.addColorStop(0.58, "rgba(77,0,14,.95)");
+      liquidGradient.addColorStop(1, "rgba(30,0,8,.99)");
       context.fillStyle = liquidGradient;
       context.shadowColor = rgba(0.5);
       context.shadowBlur = 28;
       context.fill();
       context.clip();
 
-      const innerGlow = context.createRadialGradient(width * 0.28, height * 0.62, 0, width * 0.28, height * 0.62, Math.max(width, height) * 0.8);
+      const innerGlow = context.createRadialGradient(
+        width * 0.28,
+        height * 0.62,
+        0,
+        width * 0.28,
+        height * 0.62,
+        Math.max(width, height) * 0.8,
+      );
       innerGlow.addColorStop(0, "rgba(255,49,73,.18)");
       innerGlow.addColorStop(0.46, "rgba(92,0,18,.08)");
       innerGlow.addColorStop(1, "rgba(0,0,0,.3)");
       context.fillStyle = innerGlow;
       context.fillRect(0, 0, width, height);
 
-      context.font = `800 ${width < 680 ? 12 : 14}px ui-monospace, SFMono-Regular, Menlo, monospace`;
       context.textAlign = "center";
       context.textBaseline = "middle";
       particles.forEach((particle, index) => {
-        particle.y -= particle.speed * dt * (pouring ? 2.4 : 1);
-        particle.x += (particle.drift + tilt * 0.16) * dt;
-        if (particle.y < -30) {
-          particle.y = height + Math.random() * 80;
+        particle.y += particle.speed * dt * (pouring ? 1.75 : 1);
+        particle.x += (particle.drift + tilt * 0.12) * dt;
+        const localSurface = surfaceAt(particle.x, time, base);
+
+        if (particle.y > height + 28 || particle.y < localSurface - 18) {
           particle.x = Math.random() * width;
+          particle.y = surfaceAt(particle.x, time, base) + 12 + Math.random() * 78;
           particle.glyph = randomGlyph();
         }
         if (particle.x < -20) particle.x = width + 20;
         if (particle.x > width + 20) particle.x = -20;
+
         const shimmer = 0.55 + Math.sin(time * 0.002 + particle.phase) * 0.38;
-        const depth = clamp(particle.y / Math.max(1, height), 0, 1);
-        const alpha = 0.12 + depth * 0.38 * shimmer;
+        const depthFromSurface = clamp((particle.y - localSurface) / Math.max(1, height - localSurface), 0, 1);
+        const alpha = 0.14 + depthFromSurface * 0.42 * shimmer;
         context.font = `800 ${particle.size}px ui-monospace, SFMono-Regular, Menlo, monospace`;
         context.fillStyle = index % 13 === 0 ? "rgba(255,210,214,.72)" : rgba(alpha);
         context.shadowColor = rgba(alpha * 1.5);
@@ -220,57 +285,79 @@ export default function BleedingMatrix({ accentRgb }: Props) {
         context.fillText(particle.glyph, particle.x, particle.y);
       });
 
-      context.globalAlpha = 0.16;
+      context.globalAlpha = 0.14;
       context.strokeStyle = "rgba(255,188,196,.5)";
-      context.lineWidth = 1.2;
+      context.lineWidth = 1.1;
       for (let band = 0; band < 5; band += 1) {
         context.beginPath();
-        const bandY = height * (0.54 + band * 0.1) + Math.sin(time * 0.0015 + band) * 12;
+        const bandY = height * (0.56 + band * 0.09) + Math.sin(time * 0.0015 + band) * 10;
         context.moveTo(-20, bandY);
-        context.bezierCurveTo(width * 0.25, bandY - 22, width * 0.68, bandY + 20, width + 20, bandY - 8);
+        context.bezierCurveTo(width * 0.25, bandY - 18, width * 0.68, bandY + 17, width + 20, bandY - 7);
         context.stroke();
       }
       context.restore();
 
       context.save();
-      context.strokeStyle = "rgba(255,183,190,.78)";
-      context.lineWidth = 1.4;
+      context.strokeStyle = "rgba(255,183,190,.82)";
+      context.lineWidth = 1.5;
       context.shadowColor = rgba(0.82);
       context.shadowBlur = 15;
       context.beginPath();
       const step = Math.max(8, Math.floor(width / 54));
-      context.moveTo(0, surfaceY(0, time));
-      for (let x = step; x <= width; x += step) context.lineTo(x, surfaceY(x, time));
+      context.moveTo(0, surfaceAt(0, time, base));
+      for (let x = step; x <= width; x += step) context.lineTo(x, surfaceAt(x, time, base));
       context.stroke();
+
+      ripples.forEach((ripple) => {
+        ripple.age += dt;
+        const progress = clamp(ripple.age / ripple.life, 0, 1);
+        const y = surfaceAt(ripple.x, time, base);
+        context.globalAlpha = (1 - progress) * 0.68 * ripple.strength;
+        context.strokeStyle = "rgba(255,220,223,.88)";
+        context.lineWidth = 1;
+        context.beginPath();
+        context.ellipse(ripple.x, y, 4 + progress * 24 * ripple.strength, 1.3 + progress * 3.5, 0, 0, Math.PI * 2);
+        context.stroke();
+      });
+      ripples = ripples.filter((ripple) => ripple.age < ripple.life);
       context.restore();
     };
 
-    const drawPourLip = (time: number, pouring: boolean) => {
+    const drawPourLip = (time: number, pouring: boolean, base: number) => {
       if (!pouring || fillLevel <= 0.002) return;
       const pourRight = tilt >= 0;
       const x = pourRight ? width : 0;
-      const edgeY = clamp(surfaceY(x, time), 0, height);
-      const streamWidth = 9 + fillLevel * 22;
-      const streamHeight = Math.min(height * 0.34, 60 + fillLevel * 180);
-      const gradient = context.createLinearGradient(x, edgeY, x, edgeY + streamHeight);
-      gradient.addColorStop(0, "rgba(255,64,82,.9)");
+      const edgeY = clamp(surfaceAt(x, time, base), 0, height);
+      const direction = pourRight ? 1 : -1;
+      const streamThickness = 12 + fillLevel * 24;
+      const streamLength = Math.min(width * 0.42, 76 + fillLevel * 190);
+      const gradient = context.createLinearGradient(x, edgeY, x + direction * streamLength, edgeY);
+      gradient.addColorStop(0, "rgba(255,64,82,.96)");
+      gradient.addColorStop(0.4, "rgba(160,5,28,.88)");
       gradient.addColorStop(1, "rgba(76,0,12,0)");
+
       context.save();
       context.fillStyle = gradient;
-      context.shadowColor = rgba(0.75);
-      context.shadowBlur = 18;
+      context.shadowColor = rgba(0.78);
+      context.shadowBlur = 20;
       context.beginPath();
-      const direction = pourRight ? 1 : -1;
-      context.moveTo(x, edgeY - streamWidth * 0.35);
+      context.moveTo(x, edgeY - streamThickness * 0.52);
       context.bezierCurveTo(
-        x + direction * streamWidth,
-        edgeY + streamHeight * 0.18,
-        x + direction * streamWidth * 0.4,
-        edgeY + streamHeight * 0.72,
-        x + direction * streamWidth * 0.18,
-        edgeY + streamHeight,
+        x + direction * streamLength * 0.28,
+        edgeY - streamThickness * 0.26,
+        x + direction * streamLength * 0.7,
+        edgeY + streamThickness * 0.42,
+        x + direction * streamLength,
+        edgeY + streamThickness * 0.12,
       );
-      context.lineTo(x, edgeY + streamHeight);
+      context.bezierCurveTo(
+        x + direction * streamLength * 0.72,
+        edgeY + streamThickness,
+        x + direction * streamLength * 0.25,
+        edgeY + streamThickness * 0.72,
+        x,
+        edgeY + streamThickness * 0.38,
+      );
       context.closePath();
       context.fill();
       context.restore();
@@ -289,49 +376,51 @@ export default function BleedingMatrix({ accentRgb }: Props) {
         previousResetCounter = resetCounterRef.current;
         fillLevel = 0.04;
         emptyHold = 0;
+        pourHold = 0;
         waveEnergy = 0.62;
       }
 
-      const isLandscape = width > height * 1.08;
-      const motionPour = motionEnabledRef.current && isLandscape;
-      const pouring = manualPourRef.current || motionPour;
       const targetTilt = motionEnabledRef.current ? deviceTiltRef.current : touchTiltRef.current;
-      const normalizedTarget = pouring && Math.abs(targetTilt) < 34 ? (targetTilt < 0 ? -72 : 72) : targetTilt;
-      const targetChange = normalizedTarget - previousTargetTilt;
-      previousTargetTilt = normalizedTarget;
-      waveEnergy = clamp(waveEnergy + Math.abs(targetChange) * 0.025, 0.08, 1.45);
-      waveEnergy += (0.1 - waveEnergy) * Math.min(1, dt * 1.7);
+      const targetChange = targetTilt - previousTargetTilt;
+      previousTargetTilt = targetTilt;
+      waveEnergy = clamp(waveEnergy + Math.abs(targetChange) * 0.024, 0.08, 1.35);
+      waveEnergy += (0.1 - waveEnergy) * Math.min(1, dt * 1.65);
 
-      const spring = 15;
-      const damping = 7.4;
-      tiltVelocity += (normalizedTarget - tilt) * spring * dt;
+      const spring = 14;
+      const damping = 7.8;
+      tiltVelocity += (targetTilt - tilt) * spring * dt;
       tiltVelocity *= Math.exp(-damping * dt);
       tilt += tiltVelocity * dt * 8;
       tilt = clamp(tilt, -76, 76);
 
+      const wantsPour = motionEnabledRef.current && Math.abs(targetTilt) >= 56;
+      pourHold = wantsPour ? Math.min(0.5, pourHold + dt) : Math.max(0, pourHold - dt * 2.5);
+      const pouring = pourHold >= 0.22;
+
       if (reducedMotion) {
         fillLevel = 0.62;
       } else if (pouring) {
-        fillLevel = Math.max(0, fillLevel - dt * (0.26 + Math.abs(tilt) / 150));
+        fillLevel = Math.max(0, fillLevel - dt * (0.2 + Math.abs(tilt) / 190));
         emptyHold = 0;
       } else if (fillLevel <= 0.002) {
         emptyHold += dt;
-        if (emptyHold > 0.85) fillLevel = 0.018;
+        if (emptyHold > 1.1) fillLevel = 0.012;
       } else {
         emptyHold = 0;
-        fillLevel = Math.min(0.94, fillLevel + dt * 0.026);
+        fillLevel = Math.min(0.94, fillLevel + dt * 0.0125);
       }
 
+      const base = solveSurfaceBase(time);
       context.clearRect(0, 0, width, height);
       drawGrid();
-      drawRain(time, dt);
-      drawLiquid(time, dt, pouring);
-      drawPourLip(time, pouring);
+      drawRain(time, dt, base);
+      drawLiquid(time, dt, pouring, base);
+      drawPourLip(time, pouring, base);
 
       if (time - lastUiUpdate > 220) {
         lastUiUpdate = time;
         setFillPercent(Math.round(fillLevel * 100));
-        setCycleState(pouring ? "POURING" : fillLevel < 0.03 ? "EMPTY" : fillLevel >= 0.935 ? "FULL" : "FILLING");
+        setCycleState(pouring ? "POURING" : fillLevel < 0.02 ? "EMPTY" : fillLevel >= 0.935 ? "FULL" : "FILLING");
       }
 
       if (!reducedMotion) animationFrame = requestAnimationFrame(render);
@@ -366,26 +455,42 @@ export default function BleedingMatrix({ accentRgb }: Props) {
           return;
         }
       }
+
       motionEnabledRef.current = true;
       setMotionState("enabled");
+
+      try {
+        if (!document.fullscreenElement && document.documentElement.requestFullscreen) {
+          await document.documentElement.requestFullscreen();
+        }
+        const orientation = screen.orientation as ScreenOrientation & {
+          lock?: (orientation: "portrait-primary") => Promise<void>;
+        };
+        if (typeof orientation.lock === "function") {
+          await orientation.lock("portrait-primary");
+          setLockState("locked");
+        } else {
+          setLockState("unsupported");
+        }
+      } catch {
+        setLockState("failed");
+      }
     } catch {
       setMotionState("denied");
     }
   };
 
-  const beginManualPour = () => {
-    manualPourRef.current = true;
-  };
-
-  const endManualPour = () => {
-    manualPourRef.current = false;
-  };
-
   const resetCycle = () => {
-    manualPourRef.current = false;
     touchTiltRef.current = 0;
     resetCounterRef.current += 1;
   };
+
+  const statusText =
+    motionState === "enabled"
+      ? lockState === "locked"
+        ? "PORTRAIT LOCKED // TILT PAST 56° TO POUR"
+        : "TILT ACTIVE // KEEP AUTO-ROTATE OFF"
+      : "TOUCH SLIDER SLOSHES // ENABLE TILT TO POUR";
 
   return (
     <>
@@ -438,28 +543,28 @@ export default function BleedingMatrix({ accentRgb }: Props) {
           boxShadow: "0 18px 60px rgba(0,0,0,.5)",
           backdropFilter: "blur(16px)",
           WebkitBackdropFilter: "blur(16px)",
-          touchAction: "none",
+          touchAction: "pan-y",
         }}
       >
         <div style={{ display: "flex", justifyContent: "space-between", gap: 12, alignItems: "center" }}>
           <div>
             <div style={{ color: `rgb(${accentRgb})`, font: "900 10px ui-monospace, monospace", letterSpacing: ".14em" }}>
-              ANDROID LIQUID TEST
+              ANDROID LIQUID TEST V2
             </div>
             <div style={{ color: "#fff4f5", font: "900 14px ui-monospace, monospace" }}>
               {cycleState} // {fillPercent}%
             </div>
           </div>
-          <div style={{ color: "#bcaeb1", fontSize: 10, lineHeight: 1.35, textAlign: "right" }}>
-            {motionState === "enabled" ? "TURN SIDEWAYS TO POUR" : "TOUCH POUR WORKS NOW"}
+          <div style={{ color: "#bcaeb1", fontSize: 9, lineHeight: 1.35, textAlign: "right", maxWidth: 180 }}>
+            {statusText}
           </div>
         </div>
 
         <input
-          aria-label="Manual liquid tilt"
+          aria-label="Manual liquid slosh"
           type="range"
-          min="-45"
-          max="45"
+          min="-42"
+          max="42"
           defaultValue="0"
           onChange={(event) => {
             touchTiltRef.current = Number(event.currentTarget.value);
@@ -467,26 +572,9 @@ export default function BleedingMatrix({ accentRgb }: Props) {
           style={{ width: "100%", accentColor: `rgb(${accentRgb})` }}
         />
 
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 7 }}>
-          <button
-            type="button"
-            onClick={enableMotion}
-            style={controlButtonStyle(accentRgb, motionState === "enabled")}
-          >
-            {motionState === "enabled" ? "TILT ON" : motionState === "denied" ? "TILT BLOCKED" : "ENABLE TILT"}
-          </button>
-          <button
-            type="button"
-            onPointerDown={(event) => {
-              event.currentTarget.setPointerCapture(event.pointerId);
-              beginManualPour();
-            }}
-            onPointerUp={endManualPour}
-            onPointerCancel={endManualPour}
-            onLostPointerCapture={endManualPour}
-            style={controlButtonStyle(accentRgb, true)}
-          >
-            HOLD TO POUR
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 7 }}>
+          <button type="button" onClick={enableMotion} style={controlButtonStyle(accentRgb, motionState === "enabled")}>
+            {motionState === "enabled" ? "TILT + LOCK ON" : motionState === "denied" ? "TILT BLOCKED" : "ENABLE TILT + LOCK"}
           </button>
           <button type="button" onClick={resetCycle} style={controlButtonStyle(accentRgb, false)}>
             RESET
