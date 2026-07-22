@@ -8,7 +8,7 @@ const canonical =
 export const metadata: Metadata = {
   title: "The Laboratory Leak | NULLWORKS",
   description:
-    "How emerging work becomes keyword soup before it becomes a category—and how NULLWORKS sharpened Operational Systems Architecture into a clear public position.",
+    "How emerging work becomes keyword soup and marketing slop before it becomes a category—and how NULLWORKS is turning runtime truth into accountable operational architecture.",
   alternates: { canonical },
   openGraph: {
     title: "The Laboratory Leak",
@@ -22,7 +22,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "The Laboratory Leak",
     description:
-      "How emerging work becomes keyword soup before it becomes a category.",
+      "How emerging work becomes keyword soup and marketing slop before it becomes a category.",
   },
 };
 
@@ -69,13 +69,13 @@ export default function LaboratoryLeakPage() {
     "@type": "Article",
     headline: "When the Laboratory Leaks Into the Profile",
     alternativeHeadline:
-      "How emerging work becomes keyword soup before it becomes a category",
+      "How emerging work becomes keyword soup and marketing slop before it becomes a category",
     author: { "@type": "Person", name: "Mason Perry" },
     publisher: { "@type": "Organization", name: "NULLWORKS" },
     dateModified: "2026-07-22",
     url: canonical,
     description:
-      "A NULLWORKS field note on category formation, public experimentation, and Operational Systems Architecture.",
+      "A NULLWORKS field note on category formation, public experimentation, immutable records, and Operational Systems Architecture.",
   };
 
   return (
@@ -122,7 +122,8 @@ export default function LaboratoryLeakPage() {
             When the <span>Laboratory Leaks</span> Into the Profile
           </h1>
           <p className={styles.subtitle}>
-            How emerging work becomes keyword soup before it becomes a category.
+            How emerging work becomes keyword soup and marketing slop before it
+            becomes a category.
           </p>
           <p className={styles.lede}>
             For a while, my LinkedIn profile looked like a laboratory notebook
@@ -171,9 +172,10 @@ export default function LaboratoryLeakPage() {
             </p>
             <p>
               That produced what experienced software people reasonably called
-              <strong> keyword soup</strong>.
+              <strong> keyword soup</strong>—and what others reasonably saw as
+              <strong> marketing slop</strong>.
             </p>
-            <p>They were not wrong.</p>
+            <p>Neither criticism was wrong.</p>
             <p>
               But they were seeing a live frontier, not a mature product page.
               The language was trying to describe a problem most organizations
@@ -232,6 +234,12 @@ export default function LaboratoryLeakPage() {
               intervention worked, and what the organization remembers afterward.
             </p>
             <p>
+              It is also being designed around <strong>immutable records</strong>:
+              durable decision receipts that preserve what was known, who exercised
+              authority, what was authorized, and what happened next—without letting
+              the history be quietly rewritten after the outcome is known.
+            </p>
+            <p>
               The point is not more documentation. The point is not another
               polished deck. The point is not AI theater.
             </p>
@@ -247,7 +255,8 @@ export default function LaboratoryLeakPage() {
           <p className={styles.sectionIntro}>
             An audit trail may prove that a workflow ran. It does not necessarily
             prove that a decision was governed. That requires preserving the
-            complete operating lineage while the decision is happening.
+            complete operating lineage while the decision is happening—and carrying
+            it forward in records designed to resist silent revision.
           </p>
 
           <div className={styles.lineageGrid}>
