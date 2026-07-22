@@ -3,7 +3,7 @@ import BleedingMatrix from "../BleedingMatrix";
 import { bleedingSignal as signal } from "../bleedingSignal";
 
 export const metadata: Metadata = {
-  title: `${signal.name} Android Test | NULLWORKS Living Signals`,
+  title: `${signal.name} Android Test V2 | NULLWORKS Living Signals`,
   description: signal.summary,
 };
 
@@ -112,9 +112,9 @@ export default function BleedingMatrixPage() {
             <div className="demo-note">{signal.demoNote}</div>
           </div>
           <aside className="hero-card">
-            <b>ANDROID TEST BUILD</b>
-            <strong>Fill. Slosh. Pour. Refill.</strong>
-            <p>Use the fixed control deck at the bottom. Touch works immediately. Tap Enable Tilt before testing the physical phone gesture.</p>
+            <b>ANDROID TEST BUILD V2</b>
+            <strong>Rain. Fill. Slosh. Tilt. Pour.</strong>
+            <p>Tap Enable Tilt + Lock. Android Chrome will attempt fullscreen portrait mode so the vessel can react to physical tilt without rotating the page layout.</p>
             <small>Simulated visual atmosphere only. No real blood, injury, telemetry, or live event is represented.</small>
           </aside>
         </div>
@@ -123,8 +123,8 @@ export default function BleedingMatrixPage() {
       <section className="section" id="test">
         <div className="shell">
           <div className="section-head">
-            <div><div className="section-label">What changed</div><h2>The viewport is now a vessel.</h2></div>
-            <p>The original falling-code atmosphere remains, but the foreground system now tracks volume, surface angle, wave energy, drainage, empty state, and refill state.</p>
+            <div><div className="section-label">What changed</div><h2>The falling Matrix now feeds the vessel.</h2></div>
+            <p>Code streams terminate at the liquid surface, create small impact ripples, and dissolve into the blood. A volume-preserving surface keeps the mass on the correct side while the slower refill continues.</p>
           </div>
           <div className="grid">
             {signal.communicates.map((item, index) => <article className="card" key={item}><b>{String(index + 1).padStart(2, "0")}</b><p>{item}</p></article>)}
@@ -135,8 +135,8 @@ export default function BleedingMatrixPage() {
       <section className="section" id="rules">
         <div className="shell">
           <div className="section-head">
-            <div><div className="section-label">Mobile test controls</div><h2>Sensor first. Touch fallback always.</h2></div>
-            <p>Portrait lets the vessel fill. Landscape drains it after tilt is enabled. The slider changes surface angle, Hold to Pour forces drainage, and Reset starts a fresh cycle.</p>
+            <div><div className="section-label">Mobile test controls</div><h2>Physical tilt pours. Touch only sloshes.</h2></div>
+            <p>Enable Tilt + Lock, then tip the phone past roughly 56 degrees while the page remains portrait. The Hold to Pour control is gone. The slider is now only a non-sensor slosh test.</p>
           </div>
           <div className="rule-list">{signal.rules.map((item, index) => <div className="rule" key={item}><b>{String(index + 1).padStart(2, "0")}</b><span>{item}</span></div>)}</div>
         </div>
@@ -146,8 +146,8 @@ export default function BleedingMatrixPage() {
         <div className="shell">
           <article className="closing-card">
             <div className="section-label">NULLWORKS Living Signal Framework</div>
-            <strong>The data does not just fall anymore. It accumulates.</strong>
-            <p>This is the Android browser prototype for the physical Bleeding Matrix interaction. The next truth gate is owner testing on Mason&apos;s phone: visual feel, tilt response, pour direction, refill timing, readability, and frame rate.</p>
+            <strong>The data falls until it becomes the liquid.</strong>
+            <p>V2 is built from the Android screen-recording receipt: slower accumulation, visible Matrix-to-liquid impacts, corrected gravity direction, portrait-lock request, sideways drainage, and no Hold to Pour button. The next truth gate is Mason&apos;s phone.</p>
             <div className="cta-row">
               <a className="cta" href="#">Restart at the top</a>
               <a className="cta secondary" href="/living-signals">Open the sample library</a>
@@ -156,7 +156,7 @@ export default function BleedingMatrixPage() {
         </div>
       </section>
 
-      <footer><div className="shell">NULLWORKS Living Signals // Bleeding Matrix Android liquid test. <a href="/living-signals">Browse all samples →</a></div></footer>
+      <footer><div className="shell">NULLWORKS Living Signals // Bleeding Matrix Android liquid test V2. <a href="/living-signals">Browse all samples →</a></div></footer>
     </main>
   );
 }
