@@ -1,71 +1,49 @@
 "use client";
 
+import type { CSSProperties } from "react";
 import { useEffect, useRef, useState } from "react";
 
 type Point = { x: number; y: number };
+type VesselColor = "red" | "blue";
 
-type Box = {
-  left: number;
-  top: number;
-  width: number;
-  height: number;
-  right: number;
-  bottom: number;
-};
-
-type RootPath = {
+type VesselPath = {
   d: string;
   width: number;
   delay: number;
   duration: number;
   opacity: number;
+  color: VesselColor;
 };
 
-type Layout = {
+type VascularField = {
   width: number;
   height: number;
-  backPaths: RootPath[];
-  frontPaths: RootPath[];
+  paths: VesselPath[];
 };
 
-const emptyLayout: Layout = {
-  width: 1,
-  height: 1,
-  backPaths: [],
-  frontPaths: [],
-};
+const emptyField: VascularField = { width: 1, height: 1, paths: [] };
+const BEAT_SECONDS = 1.35;
 
 const cards = [
   {
     code: "01",
-    title: "The primary vessel establishes first.",
-    body: "A narrow central root rises slowly from below the interface and carries the continuity of the complete system.",
+    title: "Arteries begin as major pressure lines.",
+    body: "The red system enters from the upper-left as a heavy vessel, then sheds diameter every time it branches.",
   },
   {
     code: "02",
-    title: "Each vessel fractures into smaller vessels.",
-    body: "Secondary branches split again into tertiary roots and finally into hairline capillaries instead of ending as decorative leaves.",
+    title: "Veins answer from the opposite corner.",
+    body: "The blue system rises from the lower-right on its own route and grows toward the same central exchange field.",
   },
   {
     code: "03",
-    title: "The timing refuses perfect synchronization.",
-    body: "New fractures emerge at uneven intervals around two seconds apart, producing biological growth rather than a coordinated animation cue.",
+    title: "Every generation truncates and divides.",
+    body: "Large vessels become secondary branches, smaller arterioles and venules, then hairline capillaries that stop at different lengths.",
   },
   {
     code: "04",
-    title: "One vascular branch breaks the plane.",
-    body: "A thin foreground vessel climbs the outer edge of this card, crosses the corner, and fractures across the content plane.",
-    front: true,
-  },
-  {
-    code: "05",
-    title: "The final generation becomes tiny fingers.",
-    body: "Every generation loses diameter and reach until the network terminates in fine capillary threads.",
-  },
-  {
-    code: "06",
-    title: "The complete root system can regrow.",
-    body: "Regrow restarts the staggered vascular sequence without reloading the page or changing the measured terrain.",
+    title: "One heartbeat owns the complete page.",
+    body: "The red network, blue network, EKG trace, scanner and glow all share one timing cycle instead of drifting independently.",
   },
 ];
 
@@ -78,19 +56,11 @@ const noise = (seed: number) => {
 
 const between = (seed: number, min: number, max: number) => min + noise(seed) * (max - min);
 
-function toBox(element: HTMLElement, rootRect: DOMRect): Box {
-  const rect = element.getBoundingClientRect();
-  const left = rect.left - rootRect.left;
-  const top = rect.top - rootRect.top;
-  return {
-    left,
-    top,
-    width: rect.width,
-    height: rect.height,
-    right: left + rect.width,
-    bottom: top + rect.height,
-  };
-}
+const mixAngle = (first: number, second: number, amount: number) => {
+  const x = Math.cos(first) * (1 - amount) + Math.cos(second) * amount;
+  const y = Math.sin(first) * (1 - amount) + Math.sin(second) * amount;
+  return Math.atan2(y, x);
+};
 
 function curvedSegment(start: Point, end: Point, seed: number) {
   const dx = end.x - start.x;
@@ -98,28 +68,29 @@ function curvedSegment(start: Point, end: Point, seed: number) {
   const length = Math.max(1, Math.hypot(dx, dy));
   const normalX = -dy / length;
   const normalY = dx / length;
-  const wobble = between(seed, -0.18, 0.18) * length;
+  const wobble = between(seed, -0.15, 0.15) * length;
+
   return [
     `M ${start.x.toFixed(1)} ${start.y.toFixed(1)}`,
-    `C ${(start.x + dx * 0.31 + normalX * wobble).toFixed(1)} ${(start.y + dy * 0.31 + normalY * wobble).toFixed(1)},`,
-    `${(start.x + dx * 0.69 - normalX * wobble * 0.72).toFixed(1)} ${(start.y + dy * 0.69 - normalY * wobble * 0.72).toFixed(1)},`,
+    `C ${(start.x + dx * 0.3 + normalX * wobble).toFixed(1)} ${(start.y + dy * 0.3 + normalY * wobble).toFixed(1)},`,
+    `${(start.x + dx * 0.7 - normalX * wobble * 0.76).toFixed(1)} ${(start.y + dy * 0.7 - normalY * wobble * 0.76).toFixed(1)},`,
     `${end.x.toFixed(1)} ${end.y.toFixed(1)}`,
   ].join(" ");
 }
 
-function fracture(
-  paths: RootPath[],
+function branchVessel(
+  paths: VesselPath[],
   start: Point,
   angle: number,
   length: number,
   generation: number,
   delay: number,
   seed: number,
-  bounds: { width: number; height: number },
-  foreground = false,
+  color: VesselColor,
+  bounds: { width: number; height: number; center: Point },
 ) {
-  const widths = foreground ? [0.96, 0.5, 0.24] : [1.08, 0.54, 0.24];
-  const durations = [11.8, 8.4, 5.8];
+  const widths = [5.6, 3.1, 1.65, 0.72];
+  const durations = [12.4, 9.7, 7.3, 5.4];
   const end = {
     x: clamp(start.x + Math.cos(angle) * length, 4, bounds.width - 4),
     y: clamp(start.y + Math.sin(angle) * length, 4, bounds.height - 4),
@@ -129,235 +100,240 @@ function fracture(
     d: curvedSegment(start, end, seed),
     width: widths[generation],
     delay,
-    duration: durations[generation] * between(seed + 2, 0.86, 1.18),
-    opacity: foreground ? 0.92 - generation * 0.13 : 0.68 - generation * 0.12,
+    duration: durations[generation] * between(seed + 2, 0.9, 1.18),
+    opacity: 0.82 - generation * 0.12,
+    color,
   });
 
-  if (generation >= 2 || Math.hypot(end.x - start.x, end.y - start.y) < 22) return;
+  if (generation >= 3 || Math.hypot(end.x - start.x, end.y - start.y) < 18) return;
 
-  const childCount = generation === 0 && noise(seed + 9) > 0.58 ? 3 : 2;
-  const spread = generation === 0 ? 0.54 : 0.72;
+  const childCount = generation === 0 && noise(seed + 7) > 0.48 ? 3 : 2;
+  const spread = generation === 0 ? 0.68 : generation === 1 ? 0.82 : 0.96;
+  const centerAngle = Math.atan2(bounds.center.y - end.y, bounds.center.x - end.x);
 
   for (let child = 0; child < childCount; child += 1) {
     const centered = child - (childCount - 1) / 2;
-    const childAngle = angle + centered * spread + between(seed + child * 17, -0.17, 0.17);
-    const childLength = length * between(seed + child * 23 + generation, 0.46, 0.66);
-    const splitDelay = delay + between(seed + child * 31 + generation * 7, 1.45, 2.85) + child * 0.22;
-    fracture(
+    const splitAngle = angle + centered * spread + between(seed + child * 19, -0.2, 0.2);
+    const childAngle = mixAngle(splitAngle, centerAngle, generation === 0 ? 0.2 : 0.08);
+    const childLength = length * between(seed + child * 29 + generation, 0.43, 0.63);
+    const splitDelay = delay + between(seed + child * 37 + generation * 11, 1.55, 3.55) + child * 0.18;
+
+    branchVessel(
       paths,
       end,
       childAngle,
       childLength,
       generation + 1,
       splitDelay,
-      seed * 7.13 + child * 19.7 + generation * 41,
+      seed * 7.31 + child * 23.7 + generation * 43,
+      color,
       bounds,
-      foreground,
     );
   }
 }
 
-function buildLayout(root: HTMLElement): Layout {
-  const rootRect = root.getBoundingClientRect();
-  const width = Math.max(1, root.clientWidth);
-  const height = Math.max(1, root.scrollHeight);
-  const bounds = { width, height };
-  const targets = Array.from(root.querySelectorAll<HTMLElement>("[data-vine-target]"))
-    .map((element) => toBox(element, rootRect))
-    .sort((a, b) => a.top - b.top);
+function buildMainSystem(
+  paths: VesselPath[],
+  color: VesselColor,
+  start: Point,
+  target: Point,
+  seed: number,
+  bounds: { width: number; height: number; center: Point },
+) {
+  const steps = 6;
+  const points: Point[] = [start];
+  const mainWidths = [12, 10.2, 8.2, 6.4, 4.5, 2.8];
+  const baseDelay = color === "red" ? 0.45 : 0.82;
 
-  if (!targets.length) return { ...emptyLayout, width, height };
-
-  const backPaths: RootPath[] = [];
-  const frontPaths: RootPath[] = [];
-  const descending = [...targets].sort((a, b) => b.top - a.top);
-
-  let mainX = width * 0.5;
-  let mainY = height + 36;
-  let main = `M ${mainX.toFixed(1)} ${mainY.toFixed(1)}`;
-  const mainAnchors: Array<{ point: Point; side: number; box: Box; delay: number; seed: number }> = [];
-
-  descending.forEach((box, index) => {
-    const side = index % 2 === 0 ? -1 : 1;
-    const nextX = side < 0 ? box.left - 18 : box.right + 18;
-    const nextY = box.top + box.height * (0.31 + (index % 3) * 0.13);
-    const midY = mainY - Math.max(120, (mainY - nextY) * 0.54);
-    main += ` C ${(mainX + side * 66).toFixed(1)} ${midY.toFixed(1)}, ${(nextX - side * 56).toFixed(1)} ${(nextY + 94).toFixed(1)}, ${nextX.toFixed(1)} ${nextY.toFixed(1)}`;
-
-    mainAnchors.push({
-      point: { x: nextX, y: nextY },
-      side,
-      box,
-      delay: 2.4 + index * between(index + 8, 1.75, 2.5),
-      seed: 101 + index * 37,
-    });
-
-    mainX = nextX;
-    mainY = nextY;
-  });
-
-  backPaths.push({
-    d: main,
-    width: 2.5,
-    delay: 0.35,
-    duration: 29.5,
-    opacity: 0.84,
-  });
-
-  mainAnchors.forEach(({ point, side, box, delay, seed }, index) => {
-    const outwardAngle = side < 0 ? -2.42 : -0.72;
-    const inwardAngle = side < 0 ? -0.98 : -2.16;
-    const primaryLength = clamp(box.width * 0.38, 90, 190);
-
-    fracture(backPaths, point, outwardAngle, primaryLength, 0, delay, seed, bounds);
-    fracture(
-      backPaths,
-      point,
-      inwardAngle + between(seed + 3, -0.16, 0.16),
-      primaryLength * 0.76,
-      0,
-      delay + between(seed + 5, 1.3, 2.4),
-      seed + 503,
-      bounds,
-    );
-
-    if (index % 2 === 0) {
-      const horizontalAngle = side < 0 ? Math.PI : 0;
-      fracture(
-        backPaths,
-        point,
-        horizontalAngle + between(seed + 11, -0.34, 0.34),
-        clamp(box.width * 0.26, 62, 132),
-        0,
-        delay + between(seed + 15, 2.1, 3.8),
-        seed + 907,
-        bounds,
-      );
-    }
-  });
-
-  const rootXs = [width * 0.1, width * 0.88];
-  rootXs.forEach((rootX, rootIndex) => {
-    const selected = descending.filter((_, index) => index % 2 === rootIndex).slice(0, 5);
-    let x = rootX;
-    let y = height + 24;
-    let d = `M ${x.toFixed(1)} ${y.toFixed(1)}`;
-
-    selected.forEach((box, index) => {
-      const targetX = rootIndex === 0 ? box.left + box.width * 0.12 : box.right - box.width * 0.12;
-      const targetY = box.bottom - box.height * (0.14 + index * 0.07);
-      const bend = rootIndex === 0 ? 58 : -58;
-      d += ` C ${(x + bend).toFixed(1)} ${(y - 150).toFixed(1)}, ${(targetX - bend * 0.7).toFixed(1)} ${(targetY + 128).toFixed(1)}, ${targetX.toFixed(1)} ${targetY.toFixed(1)}`;
-
-      const branchDelay = 3.2 + rootIndex * 1.1 + index * between(index + rootIndex * 13, 1.8, 2.7);
-      const angle = rootIndex === 0 ? -0.82 : -2.32;
-      fracture(
-        backPaths,
-        { x: targetX, y: targetY },
-        angle + between(index + rootIndex * 71, -0.23, 0.23),
-        clamp(box.width * 0.3, 72, 148),
-        0,
-        branchDelay,
-        1401 + rootIndex * 311 + index * 43,
-        bounds,
-      );
-
-      x = targetX;
-      y = targetY;
-    });
-
-    backPaths.push({
-      d,
-      width: 1.8,
-      delay: 1.2 + rootIndex * 1.05,
-      duration: 25.5 + rootIndex * 2.4,
-      opacity: 0.62,
-    });
-  });
-
-  const frontElement = root.querySelector<HTMLElement>("[data-vine-front]");
-  if (frontElement) {
-    const box = toBox(frontElement, rootRect);
-    const start = { x: Math.min(width - 8, box.right + 76), y: box.bottom + 220 };
-    const corner = { x: box.right + 2, y: box.top + 18 };
-    const cross = { x: box.left + box.width * 0.43, y: box.top + 8 };
-    const end = { x: cross.x - 122, y: cross.y + 56 };
-    const foregroundPath = [
-      `M ${start.x.toFixed(1)} ${start.y.toFixed(1)}`,
-      `C ${(box.right + 38).toFixed(1)} ${(box.bottom + 132).toFixed(1)}, ${(box.right + 11).toFixed(1)} ${(box.top + box.height * 0.56).toFixed(1)}, ${corner.x.toFixed(1)} ${corner.y.toFixed(1)}`,
-      `C ${(box.right - 18).toFixed(1)} ${(box.top - 8).toFixed(1)}, ${(box.right - 82).toFixed(1)} ${(box.top + 2).toFixed(1)}, ${cross.x.toFixed(1)} ${cross.y.toFixed(1)}`,
-      `C ${(cross.x - 44).toFixed(1)} ${(cross.y + 2).toFixed(1)}, ${(cross.x - 92).toFixed(1)} ${(cross.y + 31).toFixed(1)}, ${end.x.toFixed(1)} ${end.y.toFixed(1)}`,
-    ].join(" ");
-
-    frontPaths.push({
-      d: foregroundPath,
-      width: 2.85,
-      delay: 16.8,
-      duration: 18.5,
-      opacity: 0.94,
-    });
-
-    const foregroundAnchors = [
-      { point: { x: box.right + 2, y: box.top + box.height * 0.63 }, angle: -2.58, delay: 20.1, seed: 3101 },
-      { point: corner, angle: -2.9, delay: 22.3, seed: 3203 },
-      { point: cross, angle: 2.72, delay: 24.2, seed: 3307 },
-      { point: end, angle: -2.35, delay: 26.7, seed: 3413 },
-    ];
-
-    foregroundAnchors.forEach(({ point, angle, delay, seed }) => {
-      fracture(frontPaths, point, angle, clamp(box.width * 0.2, 62, 118), 0, delay, seed, bounds, true);
+  for (let index = 1; index <= steps; index += 1) {
+    const amount = index / steps;
+    const direction = color === "red" ? 1 : -1;
+    const lateral = Math.sin(amount * Math.PI * 2.4 + seed) * bounds.width * 0.055 * direction;
+    const vertical = Math.sin(amount * Math.PI * 1.6 + seed * 0.7) * Math.min(90, bounds.height * 0.018);
+    points.push({
+      x: start.x + (target.x - start.x) * amount + lateral,
+      y: start.y + (target.y - start.y) * amount + vertical,
     });
   }
 
-  return { width, height, backPaths, frontPaths };
+  for (let index = 0; index < steps; index += 1) {
+    const segmentStart = points[index];
+    const segmentEnd = points[index + 1];
+    const segmentDelay = baseDelay + index * between(seed + index * 17, 4.6, 5.9);
+    const segmentAngle = Math.atan2(segmentEnd.y - segmentStart.y, segmentEnd.x - segmentStart.x);
+
+    paths.push({
+      d: curvedSegment(segmentStart, segmentEnd, seed + index * 73),
+      width: mainWidths[index],
+      delay: segmentDelay,
+      duration: between(seed + index * 41, 10.4, 13.2),
+      opacity: 0.95 - index * 0.045,
+      color,
+    });
+
+    if (index === 0) continue;
+
+    const anchor = segmentStart;
+    const available = Math.min(bounds.width * 0.34, 190 + index * 18);
+    const sides = [-1, 1];
+
+    sides.forEach((side, branchIndex) => {
+      const angle = segmentAngle + side * between(seed + index * 101 + branchIndex, 0.64, 1.08);
+      const length = available * between(seed + index * 131 + branchIndex * 17, 0.68, 1.05);
+      const delay = segmentDelay + between(seed + index * 149 + branchIndex * 23, 1.2, 3.8);
+      branchVessel(
+        paths,
+        anchor,
+        angle,
+        length,
+        0,
+        delay,
+        seed + index * 211 + branchIndex * 997,
+        color,
+        bounds,
+      );
+    });
+  }
+
+  const terminalAngle = Math.atan2(bounds.center.y - target.y, bounds.center.x - target.x);
+  for (let index = 0; index < 7; index += 1) {
+    const angle = terminalAngle + between(seed + 4000 + index * 53, -1.05, 1.05);
+    const length = between(seed + 5000 + index * 79, 72, Math.min(150, bounds.width * 0.28));
+    branchVessel(
+      paths,
+      target,
+      angle,
+      length,
+      1,
+      29.5 + between(seed + 6000 + index * 83, 0.4, 6.2),
+      seed + 7000 + index * 113,
+      color,
+      bounds,
+    );
+  }
 }
 
-function RootSvg({ layout, layer, growthKey }: { layout: Layout; layer: "back" | "front"; growthKey: number }) {
-  const paths = layer === "back" ? layout.backPaths : layout.frontPaths;
-  const gradientId = layer === "back" ? "root-back-gradient" : "root-front-gradient";
+function buildField(width: number, height: number): VascularField {
+  const center = { x: width * 0.5, y: height * 0.5 };
+  const bounds = { width, height, center };
+  const paths: VesselPath[] = [];
 
+  buildMainSystem(
+    paths,
+    "red",
+    { x: -22, y: Math.max(86, height * 0.035) },
+    { x: width * 0.47, y: height * 0.49 },
+    13,
+    bounds,
+  );
+
+  buildMainSystem(
+    paths,
+    "blue",
+    { x: width + 22, y: height - Math.max(86, height * 0.035) },
+    { x: width * 0.53, y: height * 0.51 },
+    29,
+    bounds,
+  );
+
+  return { width, height, paths };
+}
+
+function VascularSvg({ field, replayKey }: { field: VascularField; replayKey: number }) {
   return (
     <svg
-      key={`${layer}-${growthKey}`}
-      className={layer === "back" ? "root-layer root-layer-back" : "root-layer root-layer-front"}
-      viewBox={`0 0 ${layout.width} ${layout.height}`}
+      key={`vascular-field-${replayKey}`}
+      className="vascular-field"
+      viewBox={`0 0 ${field.width} ${field.height}`}
       preserveAspectRatio="none"
       aria-hidden="true"
     >
       <defs>
-        <linearGradient id={gradientId} x1="0" y1="1" x2="0" y2="0">
-          <stop offset="0" stopColor={layer === "back" ? "#102d18" : "#1b4b25"} />
-          <stop offset="0.48" stopColor={layer === "back" ? "#2b7138" : "#45a957"} />
-          <stop offset="1" stopColor={layer === "back" ? "#69bc70" : "#a4e98d"} />
+        <linearGradient id="artery-gradient" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stopColor="#ff172f" />
+          <stop offset="0.5" stopColor="#d81429" />
+          <stop offset="1" stopColor="#7f0718" />
         </linearGradient>
-        <filter id={`${gradientId}-glow`} x="-80%" y="-80%" width="260%" height="260%">
-          <feGaussianBlur stdDeviation={layer === "back" ? "0.9" : "1.6"} result="blur" />
+        <linearGradient id="vein-gradient" x1="1" y1="1" x2="0" y2="0">
+          <stop offset="0" stopColor="#128cff" />
+          <stop offset="0.5" stopColor="#1760d6" />
+          <stop offset="1" stopColor="#102b85" />
+        </linearGradient>
+        <filter id="artery-glow" x="-80%" y="-80%" width="260%" height="260%">
+          <feGaussianBlur stdDeviation="2.4" result="blur" />
+          <feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge>
+        </filter>
+        <filter id="vein-glow" x="-80%" y="-80%" width="260%" height="260%">
+          <feGaussianBlur stdDeviation="2.4" result="blur" />
           <feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge>
         </filter>
       </defs>
 
-      {paths.map((path, index) => (
-        <path
-          key={`${layer}-root-${index}`}
-          d={path.d}
-          pathLength={1}
-          className="root-stem"
-          stroke={`url(#${gradientId})`}
-          strokeWidth={path.width}
-          opacity={path.opacity}
-          filter={`url(#${gradientId}-glow)`}
-          vectorEffect="non-scaling-stroke"
-          style={{ animationDelay: `${path.delay}s`, animationDuration: `${path.duration}s` }}
-        />
-      ))}
+      {field.paths.map((path, index) => {
+        const gradient = path.color === "red" ? "artery-gradient" : "vein-gradient";
+        const glow = path.color === "red" ? "artery-glow" : "vein-glow";
+        const timing = {
+          "--grow-delay": `${path.delay}s`,
+          "--grow-duration": `${path.duration}s`,
+          "--beat-seconds": `${BEAT_SECONDS}s`,
+        } as CSSProperties;
+
+        return (
+          <g key={`${path.color}-${index}`}>
+            <path
+              d={path.d}
+              pathLength={1}
+              className="vessel-stroke"
+              stroke={`url(#${gradient})`}
+              strokeWidth={path.width}
+              opacity={path.opacity}
+              filter={`url(#${glow})`}
+              vectorEffect="non-scaling-stroke"
+              style={timing}
+            />
+            <path
+              d={path.d}
+              pathLength={1}
+              className="vessel-pulse"
+              stroke={path.color === "red" ? "#ff8390" : "#73c4ff"}
+              strokeWidth={path.width * 1.75}
+              vectorEffect="non-scaling-stroke"
+              style={timing}
+            />
+          </g>
+        );
+      })}
     </svg>
+  );
+}
+
+function EkgDeck() {
+  return (
+    <aside className="ekg-deck" aria-label="Synchronized EKG scanner">
+      <div className="ekg-head">
+        <span>CAPILLARY CONVERGENCE // LIVE</span>
+        <strong>QRS / ST SYNCHRONIZED PULSE</strong>
+      </div>
+      <div className="ekg-screen">
+        <svg viewBox="0 0 1000 120" preserveAspectRatio="none" aria-hidden="true">
+          <path className="ekg-baseline" d="M 0 72 L 1000 72" />
+          <path
+            className="ekg-trace"
+            d="M 0 72 L 250 72 C 285 72 300 58 320 58 C 340 58 350 72 378 72 L 500 72 L 526 80 L 548 42 L 570 106 L 596 12 L 621 86 L 648 62 L 735 62 C 770 62 786 48 810 48 C 842 48 855 72 900 72 L 1000 72"
+          />
+          <path className="st-segment" d="M 648 62 L 735 62" />
+        </svg>
+        <div className="st-zone" />
+        <div className="ekg-scanner"><i /></div>
+      </div>
+    </aside>
   );
 }
 
 export default function VineInfiltration() {
   const rootRef = useRef<HTMLElement>(null);
-  const [layout, setLayout] = useState<Layout>(emptyLayout);
-  const [growthKey, setGrowthKey] = useState(0);
+  const [field, setField] = useState<VascularField>(emptyField);
+  const [replayKey, setReplayKey] = useState(0);
 
   useEffect(() => {
     const root = rootRef.current;
@@ -366,7 +342,9 @@ export default function VineInfiltration() {
     let frame = 0;
     const measure = () => {
       cancelAnimationFrame(frame);
-      frame = requestAnimationFrame(() => setLayout(buildLayout(root)));
+      frame = requestAnimationFrame(() => {
+        setField(buildField(Math.max(1, root.clientWidth), Math.max(1, root.scrollHeight)));
+      });
     };
 
     measure();
@@ -382,161 +360,263 @@ export default function VineInfiltration() {
     };
   }, []);
 
-  const regrow = () => {
-    setGrowthKey((value) => value + 1);
+  const replay = () => {
+    setReplayKey((value) => value + 1);
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   return (
-    <main ref={rootRef} className="vine-page">
+    <main ref={rootRef} className="capillary-page">
       <style>{`
         :root { color-scheme: dark; }
         * { box-sizing: border-box; }
         html { scroll-behavior: smooth; }
-        body { margin: 0; background: #040805; }
-        .vine-page {
-          --root: #72d66f;
-          --root-bright: #b7f59a;
+        body { margin: 0; background: #040508; }
+        .capillary-page {
+          --red: #ff3048;
+          --blue: #2a8fff;
+          --beat: ${BEAT_SECONDS}s;
           min-height: 100vh;
           position: relative;
           isolation: isolate;
           overflow: hidden;
-          color: #eff8ec;
+          padding-bottom: 142px;
+          color: #f6f7fb;
           background:
-            radial-gradient(circle at 15% 4%, rgba(74,153,78,.13), transparent 26rem),
-            radial-gradient(circle at 86% 30%, rgba(119,205,103,.08), transparent 34rem),
-            linear-gradient(180deg, #050a06 0%, #071009 45%, #030604 100%);
+            radial-gradient(circle at 0% 0%, rgba(255,30,56,.2), transparent 31rem),
+            radial-gradient(circle at 100% 100%, rgba(25,113,255,.2), transparent 34rem),
+            radial-gradient(circle at 50% 50%, rgba(153,52,119,.07), transparent 34rem),
+            linear-gradient(180deg, #050508 0%, #08060b 50%, #040509 100%);
           font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
         }
-        .vine-page::before {
+        .capillary-page::before {
           content: "";
           position: absolute;
           inset: 0;
           z-index: 0;
           pointer-events: none;
-          opacity: .16;
+          opacity: .18;
           background-image:
-            linear-gradient(rgba(173,231,157,.05) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(173,231,157,.05) 1px, transparent 1px);
-          background-size: 42px 42px;
-          mask-image: linear-gradient(to bottom, black, transparent 92%);
+            linear-gradient(rgba(255,255,255,.038) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(255,255,255,.038) 1px, transparent 1px);
+          background-size: 38px 38px;
+          mask-image: linear-gradient(to bottom, black, transparent 95%);
         }
-        .root-layer { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; overflow: visible; }
-        .root-layer-back { z-index: 1; mix-blend-mode: screen; opacity: .94; }
-        .root-layer-front { z-index: 8; mix-blend-mode: screen; }
-        .root-stem {
+        .vascular-field { position: absolute; inset: 0; z-index: 1; width: 100%; height: 100%; pointer-events: none; overflow: visible; }
+        .vessel-stroke, .vessel-pulse {
           fill: none;
           stroke-linecap: round;
           stroke-linejoin: round;
           stroke-dasharray: 1;
           stroke-dashoffset: 1;
-          animation-name: rootGrow;
-          animation-timing-function: cubic-bezier(.2,.5,.24,1);
-          animation-fill-mode: forwards;
         }
-        @keyframes rootGrow { to { stroke-dashoffset: 0; } }
-        .shell { width: min(1160px, calc(100% - 30px)); margin: 0 auto; }
+        .vessel-stroke {
+          animation:
+            vesselGrow var(--grow-duration) cubic-bezier(.18,.72,.22,1) var(--grow-delay) forwards,
+            vesselBaseBeat var(--beat-seconds) linear 0s infinite;
+        }
+        .vessel-pulse {
+          opacity: 0;
+          animation:
+            vesselGrow var(--grow-duration) cubic-bezier(.18,.72,.22,1) var(--grow-delay) forwards,
+            vesselFlash var(--beat-seconds) linear 0s infinite;
+        }
+        @keyframes vesselGrow { to { stroke-dashoffset: 0; } }
+        @keyframes vesselBaseBeat {
+          0%, 53%, 100% { filter: brightness(.92); }
+          58% { filter: brightness(1.08); }
+          61% { filter: brightness(1.55); }
+          65% { filter: brightness(1.02); }
+          71% { filter: brightness(1.24); }
+          76% { filter: brightness(.94); }
+        }
+        @keyframes vesselFlash {
+          0%, 54%, 100% { opacity: 0; }
+          58% { opacity: .12; }
+          61% { opacity: .78; }
+          64% { opacity: .18; }
+          70% { opacity: .42; }
+          76% { opacity: 0; }
+        }
         .content-layer { position: relative; z-index: 4; }
+        .shell { width: min(1160px, calc(100% - 30px)); margin: 0 auto; }
         .nav {
           position: sticky;
           top: 0;
-          z-index: 20;
-          border-bottom: 1px solid rgba(173,231,157,.13);
-          background: rgba(4,8,5,.79);
+          z-index: 30;
+          border-bottom: 1px solid rgba(255,255,255,.11);
+          background: rgba(4,5,8,.79);
           backdrop-filter: blur(18px);
         }
         .nav-inner { min-height: 66px; display: flex; align-items: center; justify-content: space-between; gap: 14px; }
-        .brand { color: #f2faef; text-decoration: none; font-size: 12px; font-weight: 950; letter-spacing: .14em; }
-        .brand span { color: var(--root-bright); }
+        .brand { color: #fff; text-decoration: none; font-size: 12px; font-weight: 950; letter-spacing: .14em; }
+        .brand .red { color: var(--red); }
+        .brand .blue { color: var(--blue); }
         .nav-actions { display: flex; gap: 7px; align-items: center; }
-        .nav-actions a, .regrow {
+        .nav-actions a, .replay {
           appearance: none;
-          border: 1px solid rgba(183,245,154,.22);
+          border: 1px solid rgba(255,255,255,.17);
           border-radius: 999px;
           padding: 8px 11px;
-          color: #cfe2ca;
+          color: #cbd0db;
           background: rgba(255,255,255,.025);
           text-decoration: none;
           font: 850 10px ui-monospace, monospace;
           cursor: pointer;
         }
-        .regrow { color: #061008; background: var(--root-bright); border-color: var(--root-bright); }
-        .hero { min-height: 92svh; display: grid; align-items: center; border-bottom: 1px solid rgba(173,231,157,.12); }
-        .hero-grid { display: grid; grid-template-columns: 1.15fr .85fr; gap: 30px; align-items: end; padding: 88px 0 112px; }
-        .eyebrow { color: var(--root-bright); font: 900 11px ui-monospace, monospace; letter-spacing: .18em; text-transform: uppercase; }
+        .replay { color: #fff; border-color: rgba(255,66,91,.48); background: linear-gradient(90deg, rgba(255,48,72,.24), rgba(42,143,255,.24)); }
+        .hero { min-height: 94svh; display: grid; align-items: center; border-bottom: 1px solid rgba(255,255,255,.1); }
+        .hero-grid { display: grid; grid-template-columns: 1.15fr .85fr; gap: 30px; align-items: end; padding: 92px 0 126px; }
+        .eyebrow { color: #d7dbe5; font: 900 11px ui-monospace, monospace; letter-spacing: .18em; text-transform: uppercase; }
         h1 { max-width: 980px; margin: 18px 0 0; font-size: clamp(58px, 9.7vw, 126px); line-height: .82; letter-spacing: -.073em; }
-        h1 span { display: block; color: transparent; -webkit-text-stroke: 1px rgba(183,245,154,.72); }
-        .lead { max-width: 820px; margin-top: 27px; color: #c3d2bf; font-size: clamp(18px, 2.1vw, 25px); line-height: 1.58; }
-        .hero-card, .signal-card, .feature-card, .closing-card {
+        h1 .artery { color: var(--red); }
+        h1 .vein { color: var(--blue); }
+        .lead { max-width: 820px; margin-top: 28px; color: #c6cad4; font-size: clamp(18px, 2.1vw, 25px); line-height: 1.58; }
+        .hero-card, .signal-card, .convergence-card, .closing-card {
           position: relative;
-          border: 1px solid rgba(138,218,128,.23);
-          background: linear-gradient(145deg, rgba(34,72,42,.53), rgba(7,13,8,.82));
-          box-shadow: 0 28px 90px rgba(0,0,0,.42);
-          backdrop-filter: blur(11px);
+          border: 1px solid rgba(255,255,255,.14);
+          background: linear-gradient(145deg, rgba(18,16,23,.78), rgba(5,6,10,.84));
+          box-shadow: 0 28px 90px rgba(0,0,0,.44);
+          backdrop-filter: blur(12px);
         }
         .hero-card { border-radius: 28px; padding: 25px; }
-        .hero-card b { color: var(--root-bright); font: 900 10px ui-monospace, monospace; letter-spacing: .15em; }
-        .hero-card strong { display: block; margin-top: 16px; font-size: clamp(31px, 4.3vw, 54px); line-height: .94; letter-spacing: -.052em; }
-        .hero-card p { color: #b4c7b0; line-height: 1.68; }
-        .section { position: relative; z-index: 4; padding: 86px 0; border-bottom: 1px solid rgba(173,231,157,.11); }
+        .hero-card b { color: #fff; font: 900 10px ui-monospace, monospace; letter-spacing: .15em; }
+        .hero-card strong { display: block; margin-top: 17px; font-size: clamp(31px, 4.3vw, 54px); line-height: .94; letter-spacing: -.052em; }
+        .hero-card p { color: #b8bdc8; line-height: 1.68; }
+        .legend { display: grid; gap: 8px; margin-top: 20px; }
+        .legend span { display: flex; align-items: center; gap: 9px; color: #aeb4c0; font: 800 10px ui-monospace, monospace; }
+        .legend i { width: 40px; height: 4px; border-radius: 999px; box-shadow: 0 0 16px currentColor; }
+        .legend .artery-line { color: var(--red); background: var(--red); }
+        .legend .vein-line { color: var(--blue); background: var(--blue); }
+        .section { position: relative; z-index: 4; padding: 88px 0; border-bottom: 1px solid rgba(255,255,255,.09); }
         .section-head { display: grid; grid-template-columns: 1.08fr .92fr; gap: 28px; align-items: end; margin-bottom: 30px; }
-        .section-label { color: var(--root-bright); font: 900 10px ui-monospace, monospace; letter-spacing: .17em; text-transform: uppercase; }
+        .section-label { color: #e5e7ed; font: 900 10px ui-monospace, monospace; letter-spacing: .17em; text-transform: uppercase; }
         h2 { max-width: 900px; margin: 12px 0 0; font-size: clamp(42px, 6.4vw, 80px); line-height: .94; letter-spacing: -.058em; }
-        .section-head p { color: #afc0ab; font-size: 17px; line-height: 1.68; }
+        .section-head p { color: #aeb4c0; font-size: 17px; line-height: 1.68; }
         .card-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
-        .signal-card { min-height: 290px; border-radius: 24px; padding: 22px; overflow: visible; }
-        .signal-card::after { content: ""; position: absolute; inset: 12px; border: 1px solid rgba(183,245,154,.06); border-radius: 17px; pointer-events: none; }
-        .signal-card b { color: var(--root-bright); font: 950 12px ui-monospace, monospace; letter-spacing: .14em; }
-        .signal-card h3 { max-width: 560px; margin: 58px 0 0; font-size: clamp(30px, 4vw, 52px); line-height: .96; letter-spacing: -.048em; }
-        .signal-card p { max-width: 620px; color: #b5c7b1; line-height: 1.62; }
-        .feature-zone { padding-top: 102px; padding-bottom: 118px; }
-        .feature-grid { display: grid; grid-template-columns: .8fr 1.2fr; gap: 22px; align-items: center; }
-        .feature-copy p { color: #afc0ab; font-size: 18px; line-height: 1.72; }
-        .feature-card { min-height: 460px; border-radius: 31px; padding: 28px; overflow: visible; }
-        .feature-card .corner-label { color: var(--root-bright); font: 900 10px ui-monospace, monospace; letter-spacing: .17em; }
-        .feature-card h3 { max-width: 700px; margin: 92px 0 0; font-size: clamp(42px, 6vw, 76px); line-height: .92; letter-spacing: -.058em; }
-        .feature-card p { max-width: 670px; color: #bdcdb9; font-size: 17px; line-height: 1.65; }
-        .closing { position: relative; z-index: 4; padding: 92px 0 120px; }
+        .signal-card { min-height: 292px; border-radius: 24px; padding: 22px; overflow: hidden; }
+        .signal-card::before { content: ""; position: absolute; inset: 0; opacity: .3; background: linear-gradient(135deg, rgba(255,48,72,.16), transparent 42%, rgba(42,143,255,.14)); }
+        .signal-card b, .signal-card h3, .signal-card p { position: relative; z-index: 2; }
+        .signal-card b { color: #f3f4f8; font: 950 12px ui-monospace, monospace; letter-spacing: .14em; }
+        .signal-card h3 { max-width: 560px; margin: 56px 0 0; font-size: clamp(30px, 4vw, 52px); line-height: .96; letter-spacing: -.048em; }
+        .signal-card p { max-width: 620px; color: #b9bec9; line-height: 1.62; }
+        .convergence-zone { padding-top: 110px; padding-bottom: 126px; }
+        .convergence-grid { display: grid; grid-template-columns: .8fr 1.2fr; gap: 24px; align-items: center; }
+        .convergence-copy p { color: #afb5c1; font-size: 18px; line-height: 1.72; }
+        .convergence-card { min-height: 470px; border-radius: 31px; padding: 30px; overflow: hidden; }
+        .convergence-card::before, .convergence-card::after {
+          content: "";
+          position: absolute;
+          width: 280px;
+          aspect-ratio: 1;
+          border-radius: 50%;
+          filter: blur(48px);
+          opacity: .18;
+          animation: chamberPulse var(--beat) linear infinite;
+        }
+        .convergence-card::before { left: -100px; top: -80px; background: var(--red); }
+        .convergence-card::after { right: -100px; bottom: -80px; background: var(--blue); }
+        @keyframes chamberPulse {
+          0%, 54%, 100% { transform: scale(.82); opacity: .1; }
+          61% { transform: scale(1.18); opacity: .3; }
+          71% { transform: scale(.98); opacity: .17; }
+        }
+        .convergence-card > * { position: relative; z-index: 2; }
+        .convergence-card .corner-label { color: #e6e8ef; font: 900 10px ui-monospace, monospace; letter-spacing: .17em; }
+        .convergence-card h3 { max-width: 700px; margin: 96px 0 0; font-size: clamp(42px, 6vw, 76px); line-height: .92; letter-spacing: -.058em; }
+        .convergence-card p { max-width: 670px; color: #c0c4ce; font-size: 17px; line-height: 1.65; }
+        .closing { position: relative; z-index: 4; padding: 94px 0 126px; }
         .closing-card { border-radius: 30px; padding: clamp(28px, 5vw, 50px); }
         .closing-card strong { display: block; max-width: 900px; font-size: clamp(40px, 6vw, 78px); line-height: .94; letter-spacing: -.058em; }
-        .closing-card p { max-width: 840px; color: #b7c7b3; font-size: 18px; line-height: 1.68; }
+        .closing-card p { max-width: 840px; color: #b9bec8; font-size: 18px; line-height: 1.68; }
         .cta-row { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 24px; }
-        .cta { display: inline-flex; padding: 12px 16px; border-radius: 999px; color: #061008; background: var(--root-bright); text-decoration: none; font-weight: 950; }
-        .cta.secondary { color: var(--root-bright); background: rgba(4,8,5,.65); border: 1px solid rgba(183,245,154,.38); }
-        footer { position: relative; z-index: 4; padding: 40px 0 70px; color: #72836f; }
-        footer a { color: var(--root-bright); }
+        .cta { display: inline-flex; padding: 12px 16px; border-radius: 999px; color: #fff; background: linear-gradient(90deg, #d51d35, #176fdc); text-decoration: none; font-weight: 950; }
+        .cta.secondary { color: #dfe2e9; background: rgba(4,5,8,.68); border: 1px solid rgba(255,255,255,.2); }
+        footer { position: relative; z-index: 4; padding: 40px 0 72px; color: #767d8a; }
+        footer a { color: #dfe2e9; }
+        .ekg-deck {
+          position: fixed;
+          left: max(10px, env(safe-area-inset-left));
+          right: max(10px, env(safe-area-inset-right));
+          bottom: max(10px, env(safe-area-inset-bottom));
+          z-index: 80;
+          max-width: 760px;
+          margin: 0 auto;
+          padding: 10px 12px 12px;
+          border: 1px solid rgba(255,255,255,.18);
+          border-radius: 20px;
+          background: rgba(5,6,10,.84);
+          box-shadow: 0 22px 70px rgba(0,0,0,.58);
+          backdrop-filter: blur(18px);
+        }
+        .ekg-head { display: flex; justify-content: space-between; gap: 12px; color: #929aa8; font: 850 9px ui-monospace, monospace; letter-spacing: .11em; }
+        .ekg-head strong { color: #f1f3f7; text-align: right; }
+        .ekg-screen {
+          position: relative;
+          height: 62px;
+          margin-top: 7px;
+          overflow: hidden;
+          border: 1px solid rgba(255,255,255,.09);
+          border-radius: 12px;
+          background:
+            linear-gradient(rgba(91,213,142,.05) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(91,213,142,.05) 1px, transparent 1px),
+            #040806;
+          background-size: 12px 12px;
+        }
+        .ekg-screen svg { width: 100%; height: 100%; display: block; }
+        .ekg-baseline { fill: none; stroke: rgba(91,213,142,.15); stroke-width: 1; }
+        .ekg-trace { fill: none; stroke: #5bd58e; stroke-width: 3; vector-effect: non-scaling-stroke; filter: drop-shadow(0 0 6px rgba(91,213,142,.68)); }
+        .st-segment { fill: none; stroke: #f1ff9a; stroke-width: 4; vector-effect: non-scaling-stroke; filter: drop-shadow(0 0 9px rgba(241,255,154,.9)); }
+        .st-zone { position: absolute; left: 64.8%; width: 8.7%; top: 0; bottom: 0; background: linear-gradient(90deg, transparent, rgba(241,255,154,.09), transparent); }
+        .ekg-scanner {
+          position: absolute;
+          top: 0;
+          bottom: 0;
+          left: 0;
+          width: 2px;
+          background: #eafff1;
+          box-shadow: 0 0 14px #5bd58e, 0 0 28px rgba(91,213,142,.72);
+          animation: ekgSweep var(--beat) linear infinite;
+        }
+        .ekg-scanner i { position: absolute; left: 50%; top: 61%; width: 8px; height: 8px; border-radius: 50%; background: #fff; transform: translate(-50%,-50%); box-shadow: 0 0 18px #fff; }
+        @keyframes ekgSweep { from { transform: translateX(0); } to { transform: translateX(calc(100vw - 46px)); } }
+        @media (min-width: 790px) { @keyframes ekgSweep { from { transform: translateX(0); } to { transform: translateX(718px); } } }
         @media (max-width: 900px) {
-          .hero-grid, .section-head, .feature-grid { grid-template-columns: 1fr; }
+          .hero-grid, .section-head, .convergence-grid { grid-template-columns: 1fr; }
           .card-grid { grid-template-columns: 1fr; }
         }
         @media (max-width: 680px) {
           .shell { width: min(100% - 22px, 1160px); }
           .nav-inner { align-items: flex-start; padding: 10px 0; }
           .nav-actions { flex-wrap: wrap; justify-content: flex-end; }
-          .nav-actions a, .regrow { padding: 7px 8px; font-size: 8px; }
-          .hero-grid { padding: 58px 0 92px; }
-          h1 { font-size: clamp(56px, 17vw, 82px); }
-          .section { padding: 62px 0; }
-          .signal-card { min-height: 260px; }
-          .feature-zone { padding-top: 72px; padding-bottom: 82px; }
-          .feature-card { min-height: 410px; padding: 23px; }
-          .feature-card h3 { margin-top: 74px; }
+          .nav-actions a, .replay { padding: 7px 8px; font-size: 8px; }
+          .hero-grid { padding: 60px 0 110px; }
+          h1 { font-size: clamp(55px, 17vw, 82px); }
+          .section { padding: 64px 0; }
+          .signal-card { min-height: 265px; }
+          .convergence-zone { padding-top: 78px; padding-bottom: 92px; }
+          .convergence-card { min-height: 420px; padding: 24px; }
+          .convergence-card h3 { margin-top: 78px; }
+          .ekg-head { font-size: 7px; }
         }
         @media (prefers-reduced-motion: reduce) {
-          .root-stem { animation: none; stroke-dashoffset: 0; }
+          .vessel-stroke, .vessel-pulse { animation: none; stroke-dashoffset: 0; }
+          .vessel-pulse { opacity: 0; }
+          .convergence-card::before, .convergence-card::after { animation: none; }
+          .ekg-scanner { animation: none; left: 64%; }
         }
       `}</style>
 
-      <RootSvg layout={layout} layer="back" growthKey={growthKey} />
-      <RootSvg layout={layout} layer="front" growthKey={growthKey} />
+      <VascularSvg field={field} replayKey={replayKey} />
 
       <nav className="nav content-layer">
         <div className="shell nav-inner">
-          <a className="brand" href="/">NULLWORKS <span>LIVING SIGNALS</span></a>
+          <a className="brand" href="/">NULLWORKS <span className="red">ARTERY</span> / <span className="blue">VEIN</span></a>
           <div className="nav-actions">
             <a href="/living-signals">Signal portfolio</a>
             <a href="/operating-map">Page index</a>
-            <button type="button" className="regrow" onClick={regrow}>REGROW</button>
+            <button type="button" className="replay" onClick={replay}>RESTART FLOW</button>
           </div>
         </div>
       </nav>
@@ -544,14 +624,18 @@ export default function VineInfiltration() {
       <header className="hero content-layer">
         <div className="shell hero-grid">
           <div>
-            <div className="eyebrow">LIVING SIGNAL 11 // VASCULAR ROOT FRACTURE</div>
-            <h1>The system starts growing.<span>Then it fractures into capillaries.</span></h1>
-            <p className="lead">Green root vessels rise from the bottom of the page, route through the measured gaps between content panels, and repeatedly split into smaller circulation-like fingers.</p>
+            <div className="eyebrow">LIVING SIGNAL 11 // DUAL VASCULAR CONVERGENCE</div>
+            <h1><span className="artery">Arteries descend.</span><span className="vein">Veins rise.</span></h1>
+            <p className="lead">A red arterial system grows slowly from the upper-left while a blue venous system advances from the lower-right. Each major vessel divides into smaller branches until both fields terminate as capillaries near the same exchange zone.</p>
           </div>
-          <aside className="hero-card" data-vine-target>
-            <b>THREE GENERATIONS OF FRACTURE</b>
-            <strong>Vessel. Branch. Capillary.</strong>
-            <p>The growth now behaves like roots, blood circulation, or mycelium: a narrow trunk establishes slowly, then uneven secondary and tertiary vessels fracture outward.</p>
+          <aside className="hero-card">
+            <b>ONE CLOCK // THREE SIGNALS</b>
+            <strong>Growth. Pulse. EKG.</strong>
+            <p>The vascular networks and scanner share one heartbeat cycle. The complete field brightens when the EKG scanner reaches the QRS-to-ST transition, then settles before the next pass.</p>
+            <div className="legend">
+              <span><i className="artery-line" /> OXYGENATED / UPPER-LEFT</span>
+              <span><i className="vein-line" /> RETURN FLOW / LOWER-RIGHT</span>
+            </div>
           </aside>
         </div>
       </header>
@@ -559,12 +643,12 @@ export default function VineInfiltration() {
       <section className="section">
         <div className="shell">
           <div className="section-head">
-            <div><div className="section-label">Growth logic</div><h2>The layout becomes vascular terrain.</h2></div>
-            <p>The paths are measured from the actual card positions after the page renders. Primary vessels seek the gaps; each arrival point becomes a new fracture source for smaller roots.</p>
+            <div><div className="section-label">Vascular hierarchy</div><h2>Every large line earns its capillaries.</h2></div>
+            <p>The page no longer grows one root from one edge. Two independent circulation trees establish pressure vessels, branch into smaller lines, truncate at different distances, and repeatedly divide until the final paths are nearly hairline.</p>
           </div>
           <div className="card-grid">
-            {cards.slice(0, 3).map((card) => (
-              <article className="signal-card" data-vine-target key={card.code}>
+            {cards.map((card) => (
+              <article className="signal-card" key={card.code}>
                 <b>{card.code}</b><h3>{card.title}</h3><p>{card.body}</p>
               </article>
             ))}
@@ -572,43 +656,27 @@ export default function VineInfiltration() {
         </div>
       </section>
 
-      <section className="section feature-zone">
-        <div className="shell feature-grid">
-          <div className="feature-copy">
-            <div className="section-label">Foreground event</div>
-            <h2>One vessel still jumps planes.</h2>
-            <p>The foreground vessel is now one-third the old diameter. It climbs the card slowly, crosses the top-right corner, and then fractures into smaller capillaries across the content plane.</p>
+      <section className="section convergence-zone">
+        <div className="shell convergence-grid">
+          <div className="convergence-copy">
+            <div className="section-label">Exchange field</div>
+            <h2>They grow toward each other without becoming the same system.</h2>
+            <p>Red and blue remain visibly distinct all the way into the middle. Their terminal capillaries overlap inside the same central territory, creating a shared exchange zone rather than one merged purple trunk.</p>
           </div>
-          <article className="feature-card" data-vine-target data-vine-front>
-            <div className="corner-label">FOREGROUND CAPILLARY EVENT // DELAYED</div>
-            <h3>The page is no longer containing the circulation.</h3>
-            <p>The main crossing remains readable, but the final fingers become thin enough to feel like roots or capillaries rather than a heavy decorative vine.</p>
+          <article className="convergence-card">
+            <div className="corner-label">SYNCHRONIZED EVENT // QRS → ST</div>
+            <h3>The beat arrives when the scanner reaches the work.</h3>
+            <p>The EKG scanner is not decorative timing. Its sweep defines the heartbeat phase used by both vascular fields and the central exchange glow. Watch the ST segment: that is where the complete page fires together.</p>
           </article>
-        </div>
-      </section>
-
-      <section className="section">
-        <div className="shell">
-          <div className="section-head">
-            <div><div className="section-label">Fracture hierarchy</div><h2>Every split loses diameter and gains complexity.</h2></div>
-            <p>The primary vessels are roughly one-third their previous width. Secondary branches split at staggered intervals, tertiary roots split again, and the final generation resolves into hairline fingers.</p>
-          </div>
-          <div className="card-grid">
-            {cards.slice(4).map((card) => (
-              <article className="signal-card" data-vine-target key={card.code}>
-                <b>{card.code}</b><h3>{card.title}</h3><p>{card.body}</p>
-              </article>
-            ))}
-          </div>
         </div>
       </section>
 
       <section className="closing content-layer">
         <div className="shell">
-          <article className="closing-card" data-vine-target>
+          <article className="closing-card">
             <div className="section-label">NULLWORKS Living Signal Portfolio</div>
-            <strong>The interface becomes a circulatory habitat.</strong>
-            <p>Vine Infiltration now tests slow vascular growth: measured terrain, three generations of fracture, uneven split timing, hairline capillaries, and one restrained foreground boundary crossing. Use Regrow to restart the complete sequence.</p>
+            <strong>Two networks. One pulse. One measured moment of convergence.</strong>
+            <p>Capillary Convergence replaces the botanical root experiment with a dual circulation system: large red arteries, large blue veins, recursive branch hierarchy, capillary termination, slow opposing growth, and an EKG scanner synchronized to the visible heartbeat.</p>
             <div className="cta-row">
               <a className="cta" href="/living-signals">Open the signal portfolio</a>
               <a className="cta secondary" href="/living-signals/bleeding-matrix">Return to Bleeding Matrix</a>
@@ -617,7 +685,8 @@ export default function VineInfiltration() {
         </div>
       </section>
 
-      <footer><div className="shell">NULLWORKS Living Signals // Vine Infiltration. <a href="/living-signals">Browse all eleven signals →</a></div></footer>
+      <footer><div className="shell">NULLWORKS Living Signals // Capillary Convergence. <a href="/living-signals">Browse all eleven signals →</a></div></footer>
+      <EkgDeck />
     </main>
   );
 }
