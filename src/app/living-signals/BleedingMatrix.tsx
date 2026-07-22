@@ -16,6 +16,8 @@ type GravityVector = {
   y: number;
 };
 
+type Rgb = [number, number, number];
+
 type RainStream = {
   x: number;
   y: number;
@@ -45,9 +47,69 @@ type ImpactRipple = {
 type MotionState = "idle" | "enabled" | "denied" | "unsupported";
 type LockState = "idle" | "locked" | "failed" | "unsupported";
 
+type PaletteStop = {
+  position: number;
+  rgb: Rgb;
+  name: string;
+};
+
 const glyphs = "01ABCDEFGHIJKLMNOPQRSTUVWXYZ{}[]<>/\\|:+-=アイウエオカキクケコサシスセソタチツテト";
 const clamp = (value: number, min: number, max: number) => Math.min(max, Math.max(min, value));
 const EPSILON = 0.0001;
+const DEFAULT_COLOR_POSITION = 100;
+
+const paletteStops: PaletteStop[] = [
+  { position: 0, rgb: [245, 245, 245], name: "WHITE" },
+  { position: 100, rgb: [255, 48, 72], name: "RED" },
+  { position: 205, rgb: [255, 126, 25], name: "ORANGE" },
+  { position: 310, rgb: [255, 220, 45], name: "YELLOW" },
+  { position: 420, rgb: [48, 220, 100], name: "GREEN" },
+  { position: 535, rgb: [25, 225, 235], name: "CYAN" },
+  { position: 645, rgb: [48, 105, 255], name: "BLUE" },
+  { position: 755, rgb: [167, 70, 255], name: "PURPLE" },
+  { position: 845, rgb: [255, 55, 190], name: "MAGENTA" },
+  { position: 925, rgb: [124, 76, 42], name: "BROWN" },
+  { position: 1000, rgb: [10, 10, 13], name: "BLACK" },
+];
+
+const paletteGradient =
+  "linear-gradient(90deg,#f5f5f5 0%,#ff3048 10%,#ff7e19 20.5%,#ffdc2d 31%,#30dc64 42%,#19e1eb 53.5%,#3069ff 64.5%,#a746ff 75.5%,#ff37be 84.5%,#7c4c2a 92.5%,#0a0a0d 100%)";
+
+const parseRgb = (value: string): Rgb => {
+  const parts = value.split(",").map((part) => Number(part.trim()));
+  if (parts.length !== 3 || parts.some((part) => !Number.isFinite(part))) return [255, 48, 72];
+  return [clamp(parts[0], 0, 255), clamp(parts[1], 0, 255), clamp(parts[2], 0, 255)];
+};
+
+const mixRgb = (from: Rgb, to: Rgb, amount: number): Rgb => [
+  Math.round(from[0] + (to[0] - from[0]) * amount),
+  Math.round(from[1] + (to[1] - from[1]) * amount),
+  Math.round(from[2] + (to[2] - from[2]) * amount),
+];
+
+const rgbAtPosition = (position: number): Rgb => {
+  const bounded = clamp(position, 0, 1000);
+  for (let index = 0; index < paletteStops.length - 1; index += 1) {
+    const start = paletteStops[index];
+    const end = paletteStops[index + 1];
+    if (bounded <= end.position) {
+      const span = Math.max(1, end.position - start.position);
+      return mixRgb(start.rgb, end.rgb, (bounded - start.position) / span);
+    }
+  }
+  return paletteStops[paletteStops.length - 1].rgb;
+};
+
+const paletteNameAtPosition = (position: number) => {
+  let closest = paletteStops[0];
+  paletteStops.forEach((stop) => {
+    if (Math.abs(stop.position - position) < Math.abs(closest.position - position)) closest = stop;
+  });
+  return closest.name;
+};
+
+const rgba = (rgb: Rgb, alpha: number) => `rgba(${rgb[0]}, ${rgb[1]}, ${rgb[2]}, ${alpha})`;
+const rgbCss = (rgb: Rgb) => `rgb(${rgb[0]}, ${rgb[1]}, ${rgb[2]})`;
 
 const polygonArea = (polygon: Point[]) => {
   if (polygon.length < 3) return 0;
@@ -110,9 +172,13 @@ export default function BleedingMatrix({ accentRgb }: Props) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const motionEnabledRef = useRef(false);
   const touchAngleRef = useRef(0);
+  const activeRgbRef = useRef<Rgb>(parseRgb(accentRgb));
   const resetCounterRef = useRef(0);
   const [motionState, setMotionState] = useState<MotionState>("idle");
   const [lockState, setLockState] = useState<LockState>("idle");
+  const [touchAngle, setTouchAngle] = useState(0);
+  const [colorPosition, setColorPosition] = useState(DEFAULT_COLOR_POSITION);
+  const [activeRgb, setActiveRgb] = useState<Rgb>(parseRgb(accentRgb));
   const [fillPercent, setFillPercent] = useState(7);
   const [cycleState, setCycleState] = useState("FILLING");
 
@@ -149,7 +215,10 @@ export default function BleedingMatrix({ accentRgb }: Props) {
     let ripples: ImpactRipple[] = [];
 
     const randomGlyph = () => glyphs[Math.floor(Math.random() * glyphs.length)];
-    const rgba = (alpha: number) => `rgba(${accentRgb}, ${alpha})`;
+    const currentRgb = () => activeRgbRef.current;
+    const color = (alpha: number) => rgba(currentRgb(), alpha);
+    const lightColor = (amount: number, alpha: number) => rgba(mixRgb(currentRgb(), [255, 255, 255], amount), alpha);
+    const darkColor = (amount: number, alpha: number) => rgba(mixRgb(currentRgb(), [0, 0, 0], amount), alpha);
     const rectangle = () => [
       { x: 0, y: 0 },
       { x: width, y: 0 },
@@ -214,23 +283,16 @@ export default function BleedingMatrix({ accentRgb }: Props) {
       const rawY = acceleration.y;
       if (Math.hypot(rawX, rawY) < 1.5) return;
 
-      if (yCalibration === 0 && Math.abs(rawY) > 2) {
-        yCalibration = rawY >= 0 ? 1 : -1;
-      }
-
+      if (yCalibration === 0 && Math.abs(rawY) > 2) yCalibration = rawY >= 0 ? 1 : -1;
       if (xCalibration === 0 && Math.abs(lastGamma) > 7 && Math.abs(rawX) > 0.6) {
         xCalibration = Math.sign(lastGamma) * Math.sign(rawX) || 1;
       }
 
       const calibratedY = rawY * (yCalibration || 1);
-      let calibratedX: number;
-
-      if (xCalibration !== 0) {
-        calibratedX = rawX * xCalibration;
-      } else {
-        const gammaRadians = (clamp(lastGamma, -89.8, 89.8) * Math.PI) / 180;
-        calibratedX = Math.sin(gammaRadians) * Math.hypot(rawX, rawY);
-      }
+      const calibratedX =
+        xCalibration !== 0
+          ? rawX * xCalibration
+          : Math.sin((clamp(lastGamma, -89.8, 89.8) * Math.PI) / 180) * Math.hypot(rawX, rawY);
 
       measuredGravity = normalizeGravity(calibratedX, calibratedY);
       gravityReady = true;
@@ -239,7 +301,7 @@ export default function BleedingMatrix({ accentRgb }: Props) {
 
     const drawGrid = () => {
       context.save();
-      context.strokeStyle = rgba(0.025);
+      context.strokeStyle = color(0.03);
       context.lineWidth = 1;
       context.beginPath();
       for (let x = 0; x <= width; x += 34) {
@@ -267,7 +329,6 @@ export default function BleedingMatrix({ accentRgb }: Props) {
         if (liquidArea > targetArea) low = threshold;
         else high = threshold;
       }
-
       return (low + high) / 2;
     };
 
@@ -291,7 +352,6 @@ export default function BleedingMatrix({ accentRgb }: Props) {
           });
         }
       }
-
       return uniquePoints(intersections).slice(0, 2);
     };
 
@@ -303,7 +363,6 @@ export default function BleedingMatrix({ accentRgb }: Props) {
         const candidate = { x: Math.random() * width, y: Math.random() * height };
         if (pointInsideLiquid(candidate, gravity, threshold)) return candidate;
       }
-
       const polygon = clipPolygonToLiquid(rectangle(), gravity, threshold);
       if (polygon.length > 0) return polygon[Math.floor(Math.random() * polygon.length)];
       return { x: width / 2, y: height };
@@ -348,10 +407,10 @@ export default function BleedingMatrix({ accentRgb }: Props) {
           const head = index === 0;
           const decay = 1 - index / stream.length;
           const flicker = 0.72 + Math.sin(time * 0.003 + stream.phase + index) * 0.24;
-          const alpha = head ? 0.78 : Math.max(0.025, decay * decay * 0.3 * flicker);
-          context.fillStyle = head ? "rgba(255,205,210,.9)" : rgba(alpha);
-          context.shadowColor = rgba(head ? 0.78 : 0.24);
-          context.shadowBlur = head ? 10 : 2;
+          const alpha = head ? 0.86 : Math.max(0.03, decay * decay * 0.34 * flicker);
+          context.fillStyle = head ? lightColor(0.68, 0.95) : lightColor(0.2, alpha);
+          context.shadowColor = color(head ? 0.88 : 0.3);
+          context.shadowBlur = head ? 11 : 2;
           context.fillText(randomGlyph(), stream.x, y);
         }
       });
@@ -371,33 +430,24 @@ export default function BleedingMatrix({ accentRgb }: Props) {
       context.save();
       context.beginPath();
       context.moveTo(liquidPolygon[0].x, liquidPolygon[0].y);
-      for (let index = 1; index < liquidPolygon.length; index += 1) {
-        context.lineTo(liquidPolygon[index].x, liquidPolygon[index].y);
-      }
+      for (let index = 1; index < liquidPolygon.length; index += 1) context.lineTo(liquidPolygon[index].x, liquidPolygon[index].y);
       context.closePath();
 
       const liquidGradient = context.createLinearGradient(0, 0, 0, height);
-      liquidGradient.addColorStop(0, "rgba(255,64,82,.84)");
-      liquidGradient.addColorStop(0.16, "rgba(171,7,29,.92)");
-      liquidGradient.addColorStop(0.6, "rgba(77,0,14,.95)");
-      liquidGradient.addColorStop(1, "rgba(30,0,8,.99)");
+      liquidGradient.addColorStop(0, lightColor(0.27, 0.88));
+      liquidGradient.addColorStop(0.16, color(0.93));
+      liquidGradient.addColorStop(0.6, darkColor(0.58, 0.96));
+      liquidGradient.addColorStop(1, darkColor(0.82, 0.99));
       context.fillStyle = liquidGradient;
-      context.shadowColor = rgba(0.5);
+      context.shadowColor = color(0.55);
       context.shadowBlur = 28;
       context.fill();
       context.clip();
 
-      const innerGlow = context.createRadialGradient(
-        width * 0.28,
-        height * 0.62,
-        0,
-        width * 0.28,
-        height * 0.62,
-        Math.max(width, height) * 0.8,
-      );
-      innerGlow.addColorStop(0, "rgba(255,49,73,.18)");
-      innerGlow.addColorStop(0.46, "rgba(92,0,18,.08)");
-      innerGlow.addColorStop(1, "rgba(0,0,0,.3)");
+      const innerGlow = context.createRadialGradient(width * 0.28, height * 0.62, 0, width * 0.28, height * 0.62, Math.max(width, height) * 0.8);
+      innerGlow.addColorStop(0, lightColor(0.18, 0.2));
+      innerGlow.addColorStop(0.46, color(0.09));
+      innerGlow.addColorStop(1, "rgba(0,0,0,.34)");
       context.fillStyle = innerGlow;
       context.fillRect(0, 0, width, height);
 
@@ -407,29 +457,19 @@ export default function BleedingMatrix({ accentRgb }: Props) {
         particle.x += (gravity.x * particle.speed + particle.drift * 0.25) * dt * (overflowing ? 1.7 : 1);
         particle.y += gravity.y * particle.speed * dt * (overflowing ? 1.7 : 1);
 
-        if (
-          particle.x < -30 ||
-          particle.x > width + 30 ||
-          particle.y < -30 ||
-          particle.y > height + 30 ||
-          !pointInsideLiquid(particle, gravity, threshold)
-        ) {
+        if (particle.x < -30 || particle.x > width + 30 || particle.y < -30 || particle.y > height + 30 || !pointInsideLiquid(particle, gravity, threshold)) {
           const replacement = randomPointInsideLiquid(gravity, threshold);
           particle.x = replacement.x;
           particle.y = replacement.y;
           particle.glyph = randomGlyph();
         }
 
-        const normalizedPotential = clamp(
-          (potential(particle, gravity) - threshold) / Math.max(1, Math.hypot(width, height)),
-          0,
-          1,
-        );
+        const normalizedPotential = clamp((potential(particle, gravity) - threshold) / Math.max(1, Math.hypot(width, height)), 0, 1);
         const shimmer = 0.55 + Math.sin(time * 0.002 + particle.phase) * 0.38;
-        const alpha = 0.14 + normalizedPotential * 0.5 * shimmer;
+        const alpha = 0.16 + normalizedPotential * 0.52 * shimmer;
         context.font = `800 ${particle.size}px ui-monospace, SFMono-Regular, Menlo, monospace`;
-        context.fillStyle = index % 13 === 0 ? "rgba(255,210,214,.72)" : rgba(alpha);
-        context.shadowColor = rgba(alpha * 1.5);
+        context.fillStyle = index % 13 === 0 ? lightColor(0.72, 0.78) : lightColor(0.14, alpha);
+        context.shadowColor = color(alpha * 1.55);
         context.shadowBlur = index % 13 === 0 ? 9 : 2;
         context.fillText(particle.glyph, particle.x, particle.y);
       });
@@ -438,9 +478,9 @@ export default function BleedingMatrix({ accentRgb }: Props) {
       const intersections = surfaceIntersections(gravity, threshold);
       if (intersections.length === 2) {
         context.save();
-        context.strokeStyle = "rgba(255,183,190,.86)";
+        context.strokeStyle = lightColor(0.72, 0.9);
         context.lineWidth = 1.6;
-        context.shadowColor = rgba(0.82);
+        context.shadowColor = color(0.88);
         context.shadowBlur = 15;
         context.beginPath();
         context.moveTo(intersections[0].x, intersections[0].y);
@@ -453,31 +493,18 @@ export default function BleedingMatrix({ accentRgb }: Props) {
       ripples.forEach((ripple) => {
         ripple.age += dt;
         const progress = clamp(ripple.age / ripple.life, 0, 1);
-        context.globalAlpha = (1 - progress) * 0.64 * ripple.strength;
-        context.strokeStyle = "rgba(255,220,223,.88)";
+        context.globalAlpha = (1 - progress) * 0.66 * ripple.strength;
+        context.strokeStyle = lightColor(0.82, 0.92);
         context.lineWidth = 1;
         context.beginPath();
-        context.ellipse(
-          ripple.x,
-          ripple.y,
-          4 + progress * 22 * ripple.strength,
-          1.3 + progress * 3.2,
-          0,
-          0,
-          Math.PI * 2,
-        );
+        context.ellipse(ripple.x, ripple.y, 4 + progress * 22 * ripple.strength, 1.3 + progress * 3.2, 0, 0, Math.PI * 2);
         context.stroke();
       });
       ripples = ripples.filter((ripple) => ripple.age < ripple.life);
       context.restore();
     };
 
-    const drawCornerOverflow = (
-      gravity: GravityVector,
-      overflowDepth: number,
-      spillCorner: Point,
-      overflowing: boolean,
-    ) => {
+    const drawCornerOverflow = (gravity: GravityVector, overflowDepth: number, spillCorner: Point, overflowing: boolean) => {
       if (!overflowing || overflowDepth <= 0) return;
 
       const direction = normalizeGravity(gravity.x, gravity.y);
@@ -486,20 +513,17 @@ export default function BleedingMatrix({ accentRgb }: Props) {
       const endX = spillCorner.x + direction.x * streamLength;
       const endY = spillCorner.y + direction.y * streamLength;
       const gradient = context.createLinearGradient(spillCorner.x, spillCorner.y, endX, endY);
-      gradient.addColorStop(0, "rgba(255,64,82,.96)");
-      gradient.addColorStop(0.45, "rgba(160,5,28,.88)");
-      gradient.addColorStop(1, "rgba(76,0,12,0)");
+      gradient.addColorStop(0, lightColor(0.24, 0.98));
+      gradient.addColorStop(0.45, color(0.91));
+      gradient.addColorStop(1, darkColor(0.68, 0));
 
       const perpendicular = { x: -direction.y, y: direction.x };
       context.save();
       context.fillStyle = gradient;
-      context.shadowColor = rgba(0.78);
+      context.shadowColor = color(0.82);
       context.shadowBlur = 20;
       context.beginPath();
-      context.moveTo(
-        spillCorner.x + perpendicular.x * streamWidth * 0.44,
-        spillCorner.y + perpendicular.y * streamWidth * 0.44,
-      );
+      context.moveTo(spillCorner.x + perpendicular.x * streamWidth * 0.44, spillCorner.y + perpendicular.y * streamWidth * 0.44);
       context.bezierCurveTo(
         spillCorner.x + direction.x * streamLength * 0.3 + perpendicular.x * streamWidth * 0.34,
         spillCorner.y + direction.y * streamLength * 0.3 + perpendicular.y * streamWidth * 0.34,
@@ -535,13 +559,20 @@ export default function BleedingMatrix({ accentRgb }: Props) {
         previousResetCounter = resetCounterRef.current;
         fillLevel = 0.04;
         emptyHold = 0;
-        ripples = [];
+        visualGravity = { x: 0, y: 1 };
+        gravityVelocity = { x: 0, y: 0 };
+        measuredGravity = { x: 0, y: 1 };
+        gravityReady = false;
+        lastMotionSampleAt = 0;
+        lastGamma = 0;
+        yCalibration = 0;
+        xCalibration = 0;
+        rebuildScene();
       }
 
       let targetGravity: GravityVector;
-      if (motionEnabledRef.current) {
-        targetGravity = measuredGravity;
-      } else {
+      if (motionEnabledRef.current) targetGravity = measuredGravity;
+      else {
         const radians = (touchAngleRef.current * Math.PI) / 180;
         targetGravity = normalizeGravity(Math.sin(radians), Math.cos(radians));
       }
@@ -552,14 +583,10 @@ export default function BleedingMatrix({ accentRgb }: Props) {
       gravityVelocity.y += (targetGravity.y - visualGravity.y) * spring * dt;
       gravityVelocity.x *= Math.exp(-damping * dt);
       gravityVelocity.y *= Math.exp(-damping * dt);
-      visualGravity = normalizeGravity(
-        visualGravity.x + gravityVelocity.x * dt * 7,
-        visualGravity.y + gravityVelocity.y * dt * 7,
-      );
+      visualGravity = normalizeGravity(visualGravity.x + gravityVelocity.x * dt * 7, visualGravity.y + gravityVelocity.y * dt * 7);
 
-      if (reducedMotion) {
-        fillLevel = 0.62;
-      } else if (fillLevel <= 0.002) {
+      if (reducedMotion) fillLevel = 0.62;
+      else if (fillLevel <= 0.002) {
         emptyHold += dt;
         if (emptyHold > 1.1) fillLevel = 0.012;
       } else {
@@ -578,11 +605,7 @@ export default function BleedingMatrix({ accentRgb }: Props) {
       let overflowing = motionEnabledRef.current && overflowDepth > 1.2;
 
       if (overflowing && !reducedMotion) {
-        const overflowStrength = clamp(
-          overflowDepth / Math.max(70, Math.hypot(width, height) * 0.14),
-          0,
-          1,
-        );
+        const overflowStrength = clamp(overflowDepth / Math.max(70, Math.hypot(width, height) * 0.14), 0, 1);
         fillLevel = Math.max(0, fillLevel - dt * (0.04 + overflowStrength * 0.46));
         threshold = solveThresholdForFill(visualGravity, fillLevel);
         overflowDepth = Math.max(0, openingLowPointPotential - threshold);
@@ -590,7 +613,6 @@ export default function BleedingMatrix({ accentRgb }: Props) {
       }
 
       const liquidPolygon = clipPolygonToLiquid(rectangle(), visualGravity, threshold);
-
       context.clearRect(0, 0, width, height);
       drawGrid();
       drawRain(time, dt, visualGravity, threshold);
@@ -600,9 +622,7 @@ export default function BleedingMatrix({ accentRgb }: Props) {
       if (time - lastUiUpdate > 220) {
         lastUiUpdate = time;
         setFillPercent(Math.round(fillLevel * 100));
-        setCycleState(
-          overflowing ? "OVERFLOWING" : fillLevel < 0.02 ? "EMPTY" : fillLevel >= 0.935 ? "FULL" : "FILLING",
-        );
+        setCycleState(overflowing ? "OVERFLOWING" : fillLevel < 0.02 ? "EMPTY" : fillLevel >= 0.935 ? "FULL" : "FILLING");
       }
 
       if (!reducedMotion) animationFrame = requestAnimationFrame(render);
@@ -629,12 +649,8 @@ export default function BleedingMatrix({ accentRgb }: Props) {
     }
 
     try {
-      const orientationConstructor = DeviceOrientationEvent as typeof DeviceOrientationEvent & {
-        requestPermission?: () => Promise<"granted" | "denied">;
-      };
-      const motionConstructor = DeviceMotionEvent as typeof DeviceMotionEvent & {
-        requestPermission?: () => Promise<"granted" | "denied">;
-      };
+      const orientationConstructor = DeviceOrientationEvent as typeof DeviceOrientationEvent & { requestPermission?: () => Promise<"granted" | "denied"> };
+      const motionConstructor = DeviceMotionEvent as typeof DeviceMotionEvent & { requestPermission?: () => Promise<"granted" | "denied"> };
 
       if (typeof orientationConstructor.requestPermission === "function") {
         const permission = await orientationConstructor.requestPermission();
@@ -656,18 +672,12 @@ export default function BleedingMatrix({ accentRgb }: Props) {
       setMotionState("enabled");
 
       try {
-        if (!document.fullscreenElement && document.documentElement.requestFullscreen) {
-          await document.documentElement.requestFullscreen();
-        }
-        const orientation = screen.orientation as ScreenOrientation & {
-          lock?: (orientation: "portrait-primary") => Promise<void>;
-        };
+        if (!document.fullscreenElement && document.documentElement.requestFullscreen) await document.documentElement.requestFullscreen();
+        const orientation = screen.orientation as ScreenOrientation & { lock?: (orientation: "portrait-primary") => Promise<void> };
         if (typeof orientation.lock === "function") {
           await orientation.lock("portrait-primary");
           setLockState("locked");
-        } else {
-          setLockState("unsupported");
-        }
+        } else setLockState("unsupported");
       } catch {
         setLockState("failed");
       }
@@ -676,118 +686,91 @@ export default function BleedingMatrix({ accentRgb }: Props) {
     }
   };
 
+  const updateTouchAngle = (value: number) => {
+    touchAngleRef.current = value;
+    setTouchAngle(value);
+  };
+
+  const updateColor = (value: number) => {
+    const nextRgb = rgbAtPosition(value);
+    activeRgbRef.current = nextRgb;
+    setActiveRgb(nextRgb);
+    setColorPosition(value);
+  };
+
   const resetCycle = () => {
+    motionEnabledRef.current = false;
     touchAngleRef.current = 0;
+    const defaultRgb = rgbAtPosition(DEFAULT_COLOR_POSITION);
+    activeRgbRef.current = defaultRgb;
+    setTouchAngle(0);
+    setColorPosition(DEFAULT_COLOR_POSITION);
+    setActiveRgb(defaultRgb);
+    setMotionState("idle");
+    setFillPercent(4);
+    setCycleState("FILLING");
     resetCounterRef.current += 1;
   };
 
-  const statusText =
-    motionState === "enabled"
-      ? lockState === "locked"
-        ? "WORLD-LEVEL SURFACE // TOP EDGE IS THE ONLY OPENING"
-        : "TILT ACTIVE // KEEP AUTO-ROTATE OFF"
-      : "SLIDER TESTS SLOSH // ENABLE TILT FOR TRUE OVERFLOW";
+  const statusText = motionState === "enabled"
+    ? lockState === "locked" ? "WORLD-LEVEL SURFACE // TOP EDGE IS THE ONLY OPENING" : "TILT ACTIVE // KEEP AUTO-ROTATE OFF"
+    : "SLOSH SLIDER ACTIVE // ENABLE TILT FOR TRUE OVERFLOW";
+
+  const accentCss = rgbCss(activeRgb);
 
   return (
     <>
-      <div
-        aria-hidden="true"
-        style={{
-          position: "fixed",
-          inset: 0,
-          zIndex: 0,
-          overflow: "hidden",
-          pointerEvents: "none",
-          opacity: 0.98,
-          WebkitMaskImage: "linear-gradient(to bottom, black 0%, black 97%, transparent 100%)",
-          maskImage: "linear-gradient(to bottom, black 0%, black 97%, transparent 100%)",
-        }}
-      >
+      <style>{`
+        .bleeding-range { width: 100%; height: 18px; margin: 0; background: transparent; accent-color: ${accentCss}; }
+        .bleeding-color-range { appearance: none; -webkit-appearance: none; width: 100%; height: 9px; margin: 3px 0 4px; border: 1px solid rgba(255,255,255,.22); border-radius: 999px; background: ${paletteGradient}; box-shadow: inset 0 0 8px rgba(0,0,0,.45); }
+        .bleeding-color-range::-webkit-slider-thumb { appearance: none; -webkit-appearance: none; width: 20px; height: 20px; border: 2px solid #fff; border-radius: 50%; background: ${accentCss}; box-shadow: 0 2px 12px rgba(0,0,0,.7); }
+        .bleeding-color-range::-moz-range-thumb { width: 18px; height: 18px; border: 2px solid #fff; border-radius: 50%; background: ${accentCss}; box-shadow: 0 2px 12px rgba(0,0,0,.7); }
+      `}</style>
+
+      <div aria-hidden="true" style={{ position: "fixed", inset: 0, zIndex: 0, overflow: "hidden", pointerEvents: "none", opacity: 0.98, WebkitMaskImage: "linear-gradient(to bottom, black 0%, black 97%, transparent 100%)", maskImage: "linear-gradient(to bottom, black 0%, black 97%, transparent 100%)" }}>
         <canvas ref={canvasRef} style={{ display: "block" }} />
-        <div
-          style={{
-            position: "absolute",
-            inset: 0,
-            background: `repeating-linear-gradient(to bottom, rgba(${accentRgb},0.018) 0, rgba(${accentRgb},0.018) 1px, transparent 1px, transparent 4px)`,
-          }}
-        />
-        <div
-          style={{
-            position: "absolute",
-            inset: 0,
-            boxShadow: "inset 0 0 180px rgba(0,0,0,0.94)",
-          }}
-        />
+        <div style={{ position: "absolute", inset: 0, background: `repeating-linear-gradient(to bottom, ${rgba(activeRgb, 0.02)} 0, ${rgba(activeRgb, 0.02)} 1px, transparent 1px, transparent 4px)` }} />
+        <div style={{ position: "absolute", inset: 0, boxShadow: "inset 0 0 180px rgba(0,0,0,0.94)" }} />
       </div>
 
-      <aside
-        aria-label="Bleeding Matrix mobile controls"
-        style={{
-          position: "fixed",
-          left: "max(10px, env(safe-area-inset-left))",
-          right: "max(10px, env(safe-area-inset-right))",
-          bottom: "max(10px, env(safe-area-inset-bottom))",
-          zIndex: 140,
-          display: "grid",
-          gap: 8,
-          maxWidth: 560,
-          margin: "0 auto",
-          padding: 10,
-          border: `1px solid rgba(${accentRgb},.34)`,
-          borderRadius: 20,
-          background: "rgba(7,2,4,.78)",
-          boxShadow: "0 18px 60px rgba(0,0,0,.5)",
-          backdropFilter: "blur(16px)",
-          WebkitBackdropFilter: "blur(16px)",
-          touchAction: "pan-y",
-        }}
-      >
+      <aside aria-label="Bleeding Matrix mobile controls" style={{ position: "fixed", left: "max(10px, env(safe-area-inset-left))", right: "max(10px, env(safe-area-inset-right))", bottom: "max(10px, env(safe-area-inset-bottom))", zIndex: 140, display: "grid", gap: 7, maxWidth: 560, margin: "0 auto", padding: 10, border: `1px solid ${rgba(activeRgb, 0.42)}`, borderRadius: 20, background: "rgba(7,2,4,.8)", boxShadow: `0 18px 60px rgba(0,0,0,.55), 0 0 28px ${rgba(activeRgb, 0.1)}`, backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", touchAction: "pan-y" }}>
         <div style={{ display: "flex", justifyContent: "space-between", gap: 12, alignItems: "center" }}>
           <div>
-            <div style={{ color: `rgb(${accentRgb})`, font: "900 10px ui-monospace, monospace", letterSpacing: ".14em" }}>
-              ANDROID LIQUID TEST V4
-            </div>
-            <div style={{ color: "#fff4f5", font: "900 14px ui-monospace, monospace" }}>
-              {cycleState} // {fillPercent}%
-            </div>
+            <div style={{ color: accentCss, font: "900 10px ui-monospace, monospace", letterSpacing: ".14em" }}>BLEEDING MATRIX // LIVE</div>
+            <div style={{ color: "#fff4f5", font: "900 14px ui-monospace, monospace" }}>{cycleState} // {fillPercent}%</div>
           </div>
-          <div style={{ color: "#bcaeb1", fontSize: 9, lineHeight: 1.35, textAlign: "right", maxWidth: 190 }}>
-            {statusText}
-          </div>
+          <div style={{ color: "#bcaeb1", fontSize: 9, lineHeight: 1.35, textAlign: "right", maxWidth: 190 }}>{statusText}</div>
         </div>
 
-        <input
-          aria-label="Manual liquid slosh"
-          type="range"
-          min="-42"
-          max="42"
-          defaultValue="0"
-          onChange={(event) => {
-            touchAngleRef.current = Number(event.currentTarget.value);
-          }}
-          style={{ width: "100%", accentColor: `rgb(${accentRgb})` }}
-        />
+        <div style={{ display: "grid", gap: 2 }}>
+          <div style={{ display: "flex", justifyContent: "space-between", color: "#ab9da1", font: "800 9px ui-monospace, monospace" }}><span>SLOSH</span><span>{touchAngle > 0 ? "+" : ""}{touchAngle}°</span></div>
+          <input className="bleeding-range" aria-label="Manual liquid slosh" type="range" min="-42" max="42" value={touchAngle} onChange={(event) => updateTouchAngle(Number(event.currentTarget.value))} />
+        </div>
+
+        <div style={{ display: "grid", gap: 2 }}>
+          <div style={{ display: "flex", justifyContent: "space-between", color: "#ab9da1", font: "800 9px ui-monospace, monospace" }}>
+            <span>SIGNAL COLOR</span>
+            <span style={{ display: "inline-flex", alignItems: "center", gap: 5 }}><i aria-hidden="true" style={{ width: 8, height: 8, borderRadius: "50%", background: accentCss, border: "1px solid rgba(255,255,255,.55)" }} />{paletteNameAtPosition(colorPosition)}</span>
+          </div>
+          <input className="bleeding-color-range" aria-label="Matrix and liquid color" type="range" min="0" max="1000" value={colorPosition} onChange={(event) => updateColor(Number(event.currentTarget.value))} />
+        </div>
 
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 7 }}>
-          <button type="button" onClick={enableMotion} style={controlButtonStyle(accentRgb, motionState === "enabled")}>
-            {motionState === "enabled" ? "TILT + LOCK ON" : motionState === "denied" ? "TILT BLOCKED" : "ENABLE TILT + LOCK"}
-          </button>
-          <button type="button" onClick={resetCycle} style={controlButtonStyle(accentRgb, false)}>
-            RESET
-          </button>
+          <button type="button" onClick={enableMotion} style={controlButtonStyle(activeRgb, motionState === "enabled")}>{motionState === "enabled" ? "TILT + LOCK ON" : motionState === "denied" ? "TILT BLOCKED" : "ENABLE TILT + LOCK"}</button>
+          <button type="button" onClick={resetCycle} style={controlButtonStyle(activeRgb, false)}>RESET SCENE</button>
         </div>
       </aside>
     </>
   );
 }
 
-function controlButtonStyle(accentRgb: string, active: boolean) {
+function controlButtonStyle(accentRgb: Rgb, active: boolean) {
   return {
     minHeight: 44,
-    border: `1px solid rgba(${accentRgb},${active ? 0.72 : 0.3})`,
+    border: `1px solid ${rgba(accentRgb, active ? 0.76 : 0.36)}`,
     borderRadius: 12,
-    color: active ? "#160106" : "#f4e9eb",
-    background: active ? `rgb(${accentRgb})` : "rgba(255,255,255,.035)",
+    color: active ? "#080104" : "#f4e9eb",
+    background: active ? rgbCss(mixRgb(accentRgb, [255, 255, 255], 0.08)) : "rgba(255,255,255,.035)",
     font: "900 10px ui-monospace, monospace",
     letterSpacing: ".04em",
     touchAction: "manipulation" as const,
