@@ -3,7 +3,7 @@ import BleedingMatrix from "../BleedingMatrix";
 import { bleedingSignal as signal } from "../bleedingSignal";
 
 export const metadata: Metadata = {
-  title: `${signal.name} Android Test V2 | NULLWORKS Living Signals`,
+  title: `${signal.name} Android Test V3 | NULLWORKS Living Signals`,
   description: signal.summary,
 };
 
@@ -112,9 +112,9 @@ export default function BleedingMatrixPage() {
             <div className="demo-note">{signal.demoNote}</div>
           </div>
           <aside className="hero-card">
-            <b>ANDROID TEST BUILD V2</b>
-            <strong>Rain. Fill. Slosh. Tilt. Pour.</strong>
-            <p>Tap Enable Tilt + Lock. Android Chrome will attempt fullscreen portrait mode so the vessel can react to physical tilt without rotating the page layout.</p>
+            <b>ANDROID TEST BUILD V3</b>
+            <strong>It is an open glass now.</strong>
+            <p>Tap Enable Tilt + Lock. Tilting only moves the mass. Blood leaves the viewport only when the raised free surface reaches a top corner and crosses that lip.</p>
             <small>Simulated visual atmosphere only. No real blood, injury, telemetry, or live event is represented.</small>
           </aside>
         </div>
@@ -123,8 +123,8 @@ export default function BleedingMatrixPage() {
       <section className="section" id="test">
         <div className="shell">
           <div className="section-head">
-            <div><div className="section-label">What changed</div><h2>The falling Matrix now feeds the vessel.</h2></div>
-            <p>Code streams terminate at the liquid surface, create small impact ripples, and dissolve into the blood. A volume-preserving surface keeps the mass on the correct side while the slower refill continues.</p>
+            <div><div className="section-label">What changed</div><h2>No corner contact, no drainage.</h2></div>
+            <p>The old angle threshold is gone. The solver preserves liquid volume while the phone tilts, measures both top corners every frame, and subtracts volume only from actual overflow.</p>
           </div>
           <div className="grid">
             {signal.communicates.map((item, index) => <article className="card" key={item}><b>{String(index + 1).padStart(2, "0")}</b><p>{item}</p></article>)}
@@ -135,8 +135,8 @@ export default function BleedingMatrixPage() {
       <section className="section" id="rules">
         <div className="shell">
           <div className="section-head">
-            <div><div className="section-label">Mobile test controls</div><h2>Physical tilt pours. Touch only sloshes.</h2></div>
-            <p>Enable Tilt + Lock, then tip the phone past roughly 56 degrees while the page remains portrait. The Hold to Pour control is gone. The slider is now only a non-sensor slosh test.</p>
+            <div><div className="section-label">Mobile test controls</div><h2>Tilt until the blood reaches the lip.</h2></div>
+            <p>A partial tilt should only slosh and reposition the liquid. A steeper tilt can raise one edge to a top corner; then the vessel overflows only until the surface drops below that same corner.</p>
           </div>
           <div className="rule-list">{signal.rules.map((item, index) => <div className="rule" key={item}><b>{String(index + 1).padStart(2, "0")}</b><span>{item}</span></div>)}</div>
         </div>
@@ -146,8 +146,8 @@ export default function BleedingMatrixPage() {
         <div className="shell">
           <article className="closing-card">
             <div className="section-label">NULLWORKS Living Signal Framework</div>
-            <strong>The data falls until it becomes the liquid.</strong>
-            <p>V2 is built from the Android screen-recording receipt: slower accumulation, visible Matrix-to-liquid impacts, corrected gravity direction, portrait-lock request, sideways drainage, and no Hold to Pour button. The next truth gate is Mason&apos;s phone.</p>
+            <strong>The phone finally behaves like the container.</strong>
+            <p>V3 uses the second Android screen-recording receipt: there is no artificial pour threshold and no bottom-drain behavior. The top corners are the vessel lips, and the retained volume depends on the angle exactly like a glass held in space.</p>
             <div className="cta-row">
               <a className="cta" href="#">Restart at the top</a>
               <a className="cta secondary" href="/living-signals">Open the sample library</a>
@@ -156,7 +156,7 @@ export default function BleedingMatrixPage() {
         </div>
       </section>
 
-      <footer><div className="shell">NULLWORKS Living Signals // Bleeding Matrix Android liquid test V2. <a href="/living-signals">Browse all samples →</a></div></footer>
+      <footer><div className="shell">NULLWORKS Living Signals // Bleeding Matrix Android liquid test V3. <a href="/living-signals">Browse all samples →</a></div></footer>
     </main>
   );
 }
