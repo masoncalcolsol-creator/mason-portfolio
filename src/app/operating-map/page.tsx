@@ -173,6 +173,18 @@ const research: MapItem[] = [
     body: "An educational mascot experiment for preserving accidents, weak signals, workarounds, context, and Human Authority before promotion.",
   },
   {
+    title: "Bleeding Matrix",
+    href: "/living-signals/bleeding-matrix",
+    label: "Interactive portfolio system",
+    body: "A gravity-bound mobile canvas where Matrix rain becomes liquid, the phone behaves like an open vessel, and a full-spectrum control retints the complete visual signal.",
+  },
+  {
+    title: "Living Signal Portfolio",
+    href: "/living-signals",
+    label: "Visual systems library",
+    body: "The complete reusable motion portfolio: atmospheric canvases, meaningful events, mobile performance boundaries, and explicit simulation truth lines.",
+  },
+  {
     title: "NULLWORKS Company Structure",
     href: "/nullworks-company-structure-oisa.svg",
     label: "Digital factory map",
@@ -260,7 +272,7 @@ export default function OperatingMapPage() {
         <Section id="start" number="01" eyebrow="Role, product, and entry point" title="Understand what NULLWORKS actually sells." body="Begin with the real-world problem, then move through the professional role, the operating framework, and the smallest diagnostic engagement." items={startHere} />
         <Section id="doctrine" number="02" eyebrow="Public operating doctrine" title="Read the system in sequence." body="The field-note series explains the underlying architecture without requiring the reader to understand every prototype first." items={fieldNotes} />
         <Section id="work-cells" number="03" eyebrow="Deployed and prototype systems" title="The applications are proof vehicles." body="Each work cell applies the same architecture to a different domain: messy input, evidence, authority, human review, exception handling, recovery, and measurable output." items={workCells} />
-        <Section id="receipts" number="04" eyebrow="Research, continuity, and field evidence" title="The factory learns from every experiment." body="These pages preserve the category research, model-agnostic continuity work, wisdom-mining lane, and public organizational structure behind the visible applications." items={research} />
+        <Section id="receipts" number="04" eyebrow="Research, continuity, and field evidence" title="The factory learns from every experiment." body="These pages preserve the category research, model-agnostic continuity work, wisdom-mining lane, interactive visual systems, and public organizational structure behind the visible applications." items={research} />
 
         <footer>
           <div><strong>NULLWORKS</strong> — Building the operating company around AI workers.</div>
