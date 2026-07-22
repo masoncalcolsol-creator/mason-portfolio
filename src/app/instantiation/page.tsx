@@ -1,18 +1,18 @@
 import type { Metadata } from "next";
-import InstantiationExperience from "./InstantiationExperience";
+import InstantiationExperience from "./InstantiationClient";
 
 const canonical = "https://mason-portfolio-main.vercel.app/instantiation";
 
 export const metadata: Metadata = {
-  title: "INSTANTIATION | The Paper Within the Paper",
+  title: "INSTANTIATION | Living Operational Recovery Series",
   description:
-    "A living white-paper system from Mason Perry and NULLWORKS: preserved versions, public red-team challenges, decision receipts, evidence lineage, and accountable revision.",
+    "A living three-paper red-team series from Mason Perry and NULLWORKS: immutable parent states, branched manuscript lineage, targeted challenge receipts, and accountable revision.",
   alternates: { canonical },
   robots: { index: false, follow: false },
   openGraph: {
-    title: "INSTANTIATION — The Paper Within the Paper",
-    description: "The document is alive. The record is immutable.",
-    type: "article",
+    title: "INSTANTIATION — The Living Operational Recovery Series",
+    description: "The work can change. The record cannot disappear.",
+    type: "website",
     url: canonical,
     siteName: "NULLWORKS",
     images: [
@@ -20,14 +20,14 @@ export const metadata: Metadata = {
         url: "/api/assets/instantiation-poster?v=20260721-1",
         width: 768,
         height: 1152,
-        alt: "INSTANTIATION cinematic poster showing a recursive living document and its evidence lineage",
+        alt: "INSTANTIATION — a living operational recovery series with preserved evidence lineage",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "INSTANTIATION — The Paper Within the Paper",
-    description: "The document is alive. The record is immutable.",
+    title: "INSTANTIATION — The Living Operational Recovery Series",
+    description: "One manuscript entered red-team review. Three accountable papers emerged.",
     images: ["/api/assets/instantiation-poster?v=20260721-1"],
   },
 };
@@ -35,16 +35,20 @@ export const metadata: Metadata = {
 export default function InstantiationPage() {
   const structuredData = {
     "@context": "https://schema.org",
-    "@type": "ScholarlyArticle",
-    headline: "The Workflow on Paper Was Never the Workflow",
-    alternativeHeadline: "From Runtime Truth to Operational Recovery",
+    "@type": "CollectionPage",
+    name: "INSTANTIATION — The Living Operational Recovery Series",
     author: { "@type": "Person", name: "Mason Perry" },
     publisher: { "@type": "Organization", name: "NULLWORKS" },
-    dateModified: "2026-07-21",
-    version: "0.8",
+    dateModified: "2026-07-22",
     url: canonical,
     isAccessibleForFree: true,
-    description: "A TAC OPS field case and living public red-team ledger.",
+    hasPart: [
+      { "@type": "ScholarlyArticle", name: "The Workflow on Paper Was Never the Workflow", version: "0.2" },
+      { "@type": "ScholarlyArticle", name: "From Runtime Truth to Operational Recovery", version: "0.2" },
+      { "@type": "TechArticle", name: "TAC OPS: A Governed Label Recovery Architecture", version: "0.2" },
+    ],
+    description:
+      "A noindex red-team series preserving the original combined manuscript, its structural split decision, and three independently versioned descendants.",
   };
 
   return (
