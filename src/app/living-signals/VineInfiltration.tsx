@@ -2,6 +2,8 @@
 
 import { useEffect, useRef, useState } from "react";
 
+type Point = { x: number; y: number };
+
 type Box = {
   left: number;
   top: number;
@@ -11,7 +13,7 @@ type Box = {
   bottom: number;
 };
 
-type VinePath = {
+type RootPath = {
   d: string;
   width: number;
   delay: number;
@@ -19,21 +21,11 @@ type VinePath = {
   opacity: number;
 };
 
-type Leaf = {
-  x: number;
-  y: number;
-  angle: number;
-  scale: number;
-  delay: number;
-  layer: "back" | "front";
-};
-
 type Layout = {
   width: number;
   height: number;
-  backPaths: VinePath[];
-  frontPaths: VinePath[];
-  leaves: Leaf[];
+  backPaths: RootPath[];
+  frontPaths: RootPath[];
 };
 
 const emptyLayout: Layout = {
@@ -41,42 +33,50 @@ const emptyLayout: Layout = {
   height: 1,
   backPaths: [],
   frontPaths: [],
-  leaves: [],
 };
 
 const cards = [
   {
     code: "01",
-    title: "Growth starts below the interface.",
-    body: "The first stems rise from beneath the page rather than appearing as decorative borders pasted onto the cards.",
+    title: "The primary vessel establishes first.",
+    body: "A narrow central root rises slowly from below the interface and carries the continuity of the complete system.",
   },
   {
     code: "02",
-    title: "Most of the organism stays behind the structure.",
-    body: "Dark stems and leaves remain visible through translucent surfaces without competing with the text.",
+    title: "Each vessel fractures into smaller vessels.",
+    body: "Secondary branches split again into tertiary roots and finally into hairline capillaries instead of ending as decorative leaves.",
   },
   {
     code: "03",
-    title: "The gaps become pathways.",
-    body: "Branches deliberately seek the negative space between panels, headlines, and section boundaries.",
+    title: "The timing refuses perfect synchronization.",
+    body: "New fractures emerge at uneven intervals around two seconds apart, producing biological growth rather than a coordinated animation cue.",
   },
   {
     code: "04",
-    title: "One branch breaks the plane.",
-    body: "A foreground vine climbs the outer edge of this card and crawls across its corner to prove the layers are real.",
+    title: "One vascular branch breaks the plane.",
+    body: "A thin foreground vessel climbs the outer edge of this card, crosses the corner, and fractures across the content plane.",
     front: true,
   },
   {
     code: "05",
-    title: "Leaves open after the stem arrives.",
-    body: "Secondary growth follows the primary path, creating an actual sequence instead of a looping green particle field.",
+    title: "The final generation becomes tiny fingers.",
+    body: "Every generation loses diameter and reach until the network terminates in fine capillary threads.",
   },
   {
     code: "06",
-    title: "The page can be regrown.",
-    body: "The animation can restart without reloading, preserving the page as a testable interaction system.",
+    title: "The complete root system can regrow.",
+    body: "Regrow restarts the staggered vascular sequence without reloading the page or changing the measured terrain.",
   },
 ];
+
+const clamp = (value: number, min: number, max: number) => Math.min(max, Math.max(min, value));
+
+const noise = (seed: number) => {
+  const value = Math.sin(seed * 12.9898 + 78.233) * 43758.5453;
+  return value - Math.floor(value);
+};
+
+const between = (seed: number, min: number, max: number) => min + noise(seed) * (max - min);
 
 function toBox(element: HTMLElement, rootRect: DOMRect): Box {
   const rect = element.getBoundingClientRect();
@@ -92,192 +92,263 @@ function toBox(element: HTMLElement, rootRect: DOMRect): Box {
   };
 }
 
+function curvedSegment(start: Point, end: Point, seed: number) {
+  const dx = end.x - start.x;
+  const dy = end.y - start.y;
+  const length = Math.max(1, Math.hypot(dx, dy));
+  const normalX = -dy / length;
+  const normalY = dx / length;
+  const wobble = between(seed, -0.18, 0.18) * length;
+  return [
+    `M ${start.x.toFixed(1)} ${start.y.toFixed(1)}`,
+    `C ${(start.x + dx * 0.31 + normalX * wobble).toFixed(1)} ${(start.y + dy * 0.31 + normalY * wobble).toFixed(1)},`,
+    `${(start.x + dx * 0.69 - normalX * wobble * 0.72).toFixed(1)} ${(start.y + dy * 0.69 - normalY * wobble * 0.72).toFixed(1)},`,
+    `${end.x.toFixed(1)} ${end.y.toFixed(1)}`,
+  ].join(" ");
+}
+
+function fracture(
+  paths: RootPath[],
+  start: Point,
+  angle: number,
+  length: number,
+  generation: number,
+  delay: number,
+  seed: number,
+  bounds: { width: number; height: number },
+  foreground = false,
+) {
+  const widths = foreground ? [0.96, 0.5, 0.24] : [1.08, 0.54, 0.24];
+  const durations = [11.8, 8.4, 5.8];
+  const end = {
+    x: clamp(start.x + Math.cos(angle) * length, 4, bounds.width - 4),
+    y: clamp(start.y + Math.sin(angle) * length, 4, bounds.height - 4),
+  };
+
+  paths.push({
+    d: curvedSegment(start, end, seed),
+    width: widths[generation],
+    delay,
+    duration: durations[generation] * between(seed + 2, 0.86, 1.18),
+    opacity: foreground ? 0.92 - generation * 0.13 : 0.68 - generation * 0.12,
+  });
+
+  if (generation >= 2 || Math.hypot(end.x - start.x, end.y - start.y) < 22) return;
+
+  const childCount = generation === 0 && noise(seed + 9) > 0.58 ? 3 : 2;
+  const spread = generation === 0 ? 0.54 : 0.72;
+
+  for (let child = 0; child < childCount; child += 1) {
+    const centered = child - (childCount - 1) / 2;
+    const childAngle = angle + centered * spread + between(seed + child * 17, -0.17, 0.17);
+    const childLength = length * between(seed + child * 23 + generation, 0.46, 0.66);
+    const splitDelay = delay + between(seed + child * 31 + generation * 7, 1.45, 2.85) + child * 0.22;
+    fracture(
+      paths,
+      end,
+      childAngle,
+      childLength,
+      generation + 1,
+      splitDelay,
+      seed * 7.13 + child * 19.7 + generation * 41,
+      bounds,
+      foreground,
+    );
+  }
+}
+
 function buildLayout(root: HTMLElement): Layout {
   const rootRect = root.getBoundingClientRect();
   const width = Math.max(1, root.clientWidth);
   const height = Math.max(1, root.scrollHeight);
+  const bounds = { width, height };
   const targets = Array.from(root.querySelectorAll<HTMLElement>("[data-vine-target]"))
     .map((element) => toBox(element, rootRect))
     .sort((a, b) => a.top - b.top);
 
   if (!targets.length) return { ...emptyLayout, width, height };
 
-  const backPaths: VinePath[] = [];
-  const frontPaths: VinePath[] = [];
-  const leaves: Leaf[] = [];
+  const backPaths: RootPath[] = [];
+  const frontPaths: RootPath[] = [];
   const descending = [...targets].sort((a, b) => b.top - a.top);
 
   let mainX = width * 0.5;
   let mainY = height + 36;
   let main = `M ${mainX.toFixed(1)} ${mainY.toFixed(1)}`;
+  const mainAnchors: Array<{ point: Point; side: number; box: Box; delay: number; seed: number }> = [];
 
   descending.forEach((box, index) => {
     const side = index % 2 === 0 ? -1 : 1;
-    const nextX = side < 0 ? box.left - 24 : box.right + 24;
-    const nextY = box.top + box.height * (0.34 + (index % 3) * 0.14);
-    const midY = mainY - Math.max(100, (mainY - nextY) * 0.52);
-    main += ` C ${(mainX + side * 86).toFixed(1)} ${midY.toFixed(1)}, ${(nextX - side * 72).toFixed(1)} ${(nextY + 82).toFixed(1)}, ${nextX.toFixed(1)} ${nextY.toFixed(1)}`;
+    const nextX = side < 0 ? box.left - 18 : box.right + 18;
+    const nextY = box.top + box.height * (0.31 + (index % 3) * 0.13);
+    const midY = mainY - Math.max(120, (mainY - nextY) * 0.54);
+    main += ` C ${(mainX + side * 66).toFixed(1)} ${midY.toFixed(1)}, ${(nextX - side * 56).toFixed(1)} ${(nextY + 94).toFixed(1)}, ${nextX.toFixed(1)} ${nextY.toFixed(1)}`;
 
-    leaves.push({
-      x: nextX + side * 2,
-      y: nextY + 4,
-      angle: side < 0 ? -34 : 34,
-      scale: 0.82 + (index % 3) * 0.16,
-      delay: 2.6 + index * 0.55,
-      layer: "back",
+    mainAnchors.push({
+      point: { x: nextX, y: nextY },
+      side,
+      box,
+      delay: 2.4 + index * between(index + 8, 1.75, 2.5),
+      seed: 101 + index * 37,
     });
-
-    if (index % 2 === 0) {
-      const branchEndX = side < 0 ? box.right - box.width * 0.2 : box.left + box.width * 0.2;
-      const branchEndY = box.top + box.height * 0.18;
-      backPaths.push({
-        d: `M ${nextX.toFixed(1)} ${nextY.toFixed(1)} C ${(nextX + side * 48).toFixed(1)} ${(nextY - 34).toFixed(1)}, ${(branchEndX - side * 54).toFixed(1)} ${(branchEndY + 24).toFixed(1)}, ${branchEndX.toFixed(1)} ${branchEndY.toFixed(1)}`,
-        width: 3.2,
-        delay: 3.1 + index * 0.46,
-        duration: 2.6,
-        opacity: 0.72,
-      });
-      leaves.push({
-        x: branchEndX,
-        y: branchEndY,
-        angle: side < 0 ? 28 : -28,
-        scale: 0.72,
-        delay: 4 + index * 0.42,
-        layer: "back",
-      });
-    }
 
     mainX = nextX;
     mainY = nextY;
   });
 
-  backPaths.unshift({
+  backPaths.push({
     d: main,
-    width: 7.5,
-    delay: 0.15,
-    duration: 9.2,
-    opacity: 0.86,
+    width: 2.5,
+    delay: 0.35,
+    duration: 29.5,
+    opacity: 0.84,
   });
 
-  const rootXs = [width * 0.12, width * 0.83];
+  mainAnchors.forEach(({ point, side, box, delay, seed }, index) => {
+    const outwardAngle = side < 0 ? -2.42 : -0.72;
+    const inwardAngle = side < 0 ? -0.98 : -2.16;
+    const primaryLength = clamp(box.width * 0.38, 90, 190);
+
+    fracture(backPaths, point, outwardAngle, primaryLength, 0, delay, seed, bounds);
+    fracture(
+      backPaths,
+      point,
+      inwardAngle + between(seed + 3, -0.16, 0.16),
+      primaryLength * 0.76,
+      0,
+      delay + between(seed + 5, 1.3, 2.4),
+      seed + 503,
+      bounds,
+    );
+
+    if (index % 2 === 0) {
+      const horizontalAngle = side < 0 ? Math.PI : 0;
+      fracture(
+        backPaths,
+        point,
+        horizontalAngle + between(seed + 11, -0.34, 0.34),
+        clamp(box.width * 0.26, 62, 132),
+        0,
+        delay + between(seed + 15, 2.1, 3.8),
+        seed + 907,
+        bounds,
+      );
+    }
+  });
+
+  const rootXs = [width * 0.1, width * 0.88];
   rootXs.forEach((rootX, rootIndex) => {
-    const selected = descending.filter((_, index) => index % 2 === rootIndex).slice(0, 4);
+    const selected = descending.filter((_, index) => index % 2 === rootIndex).slice(0, 5);
     let x = rootX;
-    let y = height + 22;
+    let y = height + 24;
     let d = `M ${x.toFixed(1)} ${y.toFixed(1)}`;
+
     selected.forEach((box, index) => {
-      const targetX = rootIndex === 0 ? box.left + box.width * 0.16 : box.right - box.width * 0.16;
-      const targetY = box.bottom - box.height * (0.18 + index * 0.08);
-      const bend = rootIndex === 0 ? 78 : -78;
-      d += ` C ${(x + bend).toFixed(1)} ${(y - 120).toFixed(1)}, ${(targetX - bend * 0.7).toFixed(1)} ${(targetY + 110).toFixed(1)}, ${targetX.toFixed(1)} ${targetY.toFixed(1)}`;
-      leaves.push({
-        x: targetX,
-        y: targetY,
-        angle: rootIndex === 0 ? -42 : 42,
-        scale: 0.65 + index * 0.09,
-        delay: 3.5 + rootIndex * 0.7 + index * 0.75,
-        layer: "back",
-      });
+      const targetX = rootIndex === 0 ? box.left + box.width * 0.12 : box.right - box.width * 0.12;
+      const targetY = box.bottom - box.height * (0.14 + index * 0.07);
+      const bend = rootIndex === 0 ? 58 : -58;
+      d += ` C ${(x + bend).toFixed(1)} ${(y - 150).toFixed(1)}, ${(targetX - bend * 0.7).toFixed(1)} ${(targetY + 128).toFixed(1)}, ${targetX.toFixed(1)} ${targetY.toFixed(1)}`;
+
+      const branchDelay = 3.2 + rootIndex * 1.1 + index * between(index + rootIndex * 13, 1.8, 2.7);
+      const angle = rootIndex === 0 ? -0.82 : -2.32;
+      fracture(
+        backPaths,
+        { x: targetX, y: targetY },
+        angle + between(index + rootIndex * 71, -0.23, 0.23),
+        clamp(box.width * 0.3, 72, 148),
+        0,
+        branchDelay,
+        1401 + rootIndex * 311 + index * 43,
+        bounds,
+      );
+
       x = targetX;
       y = targetY;
     });
+
     backPaths.push({
       d,
-      width: 5.4,
-      delay: 0.7 + rootIndex * 0.55,
-      duration: 8.1,
-      opacity: 0.68,
+      width: 1.8,
+      delay: 1.2 + rootIndex * 1.05,
+      duration: 25.5 + rootIndex * 2.4,
+      opacity: 0.62,
     });
   });
 
   const frontElement = root.querySelector<HTMLElement>("[data-vine-front]");
   if (frontElement) {
     const box = toBox(frontElement, rootRect);
-    const startX = Math.min(width - 10, box.right + 92);
-    const startY = box.bottom + 220;
-    const cornerX = box.right + 3;
-    const cornerY = box.top + 18;
-    const crossX = box.left + box.width * 0.43;
-    const crossY = box.top + 8;
-    const d = [
-      `M ${startX.toFixed(1)} ${startY.toFixed(1)}`,
-      `C ${(box.right + 44).toFixed(1)} ${(box.bottom + 120).toFixed(1)}, ${(box.right + 14).toFixed(1)} ${(box.top + box.height * 0.58).toFixed(1)}, ${cornerX.toFixed(1)} ${cornerY.toFixed(1)}`,
-      `C ${(box.right - 18).toFixed(1)} ${(box.top - 10).toFixed(1)}, ${(box.right - 86).toFixed(1)} ${(box.top + 1).toFixed(1)}, ${crossX.toFixed(1)} ${crossY.toFixed(1)}`,
-      `C ${(crossX - 44).toFixed(1)} ${(crossY + 2).toFixed(1)}, ${(crossX - 92).toFixed(1)} ${(crossY + 30).toFixed(1)}, ${(crossX - 122).toFixed(1)} ${(crossY + 55).toFixed(1)}`,
+    const start = { x: Math.min(width - 8, box.right + 76), y: box.bottom + 220 };
+    const corner = { x: box.right + 2, y: box.top + 18 };
+    const cross = { x: box.left + box.width * 0.43, y: box.top + 8 };
+    const end = { x: cross.x - 122, y: cross.y + 56 };
+    const foregroundPath = [
+      `M ${start.x.toFixed(1)} ${start.y.toFixed(1)}`,
+      `C ${(box.right + 38).toFixed(1)} ${(box.bottom + 132).toFixed(1)}, ${(box.right + 11).toFixed(1)} ${(box.top + box.height * 0.56).toFixed(1)}, ${corner.x.toFixed(1)} ${corner.y.toFixed(1)}`,
+      `C ${(box.right - 18).toFixed(1)} ${(box.top - 8).toFixed(1)}, ${(box.right - 82).toFixed(1)} ${(box.top + 2).toFixed(1)}, ${cross.x.toFixed(1)} ${cross.y.toFixed(1)}`,
+      `C ${(cross.x - 44).toFixed(1)} ${(cross.y + 2).toFixed(1)}, ${(cross.x - 92).toFixed(1)} ${(cross.y + 31).toFixed(1)}, ${end.x.toFixed(1)} ${end.y.toFixed(1)}`,
     ].join(" ");
 
     frontPaths.push({
-      d,
-      width: 8.6,
-      delay: 5.4,
-      duration: 5.6,
-      opacity: 0.96,
+      d: foregroundPath,
+      width: 2.85,
+      delay: 16.8,
+      duration: 18.5,
+      opacity: 0.94,
     });
 
-    [
-      { x: box.right + 7, y: box.top + box.height * 0.68, angle: 38, scale: 1 },
-      { x: box.right - 8, y: box.top + 20, angle: -52, scale: 1.12 },
-      { x: box.right - box.width * 0.2, y: box.top + 8, angle: 26, scale: 0.92 },
-      { x: crossX - 82, y: crossY + 28, angle: -28, scale: 0.82 },
-    ].forEach((leaf, index) => {
-      leaves.push({ ...leaf, delay: 7 + index * 0.48, layer: "front" });
+    const foregroundAnchors = [
+      { point: { x: box.right + 2, y: box.top + box.height * 0.63 }, angle: -2.58, delay: 20.1, seed: 3101 },
+      { point: corner, angle: -2.9, delay: 22.3, seed: 3203 },
+      { point: cross, angle: 2.72, delay: 24.2, seed: 3307 },
+      { point: end, angle: -2.35, delay: 26.7, seed: 3413 },
+    ];
+
+    foregroundAnchors.forEach(({ point, angle, delay, seed }) => {
+      fracture(frontPaths, point, angle, clamp(box.width * 0.2, 62, 118), 0, delay, seed, bounds, true);
     });
   }
 
-  return { width, height, backPaths, frontPaths, leaves };
+  return { width, height, backPaths, frontPaths };
 }
 
-function VineSvg({ layout, layer, growthKey }: { layout: Layout; layer: "back" | "front"; growthKey: number }) {
+function RootSvg({ layout, layer, growthKey }: { layout: Layout; layer: "back" | "front"; growthKey: number }) {
   const paths = layer === "back" ? layout.backPaths : layout.frontPaths;
-  const leaves = layout.leaves.filter((leaf) => leaf.layer === layer);
-  const gradientId = layer === "back" ? "vine-back-gradient" : "vine-front-gradient";
+  const gradientId = layer === "back" ? "root-back-gradient" : "root-front-gradient";
 
   return (
     <svg
       key={`${layer}-${growthKey}`}
-      className={layer === "back" ? "vine-layer vine-layer-back" : "vine-layer vine-layer-front"}
+      className={layer === "back" ? "root-layer root-layer-back" : "root-layer root-layer-front"}
       viewBox={`0 0 ${layout.width} ${layout.height}`}
       preserveAspectRatio="none"
       aria-hidden="true"
     >
       <defs>
         <linearGradient id={gradientId} x1="0" y1="1" x2="0" y2="0">
-          <stop offset="0" stopColor={layer === "back" ? "#123b1e" : "#1d5a29"} />
-          <stop offset="0.45" stopColor={layer === "back" ? "#2d7e3e" : "#49b85b"} />
-          <stop offset="1" stopColor={layer === "back" ? "#79d47b" : "#a8f08e"} />
+          <stop offset="0" stopColor={layer === "back" ? "#102d18" : "#1b4b25"} />
+          <stop offset="0.48" stopColor={layer === "back" ? "#2b7138" : "#45a957"} />
+          <stop offset="1" stopColor={layer === "back" ? "#69bc70" : "#a4e98d"} />
         </linearGradient>
-        <filter id={`${gradientId}-glow`} x="-50%" y="-50%" width="200%" height="200%">
-          <feGaussianBlur stdDeviation={layer === "back" ? "2.5" : "4"} result="blur" />
+        <filter id={`${gradientId}-glow`} x="-80%" y="-80%" width="260%" height="260%">
+          <feGaussianBlur stdDeviation={layer === "back" ? "0.9" : "1.6"} result="blur" />
           <feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge>
         </filter>
       </defs>
 
       {paths.map((path, index) => (
         <path
-          key={`${layer}-path-${index}`}
+          key={`${layer}-root-${index}`}
           d={path.d}
           pathLength={1}
-          className="vine-stem"
+          className="root-stem"
           stroke={`url(#${gradientId})`}
           strokeWidth={path.width}
           opacity={path.opacity}
-          filter={layer === "front" ? `url(#${gradientId}-glow)` : undefined}
+          filter={`url(#${gradientId}-glow)`}
+          vectorEffect="non-scaling-stroke"
           style={{ animationDelay: `${path.delay}s`, animationDuration: `${path.duration}s` }}
         />
-      ))}
-
-      {leaves.map((leaf, index) => (
-        <g key={`${layer}-leaf-${index}`} transform={`translate(${leaf.x} ${leaf.y}) rotate(${leaf.angle}) scale(${leaf.scale})`}>
-          <path
-            className="vine-leaf"
-            style={{ animationDelay: `${leaf.delay}s` }}
-            d="M 0 0 C 11 -16, 31 -15, 39 0 C 29 13, 11 15, 0 0 Z"
-            fill={layer === "front" ? "#72d66f" : "#3f9c4b"}
-            stroke={layer === "front" ? "#c1f5a4" : "#75c67a"}
-            strokeWidth="1"
-          />
-          <path d="M 3 0 C 15 0, 25 0, 35 0" stroke="rgba(229,255,211,.58)" strokeWidth="1" fill="none" />
-        </g>
       ))}
     </svg>
   );
@@ -324,9 +395,8 @@ export default function VineInfiltration() {
         html { scroll-behavior: smooth; }
         body { margin: 0; background: #040805; }
         .vine-page {
-          --leaf: #72d66f;
-          --leaf-bright: #b7f59a;
-          --moss: #21462a;
+          --root: #72d66f;
+          --root-bright: #b7f59a;
           min-height: 100vh;
           position: relative;
           isolation: isolate;
@@ -351,28 +421,20 @@ export default function VineInfiltration() {
           background-size: 42px 42px;
           mask-image: linear-gradient(to bottom, black, transparent 92%);
         }
-        .vine-layer { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; overflow: visible; }
-        .vine-layer-back { z-index: 1; mix-blend-mode: screen; opacity: .9; }
-        .vine-layer-front { z-index: 8; mix-blend-mode: screen; }
-        .vine-stem {
+        .root-layer { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; overflow: visible; }
+        .root-layer-back { z-index: 1; mix-blend-mode: screen; opacity: .94; }
+        .root-layer-front { z-index: 8; mix-blend-mode: screen; }
+        .root-stem {
           fill: none;
           stroke-linecap: round;
           stroke-linejoin: round;
           stroke-dasharray: 1;
           stroke-dashoffset: 1;
-          animation-name: vineGrow;
-          animation-timing-function: cubic-bezier(.19,.72,.24,1);
+          animation-name: rootGrow;
+          animation-timing-function: cubic-bezier(.2,.5,.24,1);
           animation-fill-mode: forwards;
         }
-        .vine-leaf {
-          transform-box: fill-box;
-          transform-origin: left center;
-          transform: scale(0) rotate(-12deg);
-          opacity: 0;
-          animation: leafOpen 1.1s cubic-bezier(.18,.86,.22,1.25) forwards;
-        }
-        @keyframes vineGrow { to { stroke-dashoffset: 0; } }
-        @keyframes leafOpen { to { transform: scale(1) rotate(0deg); opacity: 1; } }
+        @keyframes rootGrow { to { stroke-dashoffset: 0; } }
         .shell { width: min(1160px, calc(100% - 30px)); margin: 0 auto; }
         .content-layer { position: relative; z-index: 4; }
         .nav {
@@ -385,7 +447,7 @@ export default function VineInfiltration() {
         }
         .nav-inner { min-height: 66px; display: flex; align-items: center; justify-content: space-between; gap: 14px; }
         .brand { color: #f2faef; text-decoration: none; font-size: 12px; font-weight: 950; letter-spacing: .14em; }
-        .brand span { color: var(--leaf-bright); }
+        .brand span { color: var(--root-bright); }
         .nav-actions { display: flex; gap: 7px; align-items: center; }
         .nav-actions a, .regrow {
           appearance: none;
@@ -398,10 +460,10 @@ export default function VineInfiltration() {
           font: 850 10px ui-monospace, monospace;
           cursor: pointer;
         }
-        .regrow { color: #061008; background: var(--leaf-bright); border-color: var(--leaf-bright); }
+        .regrow { color: #061008; background: var(--root-bright); border-color: var(--root-bright); }
         .hero { min-height: 92svh; display: grid; align-items: center; border-bottom: 1px solid rgba(173,231,157,.12); }
         .hero-grid { display: grid; grid-template-columns: 1.15fr .85fr; gap: 30px; align-items: end; padding: 88px 0 112px; }
-        .eyebrow { color: var(--leaf-bright); font: 900 11px ui-monospace, monospace; letter-spacing: .18em; text-transform: uppercase; }
+        .eyebrow { color: var(--root-bright); font: 900 11px ui-monospace, monospace; letter-spacing: .18em; text-transform: uppercase; }
         h1 { max-width: 980px; margin: 18px 0 0; font-size: clamp(58px, 9.7vw, 126px); line-height: .82; letter-spacing: -.073em; }
         h1 span { display: block; color: transparent; -webkit-text-stroke: 1px rgba(183,245,154,.72); }
         .lead { max-width: 820px; margin-top: 27px; color: #c3d2bf; font-size: clamp(18px, 2.1vw, 25px); line-height: 1.58; }
@@ -413,25 +475,25 @@ export default function VineInfiltration() {
           backdrop-filter: blur(11px);
         }
         .hero-card { border-radius: 28px; padding: 25px; }
-        .hero-card b { color: var(--leaf-bright); font: 900 10px ui-monospace, monospace; letter-spacing: .15em; }
+        .hero-card b { color: var(--root-bright); font: 900 10px ui-monospace, monospace; letter-spacing: .15em; }
         .hero-card strong { display: block; margin-top: 16px; font-size: clamp(31px, 4.3vw, 54px); line-height: .94; letter-spacing: -.052em; }
         .hero-card p { color: #b4c7b0; line-height: 1.68; }
         .section { position: relative; z-index: 4; padding: 86px 0; border-bottom: 1px solid rgba(173,231,157,.11); }
         .section-head { display: grid; grid-template-columns: 1.08fr .92fr; gap: 28px; align-items: end; margin-bottom: 30px; }
-        .section-label { color: var(--leaf-bright); font: 900 10px ui-monospace, monospace; letter-spacing: .17em; text-transform: uppercase; }
+        .section-label { color: var(--root-bright); font: 900 10px ui-monospace, monospace; letter-spacing: .17em; text-transform: uppercase; }
         h2 { max-width: 900px; margin: 12px 0 0; font-size: clamp(42px, 6.4vw, 80px); line-height: .94; letter-spacing: -.058em; }
         .section-head p { color: #afc0ab; font-size: 17px; line-height: 1.68; }
         .card-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
         .signal-card { min-height: 290px; border-radius: 24px; padding: 22px; overflow: visible; }
         .signal-card::after { content: ""; position: absolute; inset: 12px; border: 1px solid rgba(183,245,154,.06); border-radius: 17px; pointer-events: none; }
-        .signal-card b { color: var(--leaf-bright); font: 950 12px ui-monospace, monospace; letter-spacing: .14em; }
+        .signal-card b { color: var(--root-bright); font: 950 12px ui-monospace, monospace; letter-spacing: .14em; }
         .signal-card h3 { max-width: 560px; margin: 58px 0 0; font-size: clamp(30px, 4vw, 52px); line-height: .96; letter-spacing: -.048em; }
         .signal-card p { max-width: 620px; color: #b5c7b1; line-height: 1.62; }
         .feature-zone { padding-top: 102px; padding-bottom: 118px; }
         .feature-grid { display: grid; grid-template-columns: .8fr 1.2fr; gap: 22px; align-items: center; }
         .feature-copy p { color: #afc0ab; font-size: 18px; line-height: 1.72; }
         .feature-card { min-height: 460px; border-radius: 31px; padding: 28px; overflow: visible; }
-        .feature-card .corner-label { color: var(--leaf-bright); font: 900 10px ui-monospace, monospace; letter-spacing: .17em; }
+        .feature-card .corner-label { color: var(--root-bright); font: 900 10px ui-monospace, monospace; letter-spacing: .17em; }
         .feature-card h3 { max-width: 700px; margin: 92px 0 0; font-size: clamp(42px, 6vw, 76px); line-height: .92; letter-spacing: -.058em; }
         .feature-card p { max-width: 670px; color: #bdcdb9; font-size: 17px; line-height: 1.65; }
         .closing { position: relative; z-index: 4; padding: 92px 0 120px; }
@@ -439,10 +501,10 @@ export default function VineInfiltration() {
         .closing-card strong { display: block; max-width: 900px; font-size: clamp(40px, 6vw, 78px); line-height: .94; letter-spacing: -.058em; }
         .closing-card p { max-width: 840px; color: #b7c7b3; font-size: 18px; line-height: 1.68; }
         .cta-row { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 24px; }
-        .cta { display: inline-flex; padding: 12px 16px; border-radius: 999px; color: #061008; background: var(--leaf-bright); text-decoration: none; font-weight: 950; }
-        .cta.secondary { color: var(--leaf-bright); background: rgba(4,8,5,.65); border: 1px solid rgba(183,245,154,.38); }
+        .cta { display: inline-flex; padding: 12px 16px; border-radius: 999px; color: #061008; background: var(--root-bright); text-decoration: none; font-weight: 950; }
+        .cta.secondary { color: var(--root-bright); background: rgba(4,8,5,.65); border: 1px solid rgba(183,245,154,.38); }
         footer { position: relative; z-index: 4; padding: 40px 0 70px; color: #72836f; }
-        footer a { color: var(--leaf-bright); }
+        footer a { color: var(--root-bright); }
         @media (max-width: 900px) {
           .hero-grid, .section-head, .feature-grid { grid-template-columns: 1fr; }
           .card-grid { grid-template-columns: 1fr; }
@@ -461,13 +523,12 @@ export default function VineInfiltration() {
           .feature-card h3 { margin-top: 74px; }
         }
         @media (prefers-reduced-motion: reduce) {
-          .vine-stem { animation: none; stroke-dashoffset: 0; }
-          .vine-leaf { animation: none; transform: scale(1); opacity: 1; }
+          .root-stem { animation: none; stroke-dashoffset: 0; }
         }
       `}</style>
 
-      <VineSvg layout={layout} layer="back" growthKey={growthKey} />
-      <VineSvg layout={layout} layer="front" growthKey={growthKey} />
+      <RootSvg layout={layout} layer="back" growthKey={growthKey} />
+      <RootSvg layout={layout} layer="front" growthKey={growthKey} />
 
       <nav className="nav content-layer">
         <div className="shell nav-inner">
@@ -483,14 +544,14 @@ export default function VineInfiltration() {
       <header className="hero content-layer">
         <div className="shell hero-grid">
           <div>
-            <div className="eyebrow">LIVING SIGNAL 11 // ORGANIC INTERFACE INTRUSION</div>
-            <h1>The system starts growing.<span>Then it stops respecting the boxes.</span></h1>
-            <p className="lead">Green vines rise from the bottom of the page, seek the negative space between content panels, and eventually cross the interface boundary into the foreground.</p>
+            <div className="eyebrow">LIVING SIGNAL 11 // VASCULAR ROOT FRACTURE</div>
+            <h1>The system starts growing.<span>Then it fractures into capillaries.</span></h1>
+            <p className="lead">Green root vessels rise from the bottom of the page, route through the measured gaps between content panels, and repeatedly split into smaller circulation-like fingers.</p>
           </div>
           <aside className="hero-card" data-vine-target>
-            <b>PLANE-SWITCHING GROWTH</b>
-            <strong>Behind. Between. Across.</strong>
-            <p>Most growth remains atmospheric. One deliberate foreground branch proves the organism can move from background environment to physical-looking interface object.</p>
+            <b>THREE GENERATIONS OF FRACTURE</b>
+            <strong>Vessel. Branch. Capillary.</strong>
+            <p>The growth now behaves like roots, blood circulation, or mycelium: a narrow trunk establishes slowly, then uneven secondary and tertiary vessels fracture outward.</p>
           </aside>
         </div>
       </header>
@@ -498,8 +559,8 @@ export default function VineInfiltration() {
       <section className="section">
         <div className="shell">
           <div className="section-head">
-            <div><div className="section-label">Growth logic</div><h2>The vines use the layout as terrain.</h2></div>
-            <p>The paths are measured from the actual positions of the cards after the page renders. They are not a canned wallpaper animation, so the stems respond to mobile and desktop layout changes.</p>
+            <div><div className="section-label">Growth logic</div><h2>The layout becomes vascular terrain.</h2></div>
+            <p>The paths are measured from the actual card positions after the page renders. Primary vessels seek the gaps; each arrival point becomes a new fracture source for smaller roots.</p>
           </div>
           <div className="card-grid">
             {cards.slice(0, 3).map((card) => (
@@ -515,13 +576,13 @@ export default function VineInfiltration() {
         <div className="shell feature-grid">
           <div className="feature-copy">
             <div className="section-label">Foreground event</div>
-            <h2>One vine jumps planes.</h2>
-            <p>The brighter stem climbs outside the card, rolls over the top-right corner, and crosses the content plane. It happens later than the background growth so the layer transition reads as an event.</p>
+            <h2>One vessel still jumps planes.</h2>
+            <p>The foreground vessel is now one-third the old diameter. It climbs the card slowly, crosses the top-right corner, and then fractures into smaller capillaries across the content plane.</p>
           </div>
           <article className="feature-card" data-vine-target data-vine-front>
-            <div className="corner-label">FOREGROUND BRANCH // DELAYED EVENT</div>
-            <h3>The page is no longer containing the signal.</h3>
-            <p>The branch is rendered on a separate foreground SVG layer above the text-box plane. The leaves open only after the stem has crawled across the edge.</p>
+            <div className="corner-label">FOREGROUND CAPILLARY EVENT // DELAYED</div>
+            <h3>The page is no longer containing the circulation.</h3>
+            <p>The main crossing remains readable, but the final fingers become thin enough to feel like roots or capillaries rather than a heavy decorative vine.</p>
           </article>
         </div>
       </section>
@@ -529,8 +590,8 @@ export default function VineInfiltration() {
       <section className="section">
         <div className="shell">
           <div className="section-head">
-            <div><div className="section-label">Secondary growth</div><h2>The effect stays structured instead of becoming jungle noise.</h2></div>
-            <p>Different stems have different thickness, timing, and opacity. The main trunk carries continuity; side branches and leaves provide controlled complexity.</p>
+            <div><div className="section-label">Fracture hierarchy</div><h2>Every split loses diameter and gains complexity.</h2></div>
+            <p>The primary vessels are roughly one-third their previous width. Secondary branches split at staggered intervals, tertiary roots split again, and the final generation resolves into hairline fingers.</p>
           </div>
           <div className="card-grid">
             {cards.slice(4).map((card) => (
@@ -546,8 +607,8 @@ export default function VineInfiltration() {
         <div className="shell">
           <article className="closing-card" data-vine-target>
             <div className="section-label">NULLWORKS Living Signal Portfolio</div>
-            <strong>The interface becomes habitat.</strong>
-            <p>Vine Infiltration tests a different kind of living page: growth that reads the layout, respects most boundaries, then intentionally violates one. Use Regrow to restart the complete sequence.</p>
+            <strong>The interface becomes a circulatory habitat.</strong>
+            <p>Vine Infiltration now tests slow vascular growth: measured terrain, three generations of fracture, uneven split timing, hairline capillaries, and one restrained foreground boundary crossing. Use Regrow to restart the complete sequence.</p>
             <div className="cta-row">
               <a className="cta" href="/living-signals">Open the signal portfolio</a>
               <a className="cta secondary" href="/living-signals/bleeding-matrix">Return to Bleeding Matrix</a>
