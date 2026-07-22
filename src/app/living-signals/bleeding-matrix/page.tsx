@@ -3,7 +3,7 @@ import BleedingMatrix from "../BleedingMatrix";
 import { bleedingSignal as signal } from "../bleedingSignal";
 
 export const metadata: Metadata = {
-  title: `${signal.name} Android Test V3 | NULLWORKS Living Signals`,
+  title: `${signal.name} Android Test V4 | NULLWORKS Living Signals`,
   description: signal.summary,
 };
 
@@ -112,9 +112,9 @@ export default function BleedingMatrixPage() {
             <div className="demo-note">{signal.demoNote}</div>
           </div>
           <aside className="hero-card">
-            <b>ANDROID TEST BUILD V3</b>
-            <strong>It is an open glass now.</strong>
-            <p>Tap Enable Tilt + Lock. Tilting only moves the mass. Blood leaves the viewport only when the raised free surface reaches a top corner and crosses that lip.</p>
+            <b>ANDROID TEST BUILD V4</b>
+            <strong>The glass rotates. The liquid stays level.</strong>
+            <p>Tap Enable Tilt + Lock while the phone is upright. V4 reads the gravity vector, keeps the free surface level in the room, and treats the complete top edge as the only opening.</p>
             <small>Simulated visual atmosphere only. No real blood, injury, telemetry, or live event is represented.</small>
           </aside>
         </div>
@@ -123,8 +123,8 @@ export default function BleedingMatrixPage() {
       <section className="section" id="test">
         <div className="shell">
           <div className="section-head">
-            <div><div className="section-label">What changed</div><h2>No corner contact, no drainage.</h2></div>
-            <p>The old angle threshold is gone. The solver preserves liquid volume while the phone tilts, measures both top corners every frame, and subtracts volume only from actual overflow.</p>
+            <div><div className="section-label">What changed</div><h2>No more over-rotating line or trapped triangle.</h2></div>
+            <p>The slope approximation is gone. The liquid is now a gravity-clipped polygon with a physically level free surface. When the downhill point of the open top edge falls below the remaining liquid, the vessel continues draining toward zero.</p>
           </div>
           <div className="grid">
             {signal.communicates.map((item, index) => <article className="card" key={item}><b>{String(index + 1).padStart(2, "0")}</b><p>{item}</p></article>)}
@@ -135,8 +135,8 @@ export default function BleedingMatrixPage() {
       <section className="section" id="rules">
         <div className="shell">
           <div className="section-head">
-            <div><div className="section-label">Mobile test controls</div><h2>Tilt until the blood reaches the lip.</h2></div>
-            <p>A partial tilt should only slosh and reposition the liquid. A steeper tilt can raise one edge to a top corner; then the vessel overflows only until the surface drops below that same corner.</p>
+            <div><div className="section-label">Mobile test controls</div><h2>Calibrate upright, then pour like a real glass.</h2></div>
+            <p>A partial tilt should retain the stable volume. Continue rotating toward a side pour and the open edge moves downhill until no stable liquid pocket remains, allowing the vessel to empty completely.</p>
           </div>
           <div className="rule-list">{signal.rules.map((item, index) => <div className="rule" key={item}><b>{String(index + 1).padStart(2, "0")}</b><span>{item}</span></div>)}</div>
         </div>
@@ -146,8 +146,8 @@ export default function BleedingMatrixPage() {
         <div className="shell">
           <article className="closing-card">
             <div className="section-label">NULLWORKS Living Signal Framework</div>
-            <strong>The phone finally behaves like the container.</strong>
-            <p>V3 uses the second Android screen-recording receipt: there is no artificial pour threshold and no bottom-drain behavior. The top corners are the vessel lips, and the retained volume depends on the angle exactly like a glass held in space.</p>
+            <strong>The container moves around gravity now.</strong>
+            <p>V4 is built from the third Android screen-recording receipt: device-motion gravity, a true level surface, an open top edge, stable partial retention, and complete drainage at a full side pour. The next truth gate is Mason&apos;s phone.</p>
             <div className="cta-row">
               <a className="cta" href="#">Restart at the top</a>
               <a className="cta secondary" href="/living-signals">Open the sample library</a>
@@ -156,7 +156,7 @@ export default function BleedingMatrixPage() {
         </div>
       </section>
 
-      <footer><div className="shell">NULLWORKS Living Signals // Bleeding Matrix Android liquid test V3. <a href="/living-signals">Browse all samples →</a></div></footer>
+      <footer><div className="shell">NULLWORKS Living Signals // Bleeding Matrix Android liquid test V4. <a href="/living-signals">Browse all samples →</a></div></footer>
     </main>
   );
 }
