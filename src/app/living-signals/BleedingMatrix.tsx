@@ -2,7 +2,19 @@
 
 import { useEffect, useRef, useState } from "react";
 
-type Props = { accentRgb: string };
+type Props = {
+  accentRgb: string;
+};
+
+type Point = {
+  x: number;
+  y: number;
+};
+
+type GravityVector = {
+  x: number;
+  y: number;
+};
 
 type RainStream = {
   x: number;
@@ -24,6 +36,7 @@ type MatrixParticle = {
 
 type ImpactRipple = {
   x: number;
+  y: number;
   age: number;
   life: number;
   strength: number;
@@ -34,12 +47,69 @@ type LockState = "idle" | "locked" | "failed" | "unsupported";
 
 const glyphs = "01ABCDEFGHIJKLMNOPQRSTUVWXYZ{}[]<>/\\|:+-=アイウエオカキクケコサシスセソタチツテト";
 const clamp = (value: number, min: number, max: number) => Math.min(max, Math.max(min, value));
+const EPSILON = 0.0001;
+
+const polygonArea = (polygon: Point[]) => {
+  if (polygon.length < 3) return 0;
+  let twiceArea = 0;
+  for (let index = 0; index < polygon.length; index += 1) {
+    const current = polygon[index];
+    const next = polygon[(index + 1) % polygon.length];
+    twiceArea += current.x * next.y - next.x * current.y;
+  }
+  return Math.abs(twiceArea) / 2;
+};
+
+const normalizeGravity = (x: number, y: number): GravityVector => {
+  const magnitude = Math.hypot(x, y);
+  if (magnitude < EPSILON) return { x: 0, y: 1 };
+  return { x: x / magnitude, y: y / magnitude };
+};
+
+const potential = (point: Point, gravity: GravityVector) => point.x * gravity.x + point.y * gravity.y;
+
+const clipPolygonToLiquid = (polygon: Point[], gravity: GravityVector, threshold: number) => {
+  const output: Point[] = [];
+
+  for (let index = 0; index < polygon.length; index += 1) {
+    const current = polygon[index];
+    const next = polygon[(index + 1) % polygon.length];
+    const currentPotential = potential(current, gravity);
+    const nextPotential = potential(next, gravity);
+    const currentInside = currentPotential >= threshold - EPSILON;
+    const nextInside = nextPotential >= threshold - EPSILON;
+
+    if (currentInside) output.push(current);
+
+    if (currentInside !== nextInside) {
+      const denominator = nextPotential - currentPotential;
+      if (Math.abs(denominator) > EPSILON) {
+        const ratio = clamp((threshold - currentPotential) / denominator, 0, 1);
+        output.push({
+          x: current.x + (next.x - current.x) * ratio,
+          y: current.y + (next.y - current.y) * ratio,
+        });
+      }
+    }
+  }
+
+  return output;
+};
+
+const uniquePoints = (points: Point[]) => {
+  const result: Point[] = [];
+  points.forEach((point) => {
+    if (!result.some((existing) => Math.hypot(existing.x - point.x, existing.y - point.y) < 0.75)) {
+      result.push(point);
+    }
+  });
+  return result;
+};
 
 export default function BleedingMatrix({ accentRgb }: Props) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const motionEnabledRef = useRef(false);
-  const deviceTiltRef = useRef(0);
-  const touchTiltRef = useRef(0);
+  const touchAngleRef = useRef(0);
   const resetCounterRef = useRef(0);
   const [motionState, setMotionState] = useState<MotionState>("idle");
   const [lockState, setLockState] = useState<LockState>("idle");
@@ -53,7 +123,8 @@ export default function BleedingMatrix({ accentRgb }: Props) {
     if (!context) return;
 
     const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if (!("DeviceOrientationEvent" in window)) setMotionState("unsupported");
+    const supportsMotion = "DeviceOrientationEvent" in window;
+    if (!supportsMotion) setMotionState("unsupported");
 
     let animationFrame = 0;
     let width = 0;
@@ -64,17 +135,27 @@ export default function BleedingMatrix({ accentRgb }: Props) {
     let lastUiUpdate = 0;
     let fillLevel = 0.07;
     let emptyHold = 0;
-    let tilt = 0;
-    let tiltVelocity = 0;
-    let waveEnergy = 0.18;
-    let previousTargetTilt = 0;
     let previousResetCounter = resetCounterRef.current;
+    let visualGravity: GravityVector = { x: 0, y: 1 };
+    let gravityVelocity: GravityVector = { x: 0, y: 0 };
+    let measuredGravity: GravityVector = { x: 0, y: 1 };
+    let gravityReady = false;
+    let lastMotionSampleAt = 0;
+    let lastGamma = 0;
+    let yCalibration = 0;
+    let xCalibration = 0;
     let rainStreams: RainStream[] = [];
     let particles: MatrixParticle[] = [];
     let ripples: ImpactRipple[] = [];
 
     const randomGlyph = () => glyphs[Math.floor(Math.random() * glyphs.length)];
     const rgba = (alpha: number) => `rgba(${accentRgb}, ${alpha})`;
+    const rectangle = () => [
+      { x: 0, y: 0 },
+      { x: width, y: 0 },
+      { x: width, y: height },
+      { x: 0, y: height },
+    ];
 
     const rebuildScene = () => {
       const rainFontSize = width < 680 ? 13 : 16;
@@ -116,12 +197,44 @@ export default function BleedingMatrix({ accentRgb }: Props) {
     const onOrientation = (event: DeviceOrientationEvent) => {
       if (!motionEnabledRef.current) return;
       const gamma = typeof event.gamma === "number" ? event.gamma : 0;
-      const beta = typeof event.beta === "number" ? event.beta : 0;
-      const orientationAngle = screen.orientation?.angle ?? 0;
-      let sideTilt = gamma;
-      if (orientationAngle === 90) sideTilt = -beta;
-      if (orientationAngle === 270 || orientationAngle === -90) sideTilt = beta;
-      deviceTiltRef.current = clamp(sideTilt, -88, 88);
+      lastGamma = gamma;
+
+      if (performance.now() - lastMotionSampleAt > 500) {
+        const radians = (clamp(gamma, -89.8, 89.8) * Math.PI) / 180;
+        measuredGravity = normalizeGravity(Math.sin(radians), Math.cos(radians));
+      }
+    };
+
+    const onDeviceMotion = (event: DeviceMotionEvent) => {
+      if (!motionEnabledRef.current) return;
+      const acceleration = event.accelerationIncludingGravity;
+      if (!acceleration || typeof acceleration.x !== "number" || typeof acceleration.y !== "number") return;
+
+      const rawX = acceleration.x;
+      const rawY = acceleration.y;
+      if (Math.hypot(rawX, rawY) < 1.5) return;
+
+      if (yCalibration === 0 && Math.abs(rawY) > 2) {
+        yCalibration = rawY >= 0 ? 1 : -1;
+      }
+
+      if (xCalibration === 0 && Math.abs(lastGamma) > 7 && Math.abs(rawX) > 0.6) {
+        xCalibration = Math.sign(lastGamma) * Math.sign(rawX) || 1;
+      }
+
+      const calibratedY = rawY * (yCalibration || 1);
+      let calibratedX: number;
+
+      if (xCalibration !== 0) {
+        calibratedX = rawX * xCalibration;
+      } else {
+        const gammaRadians = (clamp(lastGamma, -89.8, 89.8) * Math.PI) / 180;
+        calibratedX = Math.sin(gammaRadians) * Math.hypot(rawX, rawY);
+      }
+
+      measuredGravity = normalizeGravity(calibratedX, calibratedY);
+      gravityReady = true;
+      lastMotionSampleAt = performance.now();
     };
 
     const drawGrid = () => {
@@ -141,58 +254,73 @@ export default function BleedingMatrix({ accentRgb }: Props) {
       context.restore();
     };
 
-    const slopeForTilt = () => {
-      const radians = (clamp(tilt, -88, 88) * Math.PI) / 180;
-      return clamp(-Math.tan(radians) * 0.92, -28, 28);
-    };
+    const solveThresholdForFill = (gravity: GravityVector, requestedFill: number) => {
+      const corners = rectangle();
+      const cornerPotentials = corners.map((point) => potential(point, gravity));
+      let low = Math.min(...cornerPotentials) - 1;
+      let high = Math.max(...cornerPotentials) + 1;
+      const targetArea = clamp(requestedFill, 0, 1) * width * height;
 
-    const waveOffset = (x: number, time: number) => {
-      const primary = Math.sin(x * 0.018 + time * 0.0024) * (3.5 + waveEnergy * 10);
-      const secondary = Math.sin(x * 0.041 - time * 0.0031) * (1.7 + waveEnergy * 5);
-      return primary + secondary;
-    };
-
-    const surfaceAt = (x: number, time: number, base: number) =>
-      base + (x - width / 2) * slopeForTilt() + waveOffset(x, time);
-
-    const solveSurfaceBase = (time: number) => {
-      const targetAverageDepth = fillLevel * height;
-      let low = -height * 16;
-      let high = height * 16;
-      const samples = 64;
-
-      for (let iteration = 0; iteration < 16; iteration += 1) {
-        const candidate = (low + high) / 2;
-        let depthSum = 0;
-        for (let sample = 0; sample < samples; sample += 1) {
-          const x = ((sample + 0.5) / samples) * width;
-          depthSum += clamp(height - surfaceAt(x, time, candidate), 0, height);
-        }
-        const averageDepth = depthSum / samples;
-        if (averageDepth > targetAverageDepth) low = candidate;
-        else high = candidate;
+      for (let iteration = 0; iteration < 18; iteration += 1) {
+        const threshold = (low + high) / 2;
+        const liquidArea = polygonArea(clipPolygonToLiquid(corners, gravity, threshold));
+        if (liquidArea > targetArea) low = threshold;
+        else high = threshold;
       }
+
       return (low + high) / 2;
     };
 
-    const buildLiquidPath = (time: number, base: number) => {
-      const step = Math.max(8, Math.floor(width / 54));
-      context.beginPath();
-      context.moveTo(0, surfaceAt(0, time, base));
-      for (let x = step; x < width; x += step) context.lineTo(x, surfaceAt(x, time, base));
-      context.lineTo(width, surfaceAt(width, time, base));
-      context.lineTo(width, height + 40);
-      context.lineTo(0, height + 40);
-      context.closePath();
+    const surfaceIntersections = (gravity: GravityVector, threshold: number) => {
+      const corners = rectangle();
+      const intersections: Point[] = [];
+
+      for (let index = 0; index < corners.length; index += 1) {
+        const current = corners[index];
+        const next = corners[(index + 1) % corners.length];
+        const currentPotential = potential(current, gravity);
+        const nextPotential = potential(next, gravity);
+        const denominator = nextPotential - currentPotential;
+
+        if (Math.abs(currentPotential - threshold) < 0.5) intersections.push(current);
+        if ((currentPotential - threshold) * (nextPotential - threshold) < 0 && Math.abs(denominator) > EPSILON) {
+          const ratio = (threshold - currentPotential) / denominator;
+          intersections.push({
+            x: current.x + (next.x - current.x) * ratio,
+            y: current.y + (next.y - current.y) * ratio,
+          });
+        }
+      }
+
+      return uniquePoints(intersections).slice(0, 2);
     };
 
-    const addImpact = (x: number) => {
+    const pointInsideLiquid = (point: Point, gravity: GravityVector, threshold: number) =>
+      potential(point, gravity) >= threshold - 0.5;
+
+    const randomPointInsideLiquid = (gravity: GravityVector, threshold: number) => {
+      for (let attempt = 0; attempt < 40; attempt += 1) {
+        const candidate = { x: Math.random() * width, y: Math.random() * height };
+        if (pointInsideLiquid(candidate, gravity, threshold)) return candidate;
+      }
+
+      const polygon = clipPolygonToLiquid(rectangle(), gravity, threshold);
+      if (polygon.length > 0) return polygon[Math.floor(Math.random() * polygon.length)];
+      return { x: width / 2, y: height };
+    };
+
+    const addImpact = (point: Point) => {
       if (ripples.length > 24) ripples.shift();
-      ripples.push({ x, age: 0, life: 0.75 + Math.random() * 0.45, strength: 0.5 + Math.random() * 0.55 });
-      waveEnergy = clamp(waveEnergy + 0.045, 0.08, 1.35);
+      ripples.push({
+        x: point.x,
+        y: point.y,
+        age: 0,
+        life: 0.75 + Math.random() * 0.45,
+        strength: 0.5 + Math.random() * 0.55,
+      });
     };
 
-    const drawRain = (time: number, dt: number, base: number) => {
+    const drawRain = (time: number, dt: number, gravity: GravityVector, threshold: number) => {
       const fontSize = width < 680 ? 13 : 16;
       context.save();
       context.font = `700 ${fontSize}px ui-monospace, SFMono-Regular, Menlo, monospace`;
@@ -201,9 +329,10 @@ export default function BleedingMatrix({ accentRgb }: Props) {
 
       rainStreams.forEach((stream) => {
         stream.y += stream.speed * dt;
-        const liquidSurface = surfaceAt(stream.x, time, base);
-        if (stream.y >= liquidSurface) {
-          addImpact(stream.x);
+        const headPoint = { x: stream.x, y: stream.y };
+
+        if (pointInsideLiquid(headPoint, gravity, threshold)) {
+          addImpact(headPoint);
           stream.y = -60 - Math.random() * height * 0.65;
           stream.speed = 34 + Math.random() * 74;
           stream.length = 8 + Math.floor(Math.random() * 20);
@@ -212,7 +341,10 @@ export default function BleedingMatrix({ accentRgb }: Props) {
 
         for (let index = 0; index < stream.length; index += 1) {
           const y = stream.y - index * fontSize * 1.06;
-          if (y < -30 || y >= liquidSurface + 2) continue;
+          if (y < -30 || y > height + 30) continue;
+          const point = { x: stream.x, y };
+          if (pointInsideLiquid(point, gravity, threshold)) continue;
+
           const head = index === 0;
           const decay = 1 - index / stream.length;
           const flicker = 0.72 + Math.sin(time * 0.003 + stream.phase + index) * 0.24;
@@ -226,45 +358,75 @@ export default function BleedingMatrix({ accentRgb }: Props) {
       context.restore();
     };
 
-    const drawLiquid = (time: number, dt: number, pouring: boolean, base: number) => {
+    const drawLiquid = (
+      time: number,
+      dt: number,
+      gravity: GravityVector,
+      threshold: number,
+      liquidPolygon: Point[],
+      overflowing: boolean,
+    ) => {
+      if (liquidPolygon.length < 3) return;
+
       context.save();
-      buildLiquidPath(time, base);
-      const topReference = clamp(base - 90, 0, height);
-      const gradient = context.createLinearGradient(0, topReference, 0, height);
-      gradient.addColorStop(0, "rgba(255,64,82,.84)");
-      gradient.addColorStop(0.13, "rgba(171,7,29,.92)");
-      gradient.addColorStop(0.58, "rgba(77,0,14,.95)");
-      gradient.addColorStop(1, "rgba(30,0,8,.99)");
-      context.fillStyle = gradient;
+      context.beginPath();
+      context.moveTo(liquidPolygon[0].x, liquidPolygon[0].y);
+      for (let index = 1; index < liquidPolygon.length; index += 1) {
+        context.lineTo(liquidPolygon[index].x, liquidPolygon[index].y);
+      }
+      context.closePath();
+
+      const liquidGradient = context.createLinearGradient(0, 0, 0, height);
+      liquidGradient.addColorStop(0, "rgba(255,64,82,.84)");
+      liquidGradient.addColorStop(0.16, "rgba(171,7,29,.92)");
+      liquidGradient.addColorStop(0.6, "rgba(77,0,14,.95)");
+      liquidGradient.addColorStop(1, "rgba(30,0,8,.99)");
+      context.fillStyle = liquidGradient;
       context.shadowColor = rgba(0.5);
       context.shadowBlur = 28;
       context.fill();
       context.clip();
 
-      const glow = context.createRadialGradient(width * 0.28, height * 0.62, 0, width * 0.28, height * 0.62, Math.max(width, height) * 0.8);
-      glow.addColorStop(0, "rgba(255,49,73,.18)");
-      glow.addColorStop(0.46, "rgba(92,0,18,.08)");
-      glow.addColorStop(1, "rgba(0,0,0,.3)");
-      context.fillStyle = glow;
+      const innerGlow = context.createRadialGradient(
+        width * 0.28,
+        height * 0.62,
+        0,
+        width * 0.28,
+        height * 0.62,
+        Math.max(width, height) * 0.8,
+      );
+      innerGlow.addColorStop(0, "rgba(255,49,73,.18)");
+      innerGlow.addColorStop(0.46, "rgba(92,0,18,.08)");
+      innerGlow.addColorStop(1, "rgba(0,0,0,.3)");
+      context.fillStyle = innerGlow;
       context.fillRect(0, 0, width, height);
 
       context.textAlign = "center";
       context.textBaseline = "middle";
       particles.forEach((particle, index) => {
-        particle.y += particle.speed * dt * (pouring ? 1.55 : 1);
-        particle.x += (particle.drift + tilt * 0.12) * dt;
-        const localSurface = surfaceAt(particle.x, time, base);
-        if (particle.y > height + 28 || particle.y < localSurface - 18) {
-          particle.x = Math.random() * width;
-          particle.y = surfaceAt(particle.x, time, base) + 12 + Math.random() * 78;
+        particle.x += (gravity.x * particle.speed + particle.drift * 0.25) * dt * (overflowing ? 1.7 : 1);
+        particle.y += gravity.y * particle.speed * dt * (overflowing ? 1.7 : 1);
+
+        if (
+          particle.x < -30 ||
+          particle.x > width + 30 ||
+          particle.y < -30 ||
+          particle.y > height + 30 ||
+          !pointInsideLiquid(particle, gravity, threshold)
+        ) {
+          const replacement = randomPointInsideLiquid(gravity, threshold);
+          particle.x = replacement.x;
+          particle.y = replacement.y;
           particle.glyph = randomGlyph();
         }
-        if (particle.x < -20) particle.x = width + 20;
-        if (particle.x > width + 20) particle.x = -20;
 
+        const normalizedPotential = clamp(
+          (potential(particle, gravity) - threshold) / Math.max(1, Math.hypot(width, height)),
+          0,
+          1,
+        );
         const shimmer = 0.55 + Math.sin(time * 0.002 + particle.phase) * 0.38;
-        const depth = clamp((particle.y - localSurface) / Math.max(1, height - localSurface), 0, 1);
-        const alpha = 0.14 + depth * 0.42 * shimmer;
+        const alpha = 0.14 + normalizedPotential * 0.5 * shimmer;
         context.font = `800 ${particle.size}px ui-monospace, SFMono-Regular, Menlo, monospace`;
         context.fillStyle = index % 13 === 0 ? "rgba(255,210,214,.72)" : rgba(alpha);
         context.shadowColor = rgba(alpha * 1.5);
@@ -273,57 +435,86 @@ export default function BleedingMatrix({ accentRgb }: Props) {
       });
       context.restore();
 
-      context.save();
-      context.strokeStyle = "rgba(255,183,190,.82)";
-      context.lineWidth = 1.5;
-      context.shadowColor = rgba(0.82);
-      context.shadowBlur = 15;
-      context.beginPath();
-      const step = Math.max(8, Math.floor(width / 54));
-      context.moveTo(0, surfaceAt(0, time, base));
-      for (let x = step; x <= width; x += step) context.lineTo(x, surfaceAt(x, time, base));
-      context.stroke();
+      const intersections = surfaceIntersections(gravity, threshold);
+      if (intersections.length === 2) {
+        context.save();
+        context.strokeStyle = "rgba(255,183,190,.86)";
+        context.lineWidth = 1.6;
+        context.shadowColor = rgba(0.82);
+        context.shadowBlur = 15;
+        context.beginPath();
+        context.moveTo(intersections[0].x, intersections[0].y);
+        context.lineTo(intersections[1].x, intersections[1].y);
+        context.stroke();
+        context.restore();
+      }
 
+      context.save();
       ripples.forEach((ripple) => {
         ripple.age += dt;
         const progress = clamp(ripple.age / ripple.life, 0, 1);
-        const y = surfaceAt(ripple.x, time, base);
-        context.globalAlpha = (1 - progress) * 0.68 * ripple.strength;
+        context.globalAlpha = (1 - progress) * 0.64 * ripple.strength;
         context.strokeStyle = "rgba(255,220,223,.88)";
         context.lineWidth = 1;
         context.beginPath();
-        context.ellipse(ripple.x, y, 4 + progress * 24 * ripple.strength, 1.3 + progress * 3.5, 0, 0, Math.PI * 2);
+        context.ellipse(
+          ripple.x,
+          ripple.y,
+          4 + progress * 22 * ripple.strength,
+          1.3 + progress * 3.2,
+          0,
+          0,
+          Math.PI * 2,
+        );
         context.stroke();
       });
       ripples = ripples.filter((ripple) => ripple.age < ripple.life);
       context.restore();
     };
 
-    const drawTopCornerOverflow = (spillX: number, overflowDepth: number, pouring: boolean) => {
-      if (!pouring) return;
-      const right = spillX === width;
-      const inward = right ? -1 : 1;
-      const visibleLength = clamp(24 + overflowDepth * 0.16, 24, 82);
-      const thickness = clamp(9 + overflowDepth * 0.08, 9, 28);
+    const drawCornerOverflow = (
+      gravity: GravityVector,
+      overflowDepth: number,
+      spillCorner: Point,
+      overflowing: boolean,
+    ) => {
+      if (!overflowing || overflowDepth <= 0) return;
 
-      context.save();
-      const gradient = context.createLinearGradient(spillX, 0, spillX + inward * visibleLength, thickness);
-      gradient.addColorStop(0, "rgba(255,85,100,.98)");
-      gradient.addColorStop(0.35, "rgba(173,7,31,.94)");
+      const direction = normalizeGravity(gravity.x, gravity.y);
+      const streamLength = Math.min(Math.hypot(width, height) * 0.34, 90 + overflowDepth * 1.45);
+      const streamWidth = 11 + clamp(overflowDepth / 18, 0, 24);
+      const endX = spillCorner.x + direction.x * streamLength;
+      const endY = spillCorner.y + direction.y * streamLength;
+      const gradient = context.createLinearGradient(spillCorner.x, spillCorner.y, endX, endY);
+      gradient.addColorStop(0, "rgba(255,64,82,.96)");
+      gradient.addColorStop(0.45, "rgba(160,5,28,.88)");
       gradient.addColorStop(1, "rgba(76,0,12,0)");
+
+      const perpendicular = { x: -direction.y, y: direction.x };
+      context.save();
       context.fillStyle = gradient;
-      context.shadowColor = rgba(0.88);
+      context.shadowColor = rgba(0.78);
       context.shadowBlur = 20;
       context.beginPath();
-      context.moveTo(spillX, 0);
-      context.lineTo(spillX + inward * visibleLength, 0);
+      context.moveTo(
+        spillCorner.x + perpendicular.x * streamWidth * 0.44,
+        spillCorner.y + perpendicular.y * streamWidth * 0.44,
+      );
       context.bezierCurveTo(
-        spillX + inward * visibleLength * 0.76,
-        thickness * 0.25,
-        spillX + inward * visibleLength * 0.34,
-        thickness * 1.05,
-        spillX,
-        thickness * 0.58,
+        spillCorner.x + direction.x * streamLength * 0.3 + perpendicular.x * streamWidth * 0.34,
+        spillCorner.y + direction.y * streamLength * 0.3 + perpendicular.y * streamWidth * 0.34,
+        spillCorner.x + direction.x * streamLength * 0.72 - perpendicular.x * streamWidth * 0.18,
+        spillCorner.y + direction.y * streamLength * 0.72 - perpendicular.y * streamWidth * 0.18,
+        endX,
+        endY,
+      );
+      context.bezierCurveTo(
+        spillCorner.x + direction.x * streamLength * 0.72 - perpendicular.x * streamWidth * 0.5,
+        spillCorner.y + direction.y * streamLength * 0.72 - perpendicular.y * streamWidth * 0.5,
+        spillCorner.x + direction.x * streamLength * 0.24 - perpendicular.x * streamWidth * 0.42,
+        spillCorner.y + direction.y * streamLength * 0.24 - perpendicular.y * streamWidth * 0.42,
+        spillCorner.x - perpendicular.x * streamWidth * 0.32,
+        spillCorner.y - perpendicular.y * streamWidth * 0.32,
       );
       context.closePath();
       context.fill();
@@ -335,6 +526,7 @@ export default function BleedingMatrix({ accentRgb }: Props) {
         animationFrame = requestAnimationFrame(render);
         return;
       }
+
       lastFrame = time;
       const dt = reducedMotion ? 0 : Math.min(0.05, Math.max(0.001, (time - lastTime) / 1000));
       lastTime = time;
@@ -343,21 +535,27 @@ export default function BleedingMatrix({ accentRgb }: Props) {
         previousResetCounter = resetCounterRef.current;
         fillLevel = 0.04;
         emptyHold = 0;
-        waveEnergy = 0.62;
+        ripples = [];
       }
 
-      const targetTilt = motionEnabledRef.current ? deviceTiltRef.current : touchTiltRef.current;
-      const targetChange = targetTilt - previousTargetTilt;
-      previousTargetTilt = targetTilt;
-      waveEnergy = clamp(waveEnergy + Math.abs(targetChange) * 0.024, 0.08, 1.35);
-      waveEnergy += (0.1 - waveEnergy) * Math.min(1, dt * 1.65);
+      let targetGravity: GravityVector;
+      if (motionEnabledRef.current) {
+        targetGravity = measuredGravity;
+      } else {
+        const radians = (touchAngleRef.current * Math.PI) / 180;
+        targetGravity = normalizeGravity(Math.sin(radians), Math.cos(radians));
+      }
 
-      const spring = 14;
-      const damping = 7.8;
-      tiltVelocity += (targetTilt - tilt) * spring * dt;
-      tiltVelocity *= Math.exp(-damping * dt);
-      tilt += tiltVelocity * dt * 8;
-      tilt = clamp(tilt, -88, 88);
+      const spring = gravityReady ? 18 : 14;
+      const damping = 8.6;
+      gravityVelocity.x += (targetGravity.x - visualGravity.x) * spring * dt;
+      gravityVelocity.y += (targetGravity.y - visualGravity.y) * spring * dt;
+      gravityVelocity.x *= Math.exp(-damping * dt);
+      gravityVelocity.y *= Math.exp(-damping * dt);
+      visualGravity = normalizeGravity(
+        visualGravity.x + gravityVelocity.x * dt * 7,
+        visualGravity.y + gravityVelocity.y * dt * 7,
+      );
 
       if (reducedMotion) {
         fillLevel = 0.62;
@@ -369,36 +567,42 @@ export default function BleedingMatrix({ accentRgb }: Props) {
         fillLevel = Math.min(0.94, fillLevel + dt * 0.0125);
       }
 
-      let base = solveSurfaceBase(time);
-      let leftEdgeY = surfaceAt(0, time, base);
-      let rightEdgeY = surfaceAt(width, time, base);
-      let spillX = leftEdgeY <= rightEdgeY ? 0 : width;
-      let spillY = Math.min(leftEdgeY, rightEdgeY);
-      let overflowDepth = Math.max(0, -spillY);
-      let pouring = motionEnabledRef.current && overflowDepth > 1.5;
+      let threshold = solveThresholdForFill(visualGravity, fillLevel);
+      const topLeft = { x: 0, y: 0 };
+      const topRight = { x: width, y: 0 };
+      const leftOpeningPotential = potential(topLeft, visualGravity);
+      const rightOpeningPotential = potential(topRight, visualGravity);
+      const spillCorner = rightOpeningPotential >= leftOpeningPotential ? topRight : topLeft;
+      const openingLowPointPotential = Math.max(leftOpeningPotential, rightOpeningPotential);
+      let overflowDepth = Math.max(0, openingLowPointPotential - threshold);
+      let overflowing = motionEnabledRef.current && overflowDepth > 1.2;
 
-      if (pouring && !reducedMotion) {
-        const overflowStrength = clamp(overflowDepth / Math.max(80, height * 0.18), 0, 1);
-        fillLevel = Math.max(0, fillLevel - dt * (0.045 + overflowStrength * 0.34));
-        base = solveSurfaceBase(time);
-        leftEdgeY = surfaceAt(0, time, base);
-        rightEdgeY = surfaceAt(width, time, base);
-        spillX = leftEdgeY <= rightEdgeY ? 0 : width;
-        spillY = Math.min(leftEdgeY, rightEdgeY);
-        overflowDepth = Math.max(0, -spillY);
-        pouring = overflowDepth > 1.5;
+      if (overflowing && !reducedMotion) {
+        const overflowStrength = clamp(
+          overflowDepth / Math.max(70, Math.hypot(width, height) * 0.14),
+          0,
+          1,
+        );
+        fillLevel = Math.max(0, fillLevel - dt * (0.04 + overflowStrength * 0.46));
+        threshold = solveThresholdForFill(visualGravity, fillLevel);
+        overflowDepth = Math.max(0, openingLowPointPotential - threshold);
+        overflowing = overflowDepth > 1.2;
       }
+
+      const liquidPolygon = clipPolygonToLiquid(rectangle(), visualGravity, threshold);
 
       context.clearRect(0, 0, width, height);
       drawGrid();
-      drawRain(time, dt, base);
-      drawLiquid(time, dt, pouring, base);
-      drawTopCornerOverflow(spillX, overflowDepth, pouring);
+      drawRain(time, dt, visualGravity, threshold);
+      drawLiquid(time, dt, visualGravity, threshold, liquidPolygon, overflowing);
+      drawCornerOverflow(visualGravity, overflowDepth, spillCorner, overflowing);
 
       if (time - lastUiUpdate > 220) {
         lastUiUpdate = time;
         setFillPercent(Math.round(fillLevel * 100));
-        setCycleState(pouring ? "OVERFLOWING" : fillLevel < 0.02 ? "EMPTY" : fillLevel >= 0.935 ? "FULL" : "FILLING");
+        setCycleState(
+          overflowing ? "OVERFLOWING" : fillLevel < 0.02 ? "EMPTY" : fillLevel >= 0.935 ? "FULL" : "FILLING",
+        );
       }
 
       if (!reducedMotion) animationFrame = requestAnimationFrame(render);
@@ -407,12 +611,14 @@ export default function BleedingMatrix({ accentRgb }: Props) {
     resize();
     window.addEventListener("resize", resize);
     window.addEventListener("deviceorientation", onOrientation, true);
+    window.addEventListener("devicemotion", onDeviceMotion, true);
     animationFrame = requestAnimationFrame(render);
 
     return () => {
       cancelAnimationFrame(animationFrame);
       window.removeEventListener("resize", resize);
       window.removeEventListener("deviceorientation", onOrientation, true);
+      window.removeEventListener("devicemotion", onDeviceMotion, true);
     };
   }, [accentRgb]);
 
@@ -426,8 +632,20 @@ export default function BleedingMatrix({ accentRgb }: Props) {
       const orientationConstructor = DeviceOrientationEvent as typeof DeviceOrientationEvent & {
         requestPermission?: () => Promise<"granted" | "denied">;
       };
+      const motionConstructor = DeviceMotionEvent as typeof DeviceMotionEvent & {
+        requestPermission?: () => Promise<"granted" | "denied">;
+      };
+
       if (typeof orientationConstructor.requestPermission === "function") {
         const permission = await orientationConstructor.requestPermission();
+        if (permission !== "granted") {
+          setMotionState("denied");
+          return;
+        }
+      }
+
+      if (typeof motionConstructor.requestPermission === "function") {
+        const permission = await motionConstructor.requestPermission();
         if (permission !== "granted") {
           setMotionState("denied");
           return;
@@ -459,16 +677,16 @@ export default function BleedingMatrix({ accentRgb }: Props) {
   };
 
   const resetCycle = () => {
-    touchTiltRef.current = 0;
+    touchAngleRef.current = 0;
     resetCounterRef.current += 1;
   };
 
   const statusText =
     motionState === "enabled"
       ? lockState === "locked"
-        ? "PORTRAIT LOCKED // REACH A TOP CORNER TO POUR"
+        ? "WORLD-LEVEL SURFACE // TOP EDGE IS THE ONLY OPENING"
         : "TILT ACTIVE // KEEP AUTO-ROTATE OFF"
-      : "TOUCH SLIDER SLOSHES // ENABLE TILT TO POUR";
+      : "SLIDER TESTS SLOSH // ENABLE TILT FOR TRUE OVERFLOW";
 
   return (
     <>
@@ -477,7 +695,7 @@ export default function BleedingMatrix({ accentRgb }: Props) {
         style={{
           position: "fixed",
           inset: 0,
-          zIndex: 1,
+          zIndex: 0,
           overflow: "hidden",
           pointerEvents: "none",
           opacity: 0.98,
@@ -493,7 +711,13 @@ export default function BleedingMatrix({ accentRgb }: Props) {
             background: `repeating-linear-gradient(to bottom, rgba(${accentRgb},0.018) 0, rgba(${accentRgb},0.018) 1px, transparent 1px, transparent 4px)`,
           }}
         />
-        <div style={{ position: "absolute", inset: 0, boxShadow: "inset 0 0 180px rgba(0,0,0,0.94)" }} />
+        <div
+          style={{
+            position: "absolute",
+            inset: 0,
+            boxShadow: "inset 0 0 180px rgba(0,0,0,0.94)",
+          }}
+        />
       </div>
 
       <aside
@@ -521,7 +745,7 @@ export default function BleedingMatrix({ accentRgb }: Props) {
         <div style={{ display: "flex", justifyContent: "space-between", gap: 12, alignItems: "center" }}>
           <div>
             <div style={{ color: `rgb(${accentRgb})`, font: "900 10px ui-monospace, monospace", letterSpacing: ".14em" }}>
-              ANDROID LIQUID TEST V3
+              ANDROID LIQUID TEST V4
             </div>
             <div style={{ color: "#fff4f5", font: "900 14px ui-monospace, monospace" }}>
               {cycleState} // {fillPercent}%
@@ -539,7 +763,7 @@ export default function BleedingMatrix({ accentRgb }: Props) {
           max="42"
           defaultValue="0"
           onChange={(event) => {
-            touchTiltRef.current = Number(event.currentTarget.value);
+            touchAngleRef.current = Number(event.currentTarget.value);
           }}
           style={{ width: "100%", accentColor: `rgb(${accentRgb})` }}
         />
