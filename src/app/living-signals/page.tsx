@@ -2,13 +2,14 @@ import type { Metadata } from "next";
 import { bleedingSignal } from "./bleedingSignal";
 import { liveMicSignal } from "./liveMicSignal";
 import { livingSignals } from "./signals";
+import { vineSignal } from "./vineSignal";
 
-const allSignals = [...livingSignals, bleedingSignal, liveMicSignal];
+const allSignals = [...livingSignals, bleedingSignal, liveMicSignal, vineSignal];
 
 export const metadata: Metadata = {
   title: "NULLWORKS Living Signal Framework | Visual Systems Library",
   description:
-    "Ten shareable landing-page samples that reuse one atmospheric motion framework across sonar, industrial faults, evidence packets, conveyor recovery, memory continuity, operator orchestration, music systems, Matrix context, foreground bleeding, and a live microphone oscilloscope.",
+    "Eleven shareable landing-page samples spanning sonar, industrial faults, evidence packets, conveyor recovery, memory continuity, operator orchestration, music systems, Matrix context, gravity-bound liquid, live microphone input, and layout-aware organic growth.",
 };
 
 export default function LivingSignalsLibraryPage() {
@@ -113,7 +114,7 @@ export default function LivingSignalsLibraryPage() {
             <span>Make the motion mean something.</span>
           </h1>
           <p className="lead">
-            Ten live landing-page samples built from one NULLWORKS framework: fixed atmospheric canvas, theme-specific scanner, rare meaningful events, translucent structured content, mobile performance boundaries, and an explicit line between simulated atmosphere and real telemetry.
+            Eleven live landing-page samples built from one NULLWORKS framework: atmospheric canvases, physical sensors, gravity, layered SVG growth, rare meaningful events, translucent structured content, mobile performance boundaries, and explicit truth lines.
           </p>
           <div className="system-line">
             <span>01 // FIXED ATMOSPHERIC CANVAS</span>
@@ -129,7 +130,7 @@ export default function LivingSignalsLibraryPage() {
           <div className="shelf-head">
             <div>
               <div className="section-label">Current framework variants</div>
-              <h2>One engine. Ten different operational stories.</h2>
+              <h2>One framework. Eleven different living systems.</h2>
             </div>
             <p>
               Each card opens a complete mobile-ready sample page with its own animation, explanation, best-fit uses, production rules, and adjacent-sample navigation. Share the individual URL when pitching a visual direction.
@@ -170,7 +171,7 @@ export default function LivingSignalsLibraryPage() {
               Every sample uses one primary motion language. Rare events remain rare. Foreground content never drifts with the canvas. Reduced-motion users do not lose the page. Simulated backgrounds are labeled honestly. And the reusable framework is preserved separately from any one client, brand, project, or color system.
             </p>
             <div className="cta-row">
-              <a className="cta" href="/living-signals/live-mic-oscilloscope">Open Live Mic Oscilloscope</a>
+              <a className="cta" href="/living-signals/vine-infiltration">Open Vine Infiltration</a>
               <a className="cta secondary" href="mailto:masoncalcolsol@gmail.com?subject=NULLWORKS%20Living%20Signal%20Framework">Use this framework</a>
             </div>
           </article>
@@ -179,7 +180,7 @@ export default function LivingSignalsLibraryPage() {
 
       <footer>
         <div className="shell">
-          NULLWORKS Living Signal Framework // Reusable visual systems with restrained motion and explicit truth boundaries. <a href="/living-signals/live-mic-oscilloscope">Try the live sensor →</a>
+          NULLWORKS Living Signal Framework // Reusable visual systems with restrained motion and explicit truth boundaries. <a href="/living-signals/vine-infiltration">Watch the interface grow →</a>
         </div>
       </footer>
     </main>
