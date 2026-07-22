@@ -3,7 +3,7 @@ import BleedingMatrix from "../BleedingMatrix";
 import { bleedingSignal as signal } from "../bleedingSignal";
 
 export const metadata: Metadata = {
-  title: `${signal.name} Android Test V4 | NULLWORKS Living Signals`,
+  title: `${signal.name} | NULLWORKS Living Signals`,
   description: signal.summary,
 };
 
@@ -43,7 +43,7 @@ export default function BleedingMatrixPage() {
         .nav-links { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 7px; }
         .nav-links a { color: #d1c3c6; text-decoration: none; border: 1px solid rgba(255,255,255,.13); border-radius: 999px; padding: 8px 10px; font-size: 11px; font-weight: 850; }
         .hero { min-height: calc(100svh - 62px); display: grid; align-items: center; border-bottom: 1px solid rgba(var(--accent-rgb), .17); }
-        .hero-grid { display: grid; grid-template-columns: 1.2fr .8fr; gap: 26px; align-items: end; padding: 76px 0 148px; }
+        .hero-grid { display: grid; grid-template-columns: 1.2fr .8fr; gap: 26px; align-items: end; padding: 76px 0 176px; }
         .eyebrow { color: var(--accent); font: 900 11px ui-monospace, monospace; letter-spacing: .16em; text-transform: uppercase; }
         h1 { max-width: 960px; margin: 17px 0 0; font-size: clamp(56px, 9.2vw, 122px); line-height: .82; letter-spacing: -.072em; }
         h1 span { display: block; color: transparent; -webkit-text-stroke: 1px rgba(var(--accent-rgb), .75); }
@@ -67,14 +67,14 @@ export default function BleedingMatrixPage() {
         .rule { display: grid; grid-template-columns: 44px 1fr; gap: 14px; align-items: center; border: 1px solid rgba(var(--accent-rgb), .19); border-radius: 20px; padding: 14px; background: rgba(10,3,5,.74); }
         .rule b { display: grid; place-items: center; width: 40px; height: 40px; border-radius: 50%; color: #160106; background: var(--accent); font: 950 11px ui-monospace, monospace; }
         .rule span { color: #cabcc0; line-height: 1.52; }
-        .closing { padding: 82px 0 160px; }
+        .closing { padding: 82px 0 180px; }
         .closing-card { border: 1px solid rgba(var(--accent-rgb), .4); border-radius: 29px; padding: clamp(24px, 5vw, 44px); background: linear-gradient(145deg, rgba(var(--accent-rgb), .11), rgba(10,3,5,.83)); backdrop-filter: blur(9px); }
         .closing-card strong { display: block; max-width: 900px; font-size: clamp(36px, 5.7vw, 70px); line-height: .95; letter-spacing: -.056em; }
         .closing-card p { max-width: 820px; color: #c9babe; font-size: 17px; line-height: 1.65; }
         .cta-row { display: flex; flex-wrap: wrap; gap: 9px; margin-top: 23px; }
         .cta { display: inline-flex; padding: 12px 15px; border-radius: 999px; background: var(--accent); color: #160106; text-decoration: none; font-weight: 950; }
         .cta.secondary { color: var(--accent); background: rgba(5,2,4,.62); border: 1px solid rgba(var(--accent-rgb), .46); }
-        footer { padding: 36px 0 150px; color: #8f7d82; }
+        footer { padding: 36px 0 170px; color: #8f7d82; }
         footer a { color: var(--accent); }
         @media (max-width: 900px) {
           .hero-grid, .section-head { grid-template-columns: 1fr; }
@@ -84,11 +84,11 @@ export default function BleedingMatrixPage() {
           .shell { width: min(100% - 24px, 1120px); }
           .nav-inner { align-items: flex-start; padding: 11px 0; }
           .nav-links a { padding: 7px 8px; font-size: 9px; }
-          .hero-grid { padding: 54px 0 164px; }
+          .hero-grid { padding: 54px 0 190px; }
           h1 { font-size: clamp(52px, 16.5vw, 80px); }
           .section { padding: 58px 0; }
           .grid { grid-template-columns: 1fr; }
-          .closing { padding: 60px 0 170px; }
+          .closing { padding: 60px 0 190px; }
         }
       `}</style>
 
@@ -96,9 +96,9 @@ export default function BleedingMatrixPage() {
         <div className="shell nav-inner">
           <a className="brand" href="/">NULLWORKS <span>LIVING SIGNALS</span></a>
           <div className="nav-links">
-            <a href="/living-signals">All samples</a>
-            <a href="#test">Test notes</a>
-            <a href="#rules">Controls</a>
+            <a href="/living-signals">Signal portfolio</a>
+            <a href="/operating-map">Page index</a>
+            <a href="#controls">Controls</a>
           </div>
         </div>
       </nav>
@@ -112,19 +112,19 @@ export default function BleedingMatrixPage() {
             <div className="demo-note">{signal.demoNote}</div>
           </div>
           <aside className="hero-card">
-            <b>ANDROID TEST BUILD V4</b>
+            <b>LOCKED PORTFOLIO SIGNAL</b>
             <strong>The glass rotates. The liquid stays level.</strong>
-            <p>Tap Enable Tilt + Lock while the phone is upright. V4 reads the gravity vector, keeps the free surface level in the room, and treats the complete top edge as the only opening.</p>
+            <p>Enable Tilt + Lock while the phone is upright. Gravity governs the liquid, the open top edge governs overflow, and the second slider recolors the complete visual signal.</p>
             <small>Simulated visual atmosphere only. No real blood, injury, telemetry, or live event is represented.</small>
           </aside>
         </div>
       </header>
 
-      <section className="section" id="test">
+      <section className="section" id="system">
         <div className="shell">
           <div className="section-head">
-            <div><div className="section-label">What changed</div><h2>No more over-rotating line or trapped triangle.</h2></div>
-            <p>The slope approximation is gone. The liquid is now a gravity-clipped polygon with a physically level free surface. When the downhill point of the open top edge falls below the remaining liquid, the vessel continues draining toward zero.</p>
+            <div><div className="section-label">Interaction architecture</div><h2>A mobile canvas that behaves like an open vessel.</h2></div>
+            <p>The Matrix rain feeds a gravity-clipped liquid polygon. The free surface stays level in the room, the phone rotates around it, and only the downhill point of the open top edge can release volume.</p>
           </div>
           <div className="grid">
             {signal.communicates.map((item, index) => <article className="card" key={item}><b>{String(index + 1).padStart(2, "0")}</b><p>{item}</p></article>)}
@@ -132,11 +132,11 @@ export default function BleedingMatrixPage() {
         </div>
       </section>
 
-      <section className="section" id="rules">
+      <section className="section" id="controls">
         <div className="shell">
           <div className="section-head">
-            <div><div className="section-label">Mobile test controls</div><h2>Calibrate upright, then pour like a real glass.</h2></div>
-            <p>A partial tilt should retain the stable volume. Continue rotating toward a side pour and the open edge moves downhill until no stable liquid pocket remains, allowing the vessel to empty completely.</p>
+            <div><div className="section-label">Mobile controls</div><h2>Tilt the vessel. Tune the signal. Reset the whole scene.</h2></div>
+            <p>The slosh slider provides a non-sensor preview. Enable Tilt + Lock activates physical gravity and overflow. The spectrum slider runs from white through the full color field to brown and black. Reset Scene restores upright red and clears the previous motion calibration.</p>
           </div>
           <div className="rule-list">{signal.rules.map((item, index) => <div className="rule" key={item}><b>{String(index + 1).padStart(2, "0")}</b><span>{item}</span></div>)}</div>
         </div>
@@ -145,18 +145,18 @@ export default function BleedingMatrixPage() {
       <section className="closing">
         <div className="shell">
           <article className="closing-card">
-            <div className="section-label">NULLWORKS Living Signal Framework</div>
-            <strong>The container moves around gravity now.</strong>
-            <p>V4 is built from the third Android screen-recording receipt: device-motion gravity, a true level surface, an open top edge, stable partial retention, and complete drainage at a full side pour. The next truth gate is Mason&apos;s phone.</p>
+            <div className="section-label">NULLWORKS Living Signal Portfolio</div>
+            <strong>Motion is not decoration when it explains the system.</strong>
+            <p>Bleeding Matrix is now a locked portfolio page: gravity-correct liquid geometry, open-edge overflow, Matrix-to-liquid impacts, full-spectrum signal control, mobile performance boundaries, and a complete scene reset.</p>
             <div className="cta-row">
-              <a className="cta" href="#">Restart at the top</a>
-              <a className="cta secondary" href="/living-signals">Open the sample library</a>
+              <a className="cta" href="/living-signals">Open the signal portfolio</a>
+              <a className="cta secondary" href="/operating-map">Open the complete page index</a>
             </div>
           </article>
         </div>
       </section>
 
-      <footer><div className="shell">NULLWORKS Living Signals // Bleeding Matrix Android liquid test V4. <a href="/living-signals">Browse all samples →</a></div></footer>
+      <footer><div className="shell">NULLWORKS Living Signals // Bleeding Matrix locked portfolio page. <a href="/living-signals">Browse all signals →</a></div></footer>
     </main>
   );
 }
