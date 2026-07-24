@@ -138,7 +138,10 @@ async function handle(request: Request): Promise<Response> {
 
   const status = await readHiveStatus();
   const commandRoom = room === "private" ? "private" : room === "pressure" ? "pressure" : "workroom";
-  const commandUrl = new URL(`/api/neuraxis/twilio/command?room=${commandRoom}`, request.url).toString();
+  const commandPath = commandRoom === "pressure"
+    ? "/api/neuraxis/twilio/pressure-cooker/command"
+    : `/api/neuraxis/twilio/command?room=${commandRoom}`;
+  const commandUrl = new URL(commandPath, request.url).toString();
   const opener = isLoop
     ? "I'm listening."
     : commandRoom === "private"
