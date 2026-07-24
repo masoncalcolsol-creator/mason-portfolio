@@ -1,0 +1,625 @@
+.page {
+  --yellow: #efbd24;
+  --yellow-bright: #ffd44a;
+  --yellow-pale: #ffeaa0;
+  --ink: #171001;
+  --ink-soft: #2a1d02;
+  --red: #d51d2e;
+  --red-dark: #9f1020;
+  --cream: #fff5cf;
+  min-height: 100vh;
+  color: var(--ink);
+  background: var(--yellow);
+  overflow-x: hidden;
+  isolation: isolate;
+}
+
+.background {
+  position: fixed;
+  inset: 0;
+  z-index: -3;
+  pointer-events: none;
+}
+
+.background :global(.authority-conveyor-canvas) {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.veil {
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+  pointer-events: none;
+  background:
+    linear-gradient(180deg, rgba(239, 189, 36, 0.08) 0%, rgba(239, 189, 36, 0.24) 30%, rgba(239, 189, 36, 0.7) 66%, rgba(239, 189, 36, 0.94) 100%),
+    linear-gradient(90deg, rgba(255, 212, 74, 0.16), transparent 58%, rgba(117, 72, 0, 0.05));
+}
+
+.nav {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  min-height: 68px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0 1rem;
+  border-bottom: 2px solid rgba(23, 16, 1, 0.9);
+  background: rgba(239, 189, 36, 0.88);
+  backdrop-filter: blur(18px) saturate(0.9);
+}
+
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  color: var(--ink);
+  text-decoration: none;
+  font-size: 0.78rem;
+  font-weight: 850;
+  letter-spacing: 0.16em;
+}
+
+.brandMark {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border: 2px solid var(--ink);
+  background: var(--yellow-bright);
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 0.68rem;
+}
+
+.navState {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  max-width: 160px;
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 0.6rem;
+  font-weight: 800;
+  letter-spacing: 0.09em;
+  line-height: 1.35;
+  text-align: right;
+}
+
+.liveDot {
+  flex: 0 0 auto;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--red);
+  box-shadow: 0 0 0 5px rgba(213, 29, 46, 0.14);
+  animation: pulse 2.3s ease-in-out infinite;
+}
+
+.shell {
+  width: min(1120px, calc(100% - 2rem));
+  margin: 0 auto;
+}
+
+.hero {
+  min-height: calc(100svh - 68px);
+  display: flex;
+  align-items: flex-end;
+  padding: 13rem 0 3rem;
+}
+
+.heroPanel,
+.closingPanel {
+  padding: 1.35rem;
+  border: 2px solid var(--ink);
+  border-radius: 24px;
+  background: rgba(255, 229, 126, 0.88);
+  box-shadow: 9px 9px 0 rgba(23, 16, 1, 0.9);
+  backdrop-filter: blur(18px);
+}
+
+.eyebrow,
+.kicker {
+  margin: 0 0 0.9rem;
+  color: var(--red-dark);
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 0.68rem;
+  font-weight: 850;
+  letter-spacing: 0.14em;
+  line-height: 1.45;
+  text-transform: uppercase;
+}
+
+.hero h1 {
+  max-width: 9ch;
+  margin: 0;
+  font-size: clamp(3.7rem, 16vw, 8.8rem);
+  line-height: 0.84;
+  letter-spacing: -0.072em;
+  text-wrap: balance;
+}
+
+.hero h1 span {
+  color: var(--red);
+}
+
+.deck {
+  max-width: 760px;
+  margin: 1.5rem 0 0;
+  font-size: clamp(1.25rem, 5vw, 2rem);
+  font-weight: 760;
+  line-height: 1.26;
+  text-wrap: balance;
+}
+
+.lede {
+  max-width: 790px;
+  margin: 1.25rem 0 0;
+  color: var(--ink-soft);
+  font-size: 1rem;
+  line-height: 1.78;
+}
+
+.gateGrid {
+  display: grid;
+  gap: 0.75rem;
+  margin-top: 1.6rem;
+}
+
+.gateCard {
+  padding: 1rem;
+  border: 1.5px solid var(--ink);
+  border-radius: 15px;
+  background: rgba(255, 245, 207, 0.58);
+}
+
+.gateCard span,
+.factCard > span,
+.scopeCard > span,
+.hypothesisCard > span,
+.telemetryGrid span,
+.impactLine span {
+  display: block;
+  color: var(--red-dark);
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 0.62rem;
+  font-weight: 850;
+  letter-spacing: 0.11em;
+  line-height: 1.45;
+}
+
+.gateCard strong {
+  display: block;
+  margin-top: 0.45rem;
+  font-size: 1.14rem;
+  letter-spacing: -0.02em;
+}
+
+.gateCard p {
+  margin: 0.45rem 0 0;
+  color: rgba(23, 16, 1, 0.76);
+  font-size: 0.84rem;
+  line-height: 1.55;
+}
+
+.gateStopped {
+  color: #fff5cf;
+  background: var(--red-dark);
+}
+
+.gateStopped span,
+.gateStopped p {
+  color: #ffe5aa;
+}
+
+.section {
+  padding: 4.8rem 0;
+}
+
+.sectionHeading {
+  display: grid;
+  gap: 1rem;
+}
+
+.sectionHeading h2,
+.section > .shell > h2,
+.closing h2 {
+  max-width: 900px;
+  margin: 0;
+  font-size: clamp(2.3rem, 9.3vw, 5.4rem);
+  line-height: 0.94;
+  letter-spacing: -0.058em;
+  text-wrap: balance;
+}
+
+.sectionHeading > p,
+.sectionIntro {
+  max-width: 680px;
+  margin: 0;
+  color: rgba(23, 16, 1, 0.72);
+  font-size: 0.98rem;
+  line-height: 1.72;
+}
+
+.factGrid,
+.scopeGrid,
+.hypothesisGrid,
+.controlGrid,
+.telemetryGrid {
+  display: grid;
+  gap: 0.9rem;
+  margin-top: 2rem;
+}
+
+.factCard,
+.hypothesisCard,
+.controlCard,
+.telemetryGrid > div {
+  padding: 1.15rem;
+  border: 1.5px solid var(--ink);
+  border-radius: 18px;
+  background: rgba(255, 234, 160, 0.82);
+  box-shadow: 5px 5px 0 rgba(23, 16, 1, 0.75);
+}
+
+.factCard h3,
+.scopeCard h3,
+.hypothesisCard h3,
+.controlCard h3 {
+  margin: 0.85rem 0 0;
+  font-size: 1.34rem;
+  line-height: 1.14;
+  letter-spacing: -0.035em;
+}
+
+.factCard p,
+.scopeCard p,
+.hypothesisCard p,
+.controlCard p,
+.telemetryGrid p {
+  margin: 0.75rem 0 0;
+  color: rgba(23, 16, 1, 0.74);
+  font-size: 0.92rem;
+  line-height: 1.68;
+}
+
+.impactLine {
+  display: grid;
+  gap: 0.55rem;
+  margin-top: 1.25rem;
+  padding: 1.2rem;
+  border: 2px solid var(--red-dark);
+  border-radius: 18px;
+  background: rgba(213, 29, 46, 0.12);
+}
+
+.impactLine strong {
+  font-size: 1.08rem;
+  line-height: 1.52;
+}
+
+.darkSection {
+  color: var(--cream);
+  background: rgba(23, 16, 1, 0.94);
+  border-top: 2px solid var(--ink);
+  border-bottom: 2px solid var(--ink);
+}
+
+.darkSection .kicker {
+  color: #ff6f7b;
+}
+
+.darkSection h2 {
+  color: var(--cream);
+}
+
+.scopeCard {
+  padding: 1.15rem;
+  border: 1px solid rgba(255, 245, 207, 0.24);
+  border-radius: 18px;
+  background: rgba(255, 245, 207, 0.055);
+}
+
+.scopeCard > span {
+  color: #ff7e88;
+}
+
+.scopeCard p {
+  color: rgba(255, 245, 207, 0.68);
+}
+
+.truthBoundary {
+  margin-top: 1.2rem;
+  padding: 1.1rem;
+  border: 1px solid rgba(255, 245, 207, 0.24);
+  border-radius: 16px;
+  background: rgba(255, 245, 207, 0.045);
+}
+
+.truthBoundary strong {
+  color: #ff7e88;
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 0.68rem;
+  letter-spacing: 0.12em;
+}
+
+.truthBoundary p {
+  margin: 0.65rem 0 0;
+  color: rgba(255, 245, 207, 0.68);
+  font-size: 0.88rem;
+  line-height: 1.65;
+}
+
+.controlSection {
+  border-top: 2px solid var(--ink);
+  border-bottom: 2px solid var(--ink);
+  background: rgba(255, 212, 74, 0.68);
+}
+
+.controlCard > span {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border: 1.5px solid var(--ink);
+  border-radius: 50%;
+  color: var(--cream);
+  background: var(--red-dark);
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 0.66rem;
+  font-weight: 850;
+}
+
+.boundaryChain {
+  display: grid;
+  gap: 0.7rem;
+  margin-top: 2rem;
+}
+
+.boundaryChain > div {
+  position: relative;
+  min-height: 116px;
+  padding: 1rem;
+  border: 1.5px solid var(--ink);
+  border-radius: 16px;
+  background: rgba(255, 245, 207, 0.66);
+}
+
+.boundaryChain > div:not(:last-child)::after {
+  content: "↓";
+  position: absolute;
+  left: 50%;
+  bottom: -1.05rem;
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border: 1px solid var(--ink);
+  border-radius: 50%;
+  color: var(--cream);
+  background: var(--red-dark);
+  transform: translateX(-50%);
+}
+
+.boundaryChain span {
+  color: var(--red-dark);
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 0.65rem;
+  font-weight: 850;
+}
+
+.boundaryChain strong {
+  display: block;
+  margin-top: 0.65rem;
+  font-size: 1.02rem;
+}
+
+.boundaryChain p {
+  margin: 0.4rem 0 0;
+  color: rgba(23, 16, 1, 0.68);
+  font-size: 0.82rem;
+  line-height: 1.45;
+}
+
+.evidenceList {
+  display: grid;
+  gap: 0.75rem;
+  margin: 2rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.evidenceList li {
+  display: grid;
+  grid-template-columns: 42px 1fr;
+  gap: 0.8rem;
+  align-items: start;
+  padding: 1rem;
+  border-bottom: 1.5px solid rgba(23, 16, 1, 0.72);
+  background: rgba(255, 234, 160, 0.52);
+}
+
+.evidenceList span {
+  color: var(--red-dark);
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 0.7rem;
+  font-weight: 850;
+}
+
+.evidenceList p {
+  margin: 0;
+  line-height: 1.6;
+}
+
+.telemetrySection {
+  color: var(--cream);
+  background: var(--red-dark);
+  border-top: 2px solid var(--ink);
+  border-bottom: 2px solid var(--ink);
+}
+
+.telemetrySection .kicker {
+  color: var(--yellow-pale);
+}
+
+.telemetrySection h2 {
+  color: var(--cream);
+}
+
+.telemetryGrid > div {
+  border-color: rgba(255, 245, 207, 0.42);
+  background: rgba(255, 245, 207, 0.08);
+  box-shadow: 5px 5px 0 rgba(23, 16, 1, 0.44);
+}
+
+.telemetryGrid span {
+  color: var(--yellow-pale);
+}
+
+.telemetryGrid strong {
+  display: block;
+  margin-top: 0.65rem;
+  font-size: 1.08rem;
+}
+
+.telemetryGrid p {
+  color: rgba(255, 245, 207, 0.72);
+}
+
+.closing {
+  padding: 5.5rem 0 6rem;
+}
+
+.closingPanel {
+  text-align: left;
+}
+
+.closing h2 {
+  max-width: 920px;
+}
+
+.closingPanel > p:not(.kicker) {
+  max-width: 760px;
+  margin: 1.3rem 0 0;
+  color: rgba(23, 16, 1, 0.74);
+  font-size: 1rem;
+  line-height: 1.72;
+}
+
+.finalRule {
+  margin-top: 1.5rem;
+  padding: 1.15rem;
+  border: 2px solid var(--ink);
+  border-radius: 15px;
+  color: var(--cream);
+  background: var(--red-dark);
+  font-size: 1.03rem;
+  font-weight: 760;
+  line-height: 1.52;
+}
+
+.footer {
+  display: grid;
+  gap: 0.45rem;
+  padding: 1.4rem 1rem 1.8rem;
+  border-top: 2px solid var(--ink);
+  color: rgba(23, 16, 1, 0.72);
+  background: rgba(239, 189, 36, 0.9);
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 0.68rem;
+  letter-spacing: 0.08em;
+}
+
+.footer strong {
+  color: var(--ink);
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 0.48; transform: scale(0.88); }
+  50% { opacity: 1; transform: scale(1.08); }
+}
+
+@media (min-width: 680px) {
+  .nav {
+    min-height: 74px;
+    padding: 0 4vw;
+  }
+
+  .navState {
+    max-width: none;
+    font-size: 0.68rem;
+  }
+
+  .hero {
+    min-height: calc(100vh - 74px);
+    padding: 15rem 0 4.8rem;
+  }
+
+  .heroPanel,
+  .closingPanel {
+    padding: clamp(2rem, 4vw, 3.2rem);
+    border-radius: 30px;
+    box-shadow: 13px 13px 0 rgba(23, 16, 1, 0.9);
+  }
+
+  .gateGrid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .section {
+    padding: 6.5rem 0;
+  }
+
+  .sectionHeading {
+    grid-template-columns: minmax(0, 1.2fr) minmax(280px, 0.8fr);
+    align-items: end;
+  }
+
+  .factGrid,
+  .hypothesisGrid,
+  .telemetryGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .scopeGrid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .controlGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .boundaryChain {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+
+  .boundaryChain > div:not(:last-child)::after {
+    content: "→";
+    left: auto;
+    right: -1rem;
+    top: 50%;
+    bottom: auto;
+    transform: translateY(-50%);
+  }
+
+  .footer {
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    padding: 1.5rem 4vw 2rem;
+  }
+}
+
+@media (min-width: 980px) {
+  .controlGrid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .liveDot {
+    animation: none;
+  }
+}
