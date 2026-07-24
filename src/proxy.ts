@@ -1,3 +1,4 @@
+import { createHash } from "node:crypto";
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
@@ -5,10 +6,8 @@ const REPORT_PATH = "/reports/human-authority-boundary-diagnostic";
 const ACCESS_COOKIE = "nw_authority_report_access";
 const ACCESS_SHA256 = "a1def04cfe429762159e14b010a0cd49732063ffbec4016e75b88fba83ae460c";
 
-async function sha256(value: string) {
-  const data = new TextEncoder().encode(value);
-  const digest = await crypto.subtle.digest("SHA-256", data);
-  return Array.from(new Uint8Array(digest), (byte) => byte.toString(16).padStart(2, "0")).join("");
+function hasValidAccess(value: string) {
+  return createHash("sha256").update(value).digest("hex") === ACCESS_SHA256;
 }
 
 function notFoundResponse() {
@@ -23,12 +22,12 @@ function notFoundResponse() {
   });
 }
 
-export async function proxy(request: NextRequest) {
+export function proxy(request: NextRequest) {
   const queryToken = request.nextUrl.searchParams.get("access");
   const cookieToken = request.cookies.get(ACCESS_COOKIE)?.value;
   const candidate = queryToken ?? cookieToken;
 
-  if (!candidate || (await sha256(candidate)) !== ACCESS_SHA256) {
+  if (!candidate || !hasValidAccess(candidate)) {
     return notFoundResponse();
   }
 
@@ -36,7 +35,7 @@ export async function proxy(request: NextRequest) {
     const cleanUrl = request.nextUrl.clone();
     cleanUrl.searchParams.delete("access");
 
-    const response = NextResponse.redirect(cleanUrl, 303);
+    const response = NextResponse.redirect(cleanUrl, { status: 303 });
     response.cookies.set({
       name: ACCESS_COOKIE,
       value: queryToken,
