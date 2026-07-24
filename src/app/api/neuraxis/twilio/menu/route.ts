@@ -15,11 +15,12 @@ import { recordRoomSelection } from "@/lib/neuraxis-call-telemetry";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-function menuChoice(value: string): "1" | "5" | "7" | "9" | "" {
+function menuChoice(value: string): "1" | "5" | "7" | "8" | "9" | "" {
   const normalized = value.toLowerCase().trim();
   if (normalized === "1" || /\b(one|shared|workroom)\b/.test(normalized)) return "1";
   if (normalized === "5" || /\b(five|audit|ai audit)\b/.test(normalized)) return "5";
   if (normalized === "7" || /\b(seven|mr sloth|mister sloth|sloth|quiet booth|observation)\b/.test(normalized)) return "7";
+  if (normalized === "8" || /\b(eight|pressure cooker|kaironull|dane)\b/.test(normalized)) return "8";
   if (normalized === "9" || /\b(nine|private|hive)\b/.test(normalized)) return "9";
   return "";
 }
@@ -39,9 +40,11 @@ export async function POST(request: Request) {
       ? "audit"
       : choice === "7"
         ? "sloth"
-        : choice === "9"
-          ? "private"
-          : undefined;
+        : choice === "8"
+          ? "pressure"
+          : choice === "9"
+            ? "private"
+            : undefined;
 
   if (room && params.CallSid) {
     after(async () => {
@@ -70,6 +73,11 @@ export async function POST(request: Request) {
 
   if (choice === "7") {
     const target = `${origin}/api/neuraxis/twilio/mr-sloth`;
+    return twiml(`<?xml version="1.0" encoding="UTF-8"?><Response><Redirect method="POST">${xmlEscape(target)}</Redirect></Response>`);
+  }
+
+  if (choice === "8") {
+    const target = `${origin}/api/neuraxis/twilio/pressure-cooker`;
     return twiml(`<?xml version="1.0" encoding="UTF-8"?><Response><Redirect method="POST">${xmlEscape(target)}</Redirect></Response>`);
   }
 

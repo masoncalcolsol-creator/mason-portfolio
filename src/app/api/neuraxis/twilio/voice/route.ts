@@ -125,7 +125,7 @@ async function handle(request: Request): Promise<Response> {
 
     const menuUrl = new URL("/api/neuraxis/twilio/menu", request.url).toString();
     const retryUrl = new URL("/api/neuraxis/twilio/voice?telemetry=1", request.url).toString();
-    const prompt = "NEURAXIS is online. Press or say 1 for the shared workroom. Press or say 5 for the operating model audit. Press or say 7 for Mr. Sloth's quiet booth. Press or say 9 for Mason's private Hive.";
+    const prompt = "NEURAXIS is online. Press or say 1 for the shared workroom. Press or say 5 for the operating model audit. Press or say 7 for Mr. Sloth's quiet booth. Press or say 8 for the password protected NULLWORKS Pressure Cooker Workroom. Press or say 9 for Mason's private Hive.";
     return twiml(`<?xml version="1.0" encoding="UTF-8"?>
 <Response>
   <Gather input="speech dtmf" numDigits="1" timeout="7" speechTimeout="2" actionOnEmptyResult="true" method="POST" action="${xmlEscape(menuUrl)}">
@@ -137,17 +137,24 @@ async function handle(request: Request): Promise<Response> {
   }
 
   const status = await readHiveStatus();
-  const commandRoom = room === "private" ? "private" : "workroom";
-  const commandUrl = new URL(`/api/neuraxis/twilio/command?room=${commandRoom}`, request.url).toString();
+  const commandRoom = room === "private" ? "private" : room === "pressure" ? "pressure" : "workroom";
+  const commandPath = commandRoom === "pressure"
+    ? "/api/neuraxis/twilio/pressure-cooker/command"
+    : `/api/neuraxis/twilio/command?room=${commandRoom}`;
+  const commandUrl = new URL(commandPath, request.url).toString();
   const opener = isLoop
     ? "I'm listening."
     : commandRoom === "private"
       ? status.ok
         ? "Mason's private Hive is online. What are we working on?"
         : "Mason's private lane is online, but the Hive connection is unavailable. What do you need?"
-      : status.ok
-        ? "Shared NEURAXIS workroom online. What are we working on?"
-        : "The workroom is online, but the Hive connection is unavailable. What do you need?";
+      : commandRoom === "pressure"
+        ? status.ok
+          ? "NULLWORKS Pressure Cooker Workroom online. The KairoNull triple blind baseline, architecture findings, remediation plan, and repair diagnostics context are loaded. What would you like to examine?"
+          : "The Pressure Cooker Workroom is open, but the Hive context is unavailable. Please try again shortly."
+        : status.ok
+          ? "Shared NEURAXIS workroom online. What are we working on?"
+          : "The workroom is online, but the Hive connection is unavailable. What do you need?";
 
   return twiml(`<?xml version="1.0" encoding="UTF-8"?>
 <Response>
