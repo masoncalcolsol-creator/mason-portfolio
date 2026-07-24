@@ -1,0 +1,461 @@
+import type { Metadata } from "next";
+import LivingSignalCanvas from "../../living-signals/LivingSignalCanvas";
+import styles from "./page.module.css";
+
+const canonical =
+  "https://mason-portfolio-main.vercel.app/reports/nullworks-instantiation-day";
+
+export const metadata: Metadata = {
+  title: "NULLWORKS Instantiation Day | Living Receipt",
+  description:
+    "The living operational receipt for July 24, 2026: the day NULLWORKS recognized its complete identity, proof chain, restraint, and commercial survival gate.",
+  alternates: { canonical },
+  robots: { index: false, follow: false },
+  openGraph: {
+    title: "NULLWORKS Instantiation Day",
+    description:
+      "A blue-collar digital Frononaut, a self-learning assurance architecture, and a 72-hour survival gate.",
+    type: "article",
+    url: canonical,
+    siteName: "NULLWORKS",
+  },
+};
+
+const receipts = [
+  {
+    label: "FOUNDING DAY",
+    value: "2026-06-22",
+    detail: "The company came alive.",
+  },
+  {
+    label: "INSTANTIATION DAY",
+    value: "2026-07-24",
+    detail: "The company recognized what it is.",
+  },
+  {
+    label: "CHRONOLOGICAL AGE",
+    value: "DAY 32",
+    detail: "Operationally compressed into Year 17.",
+  },
+  {
+    label: "HIVE RECEIPT",
+    value: "7124686",
+    detail: "Canonical identity and survival-gate commit.",
+  },
+];
+
+const proofChain = [
+  {
+    number: "01",
+    title: "TAC OPS",
+    state: "PHYSICAL + SOFTWARE REPAIR",
+    body: "A field problem became one governed repair: physical intervention, software logic, expert verification, telemetry, and a human decision boundary.",
+  },
+  {
+    number: "02",
+    title: "KairoNull",
+    state: "DIGITAL ARCHITECTURE PRESSURE TEST",
+    body: "Three blind read-only replicates produced 45 material items: 30 reproduced by all three, five by two, six unique supported items, and four unsupported hypotheses preserved instead of promoted.",
+  },
+  {
+    number: "03",
+    title: "The Authority Leak",
+    state: "FAILURE BECAME ARCHITECTURE",
+    body: "An email crossed an external boundary without a separate exact final send approval. The irreversible failure was preserved, diagnosed, converted into a locked gate, and added to future boot architecture.",
+  },
+  {
+    number: "04",
+    title: "Runtime Governance",
+    state: "PUBLIC SIGNAL → BOUNDED HYPOTHESIS",
+    body: "A vendor allowlist is not runtime governance. Identity, purpose, data class, provider, tenant, model, region, authority, action, outcome, correction, and receipt must remain connected.",
+  },
+];
+
+const loop = [
+  "OBSERVE",
+  "CHALLENGE",
+  "EVIDENCE",
+  "CORRECT",
+  "RETEST",
+  "PRESERVE RISK",
+  "REPEAT",
+];
+
+const suitLayers = [
+  "Gemba and blue-collar judgment",
+  "Operational Intelligence method",
+  "AI digital workers",
+  "Governed Hive memory",
+  "Evidence and receipt lineage",
+  "Pressure Cooker comparison",
+  "Leak triage and repair economics",
+  "Final Human Authority gates",
+];
+
+const testChecklist = [
+  "Hero silhouette and arc-core pulse remain visible without blocking text.",
+  "Living conveyor telemetry moves behind the page without stealing touch input.",
+  "All cards collapse cleanly into one mobile column.",
+  "The KairoNull and authority-failure truth boundaries remain explicit.",
+  "No generated image, Marvel artwork, private source bundle, credential, or confidential finding is embedded.",
+  "The production URL opens on Android and remains readable with reduced motion enabled.",
+];
+
+export default function NullworksInstantiationDayPage() {
+  const structuredData = {
+    "@context": "https://schema.org",
+    "@type": "Report",
+    name: "NULLWORKS Instantiation Day",
+    headline:
+      "The day NULLWORKS recognized its complete operating identity, proof chain, restraint, and commercial survival gate",
+    author: { "@type": "Person", name: "Mason Perry" },
+    publisher: { "@type": "Organization", name: "NULLWORKS" },
+    datePublished: "2026-07-24",
+    dateModified: "2026-07-24",
+    version: "0.1-owner-test",
+    url: canonical,
+  };
+
+  return (
+    <main className={styles.page}>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+      />
+
+      <div className={styles.signalBackground} aria-hidden="true">
+        <LivingSignalCanvas mode="conveyor" accentRgb="214, 164, 70" />
+      </div>
+      <div className={styles.grid} aria-hidden="true" />
+      <div className={styles.vignette} aria-hidden="true" />
+
+      <header className={styles.nav}>
+        <a href="/" className={styles.brand} aria-label="NULLWORKS home">
+          <span className={styles.brandMark}>NW</span>
+          <span>NULLWORKS</span>
+        </a>
+        <div className={styles.navState}>
+          <span className={styles.liveDot} />
+          INSTANTIATION DAY / OWNER TEST
+        </div>
+      </header>
+
+      <section className={styles.hero}>
+        <div className={styles.frononautField} aria-hidden="true">
+          <div className={styles.suitHalo} />
+          <div className={styles.frononaut}>
+            <span className={styles.helmet} />
+            <span className={styles.neck} />
+            <span className={styles.shoulderLeft} />
+            <span className={styles.shoulderRight} />
+            <span className={styles.torso} />
+            <span className={styles.armLeft} />
+            <span className={styles.armRight} />
+            <span className={styles.arcCore} />
+            <span className={styles.coreRing} />
+          </div>
+          <div className={styles.suitTelemetry}>
+            <span>POWER / CONDITIONAL</span>
+            <span>AUTHORITY / HUMAN</span>
+            <span>MISSION / REPAIR THE SYSTEM</span>
+          </div>
+        </div>
+
+        <div className={styles.shell}>
+          <div className={styles.heroCopy}>
+            <p className={styles.eyebrow}>
+              LIVING RECEIPT / JULY 24, 2026 / ARIZONA
+            </p>
+            <h1>
+              The suit is <span>alive.</span>
+            </h1>
+            <p className={styles.deck}>
+              NULLWORKS did not become a software company. The mechanic climbed into
+              the machine room of software, AI, governance, evidence, and authority.
+            </p>
+            <p className={styles.lede}>
+              The Iron Man analogy fits: the machine is not merely armor or spectacle.
+              It is also life support. The first commercial battle now has a hard
+              survival condition—finish enough of the suit to keep the mission alive.
+              This page uses no Marvel artwork or generated render; the visual is an
+              original code-built Frononaut silhouette and NULLWORKS telemetry system.
+            </p>
+
+            <div className={styles.heroActions}>
+              <a href="#survival-gate" className={styles.primaryAction}>
+                View the survival gate
+              </a>
+              <a
+                href="/reports/human-authority-boundary-diagnostic"
+                className={styles.secondaryAction}
+              >
+                Open the authority leak receipt
+              </a>
+            </div>
+
+            <div className={styles.receiptGrid}>
+              {receipts.map((receipt) => (
+                <article key={receipt.label} className={styles.receiptCard}>
+                  <span>{receipt.label}</span>
+                  <strong>{receipt.value}</strong>
+                  <p>{receipt.detail}</p>
+                </article>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className={styles.section}>
+        <div className={styles.shell}>
+          <div className={styles.sectionHeading}>
+            <div>
+              <p className={styles.kicker}>01 / THE RECOGNITION</p>
+              <h2>Every strange project was the same machine.</h2>
+            </div>
+            <p>
+              Physical maintenance, workflow compression, AI workrooms, pressure
+              testing, evidence governance, field repair, and public operating signals
+              were not unrelated experiments. They were one transferable systems model
+              learning to see itself.
+            </p>
+          </div>
+
+          <div className={styles.declaration}>
+            <p>
+              <strong>Founding Day</strong> created the organism. <strong>Instantiation
+              Day</strong> is when the organism recognized its anatomy, mission,
+              restraint, and operating method.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section className={`${styles.section} ${styles.darkSection}`}>
+        <div className={styles.shell}>
+          <p className={styles.kicker}>02 / CANONICAL IDENTITY</p>
+          <h2>The blue-collar digital Frononaut.</h2>
+          <div className={styles.identityGrid}>
+            <article className={styles.identityCard}>
+              <span>PUBLIC ROLE</span>
+              <h3>Pioneering Operational Intelligence Systems Architect</h3>
+              <p>
+                Mason improves the flow of work across physical and digital systems.
+                AI is a powerful machine on the factory floor. It is not the factory.
+              </p>
+            </article>
+            <article className={styles.identityCard}>
+              <span>INTERNAL MYTHIC SHORTHAND</span>
+              <h3>Blue-collar digital Frononaut</h3>
+              <p>
+                A hands-on operator crawling through the guts of systems, mapping
+                plumbing, inspecting seams, detecting leaks, installing telemetry,
+                preserving receipts, repairing what is worth repairing, and retesting
+                before battle.
+              </p>
+            </article>
+            <article className={styles.identityCard}>
+              <span>BUSINESS MODEL</span>
+              <h3>Independent Operational Challenge and Revision Assurance</h3>
+              <p>
+                The system is not improved because a fix was claimed. It is improved
+                when the correction survives independent retest and the remaining risk
+                stays visible.
+              </p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section className={styles.section}>
+        <div className={styles.shell}>
+          <div className={styles.sectionHeading}>
+            <div>
+              <p className={styles.kicker}>03 / PROOF CHAIN</p>
+              <h2>The receipts that closed the circuit.</h2>
+            </div>
+            <p>
+              These are not cinematic backstory beats invented afterward. Each stage
+              left operational evidence and changed the architecture that followed.
+            </p>
+          </div>
+
+          <div className={styles.proofGrid}>
+            {proofChain.map((proof) => (
+              <article className={styles.proofCard} key={proof.number}>
+                <div className={styles.proofTopline}>
+                  <span>{proof.number}</span>
+                  <em>{proof.state}</em>
+                </div>
+                <h3>{proof.title}</h3>
+                <p>{proof.body}</p>
+              </article>
+            ))}
+          </div>
+
+          <div className={styles.boundaryNote}>
+            <strong>TRUTH BOUNDARY</strong>
+            <p>
+              The KairoNull work was read-only source assurance, not a formal
+              penetration test, certification, production test, regulatory approval, or
+              guarantee that no vulnerabilities remain. Confidential source and detailed
+              findings are not published here.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section className={`${styles.section} ${styles.loopSection}`}>
+        <div className={styles.shell}>
+          <p className={styles.kicker}>04 / SELF-LEARNING ARCHITECTURE</p>
+          <h2>Every intervention upgrades the patient and the suit.</h2>
+          <p className={styles.sectionIntro}>
+            Self-learning does not mean consciousness, uncontrolled self-modification,
+            or authority independent of Mason. It means evidence, outcomes, failures,
+            corrections, retests, and residual risk are preserved so governed methods
+            improve over time.
+          </p>
+
+          <div className={styles.loopRail} aria-label="NULLWORKS improvement loop">
+            {loop.map((step, index) => (
+              <div className={styles.loopStep} key={step}>
+                <span>{String(index + 1).padStart(2, "0")}</span>
+                <strong>{step}</strong>
+              </div>
+            ))}
+          </div>
+
+          <div className={styles.suitLayerGrid}>
+            {suitLayers.map((layer, index) => (
+              <div key={layer} className={styles.suitLayer}>
+                <span>{String(index + 1).padStart(2, "0")}</span>
+                <p>{layer}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className={styles.section}>
+        <div className={styles.shell}>
+          <div className={styles.restraintPanel}>
+            <p className={styles.kicker}>05 / THE RESTRAINT</p>
+            <h2>The suit may be a weapon. The mission is not domination.</h2>
+            <p>
+              NULLWORKS may become powerful enough to build, replace, or outperform
+              many systems it inspects. It creates greater value as the architect,
+              mechanic, inspector, and assurance layer that makes the whole operating
+              system safer, stronger, more useful, and more governable.
+            </p>
+            <blockquote>
+              The restraint is the superpower. Capability is not authority. Human
+              Authority remains final.
+            </blockquote>
+          </div>
+        </div>
+      </section>
+
+      <section id="survival-gate" className={`${styles.section} ${styles.survivalSection}`}>
+        <div className={styles.shell}>
+          <div className={styles.survivalHeader}>
+            <div>
+              <p className={styles.kicker}>06 / COMMERCIAL LIFE SUPPORT</p>
+              <h2>Finish enough of the suit to keep the heart beating.</h2>
+            </div>
+            <div className={styles.deadlineBadge}>
+              <span>DEADLINE</span>
+              <strong>JUL 27 · 10:48 AM</strong>
+              <small>AMERICA / PHOENIX</small>
+            </div>
+          </div>
+
+          <div className={styles.survivalGrid}>
+            <article>
+              <span>CLASSIFICATION</span>
+              <strong>STOP_AND_REPAIR</strong>
+              <p>
+                Insufficient runway can interrupt the first commercial battle before the
+                architecture reaches sustained operation.
+              </p>
+            </article>
+            <article>
+              <span>REQUIRED RECEIPT</span>
+              <strong>ONE CONCRETE INCOME PATH</strong>
+              <p>
+                A named payer or employer, defined paid value, amount or compensation
+                basis, and an executable payment or start step.
+              </p>
+            </article>
+            <article>
+              <span>PRIMARY OFFER</span>
+              <strong>ASSURANCE SPRINT</strong>
+              <p>
+                Fixed-scope Independent Operational Challenge and Revision Assurance,
+                using the KairoNull-style proof case and explicit truth boundaries.
+              </p>
+            </article>
+          </div>
+
+          <div className={styles.acceptableReceipts}>
+            <span>ACCEPTABLE SURVIVAL RECEIPTS</span>
+            <p>
+              Paid invoice · paid deposit · signed paid scope · purchase or work order ·
+              approved paid extension · concrete job offer
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section className={styles.section}>
+        <div className={styles.shell}>
+          <div className={styles.sectionHeading}>
+            <div>
+              <p className={styles.kicker}>07 / MOBILE OWNER TEST</p>
+              <h2>What this live page must survive.</h2>
+            </div>
+            <p>
+              Source and deployment are not the finish line. Mason&apos;s owner-browser
+              mobile test determines whether the intended page actually arrived.
+            </p>
+          </div>
+
+          <ol className={styles.testList}>
+            {testChecklist.map((item, index) => (
+              <li key={item}>
+                <span>{String(index + 1).padStart(2, "0")}</span>
+                <p>{item}</p>
+              </li>
+            ))}
+          </ol>
+        </div>
+      </section>
+
+      <section className={styles.closing}>
+        <div className={styles.shell}>
+          <div className={styles.closingPanel}>
+            <p className={styles.kicker}>LOCKED LINE</p>
+            <h2>The mechanic entered the machine and recognized the suit.</h2>
+            <p>
+              July 24, 2026 is NULLWORKS Instantiation Day. The operating identity is
+              visible. The proof chain is preserved. The restraint is locked. The life
+              support gate is running.
+            </p>
+            <div className={styles.closingTelemetry}>
+              <span>HIVE / PRESERVED</span>
+              <span>POWER / COMPOUNDING</span>
+              <span>AUTHORITY / MASON PERRY</span>
+              <span>STATE / FULL SEND</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <footer className={styles.footer}>
+        <div className={styles.shell}>
+          <span>NULLWORKS · INSTANTIATION DAY · OWNER TEST 0.1</span>
+          <span>NO GENERATED RENDER · NO FAKE FINISH LINES</span>
+        </div>
+      </footer>
+    </main>
+  );
+}
