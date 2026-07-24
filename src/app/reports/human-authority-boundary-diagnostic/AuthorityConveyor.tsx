@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from "react";
 
-type PackageBox = {
+type FallingParcel = {
   x: number;
   y: number;
   vx: number;
@@ -11,9 +11,11 @@ type PackageBox = {
   height: number;
   rotation: number;
   rotationVelocity: number;
-  sleep: number;
+  settled: number;
 };
 
+const AMBER = "255, 216, 77";
+const RED = "255, 78, 88";
 const clamp = (value: number, minimum: number, maximum: number) =>
   Math.max(minimum, Math.min(maximum, value));
 
@@ -31,20 +33,22 @@ export default function AuthorityConveyor() {
     let width = 0;
     let height = 0;
     let dpr = 1;
-    let lastTime = performance.now();
     let elapsed = 0;
-    let nextSpawnAt = 300;
+    let lastTime = performance.now();
+    let nextDropAt = 650;
     let resetAt = 0;
-    let resetFlash = 0;
-    const packages: PackageBox[] = [];
+    const falling: FallingParcel[] = [];
+
+    const amber = (alpha: number) => `rgba(${AMBER}, ${alpha})`;
+    const red = (alpha: number) => `rgba(${RED}, ${alpha})`;
 
     const geometry = () => {
       const mobile = width < 700;
-      const conveyorY = Math.max(mobile ? 138 : 154, height * (mobile ? 0.235 : 0.255));
-      const conveyorStart = width * (mobile ? 0.035 : 0.06);
-      const dropX = width * (mobile ? 0.72 : 0.79);
-      const floorY = height - 3;
-      return { mobile, conveyorY, conveyorStart, dropX, floorY };
+      const conveyorY = Math.max(mobile ? 142 : 162, height * (mobile ? 0.225 : 0.245));
+      const startX = width * (mobile ? 0.04 : 0.07);
+      const endX = width * (mobile ? 0.77 : 0.82);
+      const floorY = height - 2;
+      return { mobile, conveyorY, startX, endX, floorY };
     };
 
     const resize = () => {
@@ -56,155 +60,17 @@ export default function AuthorityConveyor() {
       canvas.style.width = `${width}px`;
       canvas.style.height = `${height}px`;
       context.setTransform(dpr, 0, 0, dpr, 0, 0);
-      packages.splice(0, packages.length);
+      falling.splice(0, falling.length);
       resetAt = 0;
-      resetFlash = 0;
-    };
-
-    const spawnPackage = () => {
-      const { mobile, conveyorY, dropX } = geometry();
-      const scale = mobile ? 0.9 : 1;
-      const packageWidth = (18 + Math.random() * 10) * scale;
-      const packageHeight = (13 + Math.random() * 8) * scale;
-      packages.push({
-        x: dropX + (Math.random() - 0.5) * 8,
-        y: conveyorY - 20,
-        vx: (Math.random() - 0.42) * (mobile ? 34 : 42),
-        vy: 18 + Math.random() * 12,
-        width: packageWidth,
-        height: packageHeight,
-        rotation: (Math.random() - 0.5) * 0.24,
-        rotationVelocity: (Math.random() - 0.5) * 1.2,
-        sleep: 0,
-      });
-    };
-
-    const seedReducedMotionPile = () => {
-      const { dropX, floorY } = geometry();
-      packages.splice(0, packages.length);
-      const boxWidth = width < 700 ? 20 : 24;
-      const boxHeight = width < 700 ? 15 : 18;
-      for (let row = 0; row < 7; row += 1) {
-        const count = 9 - row;
-        for (let column = 0; column < count; column += 1) {
-          packages.push({
-            x: dropX + (column - (count - 1) / 2) * (boxWidth + 1),
-            y: floorY - boxHeight / 2 - row * (boxHeight + 1),
-            vx: 0,
-            vy: 0,
-            width: boxWidth,
-            height: boxHeight,
-            rotation: (column % 2 ? 1 : -1) * 0.035,
-            rotationVelocity: 0,
-            sleep: 999,
-          });
-        }
-      }
-    };
-
-    const resolvePhysics = (dt: number) => {
-      const { conveyorY, dropX, floorY } = geometry();
-      const gravity = 355;
-
-      packages.forEach((item) => {
-        if (item.sleep > 0.9) return;
-        item.vy += gravity * dt;
-        item.vx *= Math.pow(0.992, dt * 60);
-        item.rotationVelocity *= Math.pow(0.985, dt * 60);
-        item.x += item.vx * dt;
-        item.y += item.vy * dt;
-        item.rotation += item.rotationVelocity * dt;
-
-        const halfWidth = item.width / 2;
-        const halfHeight = item.height / 2;
-        if (item.x - halfWidth < 2) {
-          item.x = halfWidth + 2;
-          item.vx = Math.abs(item.vx) * 0.34;
-        }
-        if (item.x + halfWidth > width - 2) {
-          item.x = width - halfWidth - 2;
-          item.vx = -Math.abs(item.vx) * 0.34;
-        }
-        if (item.y + halfHeight > floorY) {
-          item.y = floorY - halfHeight;
-          item.vy *= -0.19;
-          item.vx *= 0.76;
-          item.rotationVelocity *= 0.55;
-          if (Math.abs(item.vy) < 9 && Math.abs(item.vx) < 5) item.sleep += dt * 1.3;
-        }
-      });
-
-      for (let pass = 0; pass < 3; pass += 1) {
-        for (let i = 0; i < packages.length; i += 1) {
-          const upper = packages[i];
-          for (let j = 0; j < packages.length; j += 1) {
-            if (i === j) continue;
-            const lower = packages[j];
-            if (upper.y >= lower.y) continue;
-
-            const overlapX =
-              upper.width / 2 + lower.width / 2 - Math.abs(upper.x - lower.x);
-            const overlapY =
-              upper.height / 2 + lower.height / 2 - Math.abs(upper.y - lower.y);
-            if (overlapX <= 0 || overlapY <= 0) continue;
-
-            if (overlapY <= overlapX * 1.18) {
-              upper.y -= overlapY + 0.35;
-              if (upper.vy > 0) upper.vy *= -0.12;
-              const direction = upper.x === lower.x ? (Math.random() > 0.5 ? 1 : -1) : Math.sign(upper.x - lower.x);
-              upper.vx += direction * (3.5 + overlapY * 0.34);
-              upper.rotationVelocity += direction * 0.08;
-              upper.sleep = Math.max(0, upper.sleep - 0.08);
-            } else {
-              const direction = upper.x < lower.x ? -1 : 1;
-              upper.x += direction * overlapX * 0.52;
-              upper.vx += direction * 7;
-            }
-          }
-        }
-      }
-
-      packages.forEach((item) => {
-        if (item.sleep > 0.75) {
-          item.vx *= 0.7;
-          item.vy = 0;
-          item.rotationVelocity *= 0.6;
-        }
-      });
-
-      if (packages.length > 32) {
-        const highestTop = Math.min(...packages.map((item) => item.y - item.height / 2));
-        if (highestTop <= conveyorY + 24 && resetAt === 0) {
-          resetAt = elapsed + 1300;
-          resetFlash = 1;
-        }
-      }
-
-      if (resetAt > 0 && elapsed >= resetAt) {
-        packages.splice(0, packages.length);
-        resetAt = 0;
-        resetFlash = 0;
-        nextSpawnAt = elapsed + 900;
-      }
-
-      if (packages.length > 170) packages.splice(0, packages.length - 170);
-
-      const pileCenter = packages.length
-        ? packages.reduce((sum, item) => sum + item.x, 0) / packages.length
-        : dropX;
-      packages.forEach((item) => {
-        if (item.y < floorY - height * 0.19 && item.sleep < 0.8) {
-          item.vx += Math.sign(item.x - pileCenter || Math.random() - 0.5) * dt * 6;
-        }
-      });
+      nextDropAt = elapsed + 650;
     };
 
     const drawGrid = () => {
+      const step = width < 700 ? 30 : 36;
       context.save();
-      context.strokeStyle = "rgba(20, 14, 0, 0.075)";
+      context.strokeStyle = amber(0.026);
       context.lineWidth = 1;
       context.beginPath();
-      const step = width < 700 ? 28 : 36;
       for (let x = 0; x <= width; x += step) {
         context.moveTo(x + 0.5, 0);
         context.lineTo(x + 0.5, height);
@@ -214,138 +80,314 @@ export default function AuthorityConveyor() {
         context.lineTo(width, y + 0.5);
       }
       context.stroke();
+
+      context.strokeStyle = amber(0.052);
+      context.beginPath();
+      for (let x = 0; x <= width; x += step * 5) {
+        context.moveTo(x + 0.5, 0);
+        context.lineTo(x + 0.5, height);
+      }
+      for (let y = 0; y <= height; y += step * 5) {
+        context.moveTo(0, y + 0.5);
+        context.lineTo(width, y + 0.5);
+      }
+      context.stroke();
       context.restore();
     };
 
-    const drawPackage = (item: PackageBox, alpha = 1) => {
+    const drawSweep = (time: number) => {
+      const span = width + 360;
+      const x = ((time * 0.036) % span) - 180;
+      const gradient = context.createLinearGradient(x - 240, 0, x + 20, 0);
+      gradient.addColorStop(0, amber(0));
+      gradient.addColorStop(0.84, amber(0.04));
+      gradient.addColorStop(1, amber(0.16));
       context.save();
-      context.translate(item.x, item.y);
-      context.rotate(item.rotation);
-      context.globalAlpha = alpha;
-      context.fillStyle = "#d51d2e";
-      context.strokeStyle = "rgba(18, 8, 2, 0.88)";
-      context.lineWidth = 1.25;
-      context.shadowColor = "rgba(88, 8, 12, 0.22)";
-      context.shadowBlur = 7;
-      context.fillRect(-item.width / 2, -item.height / 2, item.width, item.height);
-      context.shadowBlur = 0;
-      context.strokeRect(-item.width / 2, -item.height / 2, item.width, item.height);
-      context.strokeStyle = "rgba(255, 222, 172, 0.62)";
-      context.lineWidth = 1;
+      context.fillStyle = gradient;
+      context.fillRect(Math.max(0, x - 240), 0, 260, height);
+      context.strokeStyle = amber(0.23);
       context.beginPath();
-      context.moveTo(-item.width * 0.18, -item.height / 2);
-      context.lineTo(item.width * 0.18, item.height / 2);
+      context.moveTo(x, 0);
+      context.lineTo(x, height);
+      context.stroke();
+      context.restore();
+    };
+
+    const parcelPoint = (progress: number, lane = 0) => {
+      const { conveyorY, startX, endX } = geometry();
+      const x = startX + (endX - startX) * progress;
+      const rise = progress > 0.42 && progress < 0.66
+        ? -Math.sin(((progress - 0.42) / 0.24) * Math.PI) * Math.min(34, height * 0.045)
+        : 0;
+      return { x, y: conveyorY + lane * 30 + rise };
+    };
+
+    const drawParcel = (
+      x: number,
+      y: number,
+      parcelWidth: number,
+      parcelHeight: number,
+      color: "amber" | "red",
+      alpha: number,
+      rotation = 0,
+    ) => {
+      context.save();
+      context.translate(x, y);
+      context.rotate(rotation);
+      context.strokeStyle = color === "red" ? red(alpha) : amber(alpha);
+      context.fillStyle = color === "red" ? red(alpha * 0.12) : amber(alpha * 0.075);
+      context.shadowColor = color === "red" ? red(alpha * 0.8) : amber(alpha * 0.42);
+      context.shadowBlur = color === "red" ? 12 : 5;
+      context.lineWidth = 1.15;
+      context.fillRect(-parcelWidth / 2, -parcelHeight / 2, parcelWidth, parcelHeight);
+      context.strokeRect(-parcelWidth / 2, -parcelHeight / 2, parcelWidth, parcelHeight);
+      context.shadowBlur = 0;
+      context.strokeStyle = color === "red" ? red(alpha * 0.7) : amber(alpha * 0.32);
+      context.beginPath();
+      context.moveTo(-parcelWidth * 0.18, -parcelHeight / 2);
+      context.lineTo(parcelWidth * 0.18, parcelHeight / 2);
       context.stroke();
       context.restore();
     };
 
     const drawConveyor = (time: number) => {
-      const { mobile, conveyorY, conveyorStart, dropX } = geometry();
-      const beltHeight = mobile ? 24 : 28;
-
+      const { mobile, conveyorY, startX, endX } = geometry();
       context.save();
-      context.fillStyle = "rgba(22, 15, 1, 0.92)";
-      context.fillRect(conveyorStart, conveyorY - beltHeight / 2, dropX - conveyorStart, beltHeight);
-      context.strokeStyle = "rgba(22, 15, 1, 0.94)";
-      context.lineWidth = 3;
-      context.strokeRect(conveyorStart, conveyorY - beltHeight / 2, dropX - conveyorStart, beltHeight);
+      context.strokeStyle = amber(0.18);
+      context.lineWidth = 1.7;
+      context.beginPath();
+      for (let i = 0; i <= 120; i += 1) {
+        const point = parcelPoint(i / 120);
+        if (i === 0) context.moveTo(point.x, point.y);
+        else context.lineTo(point.x, point.y);
+      }
+      context.stroke();
 
-      const rollerSpacing = mobile ? 30 : 38;
-      const rollerOffset = (time * 0.028) % rollerSpacing;
-      for (let x = conveyorStart - rollerOffset; x < dropX; x += rollerSpacing) {
-        context.strokeStyle = "rgba(240, 188, 31, 0.52)";
-        context.lineWidth = 2;
+      context.strokeStyle = amber(0.075);
+      context.lineWidth = 1;
+      for (let i = 0; i < 22; i += 1) {
+        const point = parcelPoint(i / 21);
         context.beginPath();
-        context.moveTo(x, conveyorY - beltHeight / 2 + 3);
-        context.lineTo(x + beltHeight * 0.45, conveyorY + beltHeight / 2 - 3);
+        context.arc(point.x, point.y + 9, 3.2, 0, Math.PI * 2);
         context.stroke();
       }
 
-      context.strokeStyle = "rgba(22, 15, 1, 0.9)";
-      context.lineWidth = 4;
+      context.strokeStyle = amber(0.11);
       context.beginPath();
-      context.moveTo(conveyorStart + 18, conveyorY + beltHeight / 2);
-      context.lineTo(conveyorStart + 5, conveyorY + 76);
-      context.moveTo(dropX - 18, conveyorY + beltHeight / 2);
-      context.lineTo(dropX - 5, conveyorY + 76);
+      context.moveTo(startX + 24, conveyorY + 12);
+      context.lineTo(startX + 7, conveyorY + 82);
+      context.moveTo(endX - 20, conveyorY + 12);
+      context.lineTo(endX - 3, conveyorY + 82);
       context.stroke();
 
-      const beltSpan = dropX - conveyorStart;
-      const movingCount = mobile ? 5 : 7;
-      for (let index = 0; index < movingCount; index += 1) {
-        const progress = ((time * 0.000055 + index / movingCount) % 1 + 1) % 1;
-        const x = conveyorStart + 18 + progress * Math.max(1, beltSpan - 42);
-        drawPackage({
-          x,
-          y: conveyorY - beltHeight / 2 - 9,
-          vx: 0,
-          vy: 0,
-          width: mobile ? 18 : 22,
-          height: mobile ? 13 : 15,
-          rotation: 0,
-          rotationVelocity: 0,
-          sleep: 1,
-        }, 0.88);
+      const count = mobile ? 6 : 9;
+      for (let index = 0; index < count; index += 1) {
+        const progress = ((time * 0.000052 + index / count) % 1 + 1) % 1;
+        const point = parcelPoint(progress);
+        const nearExit = progress > 0.9;
+        drawParcel(
+          point.x,
+          point.y - 11,
+          mobile ? 18 : 21,
+          mobile ? 13 : 15,
+          nearExit && index % 4 === 0 ? "red" : "amber",
+          nearExit && index % 4 === 0 ? 0.68 : 0.36,
+        );
       }
 
-      context.fillStyle = "#d51d2e";
-      context.strokeStyle = "rgba(22, 15, 1, 0.92)";
-      context.lineWidth = 2;
+      context.strokeStyle = red(0.74);
+      context.fillStyle = red(0.1);
+      context.shadowColor = red(0.7);
+      context.shadowBlur = 13;
+      context.lineWidth = 1.4;
       context.beginPath();
-      context.moveTo(dropX - 3, conveyorY - 27);
-      context.lineTo(dropX + 18, conveyorY - 12);
-      context.lineTo(dropX + 4, conveyorY + 8);
+      context.moveTo(endX - 6, conveyorY - 26);
+      context.lineTo(endX + 14, conveyorY - 10);
+      context.lineTo(endX + 2, conveyorY + 9);
       context.closePath();
       context.fill();
       context.stroke();
+      context.shadowBlur = 0;
 
-      context.fillStyle = "rgba(22, 15, 1, 0.76)";
+      context.fillStyle = amber(0.38);
       context.font = `${mobile ? 9 : 10}px ui-monospace, SFMono-Regular, Menlo, monospace`;
-      context.letterSpacing = "0.12em";
-      context.fillText("PREPARE / DRAFT / STAGE", conveyorStart, conveyorY - 43);
-      context.fillStyle = "#a30e1e";
-      context.fillText("EXTERNAL BOUNDARY", Math.max(conveyorStart, dropX - (mobile ? 118 : 132)), conveyorY + 101);
+      context.fillText("PREPARE / DRAFT / STAGE", startX, conveyorY - 42);
+      context.fillStyle = red(0.48);
+      context.fillText("EXTERNAL ACTION", Math.max(startX, endX - (mobile ? 112 : 126)), conveyorY + 104);
       context.restore();
     };
 
-    const draw = (time: number) => {
+    const spawn = () => {
+      const { mobile, conveyorY, endX } = geometry();
+      const scale = mobile ? 0.86 : 1;
+      falling.push({
+        x: endX + 3 + (Math.random() - 0.5) * 7,
+        y: conveyorY - 6,
+        vx: (Math.random() - 0.58) * (mobile ? 30 : 38),
+        vy: 20 + Math.random() * 15,
+        width: (18 + Math.random() * 8) * scale,
+        height: (13 + Math.random() * 6) * scale,
+        rotation: (Math.random() - 0.5) * 0.2,
+        rotationVelocity: (Math.random() - 0.5) * 1.1,
+        settled: 0,
+      });
+    };
+
+    const resolvePhysics = (dt: number) => {
+      const { conveyorY, floorY, endX } = geometry();
+      const gravity = 340;
+
+      falling.forEach((item) => {
+        if (item.settled > 0.95) return;
+        item.vy += gravity * dt;
+        item.vx *= Math.pow(0.993, dt * 60);
+        item.rotationVelocity *= Math.pow(0.986, dt * 60);
+        item.x += item.vx * dt;
+        item.y += item.vy * dt;
+        item.rotation += item.rotationVelocity * dt;
+
+        const halfWidth = item.width / 2;
+        const halfHeight = item.height / 2;
+        if (item.x - halfWidth < 1) {
+          item.x = halfWidth + 1;
+          item.vx = Math.abs(item.vx) * 0.28;
+        }
+        if (item.x + halfWidth > width - 1) {
+          item.x = width - halfWidth - 1;
+          item.vx = -Math.abs(item.vx) * 0.28;
+        }
+        if (item.y + halfHeight > floorY) {
+          item.y = floorY - halfHeight;
+          item.vy *= -0.18;
+          item.vx *= 0.74;
+          item.rotationVelocity *= 0.52;
+          if (Math.abs(item.vy) < 8 && Math.abs(item.vx) < 4.5) item.settled += dt * 1.35;
+        }
+      });
+
+      for (let pass = 0; pass < 3; pass += 1) {
+        for (let i = 0; i < falling.length; i += 1) {
+          const upper = falling[i];
+          for (let j = 0; j < falling.length; j += 1) {
+            if (i === j) continue;
+            const lower = falling[j];
+            if (upper.y >= lower.y) continue;
+            const overlapX = upper.width / 2 + lower.width / 2 - Math.abs(upper.x - lower.x);
+            const overlapY = upper.height / 2 + lower.height / 2 - Math.abs(upper.y - lower.y);
+            if (overlapX <= 0 || overlapY <= 0) continue;
+
+            if (overlapY <= overlapX * 1.15) {
+              upper.y -= overlapY + 0.3;
+              if (upper.vy > 0) upper.vy *= -0.1;
+              const direction = upper.x === lower.x
+                ? (Math.random() > 0.5 ? 1 : -1)
+                : Math.sign(upper.x - lower.x);
+              upper.vx += direction * (3 + overlapY * 0.28);
+              upper.rotationVelocity += direction * 0.07;
+              upper.settled = Math.max(0, upper.settled - 0.1);
+            } else {
+              const direction = upper.x < lower.x ? -1 : 1;
+              upper.x += direction * overlapX * 0.5;
+              upper.vx += direction * 5;
+            }
+          }
+        }
+      }
+
+      falling.forEach((item) => {
+        if (item.settled > 0.76) {
+          item.vx *= 0.72;
+          item.vy = 0;
+          item.rotationVelocity *= 0.6;
+        }
+      });
+
+      if (falling.length > 28 && resetAt === 0) {
+        const highest = Math.min(...falling.map((item) => item.y - item.height / 2));
+        if (highest <= conveyorY + 18) resetAt = elapsed + 1300;
+      }
+
+      if (resetAt > 0 && elapsed >= resetAt) {
+        falling.splice(0, falling.length);
+        resetAt = 0;
+        nextDropAt = elapsed + 1100;
+      }
+
+      if (falling.length > 175) falling.splice(0, falling.length - 175);
+      const center = falling.length
+        ? falling.reduce((sum, item) => sum + item.x, 0) / falling.length
+        : endX;
+      falling.forEach((item) => {
+        if (item.y < floorY - height * 0.2 && item.settled < 0.8) {
+          item.vx += Math.sign(item.x - center || Math.random() - 0.5) * dt * 5;
+        }
+      });
+    };
+
+    const seedReducedMotion = () => {
+      const { floorY, endX } = geometry();
+      falling.splice(0, falling.length);
+      const boxWidth = width < 700 ? 19 : 23;
+      const boxHeight = width < 700 ? 14 : 17;
+      for (let row = 0; row < 6; row += 1) {
+        const count = 8 - row;
+        for (let column = 0; column < count; column += 1) {
+          falling.push({
+            x: endX + (column - (count - 1) / 2) * (boxWidth + 1),
+            y: floorY - boxHeight / 2 - row * (boxHeight + 1),
+            vx: 0,
+            vy: 0,
+            width: boxWidth,
+            height: boxHeight,
+            rotation: (column % 2 ? 1 : -1) * 0.035,
+            rotationVelocity: 0,
+            settled: 1,
+          });
+        }
+      }
+    };
+
+    const render = (time: number) => {
       const dt = clamp((time - lastTime) / 1000, 0, 0.033);
       lastTime = time;
       elapsed += dt * 1000;
-
       context.clearRect(0, 0, width, height);
+
       drawGrid();
+      drawSweep(time);
       drawConveyor(time);
 
       if (!reducedMotion) {
-        if (elapsed >= nextSpawnAt && resetAt === 0) {
-          spawnPackage();
-          nextSpawnAt = elapsed + (width < 700 ? 610 : 520) + Math.random() * 210;
+        if (elapsed >= nextDropAt && resetAt === 0) {
+          spawn();
+          nextDropAt = elapsed + (width < 700 ? 690 : 610) + Math.random() * 240;
         }
         resolvePhysics(dt);
       }
 
-      packages.forEach((item) => drawPackage(item));
+      falling.forEach((item) =>
+        drawParcel(item.x, item.y, item.width, item.height, "red", 0.72, item.rotation),
+      );
 
       if (resetAt > 0) {
-        resetFlash = Math.max(0, resetFlash - dt * 0.55);
+        const phase = clamp((resetAt - elapsed) / 1300, 0, 1);
         context.save();
-        context.fillStyle = `rgba(213, 29, 46, ${0.05 + resetFlash * 0.09})`;
+        context.fillStyle = red(0.025 + (1 - phase) * 0.025);
         context.fillRect(0, 0, width, height);
-        context.fillStyle = "rgba(22, 15, 1, 0.86)";
-        context.font = `${width < 700 ? 10 : 12}px ui-monospace, SFMono-Regular, Menlo, monospace`;
+        context.fillStyle = red(0.38);
+        context.font = `${width < 700 ? 9 : 10}px ui-monospace, SFMono-Regular, Menlo, monospace`;
         context.textAlign = "center";
-        context.fillText("BOUNDARY SATURATED / RESETTING THE SYSTEM", width / 2, height * 0.54);
+        context.fillText("BOUNDARY SATURATION / RESET", width / 2, height * 0.55);
         context.restore();
       }
 
-      frame = window.requestAnimationFrame(draw);
+      frame = window.requestAnimationFrame(render);
     };
 
     resize();
-    if (reducedMotion) seedReducedMotionPile();
+    if (reducedMotion) seedReducedMotion();
     window.addEventListener("resize", resize);
-    frame = window.requestAnimationFrame(draw);
+    frame = window.requestAnimationFrame(render);
 
     return () => {
       window.cancelAnimationFrame(frame);
