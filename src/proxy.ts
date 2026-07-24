@@ -60,5 +60,5 @@ export async function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: REPORT_PATH,
+  matcher: "/reports/human-authority-boundary-diagnostic",
 };
