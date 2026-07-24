@@ -49,11 +49,11 @@ const suitLayers = [
 ];
 
 const testChecklist = [
-  "The Phrononaut hero art is sharp, cinematic, and correctly cropped without covering text.",
+  "The owner-approved high-resolution Phrononaut poster is sharp, fully loaded, and correctly fitted without covering text.",
   "Living conveyor telemetry moves behind the page without stealing touch input.",
   "All cards collapse cleanly into one mobile column.",
   "No confidential partner identity, source, metrics, architecture, or findings are exposed.",
-  "No Marvel artwork, logo, costume copy, or generated derivative branding is embedded.",
+  "No Marvel artwork, logo, costume copy, or derivative branding is embedded.",
   "The production URL opens on Android and remains readable with reduced motion enabled.",
 ];
 
@@ -77,19 +77,26 @@ export default function PhrononautPage() {
         </div>
       </header>
 
-      <section className={styles.hero}>
-        <div className={styles.frononautField} aria-hidden="true">
+      <section
+        className={styles.hero}
+        style={{ paddingTop: "min(48rem, 150vw)" }}
+      >
+        <div
+          className={styles.frononautField}
+          aria-hidden="true"
+          style={{ height: "min(48rem, 150vw)" }}
+        >
           <img
-            src="/api/assets/nullworks-phrononaut?v=20260724-2"
+            src="/api/assets/nullworks-phrononaut?v=20260724-3"
             alt=""
             style={{
               position: "absolute",
               inset: 0,
               width: "100%",
               height: "100%",
-              objectFit: "cover",
-              objectPosition: "50% 38%",
-              filter: "contrast(1.08) saturate(0.92)",
+              objectFit: "contain",
+              objectPosition: "50% 0%",
+              filter: "contrast(1.02) saturate(1)",
             }}
           />
           <div
@@ -97,7 +104,7 @@ export default function PhrononautPage() {
               position: "absolute",
               inset: 0,
               background:
-                "linear-gradient(180deg, rgba(2,3,4,0.02) 0%, rgba(2,3,4,0.08) 52%, rgba(2,3,4,0.92) 100%), radial-gradient(circle at 50% 45%, transparent 0 24%, rgba(2,3,4,0.28) 78%, rgba(2,3,4,0.62) 100%)",
+                "linear-gradient(180deg, rgba(2,3,4,0) 0%, rgba(2,3,4,0.02) 72%, rgba(2,3,4,0.88) 100%)",
             }}
           />
           <div className={styles.suitTelemetry}>
@@ -117,7 +124,7 @@ export default function PhrononautPage() {
               NULLWORKS did not become a software company. The mechanic climbed into the machine room of software, AI, governance, evidence, and authority.
             </p>
             <p className={styles.lede}>
-              The Iron Man analogy fits because the machine is not merely armor or spectacle. It is also life support. The first commercial battle now has a hard survival condition: finish enough of the suit to keep the mission alive. The hero visual is an original code-built Phrononaut illustration with no Marvel artwork or branding.
+              The Iron Man analogy fits because the machine is not merely armor or spectacle. It is also life support. The first commercial battle now has a hard survival condition: finish enough of the suit to keep the mission alive. The hero is the owner-approved high-resolution NULLWORKS Phrononaut infographic installed through the Mr. Smith delivery path, with no Marvel artwork or branding.
             </p>
 
             <div className={styles.heroActions}>
@@ -264,7 +271,7 @@ export default function PhrononautPage() {
         </div>
       </section>
 
-      <footer className={styles.footer}><div className={styles.shell}><span>NULLWORKS · INSTANTIATION DAY · OWNER TEST 0.2</span><span>PHRONONAUT ART / CONFIDENTIAL MATERIAL WITHHELD</span></div></footer>
+      <footer className={styles.footer}><div className={styles.shell}><span>NULLWORKS · INSTANTIATION DAY · OWNER TEST 0.3</span><span>OWNER-APPROVED HERO · CONFIDENTIAL MATERIAL WITHHELD</span></div></footer>
     </main>
   );
 }
