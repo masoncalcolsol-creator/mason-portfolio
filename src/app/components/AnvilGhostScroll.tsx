@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 
 const pageWords: Record<string, [string, string, string]> = {
   "/sound-library": ["HEAR", "THE", "RANGE"],
+  "/kaironull-assurance": ["PRESSURE", "THE", "TEST"],
 };
 
 export default function AnvilGhostScroll() {
