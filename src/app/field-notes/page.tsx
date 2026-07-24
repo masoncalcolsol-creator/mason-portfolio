@@ -33,6 +33,13 @@ const currentNotes = [
       "When AI automates the work that used to form judgment, organizations can gain efficiency while quietly consuming their future leadership bench.",
     href: "/field-notes/talent-hollow",
   },
+  {
+    number: "KIKI-001",
+    title: "The First Nugget: Mining Wisdom in Public",
+    summary:
+      "A live public exchange surfaced hero-ops, separated instrumentation from calibration, and became the first preserved KIKIGAKI wisdom-mining field receipt.",
+    href: "/field-notes/kikigaki-first-nugget",
+  },
 ];
 
 const progression = [
