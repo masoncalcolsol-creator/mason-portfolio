@@ -40,6 +40,13 @@ const currentNotes = [
       "A live public exchange surfaced hero-ops, separated instrumentation from calibration, and became the first preserved KIKIGAKI wisdom-mining field receipt.",
     href: "/field-notes/kikigaki-first-nugget",
   },
+  {
+    number: "KIKI-002",
+    title: "The Quiet Achievement",
+    summary:
+      "Carl Mikael Björn's reflection on invisible technology becomes an operating principle: dependable systems should release attention without hiding evidence, authority, or failure.",
+    href: "/field-notes/kikigaki-quiet-achievement",
+  },
 ];
 
 const progression = [
