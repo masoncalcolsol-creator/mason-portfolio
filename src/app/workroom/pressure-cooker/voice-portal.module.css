@@ -52,6 +52,12 @@
 .metrics span { display: block; color: #8f8b80; font-size: .72rem; text-transform: uppercase; letter-spacing: .08em; margin-bottom: 12px; }
 .metrics strong { display: block; font-size: 1rem; overflow-wrap: anywhere; }
 .controls { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 18px; }
+.textAsk { display: grid; grid-template-columns: 1fr auto; gap: 10px; margin-top: 16px; }
+.textAsk textarea { min-height: 84px; resize: vertical; }
+.exchange { display: grid; gap: 10px; margin-top: 16px; }
+.exchange div { padding: 16px; background: #0d0e0b; border: 1px solid rgba(255, 255, 255, .1); }
+.exchange span { display: block; color: #e7ae44; font-size: .72rem; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; margin-bottom: 8px; }
+.exchange p { margin: 0; color: #ddd6c4; line-height: 1.6; white-space: pre-wrap; }
 .inviteBox { display: grid; grid-template-columns: auto 1fr; gap: 10px; margin-top: 16px; }
 .small { color: #8f8b80; line-height: 1.5; font-size: .78rem; }
 .status { margin-top: 18px; min-height: 52px; padding: 15px; background: #11120f; border: 1px solid rgba(255, 255, 255, .1); color: #d9d2c0; }
@@ -70,7 +76,7 @@
   .header { display: block; }
   .badge { display: inline-block; margin-top: 12px; }
   .metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .row, .inviteBox { grid-template-columns: 1fr; display: grid; }
+  .row, .inviteBox, .textAsk { grid-template-columns: 1fr; display: grid; }
   .controls { display: grid; }
   .controls button { width: 100%; }
 }
