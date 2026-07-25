@@ -51,6 +51,11 @@
 .metrics div { padding: 14px; min-height: 88px; background: #0d0e0b; border: 1px solid rgba(231, 174, 68, .2); }
 .metrics span { display: block; color: #8f8b80; font-size: .72rem; text-transform: uppercase; letter-spacing: .08em; margin-bottom: 12px; }
 .metrics strong { display: block; font-size: 1rem; overflow-wrap: anywhere; }
+.consentBox { display: grid; grid-template-columns: auto 1fr; gap: 12px; align-items: start; margin-top: 16px; padding: 16px; border: 1px solid rgba(231, 174, 68, .28); background: rgba(231, 174, 68, .06); cursor: pointer; }
+.consentBox input { width: 21px; height: 21px; margin-top: 2px; }
+.consentBox span { display: grid; gap: 6px; color: #e4ddcb; line-height: 1.45; }
+.consentBox small { color: #9f9889; font-size: .78rem; }
+.archiveNotice { margin: 8px 0 0; color: #aaa395; font-size: .78rem; line-height: 1.5; }
 .controls { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 18px; }
 .textAsk { display: grid; grid-template-columns: 1fr auto; gap: 10px; margin-top: 16px; }
 .textAsk textarea { min-height: 84px; resize: vertical; }
@@ -59,6 +64,14 @@
 .exchange span { display: block; color: #e7ae44; font-size: .72rem; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; margin-bottom: 8px; }
 .exchange p { margin: 0; color: #ddd6c4; line-height: 1.6; white-space: pre-wrap; }
 .inviteBox { display: grid; grid-template-columns: auto 1fr; gap: 10px; margin-top: 16px; }
+.transcriptSearch { margin-top: 20px; padding: 18px; border: 1px solid rgba(255, 255, 255, .12); background: #0c0d0a; }
+.transcriptSearch h2 { margin: 0 0 14px; font-size: 1.15rem; }
+.transcriptSearch form { display: grid; grid-template-columns: 1fr auto; gap: 10px; }
+.searchResults { display: grid; gap: 12px; margin-top: 16px; }
+.searchResults article { padding: 15px; border: 1px solid rgba(231, 174, 68, .2); background: #11120f; }
+.searchResults header { display: flex; justify-content: space-between; gap: 12px; align-items: flex-start; margin-bottom: 10px; }
+.searchResults header span { color: #8f8b80; font-size: .72rem; text-align: right; }
+.searchResults p { margin: 8px 0 0; color: #d6cfbd; line-height: 1.55; }
 .small { color: #8f8b80; line-height: 1.5; font-size: .78rem; }
 .status { margin-top: 18px; min-height: 52px; padding: 15px; background: #11120f; border: 1px solid rgba(255, 255, 255, .1); color: #d9d2c0; }
 .statusError { border-color: #ba493c; color: #ffb9ae; }
@@ -76,7 +89,9 @@
   .header { display: block; }
   .badge { display: inline-block; margin-top: 12px; }
   .metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .row, .inviteBox, .textAsk { grid-template-columns: 1fr; display: grid; }
+  .row, .inviteBox, .textAsk, .transcriptSearch form { grid-template-columns: 1fr; display: grid; }
   .controls { display: grid; }
   .controls button { width: 100%; }
+  .searchResults header { display: grid; }
+  .searchResults header span { text-align: left; }
 }
