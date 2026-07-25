@@ -1,0 +1,76 @@
+.shell {
+  min-height: 100vh;
+  position: relative;
+  overflow: hidden;
+  padding: 24px;
+  color: #f8f2df;
+  background: radial-gradient(circle at 20% 10%, rgba(177, 113, 22, .2), transparent 36%), #090a08;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.grid {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  opacity: .2;
+  background-image: linear-gradient(rgba(224, 161, 48, .2) 1px, transparent 1px), linear-gradient(90deg, rgba(224, 161, 48, .2) 1px, transparent 1px);
+  background-size: 36px 36px;
+  mask-image: linear-gradient(to bottom, black, transparent 82%);
+}
+
+.panel {
+  position: relative;
+  max-width: 980px;
+  margin: 0 auto;
+  padding: clamp(22px, 5vw, 54px);
+  border: 1px solid rgba(231, 174, 68, .34);
+  background: rgba(15, 16, 13, .9);
+  box-shadow: 0 24px 80px rgba(0, 0, 0, .5);
+}
+
+.header { display: flex; justify-content: space-between; gap: 24px; align-items: flex-start; }
+.header h1 { margin: 8px 0 12px; font-size: clamp(2rem, 7vw, 4.8rem); line-height: .94; letter-spacing: -.055em; max-width: 760px; }
+.eyebrow { margin: 0; color: #e7ae44; font-size: .72rem; letter-spacing: .2em; font-weight: 800; }
+.lede { max-width: 720px; color: #c9c3b3; line-height: 1.6; }
+.badge { white-space: nowrap; border: 1px solid #e7ae44; color: #e7ae44; padding: 8px 10px; font-size: .68rem; font-weight: 800; letter-spacing: .12em; }
+.boundary { margin: 28px 0; padding: 18px; border-left: 4px solid #e7ae44; background: rgba(231, 174, 68, .08); line-height: 1.55; color: #dad3c2; }
+
+.gate, .console, .feedback { margin-top: 24px; padding: 22px; border: 1px solid rgba(255, 255, 255, .12); background: rgba(255, 255, 255, .035); }
+.gate label { display: block; margin-bottom: 10px; font-weight: 700; }
+.row { display: flex; gap: 10px; }
+.row input { min-width: 0; flex: 1; font-size: 1.6rem; letter-spacing: .35em; text-align: center; }
+
+.shell input, .shell textarea, .shell button { border-radius: 0; font: inherit; }
+.shell input, .shell textarea { color: #fff8e7; background: #10110e; border: 1px solid rgba(255, 255, 255, .2); padding: 13px; }
+.shell button { cursor: pointer; color: #15130d; background: #e7ae44; border: 1px solid #e7ae44; padding: 13px 16px; font-weight: 800; }
+.shell button:disabled { cursor: not-allowed; opacity: .4; }
+.shell button:not(:disabled):hover { filter: brightness(1.1); }
+.primary { min-width: 210px; }
+
+.metrics { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
+.metrics div { padding: 14px; min-height: 88px; background: #0d0e0b; border: 1px solid rgba(231, 174, 68, .2); }
+.metrics span { display: block; color: #8f8b80; font-size: .72rem; text-transform: uppercase; letter-spacing: .08em; margin-bottom: 12px; }
+.metrics strong { display: block; font-size: 1rem; overflow-wrap: anywhere; }
+.controls { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 18px; }
+.inviteBox { display: grid; grid-template-columns: auto 1fr; gap: 10px; margin-top: 16px; }
+.small { color: #8f8b80; line-height: 1.5; font-size: .78rem; }
+.status { margin-top: 18px; min-height: 52px; padding: 15px; background: #11120f; border: 1px solid rgba(255, 255, 255, .1); color: #d9d2c0; }
+.statusError { border-color: #ba493c; color: #ffb9ae; }
+
+.feedback h2 { margin-top: 0; }
+.checks { display: grid; gap: 10px; margin: 16px 0; }
+.checks label { display: flex; align-items: center; gap: 10px; color: #d9d2c0; }
+.checks input { width: 18px; height: 18px; }
+.feedback textarea { width: 100%; min-height: 92px; resize: vertical; margin-bottom: 12px; }
+.logout { margin-top: 22px; background: transparent !important; color: #aaa395 !important; border-color: rgba(255, 255, 255, .18) !important; }
+
+@media (max-width: 760px) {
+  .shell { padding: 0; }
+  .panel { min-height: 100vh; padding: 24px 18px 48px; border-left: 0; border-right: 0; }
+  .header { display: block; }
+  .badge { display: inline-block; margin-top: 12px; }
+  .metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .row, .inviteBox { grid-template-columns: 1fr; display: grid; }
+  .controls { display: grid; }
+  .controls button { width: 100%; }
+}
