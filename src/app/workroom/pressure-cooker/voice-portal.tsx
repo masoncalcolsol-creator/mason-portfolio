@@ -11,9 +11,23 @@ type TurnResponse = {
   ok: boolean;
   transcript: string;
   answer: string;
+  answer_complete: boolean;
+  answer_parts: string[];
   audio_url: string;
+  audio_urls: string[];
+  transcript_preserved: boolean;
+  transcript_reference: string | null;
   transport: "DIRECT_BROWSER_AUDIO";
   international_pstn_leg: false;
+};
+
+type TranscriptSearchResult = {
+  reference: string;
+  updated_at: string;
+  turn_index: number;
+  participant_role: SessionRole;
+  participant_excerpt: string;
+  answer_excerpt: string;
 };
 
 function formatClock(totalSeconds: number): string {
@@ -58,8 +72,14 @@ export default function VoicePortal() {
   const [inviteUrl, setInviteUrl] = useState("");
   const [transcript, setTranscript] = useState("");
   const [answer, setAnswer] = useState("");
-  const [answerAudioUrl, setAnswerAudioUrl] = useState("");
+  const [answerComplete, setAnswerComplete] = useState(true);
+  const [answerAudioUrls, setAnswerAudioUrls] = useState<string[]>([]);
   const [typedQuestion, setTypedQuestion] = useState("");
+  const [preserveTranscript, setPreserveTranscript] = useState(false);
+  const [archiveNotice, setArchiveNotice] = useState("Transcript preservation is off. No raw audio is stored.");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchResults, setSearchResults] = useState<TranscriptSearchResult[]>([]);
+  const [searching, setSearching] = useState(false);
   const [showFeedback, setShowFeedback] = useState(false);
   const [feedbackSent, setFeedbackSent] = useState(false);
   const [feedback, setFeedback] = useState({
@@ -78,6 +98,7 @@ export default function VoicePortal() {
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const recordingLimitRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const warningRef = useRef(new Set<number>());
+  const playbackGenerationRef = useRef(0);
 
   const stopTimer = useCallback(() => {
     if (timerRef.current) clearInterval(timerRef.current);
@@ -89,15 +110,20 @@ export default function VoicePortal() {
     recordingLimitRef.current = null;
   }, []);
 
+  const stopPlayback = useCallback(() => {
+    playbackGenerationRef.current += 1;
+    audioRef.current?.pause();
+    audioRef.current = null;
+  }, []);
+
   const releaseMedia = useCallback(() => {
     stopRecordingLimit();
     if (recorderRef.current?.state === "recording") recorderRef.current.stop();
     recorderRef.current = null;
     streamRef.current?.getTracks().forEach((track) => track.stop());
     streamRef.current = null;
-    audioRef.current?.pause();
-    audioRef.current = null;
-  }, [stopRecordingLimit]);
+    stopPlayback();
+  }, [stopPlayback, stopRecordingLimit]);
 
   const endSession = useCallback((message: string) => {
     stopTimer();
@@ -205,23 +231,37 @@ export default function VoicePortal() {
     }
   }
 
-  async function playAnswer(url = answerAudioUrl) {
-    if (!url) return;
-    audioRef.current?.pause();
-    const audio = new Audio(url);
-    audioRef.current = audio;
-    audio.onended = () => {
-      setState("active");
-      setStatus("Answer complete. Ask the next question when ready.");
-    };
-    audio.onerror = () => {
-      setState("active");
-      setStatus("The written answer is ready, but spoken playback failed. Press Play answer to retry.");
-    };
-    try {
+  async function playAnswer(urls = answerAudioUrls, startIndex = 0) {
+    if (!urls.length || startIndex >= urls.length) return;
+    stopPlayback();
+    const generation = playbackGenerationRef.current;
+
+    const playPart = async (index: number): Promise<void> => {
+      if (generation !== playbackGenerationRef.current || index >= urls.length) return;
+      const audio = new Audio(urls[index]);
+      audioRef.current = audio;
+      audio.onended = () => {
+        if (generation !== playbackGenerationRef.current) return;
+        if (index + 1 < urls.length) {
+          void playPart(index + 1);
+        } else {
+          audioRef.current = null;
+          setState("active");
+          setStatus(answerComplete ? "Complete answer delivered. Ask the next question when ready." : "Answer delivered, but the model reported an incomplete ending. Ask it to finish the answer.");
+        }
+      };
+      audio.onerror = () => {
+        if (generation !== playbackGenerationRef.current) return;
+        setState("active");
+        setStatus(`The written answer is ready, but spoken segment ${index + 1} failed. Press Play answer to retry from the beginning.`);
+      };
       setState("speaking");
-      setStatus("Workroom answering…");
+      setStatus(urls.length > 1 ? `Workroom answering — segment ${index + 1} of ${urls.length}…` : "Workroom answering…");
       await audio.play();
+    };
+
+    try {
+      await playPart(startIndex);
     } catch {
       setState("active");
       setStatus("Answer ready. Press Play answer to hear it.");
@@ -230,7 +270,8 @@ export default function VoicePortal() {
 
   async function submitTurn(form: FormData) {
     setState("processing");
-    setStatus("Transcribing, loading locked evidence, and preparing the answer…");
+    setStatus("Transcribing, loading locked evidence, and preparing the complete answer…");
+    form.set("preserve_transcript", preserveTranscript ? "true" : "false");
     try {
       const response = await fetch("/api/neuraxis/voice-web/turn", {
         method: "POST",
@@ -239,10 +280,19 @@ export default function VoicePortal() {
       });
       const result = await response.json() as TurnResponse & { error?: string };
       if (!response.ok) throw new Error(result.error || `Workroom request failed (${response.status}).`);
+      const urls = result.audio_urls?.length ? result.audio_urls : result.audio_url ? [result.audio_url] : [];
       setTranscript(result.transcript);
       setAnswer(result.answer);
-      setAnswerAudioUrl(result.audio_url);
-      await playAnswer(result.audio_url);
+      setAnswerComplete(result.answer_complete);
+      setAnswerAudioUrls(urls);
+      if (preserveTranscript) {
+        setArchiveNotice(result.transcript_preserved
+          ? `Turn preserved in the private Hive under ${result.transcript_reference}. Raw audio was not stored.`
+          : "Transcript preservation was requested, but the archive write failed. This turn was not saved.");
+      } else {
+        setArchiveNotice("Transcript preservation was off for this turn. No raw audio was stored.");
+      }
+      await playAnswer(urls);
     } catch (error) {
       setState("active");
       setStatus(error instanceof Error ? error.message : "The workroom could not answer that turn.");
@@ -256,7 +306,7 @@ export default function VoicePortal() {
       return;
     }
     try {
-      audioRef.current?.pause();
+      stopPlayback();
       chunksRef.current = [];
       const mimeType = preferredAudioType();
       const recorder = new MediaRecorder(stream, mimeType ? { mimeType } : undefined);
@@ -300,9 +350,9 @@ export default function VoicePortal() {
   }
 
   function stopAnswer() {
-    audioRef.current?.pause();
+    stopPlayback();
     setState("active");
-    setStatus("Answer stopped. Ask the next question when ready.");
+    setStatus("Answer stopped. The complete written answer remains visible below.");
   }
 
   function hangUp() {
@@ -324,11 +374,30 @@ export default function VoicePortal() {
     }
   }
 
+  async function searchTranscripts(event: FormEvent) {
+    event.preventDefault();
+    const query = searchQuery.trim();
+    if (query.length < 2) return;
+    setSearching(true);
+    setStatus("Searching preserved private-Hive transcripts…");
+    try {
+      const result = await jsonFetch<{ results: TranscriptSearchResult[] }>(`/api/neuraxis/voice-web/transcripts?q=${encodeURIComponent(query)}`);
+      setSearchResults(result.results);
+      setStatus(result.results.length ? `Found ${result.results.length} matching transcript turn${result.results.length === 1 ? "" : "s"}.` : "No preserved transcript turns matched that search.");
+    } catch (error) {
+      setStatus(error instanceof Error ? error.message : "Transcript search failed.");
+    } finally {
+      setSearching(false);
+    }
+  }
+
   async function logout() {
     releaseMedia();
     stopTimer();
     await fetch("/api/neuraxis/voice-web/session", { method: "DELETE" });
     setRole(null);
+    setPreserveTranscript(false);
+    setSearchResults([]);
     setState("locked");
     setStatus("Secure session closed.");
   }
@@ -396,12 +465,27 @@ export default function VoicePortal() {
               <div><span>Phone-carrier charge</span><strong>$0.000</strong></div>
             </div>
 
+            <label className={styles.consentBox}>
+              <input
+                type="checkbox"
+                checked={preserveTranscript}
+                onChange={(event) => {
+                  setPreserveTranscript(event.target.checked);
+                  setArchiveNotice(event.target.checked
+                    ? "Transcript preservation is on for future turns in this session. Raw microphone audio will not be stored."
+                    : "Transcript preservation is off. No raw audio is stored.");
+                }}
+              />
+              <span><strong>Preserve this session transcript in the private Hive</strong><small>Opt-in only. Saves the transcribed question and complete workroom answer. It never saves the raw microphone recording.</small></span>
+            </label>
+            <p className={styles.archiveNotice}>{archiveNotice}</p>
+
             <div className={styles.controls}>
               <button className={styles.primary} onClick={enterWorkroom} disabled={!canStart}>Start Internet Workroom</button>
               <button onClick={state === "recording" ? finishRecording : startRecording} disabled={!canAsk && state !== "recording"}>
                 {state === "recording" ? "Finish question" : "Start speaking"}
               </button>
-              <button onClick={() => void playAnswer()} disabled={!answerAudioUrl || state === "speaking"}>Play answer</button>
+              <button onClick={() => void playAnswer()} disabled={!answerAudioUrls.length || state === "speaking"}>Play complete answer</button>
               <button onClick={stopAnswer} disabled={state !== "speaking"}>Stop answer</button>
               <button onClick={hangUp} disabled={!sessionOpen}>End Session</button>
             </div>
@@ -419,15 +503,41 @@ export default function VoicePortal() {
             {(transcript || answer) && (
               <div className={styles.exchange}>
                 {transcript && <div><span>You asked</span><p>{transcript}</p></div>}
-                {answer && <div><span>Workroom answered</span><p>{answer}</p></div>}
+                {answer && <div><span>Workroom answered · {answerComplete ? "complete" : "incomplete flag"}</span><p>{answer}</p></div>}
               </div>
             )}
 
             {role === "admin" && (
-              <div className={styles.inviteBox}>
-                <button onClick={createInvite}>Create 24-hour guest link</button>
-                {inviteUrl && <input readOnly value={inviteUrl} onFocus={(event) => event.currentTarget.select()} aria-label="Guest invitation URL" />}
-              </div>
+              <>
+                <div className={styles.inviteBox}>
+                  <button onClick={createInvite}>Create 24-hour guest link</button>
+                  {inviteUrl && <input readOnly value={inviteUrl} onFocus={(event) => event.currentTarget.select()} aria-label="Guest invitation URL" />}
+                </div>
+
+                <section className={styles.transcriptSearch}>
+                  <h2>Search preserved transcripts</h2>
+                  <form onSubmit={searchTranscripts}>
+                    <input
+                      value={searchQuery}
+                      onChange={(event) => setSearchQuery(event.target.value.slice(0, 300))}
+                      placeholder="Search questions and workroom answers"
+                      aria-label="Search preserved transcripts"
+                    />
+                    <button type="submit" disabled={searching || searchQuery.trim().length < 2}>{searching ? "Searching…" : "Search"}</button>
+                  </form>
+                  {searchResults.length > 0 && (
+                    <div className={styles.searchResults}>
+                      {searchResults.map((result) => (
+                        <article key={`${result.reference}-${result.turn_index}`}>
+                          <header><strong>{result.reference} · Turn {result.turn_index}</strong><span>{new Date(result.updated_at).toLocaleString()} · {result.participant_role}</span></header>
+                          <p><b>Participant:</b> {result.participant_excerpt}</p>
+                          <p><b>Workroom:</b> {result.answer_excerpt}</p>
+                        </article>
+                      ))}
+                    </div>
+                  )}
+                </section>
+              </>
             )}
 
             <p className={styles.small}>This route uses OpenAI transcription, reasoning, and speech generation over the internet. Those API calls remain metered, but no Twilio phone call or international carrier leg is created. The telephone number remains an emergency fallback only.</p>
