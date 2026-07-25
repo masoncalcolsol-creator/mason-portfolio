@@ -21,6 +21,11 @@ const TRANSCRIBE_MODEL = process.env.OPENAI_TRANSCRIBE_MODEL || "gpt-4o-mini-tra
 const TTS_MODEL = process.env.OPENAI_TTS_MODEL || "gpt-4o-mini-tts";
 const CONTEXT_PATH = "hive/current/kaironull_pressure_cooker_phone_workroom.yaml";
 const FINAL_MATRIX_PATH = "hive/projects/kaironull-pressure-test/locked/2026-07-24_dane_final_classification_matrix_and_call_ready_gate.yaml";
+const CURRENT_PRESSURE_TEST_PATH = "hive/current/kaironull_pressure_test.yaml";
+const REPAIR_DIAGNOSTICS_PATH = "hive/current/kaironull_repair_diagnostics.yaml";
+const REPAIR_CHECKPOINT_PATH = "hive/projects/kaironull-pressure-test/locked/2026-07-24_repair_diagnostics_and_assurance_redesign_checkpoint.yaml";
+const REPAIR_CONTROL_RECEIPT_PATH = "hive/projects/kaironull-pressure-test/locked/2026-07-25_repair_control_package_and_dane_alignment_receipt.yaml";
+const EVIDENCE_GATE_VERSION = "KAIRONULL_EVIDENCE_GATE_2026-07-25.1";
 const MAX_AUDIO_BYTES = 8 * 1024 * 1024;
 
 function noStoreJson(body: unknown, status = 200): Response {
@@ -114,7 +119,18 @@ async function transcribeAudio(file: File): Promise<string> {
 
 const WORKROOM_INSTRUCTIONS = `You are NEURAXIS operating as the NULLWORKS Pressure Cooker Workroom in a secure direct browser voice session with Mason Perry or an invited confidential collaborator. You are a governed AI workroom, not a human, legal employee, certifier, or penetration tester.
 
-Answer questions about the July 24, 2026 KairoNull triple-blind read-only source-assurance baseline, its findings, evidence boundaries, architecture remediation blueprint, classification matrix, and repair/retest path. Treat the supplied locked workroom packets as the authority. Do not silently fill gaps. Always distinguish source findings, missing evidence, deployed exploitability, production status, policy impact, and assurance-claim impact. Production was not tested, production compromise was not established, mutation testing was not authorized, and this was not a formal penetration test or certification.
+Answer questions about the July 24, 2026 KairoNull triple-blind read-only source-assurance baseline, its findings, evidence boundaries, architecture remediation blueprint, classification matrix, repair-control package, current evidence state, and repair/retest path. Treat the supplied locked workroom packets and current pointers as the authority. Do not silently fill gaps. Always distinguish source findings, missing evidence, deployed exploitability, production status, policy impact, and assurance-claim impact. Production was not tested, production compromise was not established, mutation testing was not authorized, and this was not a formal penetration test or certification.
+
+EVIDENCE-GATED REPAIR NAVIGATION — MANDATORY:
+1. Use this status ladder exactly: PROPOSED; IMPLEMENTATION_ARTIFACT_PRESENT; ACCEPTANCE_TEST_EVIDENCE_PRESENT; CORRECTED_CANDIDATE_FROZEN; INDEPENDENTLY_RETESTED; CLOSED.
+2. A repair packet, recommendation, design, code sample, issue, pull request, commit, or claimed code change is not by itself proof that a repair was implemented.
+3. You may say a repair is implemented only when the supplied evidence contains a corresponding implementation artifact tied to the exact finding or repair program and identifies the relevant version, path, commit, hash, deployment, or equivalent immutable identity.
+4. You may say a repair is verified, validated, passed, or acceptance-tested only when the supplied evidence contains matching test evidence with explicit acceptance criteria, result, test target, and exact candidate identity.
+5. You may say a finding is remediated, resolved, closed, production-ready, or assurance-passed only when the evidence explicitly establishes the required closure sequence: implementation artifact, deterministic acceptance evidence, evidence package, frozen corrected candidate, independent retest of that exact candidate, and evidence-earned disposition.
+6. Never turn proposed remediation into evidence of remediation. Never infer status from intent, confidence, plausibility, or the existence of a repair packet.
+7. When evidence is incomplete, state the highest earned status and identify the missing gate. Use phrases such as “proposed but not evidenced as implemented,” “implementation artifact present but acceptance evidence missing,” or “status cannot be elevated from the supplied evidence.”
+8. When asked for status, provide: current earned status; supporting artifact or receipt; missing artifact or test; next evidence-producing action. If no matching artifact exists, say so directly.
+9. Current locked control state remains authoritative unless a newer supplied record explicitly supersedes it: repairs implemented false, findings closed zero, corrected candidate not frozen, and source assurance hold.
 
 Before recommending repairs, separate observation, evidence, scope, validity, root cause, impact, remediation, definition of done, retest, and priority. Use the locked validity classes and P0 through P3 priorities. Do not treat all supported findings and evidence gaps as confirmed vulnerabilities. Do not minimize real findings, and do not turn methodology artifacts, dependencies, out-of-scope conditions, or recommendation-only items into KairoNull core defects.
 
@@ -147,7 +163,7 @@ async function requestAnswer(input: string, instructions = WORKROOM_INSTRUCTIONS
 
 async function answerQuestion(question: string, context: string): Promise<{ answer: string; complete: boolean }> {
   if (!OPENAI_API_KEY) throw new Error("OPENAI_API_KEY missing");
-  const baseInput = `WORKROOM: NULLWORKS Pressure Cooker Workroom\nTRANSPORT: DIRECT_BROWSER_AUDIO\nINTERNATIONAL_PSTN_LEG: false\n\nLOCKED KAIRONULL CONTEXT AND FINAL CLASSIFICATION FRAMEWORK:\n${context}\n\nPARTICIPANT ASKED:\n${question}`;
+  const baseInput = `WORKROOM: NULLWORKS Pressure Cooker Workroom\nTRANSPORT: DIRECT_BROWSER_AUDIO\nINTERNATIONAL_PSTN_LEG: false\nEVIDENCE_GATE: ${EVIDENCE_GATE_VERSION}\n\nLOCKED KAIRONULL CONTEXT, CURRENT EVIDENCE STATE, REPAIR CONTROL, AND FINAL CLASSIFICATION FRAMEWORK:\n${context}\n\nPARTICIPANT ASKED:\n${question}`;
   const first = await requestAnswer(baseInput);
   const firstText = cleanAnswer(extractOutputText(first));
   if (!firstText) throw new Error("The workroom did not produce a usable answer.");
@@ -179,11 +195,15 @@ export async function POST(request: Request): Promise<Response> {
     const question = typedText || (audio instanceof File ? await transcribeAudio(audio) : "");
     if (!question) return noStoreJson({ ok: false, error: "Record a question or enter text first." }, 400);
 
-    const [baseContext, finalMatrix] = await Promise.all([
+    const [baseContext, finalMatrix, currentPressureTest, repairDiagnostics, repairCheckpoint, repairControlReceipt] = await Promise.all([
       fetchHiveFile(CONTEXT_PATH),
       fetchHiveFile(FINAL_MATRIX_PATH),
+      fetchHiveFile(CURRENT_PRESSURE_TEST_PATH),
+      fetchHiveFile(REPAIR_DIAGNOSTICS_PATH),
+      fetchHiveFile(REPAIR_CHECKPOINT_PATH),
+      fetchHiveFile(REPAIR_CONTROL_RECEIPT_PATH),
     ]);
-    const context = `${baseContext}\n\nFINAL DANE CLASSIFICATION MATRIX AND CALL-READY ADDENDUM:\n${finalMatrix}`;
+    const context = `${baseContext}\n\nFINAL DANE CLASSIFICATION MATRIX AND CALL-READY ADDENDUM:\n${finalMatrix}\n\nCURRENT FROZEN PRESSURE-TEST AND EVIDENCE STATE:\n${currentPressureTest}\n\nCURRENT REPAIR DIAGNOSTICS POINTER:\n${repairDiagnostics}\n\nLOCKED REPAIR-DIAGNOSTICS CHECKPOINT:\n${repairCheckpoint}\n\nLOCKED REPAIR-CONTROL PACKAGE AND DANE ALIGNMENT RECEIPT:\n${repairControlReceipt}`;
     const generated = await answerQuestion(question, context);
     const answerParts = splitForSpeech(generated.answer);
     const audioUrls = answerParts.map((part) => `/api/neuraxis/twilio/tts?q=${encodeURIComponent(encodeState({ text: part }))}`);
@@ -228,6 +248,16 @@ export async function POST(request: Request): Promise<Response> {
             international_pstn_leg: false,
             raw_audio_preserved: false,
             role: session.role,
+            evidence_gate: EVIDENCE_GATE_VERSION,
+            repair_navigation_context_loaded: true,
+            status_ladder: [
+              "PROPOSED",
+              "IMPLEMENTATION_ARTIFACT_PRESENT",
+              "ACCEPTANCE_TEST_EVIDENCE_PRESENT",
+              "CORRECTED_CANDIDATE_FROZEN",
+              "INDEPENDENTLY_RETESTED",
+              "CLOSED",
+            ],
             transcript_characters: question.length,
             answer_characters: generated.answer.length,
             answer_complete: generated.complete,
@@ -254,6 +284,7 @@ export async function POST(request: Request): Promise<Response> {
       audio_urls: audioUrls,
       transcript_preserved: transcriptPreserved,
       transcript_reference: transcriptReference,
+      evidence_gate: EVIDENCE_GATE_VERSION,
       transport: "DIRECT_BROWSER_AUDIO",
       international_pstn_leg: false,
     });
