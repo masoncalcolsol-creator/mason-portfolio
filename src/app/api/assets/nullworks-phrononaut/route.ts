@@ -1,28 +1,22 @@
-import { readFile } from "node:fs/promises";
-import path from "node:path";
+import {
+  expectedSha256,
+  getPoster,
+} from "./poster-data-v2";
 
 export const runtime = "nodejs";
 
-let posterPromise: Promise<Buffer> | undefined;
-
-function loadPoster() {
-  posterPromise ??= readFile(
-    path.join(process.cwd(), "public", "assets", "nullworks-phrononaut-poster.webp"),
-  );
-  return posterPromise;
-}
+// Decode and verify at module load so the production build fails closed if any
+// governed transport chunk is missing or altered.
+const poster = getPoster();
 
 export async function GET() {
-  const poster = await loadPoster();
-
   return new Response(new Uint8Array(poster), {
     headers: {
       "Content-Type": "image/webp",
       "Content-Length": String(poster.byteLength),
       "Cache-Control": "public, max-age=31536000, immutable",
       "X-Content-Type-Options": "nosniff",
-      "X-NULLWORKS-Asset-SHA256":
-        "510daf714d0a1d50ce59650bc35ea7470f15f9035818646265f35e45ce4a6517",
+      "X-NULLWORKS-Asset-SHA256": expectedSha256,
     },
   });
 }
