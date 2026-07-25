@@ -14,6 +14,7 @@ import {
   ensureIncomingNumberStatusCallback,
   startCallTelemetry,
 } from "@/lib/neuraxis-call-telemetry";
+import { WEB_VOICE_MAX_SECONDS, WEB_VOICE_WARNING_SECONDS } from "@/lib/neuraxis-web-voice";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -28,6 +29,15 @@ type HiveStatus = {
   company?: string;
   category?: string;
   error?: string;
+};
+
+type WebVoiceState = {
+  enabled: boolean;
+  started: number;
+  limit: number;
+  elapsed: number;
+  warned: number;
+  warning?: string;
 };
 
 const HIVE_REPO = process.env.HIVE_REPO || "masoncalcolsol-creator/nullworks-corporate-wifi-hive";
@@ -77,6 +87,35 @@ async function readHiveStatus(): Promise<HiveStatus> {
   }
 }
 
+function readWebVoiceState(url: URL): WebVoiceState {
+  const enabled = url.searchParams.get("web") === "1";
+  if (!enabled) return { enabled: false, started: 0, limit: 0, elapsed: 0, warned: 0 };
+  const now = Math.floor(Date.now() / 1000);
+  const started = Number.parseInt(url.searchParams.get("started") || "0", 10);
+  const requestedLimit = Number.parseInt(url.searchParams.get("limit") || String(WEB_VOICE_MAX_SECONDS), 10);
+  const limit = Number.isFinite(requestedLimit) ? Math.max(60, Math.min(WEB_VOICE_MAX_SECONDS, requestedLimit)) : WEB_VOICE_MAX_SECONDS;
+  const elapsed = Number.isFinite(started) && started > 0 ? Math.max(0, now - started) : limit;
+  const priorWarned = Number.parseInt(url.searchParams.get("warned") || "0", 10) || 0;
+  let warned = priorWarned;
+  let warning: string | undefined;
+  if (elapsed >= WEB_VOICE_WARNING_SECONDS[1] && priorWarned < 19) {
+    warned = 19;
+    warning = "Cost control warning. One minute remains before the browser voice session closes.";
+  } else if (elapsed >= WEB_VOICE_WARNING_SECONDS[0] && priorWarned < 15) {
+    warned = 15;
+    warning = "Cost control warning. Five minutes remain before the browser voice session closes.";
+  }
+  return { enabled, started, limit, elapsed, warned, warning };
+}
+
+function applyWebVoiceState(target: URL, state: WebVoiceState): void {
+  if (!state.enabled) return;
+  target.searchParams.set("web", "1");
+  target.searchParams.set("started", String(state.started));
+  target.searchParams.set("limit", String(state.limit));
+  target.searchParams.set("warned", String(state.warned));
+}
+
 async function handle(request: Request): Promise<Response> {
   const params = request.method === "POST" ? await readTwilioForm(request) : {};
   if (request.method === "POST" && !validateTwilioRequest(request, params)) {
@@ -87,6 +126,11 @@ async function handle(request: Request): Promise<Response> {
   const room = url.searchParams.get("room") || "";
   const isLoop = url.searchParams.get("loop") === "1";
   const telemetrySeen = url.searchParams.get("telemetry") === "1";
+  const webVoice = readWebVoiceState(url);
+
+  if (webVoice.enabled && webVoice.elapsed >= webVoice.limit) {
+    return twiml(`<?xml version="1.0" encoding="UTF-8"?><Response>${speak("The twenty minute browser voice cost ceiling has been reached. This session is now closed.", request.url)}<Hangup/></Response>`);
+  }
 
   if (!room && !isLoop) {
     if (request.method === "POST" && params.CallSid && !telemetrySeen) {
@@ -141,7 +185,8 @@ async function handle(request: Request): Promise<Response> {
   const commandPath = commandRoom === "pressure"
     ? "/api/neuraxis/twilio/pressure-cooker/command"
     : `/api/neuraxis/twilio/command?room=${commandRoom}`;
-  const commandUrl = new URL(commandPath, request.url).toString();
+  const commandUrl = new URL(commandPath, request.url);
+  applyWebVoiceState(commandUrl, webVoice);
   const opener = isLoop
     ? "I'm listening."
     : commandRoom === "private"
@@ -155,14 +200,19 @@ async function handle(request: Request): Promise<Response> {
         : status.ok
           ? "Shared NEURAXIS workroom online. What are we working on?"
           : "The workroom is online, but the Hive connection is unavailable. What do you need?";
+  const spokenOpener = webVoice.warning ? `${webVoice.warning} ${opener}` : opener;
+  const loopUrl = new URL("/api/neuraxis/twilio/voice", request.url);
+  loopUrl.searchParams.set("loop", "1");
+  loopUrl.searchParams.set("room", commandRoom);
+  applyWebVoiceState(loopUrl, webVoice);
 
   return twiml(`<?xml version="1.0" encoding="UTF-8"?>
 <Response>
-  <Gather input="speech dtmf" timeout="8" speechTimeout="3" actionOnEmptyResult="true" method="POST" action="${xmlEscape(commandUrl)}">
-    ${speak(opener, request.url)}
+  <Gather input="speech dtmf" timeout="8" speechTimeout="3" actionOnEmptyResult="true" method="POST" action="${xmlEscape(commandUrl.toString())}">
+    ${speak(spokenOpener, request.url)}
   </Gather>
   ${speak("I did not catch that. Try one short sentence.", request.url)}
-  <Redirect method="POST">${xmlEscape(new URL(`/api/neuraxis/twilio/voice?loop=1&room=${commandRoom}`, request.url).toString())}</Redirect>
+  <Redirect method="POST">${xmlEscape(loopUrl.toString())}</Redirect>
 </Response>`);
 }
 
