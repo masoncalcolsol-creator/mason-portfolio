@@ -5,9 +5,11 @@ import {
 
 export const runtime = "nodejs";
 
-export async function GET() {
-  const poster = getPoster();
+// Decode and verify at module load so the production build fails closed if any
+// governed transport chunk is missing or altered.
+const poster = getPoster();
 
+export async function GET() {
   return new Response(new Uint8Array(poster), {
     headers: {
       "Content-Type": "image/webp",
