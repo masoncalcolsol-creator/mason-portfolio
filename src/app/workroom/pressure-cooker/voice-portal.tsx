@@ -1,53 +1,25 @@
 "use client";
 
-import { FormEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { FormEvent, useCallback, useEffect, useRef, useState } from "react";
 
 import styles from "./voice-portal.module.css";
 
 type SessionRole = "admin" | "guest";
-type PortalState = "checking" | "locked" | "ready" | "connecting" | "active" | "ended" | "error";
+type PortalState = "checking" | "locked" | "ready" | "active" | "recording" | "processing" | "speaking" | "ended" | "error";
 
-type Meter = {
-  currency: "USD";
-  hard_limit_seconds: number;
-  warning_seconds: number[];
-  rates_per_minute: {
-    transport: number;
-    speech: number | null;
-    model: number | null;
-    storage: number | null;
-  };
-  estimate_boundary: string;
+type TurnResponse = {
+  ok: boolean;
+  transcript: string;
+  answer: string;
+  audio_url: string;
+  transport: "DIRECT_BROWSER_AUDIO";
+  international_pstn_leg: false;
 };
-
-type CallLike = {
-  on: (event: string, callback: (...args: unknown[]) => void) => void;
-  disconnect: () => void;
-  mute: (muted: boolean) => void;
-};
-
-type DeviceLike = {
-  connect: (options?: { params?: Record<string, string> }) => Promise<CallLike>;
-  on: (event: string, callback: (...args: unknown[]) => void) => void;
-  destroy: () => void;
-};
-
-type DeviceConstructor = new (token: string, options?: Record<string, unknown>) => DeviceLike;
-
-declare global {
-  interface Window {
-    Twilio?: { Device?: DeviceConstructor };
-  }
-}
 
 function formatClock(totalSeconds: number): string {
   const minutes = Math.floor(totalSeconds / 60);
   const seconds = totalSeconds % 60;
   return `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
-}
-
-function money(value: number): string {
-  return new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", minimumFractionDigits: 3 }).format(value);
 }
 
 async function jsonFetch<T>(url: string, init?: RequestInit): Promise<T> {
@@ -61,24 +33,20 @@ async function jsonFetch<T>(url: string, init?: RequestInit): Promise<T> {
   return data;
 }
 
-function loadTwilioSdk(): Promise<void> {
-  if (window.Twilio?.Device) return Promise.resolve();
-  const existing = document.getElementById("nullworks-twilio-voice-sdk") as HTMLScriptElement | null;
-  if (existing) {
-    return new Promise((resolve, reject) => {
-      existing.addEventListener("load", () => resolve(), { once: true });
-      existing.addEventListener("error", () => reject(new Error("Voice SDK failed to load.")), { once: true });
-    });
-  }
-  return new Promise((resolve, reject) => {
-    const script = document.createElement("script");
-    script.id = "nullworks-twilio-voice-sdk";
-    script.src = "/api/neuraxis/voice-web/sdk";
-    script.async = true;
-    script.onload = () => window.Twilio?.Device ? resolve() : reject(new Error("Voice SDK loaded without a Device constructor."));
-    script.onerror = () => reject(new Error("Voice SDK failed to load."));
-    document.head.appendChild(script);
-  });
+function preferredAudioType(): string | undefined {
+  const candidates = [
+    "audio/webm;codecs=opus",
+    "audio/webm",
+    "audio/mp4",
+    "audio/ogg;codecs=opus",
+  ];
+  return candidates.find((type) => typeof MediaRecorder !== "undefined" && MediaRecorder.isTypeSupported(type));
+}
+
+function extensionFor(type: string): string {
+  if (type.includes("mp4")) return "m4a";
+  if (type.includes("ogg")) return "ogg";
+  return "webm";
 }
 
 export default function VoicePortal() {
@@ -87,9 +55,11 @@ export default function VoicePortal() {
   const [passcode, setPasscode] = useState("");
   const [status, setStatus] = useState("Checking secure workroom access…");
   const [elapsed, setElapsed] = useState(0);
-  const [meter, setMeter] = useState<Meter | null>(null);
-  const [muted, setMuted] = useState(false);
   const [inviteUrl, setInviteUrl] = useState("");
+  const [transcript, setTranscript] = useState("");
+  const [answer, setAnswer] = useState("");
+  const [answerAudioUrl, setAnswerAudioUrl] = useState("");
+  const [typedQuestion, setTypedQuestion] = useState("");
   const [showFeedback, setShowFeedback] = useState(false);
   const [feedbackSent, setFeedbackSent] = useState(false);
   const [feedback, setFeedback] = useState({
@@ -100,10 +70,13 @@ export default function VoicePortal() {
     follow_up: "",
   });
 
-  const deviceRef = useRef<DeviceLike | null>(null);
-  const callRef = useRef<CallLike | null>(null);
+  const streamRef = useRef<MediaStream | null>(null);
+  const recorderRef = useRef<MediaRecorder | null>(null);
+  const chunksRef = useRef<BlobPart[]>([]);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
   const startedAtRef = useRef<number | null>(null);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const recordingLimitRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const warningRef = useRef(new Set<number>());
 
   const stopTimer = useCallback(() => {
@@ -111,24 +84,31 @@ export default function VoicePortal() {
     timerRef.current = null;
   }, []);
 
-  const endLocalCall = useCallback((message: string) => {
+  const stopRecordingLimit = useCallback(() => {
+    if (recordingLimitRef.current) clearTimeout(recordingLimitRef.current);
+    recordingLimitRef.current = null;
+  }, []);
+
+  const releaseMedia = useCallback(() => {
+    stopRecordingLimit();
+    if (recorderRef.current?.state === "recording") recorderRef.current.stop();
+    recorderRef.current = null;
+    streamRef.current?.getTracks().forEach((track) => track.stop());
+    streamRef.current = null;
+    audioRef.current?.pause();
+    audioRef.current = null;
+  }, [stopRecordingLimit]);
+
+  const endSession = useCallback((message: string) => {
     stopTimer();
-    callRef.current = null;
+    releaseMedia();
     startedAtRef.current = null;
-    setMuted(false);
     setState("ended");
     setStatus(message);
     setShowFeedback(true);
-  }, [stopTimer]);
+  }, [releaseMedia, stopTimer]);
 
-  const knownRate = useMemo(() => {
-    if (!meter) return 0;
-    return Object.values(meter.rates_per_minute).reduce<number>((sum, value) => sum + (typeof value === "number" ? value : 0), 0);
-  }, [meter]);
-  const estimatedCost = (elapsed / 60) * knownRate;
-  const hasUnconfiguredRates = Boolean(meter && Object.values(meter.rates_per_minute).some((value) => value == null));
-
-  const startTimer = useCallback((activeMeter: Meter) => {
+  const startTimer = useCallback(() => {
     stopTimer();
     startedAtRef.current = Date.now();
     warningRef.current.clear();
@@ -138,26 +118,24 @@ export default function VoicePortal() {
       if (!started) return;
       const seconds = Math.floor((Date.now() - started) / 1000);
       setElapsed(seconds);
-      for (const warning of activeMeter.warning_seconds) {
+      for (const warning of [15 * 60, 19 * 60]) {
         if (seconds >= warning && !warningRef.current.has(warning)) {
           warningRef.current.add(warning);
-          const remaining = Math.max(0, activeMeter.hard_limit_seconds - warning);
-          setStatus(`Cost-control warning: ${Math.ceil(remaining / 60)} minute${remaining === 60 ? "" : "s"} remain.`);
+          setStatus(`Cost-control warning: ${Math.ceil((20 * 60 - warning) / 60)} minute${warning === 19 * 60 ? "" : "s"} remain.`);
         }
       }
-      if (seconds >= activeMeter.hard_limit_seconds) {
-        callRef.current?.disconnect();
-        endLocalCall("The 20-minute cost-control ceiling ended this session. Start a new authorized session to continue.");
+      if (seconds >= 20 * 60) {
+        endSession("The 20-minute cost-control ceiling ended this internet session.");
       }
     }, 1000);
-  }, [endLocalCall, stopTimer]);
+  }, [endSession, stopTimer]);
 
   const checkSession = useCallback(async () => {
     try {
       const session = await jsonFetch<{ ok: boolean; role: SessionRole }>("/api/neuraxis/voice-web/session");
       setRole(session.role);
       setState("ready");
-      setStatus("Secure workroom unlocked. Microphone access begins only when you press Enter Voice Workroom.");
+      setStatus("Secure workroom unlocked. No telephone call will be placed.");
       return;
     } catch {
       const invite = new URL(window.location.href).searchParams.get("invite");
@@ -170,7 +148,7 @@ export default function VoicePortal() {
           history.replaceState({}, "", window.location.pathname);
           setRole(session.role);
           setState("ready");
-          setStatus("Invitation accepted. This grants conversation access only; Mason remains final Human Authority.");
+          setStatus("Invitation accepted. This is direct internet audio; Mason remains final Human Authority.");
           return;
         } catch (error) {
           setStatus(error instanceof Error ? error.message : "Invitation could not be accepted.");
@@ -184,10 +162,9 @@ export default function VoicePortal() {
     void checkSession();
     return () => {
       stopTimer();
-      callRef.current?.disconnect();
-      deviceRef.current?.destroy();
+      releaseMedia();
     };
-  }, [checkSession, stopTimer]);
+  }, [checkSession, releaseMedia, stopTimer]);
 
   async function unlock(event: FormEvent) {
     event.preventDefault();
@@ -200,67 +177,136 @@ export default function VoicePortal() {
       setPasscode("");
       setRole(session.role);
       setState("ready");
-      setStatus("Secure workroom unlocked.");
+      setStatus("Secure workroom unlocked. No telephone call will be placed.");
     } catch (error) {
       setStatus(error instanceof Error ? error.message : "Access denied.");
     }
   }
 
   async function enterWorkroom() {
-    setState("connecting");
-    setStatus("Provisioning encrypted browser voice access…");
     setShowFeedback(false);
     setFeedbackSent(false);
+    setStatus("Requesting microphone access for direct internet audio…");
     try {
-      const access = await jsonFetch<{ token: string; meter: Meter }>("/api/neuraxis/voice-web/token", {
-        method: "POST",
-        body: "{}",
+      if (!navigator.mediaDevices?.getUserMedia || typeof MediaRecorder === "undefined") {
+        throw new Error("This browser does not support direct microphone recording. Use the text question box below or update the browser.");
+      }
+      releaseMedia();
+      const stream = await navigator.mediaDevices.getUserMedia({
+        audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true },
       });
-      setMeter(access.meter);
-      await loadTwilioSdk();
-      const Device = window.Twilio?.Device;
-      if (!Device) throw new Error("Browser voice device unavailable.");
-      deviceRef.current?.destroy();
-      const device = new Device(access.token, {
-        logLevel: 1,
-        closeProtection: true,
-      });
-      deviceRef.current = device;
-      device.on("error", (value) => {
-        console.error("Browser voice device error", value);
-        setState("error");
-        setStatus("The browser voice device reported an error. The phone number remains available as a fallback.");
-      });
-      const call = await device.connect({ params: { workroom: "pressure", transport: "browser_webrtc" } });
-      callRef.current = call;
-      call.on("accept", () => {
-        setState("active");
-        setStatus("Pressure Cooker online. Speak naturally and interrupt with questions.");
-        startTimer(access.meter);
-      });
-      call.on("disconnect", () => endLocalCall("Voice session ended. No international telephone leg was used."));
-      call.on("cancel", () => endLocalCall("Voice session canceled."));
-      call.on("reject", () => endLocalCall("Voice session was rejected by the transport service."));
-      call.on("error", (value) => {
-        console.error("Browser voice call error", value);
-        endLocalCall("The browser voice session encountered an error. The existing phone route remains available as a fallback.");
-      });
-      setStatus("Connecting microphone and governed workroom…");
+      streamRef.current = stream;
+      setState("active");
+      setStatus("Pressure Cooker online over the internet. Tap Start speaking, ask the question, then tap Finish question.");
+      startTimer();
     } catch (error) {
       setState("error");
-      setStatus(error instanceof Error ? error.message : "Browser voice connection failed.");
+      setStatus(error instanceof Error ? error.message : "Microphone access failed.");
     }
   }
 
-  function hangUp() {
-    callRef.current?.disconnect();
-    endLocalCall("Voice session ended by the participant.");
+  async function playAnswer(url = answerAudioUrl) {
+    if (!url) return;
+    audioRef.current?.pause();
+    const audio = new Audio(url);
+    audioRef.current = audio;
+    audio.onended = () => {
+      setState("active");
+      setStatus("Answer complete. Ask the next question when ready.");
+    };
+    audio.onerror = () => {
+      setState("active");
+      setStatus("The written answer is ready, but spoken playback failed. Press Play answer to retry.");
+    };
+    try {
+      setState("speaking");
+      setStatus("Workroom answering…");
+      await audio.play();
+    } catch {
+      setState("active");
+      setStatus("Answer ready. Press Play answer to hear it.");
+    }
   }
 
-  function toggleMute() {
-    const next = !muted;
-    callRef.current?.mute(next);
-    setMuted(next);
+  async function submitTurn(form: FormData) {
+    setState("processing");
+    setStatus("Transcribing, loading locked evidence, and preparing the answer…");
+    try {
+      const response = await fetch("/api/neuraxis/voice-web/turn", {
+        method: "POST",
+        body: form,
+        cache: "no-store",
+      });
+      const result = await response.json() as TurnResponse & { error?: string };
+      if (!response.ok) throw new Error(result.error || `Workroom request failed (${response.status}).`);
+      setTranscript(result.transcript);
+      setAnswer(result.answer);
+      setAnswerAudioUrl(result.audio_url);
+      await playAnswer(result.audio_url);
+    } catch (error) {
+      setState("active");
+      setStatus(error instanceof Error ? error.message : "The workroom could not answer that turn.");
+    }
+  }
+
+  function startRecording() {
+    const stream = streamRef.current;
+    if (!stream) {
+      setStatus("Start the workroom first so the browser can access the microphone.");
+      return;
+    }
+    try {
+      audioRef.current?.pause();
+      chunksRef.current = [];
+      const mimeType = preferredAudioType();
+      const recorder = new MediaRecorder(stream, mimeType ? { mimeType } : undefined);
+      recorderRef.current = recorder;
+      recorder.ondataavailable = (event) => {
+        if (event.data.size) chunksRef.current.push(event.data);
+      };
+      recorder.onstop = () => {
+        stopRecordingLimit();
+        const type = recorder.mimeType || mimeType || "audio/webm";
+        const blob = new Blob(chunksRef.current, { type });
+        const form = new FormData();
+        form.append("audio", blob, `question.${extensionFor(type)}`);
+        void submitTurn(form);
+      };
+      recorder.start(250);
+      setState("recording");
+      setStatus("Listening. Ask one question, then tap Finish question.");
+      recordingLimitRef.current = setTimeout(() => {
+        if (recorder.state === "recording") recorder.stop();
+      }, 60_000);
+    } catch (error) {
+      setState("active");
+      setStatus(error instanceof Error ? error.message : "Recording could not start.");
+    }
+  }
+
+  function finishRecording() {
+    stopRecordingLimit();
+    if (recorderRef.current?.state === "recording") recorderRef.current.stop();
+  }
+
+  async function askByText(event: FormEvent) {
+    event.preventDefault();
+    const question = typedQuestion.trim();
+    if (!question) return;
+    setTypedQuestion("");
+    const form = new FormData();
+    form.append("text", question);
+    await submitTurn(form);
+  }
+
+  function stopAnswer() {
+    audioRef.current?.pause();
+    setState("active");
+    setStatus("Answer stopped. Ask the next question when ready.");
+  }
+
+  function hangUp() {
+    endSession("Internet voice session ended. No international telephone leg was used.");
   }
 
   async function createInvite() {
@@ -279,8 +325,8 @@ export default function VoicePortal() {
   }
 
   async function logout() {
-    callRef.current?.disconnect();
-    deviceRef.current?.destroy();
+    releaseMedia();
+    stopTimer();
     await fetch("/api/neuraxis/voice-web/session", { method: "DELETE" });
     setRole(null);
     setState("locked");
@@ -301,8 +347,9 @@ export default function VoicePortal() {
     }
   }
 
-  const canCall = state === "ready" || state === "ended" || state === "error";
-  const active = state === "active" || state === "connecting";
+  const sessionOpen = ["active", "recording", "processing", "speaking"].includes(state);
+  const canStart = ["ready", "ended", "error"].includes(state);
+  const canAsk = ["active", "speaking"].includes(state);
 
   return (
     <main className={styles.shell}>
@@ -312,7 +359,7 @@ export default function VoicePortal() {
           <div>
             <p className={styles.eyebrow}>NULLWORKS · CONVERSATIONAL EVIDENCE TRANSLATION</p>
             <h1>Pressure Cooker Voice Workroom</h1>
-            <p className={styles.lede}>Secure browser-to-browser voice over the internet. The existing Twilio number remains a fallback, not the primary international entrance.</p>
+            <p className={styles.lede}>Secure microphone conversation over the internet. This browser route does not dial the Twilio number and does not create an international telephone leg.</p>
           </div>
           <div className={styles.badge}>{role ? `${role.toUpperCase()} ACCESS` : "LOCKED"}</div>
         </header>
@@ -335,7 +382,7 @@ export default function VoicePortal() {
                 onChange={(event) => setPasscode(event.target.value.replace(/\D/g, "").slice(0, 4))}
                 aria-label="Pressure Cooker passcode"
               />
-              <button type="submit" disabled={passcode.length !== 4}>Unlock</button>
+              <button type="submit">Unlock</button>
             </div>
           </form>
         )}
@@ -343,17 +390,38 @@ export default function VoicePortal() {
         {state !== "locked" && state !== "checking" && (
           <section className={styles.console}>
             <div className={styles.metrics}>
-              <div><span>Transport</span><strong>Browser WebRTC</strong></div>
+              <div><span>Transport</span><strong>Direct internet audio</strong></div>
               <div><span>International PSTN</span><strong>None</strong></div>
               <div><span>Session</span><strong>{formatClock(elapsed)} / 20:00</strong></div>
-              <div><span>Known cost estimate</span><strong>{money(estimatedCost)}{hasUnconfiguredRates ? "+" : ""}</strong></div>
+              <div><span>Phone-carrier charge</span><strong>$0.000</strong></div>
             </div>
 
             <div className={styles.controls}>
-              <button className={styles.primary} onClick={enterWorkroom} disabled={!canCall}>Enter Voice Workroom</button>
-              <button onClick={toggleMute} disabled={state !== "active"}>{muted ? "Unmute" : "Mute"}</button>
-              <button onClick={hangUp} disabled={!active}>End Session</button>
+              <button className={styles.primary} onClick={enterWorkroom} disabled={!canStart}>Start Internet Workroom</button>
+              <button onClick={state === "recording" ? finishRecording : startRecording} disabled={!canAsk && state !== "recording"}>
+                {state === "recording" ? "Finish question" : "Start speaking"}
+              </button>
+              <button onClick={() => void playAnswer()} disabled={!answerAudioUrl || state === "speaking"}>Play answer</button>
+              <button onClick={stopAnswer} disabled={state !== "speaking"}>Stop answer</button>
+              <button onClick={hangUp} disabled={!sessionOpen}>End Session</button>
             </div>
+
+            <form className={styles.textAsk} onSubmit={askByText}>
+              <textarea
+                placeholder="Text fallback: type a question here"
+                value={typedQuestion}
+                onChange={(event) => setTypedQuestion(event.target.value.slice(0, 5000))}
+                disabled={!sessionOpen || state === "processing"}
+              />
+              <button type="submit" disabled={!typedQuestion.trim() || !sessionOpen || state === "processing"}>Ask by text</button>
+            </form>
+
+            {(transcript || answer) && (
+              <div className={styles.exchange}>
+                {transcript && <div><span>You asked</span><p>{transcript}</p></div>}
+                {answer && <div><span>Workroom answered</span><p>{answer}</p></div>}
+              </div>
+            )}
 
             {role === "admin" && (
               <div className={styles.inviteBox}>
@@ -362,7 +430,7 @@ export default function VoicePortal() {
               </div>
             )}
 
-            <p className={styles.small}>The visible meter uses configured rates. Final Twilio and model usage records remain authoritative. The server and browser both enforce the 20-minute ceiling.</p>
+            <p className={styles.small}>This route uses OpenAI transcription, reasoning, and speech generation over the internet. Those API calls remain metered, but no Twilio phone call or international carrier leg is created. The telephone number remains an emergency fallback only.</p>
           </section>
         )}
 
