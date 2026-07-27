@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import InstantiationExperience from "./InstantiationClientFinal";
+import mobileStyles from "./instantiation-mobile.module.css";
 
 const canonical = "https://mason-portfolio-main.vercel.app/instantiation";
 
@@ -57,7 +58,9 @@ export default function InstantiationPage() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
       />
-      <InstantiationExperience />
+      <div className={mobileStyles.mobileFrame}>
+        <InstantiationExperience />
+      </div>
     </>
   );
 }
