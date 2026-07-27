@@ -171,7 +171,7 @@ async function handle(request: Request): Promise<Response> {
       try {
         const result = await appendCallTurn({
           callSid: params.CallSid,
-          room: "anthony",
+          room: "private",
           step: "anthony_fishing_conversation",
           heard: text,
           response: spoken,
