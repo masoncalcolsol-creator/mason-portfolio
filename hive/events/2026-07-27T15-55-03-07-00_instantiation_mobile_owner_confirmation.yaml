@@ -1,0 +1,73 @@
+receipt_id: INST-FMT-20260727-MOBILE-OWNER-002
+recorded_at_local: 2026-07-27T15:55:03-07:00
+timezone: America/Phoenix
+human_authority: Mason Perry
+system: NULLWORKS_INSTANTIATION_CANONICAL_PAGE
+route: /instantiation
+change_reference: INST-FMT-20260727-MOBILE-001
+status: OWNER_VISUALLY_CONFIRMED_WAITING_FOR_RED_TEAM
+
+source_receipt:
+  type: OWNER_SUPPLIED_SCREEN_RECORDING
+  original_filename: 1000065100.mp4
+  duration_seconds: 78.9369
+  frame_rate_fps: 50.6607
+  frame_dimensions: 1080x2340
+  size_bytes: 34029823
+  sha256: 1f53fef4822280b163d2eaa04ad778e7d326f990752b527f948131aeaf6aab6f
+  library_path: /NULLWORKS/Operational Recovery Series/Final Red Team 2026-07-27/Evidence/2026-07-27_INSTANTIATION_Mobile_Post_Change_Owner_Confirmation.mp4
+
+owner_observation:
+  exact_summary: >-
+    Post-change mobile layout looks good. The mobile reformat preserved the page purpose
+    and information while making the page usable for review.
+  acceptance: ACCEPTED
+  phrase: VACATION_CUBED
+
+visual_confirmation:
+  method: sampled-frame review across the full recording
+  confirmed:
+    - INSTANTIATION title is fully visible within the phone viewport
+    - hero copy is readable without horizontal clipping
+    - final-review version state remains visible as 0.6 / 0.4 / 0.4
+    - manuscript cards stack in a readable single-column flow
+    - lineage section remains present and legible
+    - preserved parent archive remains present and legible
+    - red-team ledger entries remain present and legible
+    - long receipt labels and challenge text wrap within the viewport
+    - Living Learning Architecture section remains present and legible
+    - no page-level sideways scrolling is required in the demonstrated path
+  limitation: >-
+    This receipt confirms the owner-supplied mobile path shown in the recording. It is
+    not a universal device-browser compatibility certification.
+
+content_integrity:
+  manuscript_content_changed: false
+  manuscript_versions_changed: false
+  three_paper_architecture_changed: false
+  evidence_classification_changed: false
+  review_mandate_changed: false
+  noindex_status_changed: false
+  format_only_repair_confirmed: true
+
+wait_state:
+  current_action: WAIT_FOR_FINAL_RED_TEAM_RESPONSES
+  manuscripts_frozen: true
+  reopen_only_for:
+    - material factual defect
+    - evidence classification defect
+    - attribution or permission defect
+    - authority or consequence-ownership defect
+    - safety or privacy defect
+    - implementation accuracy defect
+    - cross-paper boundary leakage
+  no_outbound_action_recorded_here: true
+
+future_self_note: >-
+  Hello again from July 27, 2026. The phone layout was repaired, Mason reviewed the
+  deployed result by screen recording, and the result was accepted. No manuscript
+  content changed during this confirmation. Same papers, same evidence, same review
+  state, better mobile continuity. We then stopped changing things and waited for the
+  red team. Hope the future remains good.
+
+final_disposition: SAVED_STAMPED_EARMARKED_LOCKED_OWNER_CONFIRMED_WAITING
