@@ -1,17 +1,17 @@
 import type { Metadata } from "next";
-import InstantiationExperience from "./InstantiationClientV03";
+import InstantiationExperience from "./InstantiationClientFinal";
 
 const canonical = "https://mason-portfolio-main.vercel.app/instantiation";
 
 export const metadata: Metadata = {
-  title: "INSTANTIATION | Living Operational Recovery Series",
+  title: "INSTANTIATION | Final Red-Team Operational Recovery Series",
   description:
-    "A living three-paper red-team series from Mason Perry and NULLWORKS: immutable parent states, explicit challenge provenance, governed correction receipts, and accountable revision.",
+    "The governed final red-team state of NULLWORKS' three-paper Operational Recovery Series: preserved lineage, explicit evidence boundaries, accountable correction receipts, and a frozen material-review gate.",
   alternates: { canonical },
   robots: { index: false, follow: false },
   openGraph: {
-    title: "INSTANTIATION — The Living Operational Recovery Series",
-    description: "The work can change. The record cannot disappear.",
+    title: "INSTANTIATION — Final Red-Team Operational Recovery Series",
+    description: "Paper 1 v0.6. Paper 2 v0.4. Paper 3 v0.4. The work changed; the record remained.",
     type: "website",
     url: canonical,
     siteName: "NULLWORKS",
@@ -26,8 +26,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "INSTANTIATION — The Living Operational Recovery Series",
-    description: "The red team found the gaps. The descendants changed. The parents remain.",
+    title: "INSTANTIATION — Final Red-Team Operational Recovery Series",
+    description: "The final material-review set is prepared. The parents remain. The receipts explain every change.",
     images: ["/api/assets/instantiation-poster?v=20260721-1"],
   },
 };
@@ -39,16 +39,16 @@ export default function InstantiationPage() {
     name: "INSTANTIATION — The Living Operational Recovery Series",
     author: { "@type": "Person", name: "Mason Perry" },
     publisher: { "@type": "Organization", name: "NULLWORKS" },
-    dateModified: "2026-07-23",
+    dateModified: "2026-07-27",
     url: canonical,
     isAccessibleForFree: true,
     hasPart: [
-      { "@type": "ScholarlyArticle", name: "The Workflow on Paper Was Never the Workflow", version: "0.3" },
-      { "@type": "ScholarlyArticle", name: "From Runtime Truth to Operational Recovery", version: "0.3" },
-      { "@type": "TechArticle", name: "TAC OPS: A Governed Label Recovery Architecture", version: "0.2" },
+      { "@type": "ScholarlyArticle", name: "The Workflow on Paper Was Never the Workflow", version: "0.6" },
+      { "@type": "ScholarlyArticle", name: "From Runtime Truth to Operational Recovery", version: "0.4" },
+      { "@type": "TechArticle", name: "TAC OPS: A Governed Label Recovery Architecture", version: "0.4" },
     ],
     description:
-      "A noindex red-team series preserving the original combined manuscript, immutable v0.2 parent states, external challenge receipts, and corrected independently versioned descendants.",
+      "A noindex canonical review ledger preserving immutable parent states, independently versioned descendants, external challenge receipts, evidence boundaries, and the final material-review gate for the NULLWORKS Operational Recovery Series.",
   };
 
   return (
