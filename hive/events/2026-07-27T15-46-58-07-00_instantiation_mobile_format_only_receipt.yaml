@@ -1,0 +1,85 @@
+receipt_id: INST-FMT-20260727-MOBILE-001
+recorded_at_local: 2026-07-27T15:46:58-07:00
+timezone: America/Phoenix
+human_authority: Mason Perry
+system: NULLWORKS_INSTANTIATION_CANONICAL_PAGE
+route: /instantiation
+change_class: FORMAT_ONLY_MOBILE_REPAIR
+status: DEPLOYED_AWAITING_OWNER_VISUAL_CONFIRMATION
+
+trigger:
+  evidence: USER_SUPPLIED_MOBILE_SCREENSHOT
+  observed_defect: >-
+    The rendered page exceeded the mobile viewport. The INSTANTIATION title,
+    kicker, body copy, and downstream grid content were clipped horizontally,
+    while page-level horizontal scrolling was unavailable.
+  consequence: >-
+    Reviewers could not inspect the same governed information on mobile that was
+    available on wider displays.
+
+owner_instruction:
+  summary: >-
+    Reformat the mobile presentation without changing the purpose, intent,
+    information, manuscript state, evidence, review status, or page meaning.
+  authorization: FORMAT_AND_DEPLOY_APPROVED
+
+changes:
+  - added a route-local responsive containment stylesheet
+  - wrapped the existing page component in a presentation-only mobile frame
+  - constrained page width to the viewport and prevented page-level overflow
+  - reduced mobile hero typography while preserving wording and hierarchy
+  - converted multi-column review grids to single-column mobile layouts
+  - allowed hashes, receipts, labels, and long terms to wrap safely
+  - preserved internal table scrolling where a table cannot be compressed safely
+  - retained desktop presentation outside the mobile breakpoints
+
+unchanged:
+  - manuscript content
+  - Paper 1 version 0.6
+  - Paper 2 version 0.4
+  - Paper 3 version 0.4
+  - three-paper architecture
+  - central thesis
+  - review mandate
+  - evidence classifications
+  - challenge ledger content
+  - reviewer identities and permissions
+  - noindex status
+  - structured-data manuscript versions
+  - public release count
+  - external assurance claims
+
+files:
+  created:
+    - path: src/app/instantiation/instantiation-mobile.module.css
+      commit: 60b4859596b5b3554aea80de599d64ec1590d55f
+  modified:
+    - path: src/app/instantiation/page.tsx
+      commit: 401d8801513e5a5f9ce61fb2c15cee1dc66b2dc9
+      semantic_change: false
+      presentation_change: true
+
+verification_requirements:
+  - no page-level horizontal clipping at common phone widths
+  - INSTANTIATION title fully visible without sideways scrolling
+  - hero copy remains legible and complete
+  - all paper, lineage, ledger, loop, and challenge sections remain present
+  - hashes and receipt identifiers remain inspectable
+  - desktop layout remains materially unchanged
+  - owner performs final visual confirmation on the originating mobile device
+
+future_self_note: >-
+  Hello from July 27, 2026. You may remember that this page looked different on
+  a phone and wonder whether the red-team content changed. It did not. This
+  receipt records a presentation repair only: same words, same versions, same
+  evidence, same intent, better fit. Hope the future is good. Please preserve
+  this distinction if the layout is revised again.
+
+release_boundary:
+  content_reopened: false
+  structure_reopened: false
+  evidence_reclassified: false
+  review_packet_changed: false
+  page_format_changed: true
+
+final_disposition: FORMAT_ONLY_REPAIR_RECORDED_AND_DEPLOYED
