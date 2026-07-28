@@ -1,0 +1,8 @@
+{
+  "crons": [
+    {
+      "path": "/api/gray-matter/digest",
+      "schedule": "0 1 * * *"
+    }
+  ]
+}
