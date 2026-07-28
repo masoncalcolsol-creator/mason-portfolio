@@ -1,0 +1,250 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#05080b" />
+  <meta name="description" content="NULLWORKS Remote Optical Eyeball field inspection console" />
+  <title>NULLWORKS Remote Eye V3</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div id="bootFailure" hidden style="position:sticky;top:0;z-index:9999;background:#4a1017;color:#fff;padding:14px 18px;font-family:system-ui;border-bottom:2px solid #ff626f">
+    Remote Eye did not finish starting. Reload once. If this remains visible, send a screenshot; the page will display the startup error below.
+    <div id="bootFailureDetail" style="margin-top:6px;font-family:ui-monospace,monospace;font-size:12px;opacity:.9"></div>
+  </div>
+  <script>
+    window.__roeBoot = false;
+    const showBootFailure = (detail) => {
+      const box = document.getElementById('bootFailure');
+      const out = document.getElementById('bootFailureDetail');
+      if (box) box.hidden = false;
+      if (out && detail) out.textContent = String(detail);
+    };
+    window.addEventListener('error', (event) => showBootFailure(event.message || 'JavaScript startup error'));
+    window.addEventListener('unhandledrejection', (event) => showBootFailure(event.reason?.message || event.reason || 'Unhandled startup error'));
+    setTimeout(() => { if (!window.__roeBoot) showBootFailure('Startup exceeded 5 seconds.'); }, 5000);
+  </script>
+  <header class="topbar">
+    <div>
+      <div class="eyebrow">NULLWORKS · OI SUIT · FIELD BUILD</div>
+      <h1>REMOTE OPTICAL EYEBALL V3</h1>
+      <p class="subhead">Tricorder inspection console · source truth preserved · human authority final</p>
+    </div>
+    <div class="status-row" aria-live="polite">
+      <span id="sourceState" class="chip">SOURCE: DEMO</span>
+      <span id="truthState" class="chip state-yellow">YELLOW</span>
+      <span id="haloState" class="chip">HALO: OFFLINE</span>
+      <span id="voiceState" class="chip">VOICE: OFF</span>
+    </div>
+  </header>
+
+  <main>
+    <section class="viewer-card">
+      <div id="viewport" class="viewport" aria-label="Inspection viewport">
+        <video id="video" playsinline muted></video>
+        <img id="imageSource" alt="Inspection source" />
+        <canvas id="demoCanvas"></canvas>
+        <canvas id="overlay" tabindex="0" aria-label="Measurement and annotation overlay"></canvas>
+        <div id="freezeBadge" class="freeze-badge hidden">FROZEN SOURCE FRAME</div>
+        <div class="hud hud-left">
+          <div id="measurementReadout">NO SCALE</div>
+          <div id="sourceReadout">SYNTHETIC PIPE</div>
+          <div id="depthReadout">ENTRY: 0.0 ft</div>
+        </div>
+        <div class="hud hud-right">
+          <div id="sessionClock">00:00</div>
+          <div id="eventCount">0 EVENTS</div>
+          <div id="scaleReadout">SCALE: UNSET</div>
+        </div>
+        <div class="fullscreen-hint">DOUBLE TAP VIEWFINDER · EXPAND / RETURN</div>
+      </div>
+
+      <div class="primary-controls">
+        <button id="freezeBtn">Freeze</button>
+        <button id="captureBtn" class="accent">Capture Evidence Pair</button>
+        <button id="voiceBtn">Start Voice</button>
+        <button id="gridBtn">Grid On</button>
+        <button id="clearBtn">Clear Marks</button>
+      </div>
+    </section>
+
+    <section class="panel-grid">
+      <article class="panel reticle-panel">
+        <h2>0 · Reticle and viewfinder</h2>
+        <div class="reticle-layout">
+          <div class="stack">
+            <label>Inspection reticle
+              <div class="reticle-cycle">
+                <button id="reticlePrev" type="button" aria-label="Previous reticle">◀</button>
+                <select id="reticleSelect" aria-label="Reticle style">
+                  <option value="precision-cross">Precision Cross</option>
+                  <option value="circle-dot">Circle Dot</option>
+                  <option value="ring-cross">Ring Cross</option>
+                  <option value="duplex">Duplex Reference</option>
+                  <option value="box-cross">Box Cross</option>
+                  <option value="chevron">Chevron Index</option>
+                  <option value="survey-grid">Survey Tick Grid</option>
+                  <option value="concentric">Concentric Rings</option>
+                  <option value="spot-meter">Spot Meter</option>
+                  <option value="corner-brackets">Corner Brackets</option>
+                  <option value="reference-ladder">Reference Ladder</option>
+                  <option value="lateral-bars">Lateral Reference Bars</option>
+                </select>
+                <button id="reticleNext" type="button" aria-label="Next reticle">▶</button>
+              </div>
+            </label>
+            <div id="reticleReadout" class="readout">Precision Cross · cyan</div>
+            <p class="note">These are neutral inspection-reference patterns. They do not calculate firing solutions, wind correction, or ballistic holdover.</p>
+          </div>
+          <div class="color-control">
+            <div id="colorDial" class="color-dial" role="slider" tabindex="0" aria-label="Reticle color screw" aria-valuemin="0" aria-valuemax="420" aria-valuenow="215">
+              <div class="dial-track"></div>
+              <div id="dialArm" class="dial-arm"><span></span></div>
+              <div id="colorSwatch" class="color-swatch"></div>
+            </div>
+            <div class="dial-label">SPIN COLOR SCREW</div>
+            <div class="two-col compact">
+              <button id="colorWhite" type="button">Bright White</button>
+              <button id="colorBlack" type="button">Black</button>
+            </div>
+          </div>
+        </div>
+      </article>
+      <article class="panel">
+        <h2>1 · Source intake</h2>
+        <div class="stack">
+          <button id="cameraBtn">Use phone rear camera</button>
+          <label class="file-label">Open borescope image or video
+            <input id="fileInput" type="file" accept="image/*,video/*" />
+          </label>
+          <div class="inline-input">
+            <input id="streamUrl" value="/stream.mjpg" aria-label="Camera stream URL" autocomplete="off" />
+            <button id="streamBtn">Connect Stream</button>
+          </div>
+          <button id="demoBtn">Use synthetic test pipe</button>
+        </div>
+        <div id="sourceDetail" class="readout">Demo source is active.</div>
+        <p class="note">Live borescope compatibility depends on the camera/app. Captured files work now. The custom Optical Eye exposes the same-origin <code>/stream.mjpg</code> endpoint.</p>
+      </article>
+
+      <article class="panel">
+        <h2>2 · Job and position</h2>
+        <div class="two-col">
+          <label>Asset / job
+            <input id="assetInput" value="Floor drain inspection" />
+          </label>
+          <label>Location
+            <input id="locationInput" value="Unassigned" />
+          </label>
+          <label>Operator
+            <input id="operatorInput" value="Mason Perry" />
+          </label>
+          <label>Distance from entry
+            <input id="entryDistance" type="number" value="0" min="0" step="0.1" />
+          </label>
+          <label>Distance unit
+            <select id="entryUnit">
+              <option value="ft">feet</option>
+              <option value="in">inches</option>
+              <option value="m">meters</option>
+            </select>
+          </label>
+          <label>Nominal pipe / conduit
+            <input id="nominalSize" value="4 in" />
+          </label>
+        </div>
+        <button id="saveMetaBtn">Save job metadata</button>
+      </article>
+
+      <article class="panel">
+        <h2>3 · Measurement</h2>
+        <div class="two-col">
+          <label>Known reference
+            <input id="knownValue" type="number" value="4" min="0.001" step="0.01" />
+          </label>
+          <label>Unit
+            <select id="unitSelect">
+              <option value="in">inches</option>
+              <option value="mm">millimeters</option>
+              <option value="cm">centimeters</option>
+            </select>
+          </label>
+        </div>
+        <div class="stack">
+          <button id="calibrateBtn">Calibrate: tap two known points</button>
+          <button id="measureBtn">Measure: tap two points</button>
+          <button id="cancelModeBtn">Cancel tap mode</button>
+          <div id="calibrationStatus" class="readout">Calibration not set</div>
+        </div>
+        <p class="note">Measurements are image-derived estimates. The scale is tied to source-pixel coordinates, so it survives viewport resizing.</p>
+      </article>
+
+      <article class="panel">
+        <h2>4 · Inspection finding</h2>
+        <div class="state-buttons">
+          <button data-state="GREEN" class="green">Green</button>
+          <button data-state="YELLOW" class="yellow">Yellow</button>
+          <button data-state="RED" class="red">Red</button>
+        </div>
+        <label>Observation
+          <textarea id="observation" placeholder="Example: hardened residue at 6.2 ft from entry; estimated 30% restriction"></textarea>
+        </label>
+        <button id="markBtn" class="accent">Log Finding</button>
+      </article>
+
+      <article class="panel halo-panel">
+        <h2>5 · Halo HUD</h2>
+        <div class="halo-grid">
+          <div class="halo-simulator" aria-label="Halo HUD simulator">
+            <div id="haloSimState" class="halo-line halo-status">YELLOW</div>
+            <div id="haloSimDistance" class="halo-line">0.0 ft</div>
+            <div id="haloSimMeasurement" class="halo-line">NO SCALE</div>
+            <div id="haloSimMessage" class="halo-message">READY</div>
+          </div>
+          <div class="stack">
+            <button id="haloConnectBtn">Connect Halo</button>
+            <button id="haloSendBtn" class="accent">Send Current HUD</button>
+            <button id="haloClearBtn">Clear Halo Display</button>
+            <button id="haloDisconnectBtn">Disconnect Halo</button>
+          </div>
+        </div>
+        <div id="haloDetail" class="readout">Simulator active. Hardware connection uses the official Brilliant Web Bluetooth SDK in Chrome/Android.</div>
+      </article>
+
+      <article class="panel">
+        <h2>6 · Receipt and sessions</h2>
+        <div id="receiptSummary" class="receipt-summary">Session initialized.</div>
+        <div class="stack">
+          <button id="exportBtn">Export Inspection JSON</button>
+          <button id="copyBtn">Copy Receipt Summary</button>
+          <button id="saveSessionBtn">Save Session Locally</button>
+          <button id="loadSessionBtn">Load Most Recent Session</button>
+          <button id="newSessionBtn">New Session</button>
+        </div>
+      </article>
+    </section>
+
+    <section class="panel event-panel">
+      <div class="event-title">
+        <div>
+          <h2>Append-only field event ledger</h2>
+          <span>Original source and annotations are exported separately.</span>
+        </div>
+        <button id="downloadLogBtn">Download Event CSV</button>
+      </div>
+      <div id="eventLog" class="event-log"></div>
+    </section>
+  </main>
+
+  <footer>
+    <strong>Human authority remains final.</strong> Do not use loose or unrecoverable cameras in drains, conduit, machinery, or inaccessible cavities. Follow electrical isolation, confined-space, sanitation, and local code requirements.
+  </footer>
+
+  <script src="halo-adapter.js?v=3.0.0"></script>
+  <script src="app-core.js?v=3.0.0"></script>
+  <script src="app-source.js?v=3.0.0"></script>
+  <script src="app-session.js?v=3.0.0"></script>
+  <script src="app-controls.js?v=3.0.0"></script>
+</body>
+</html>
