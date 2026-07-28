@@ -109,12 +109,21 @@ window.addEventListener('load', () => {
   document.addEventListener('keydown', (event) => {
     const tag = event.target?.tagName;
     if (['INPUT','TEXTAREA','SELECT'].includes(tag)) return;
-    const decrease = event.key === '[' || event.key === 'PageDown' || (event.shiftKey && event.key === 'ArrowLeft');
-    const increase = event.key === ']' || event.key === 'PageUp' || (event.shiftKey && event.key === 'ArrowRight');
+    const decrease = event.key === '[' || (event.shiftKey && event.key === 'ArrowLeft');
+    const increase = event.key === ']' || (event.shiftKey && event.key === 'ArrowRight');
     if (!decrease && !increase) return;
     event.preventDefault();
     adjust(increase ? 6 : -6);
   });
 
-  if (typeof window.addEvent === 'function') window.addEvent('FLOATING_COLOR_SCREW_ENABLED', { controls: ['touch rotary', '[ and ]', 'PageUp/PageDown', 'Shift+Arrow'] });
+  if (typeof window.addEvent === 'function') window.addEvent('FLOATING_COLOR_SCREW_ENABLED', { controls: ['touch rotary', '[ and ]', 'Shift+Arrow'] });
+
+  const zoomScript = document.createElement('script');
+  zoomScript.src = 'zoom-controls-v32.js?build=20260728-1';
+  zoomScript.async = false;
+  zoomScript.onerror = () => {
+    const detail = document.getElementById('bootFailureDetail');
+    if (detail) detail.textContent = 'Zoom control module failed to load.';
+  };
+  document.body.appendChild(zoomScript);
 });
