@@ -13,6 +13,13 @@ type QueueItem = {
   source_locator: string | null;
   preference: string | null;
   route_depth: number | null;
+  payload?: {
+    context?: string | null;
+    source_lead?: string | null;
+    route_intent?: string | null;
+    invited_by?: string | null;
+    [key: string]: unknown;
+  } | null;
   submission_state: string;
   created_at: string;
   latest_review_receipt: string | null;
@@ -96,7 +103,10 @@ export default function ForestAdminPage() {
             <div className={styles.eyebrow}>NULLWORKS · LIVE LEARNING FOREST</div>
             <strong>Governed Review Console</strong>
           </div>
-          <a href="/forest">Return to the Forest →</a>
+          <div>
+            <a href="/forest/nursery">Open Seed Nursery →</a><br />
+            <a href="/forest">Return to the Forest →</a>
+          </div>
         </header>
 
         <section className={styles.hero}>
@@ -143,7 +153,9 @@ export default function ForestAdminPage() {
               {item.topic_id && <p><strong>Topic:</strong> {item.topic_id}</p>}
               {item.edge_type && <p><strong>Edge:</strong> {item.edge_type}</p>}
               {item.proposal_text && <p>{item.proposal_text}</p>}
-              {item.source_locator && <span className={styles.source}><strong>Source locator:</strong> {item.source_locator}</span>}
+              {item.payload?.route_intent && <p><strong>Requested route:</strong> {item.payload.route_intent}</p>}
+              {item.payload?.invited_by && <p><strong>Seed planter / inviter:</strong> {item.payload.invited_by}</p>}
+              {item.source_locator && <span className={styles.source}><strong>Source lead:</strong> {item.source_locator}</span>}
               {item.preference && <p><strong>Routing signal:</strong> {item.preference.toUpperCase()} · depth {item.route_depth}</p>}
               {item.latest_decision && (
                 <div className={styles.decision}>
