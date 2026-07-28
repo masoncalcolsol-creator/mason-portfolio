@@ -1,0 +1,23 @@
+{
+  "record_type": "NULLWORKS_LIVE_LEARNING_FOREST_MVP_BUILD_RECEIPT",
+  "record_id": "NW-LLF-BUILD-2026-07-27-001",
+  "authorized_by": "Mason Perry",
+  "authorization_phrase": "Save stamp earmark and lock and full send! Build it now",
+  "build_date": "2026-07-27",
+  "public_route": "/forest",
+  "implementation": {
+    "mode": "static-first interactive public grove",
+    "canonical_topics": 2,
+    "initial_tree": "TOPIC-ROSSINI-WILLIAM-TELL",
+    "grown_branch": "TOPIC-TCHAIKOVSKY-1812",
+    "claim_level_sources": true,
+    "route_modes": ["2-minute clearing", "10-minute trail", "deep expedition"],
+    "local_seed_receipts": true,
+    "local_proposal_receipts": true,
+    "red_yellow_green_route_feedback": true,
+    "json_ld_exports": true,
+    "anonymous_by_default": true
+  },
+  "truth_boundary": "Client-side seed, proposal, and preference receipts are explicitly labeled LOCAL_PROTOTYPE_ONLY and are not represented as persisted canonical publication events.",
+  "next_production_boundary": "Replace localStorage ledger with an append-only shared event store and governed review queue before public multi-user contribution launch."
+}
