@@ -1,0 +1,41 @@
+{
+  "@context": {
+    "schema": "https://schema.org/",
+    "llf": "https://nullworks.example/schema/live-learning-forest#"
+  },
+  "@id": "llf:TOPIC-TCHAIKOVSKY-1812",
+  "@type": ["schema:LearningResource", "llf:CanonicalTopic"],
+  "name": "Tchaikovsky & the 1812 Overture",
+  "version": "NW-LLF-PAGE-1812-V1",
+  "datePublished": "2026-07-27",
+  "isAccessibleForFree": true,
+  "inLanguage": "en-US",
+  "creator": { "@type": "schema:Organization", "name": "NULLWORKS" },
+  "accountablePerson": { "@type": "schema:Person", "name": "Mason Perry" },
+  "llf:parentTopic": "llf:TOPIC-ROSSINI-WILLIAM-TELL",
+  "llf:claims": [
+    {
+      "@id": "llf:CLM-1812-001",
+      "statement": "Tchaikovsky composed the festival overture The Year 1812 in 1880.",
+      "truthState": "VERIFIED",
+      "citation": "https://en.tchaikovsky-research.net/pages/1812_Overture"
+    },
+    {
+      "@id": "llf:CLM-1812-002",
+      "statement": "The work commemorates Russia's defeat of Napoleon's invasion in 1812.",
+      "truthState": "VERIFIED",
+      "citation": "https://en.tchaikovsky-research.net/pages/1812_Overture"
+    },
+    {
+      "@id": "llf:CLM-1812-003",
+      "statement": "It was commissioned in connection with the All-Russian Arts and Industrial Exhibition planned for Moscow.",
+      "truthState": "VERIFIED",
+      "citation": "https://en.tchaikovsky-research.net/pages/1812_Overture"
+    }
+  ],
+  "llf:branches": [
+    { "edgeType": "RECONCILES_WITH", "target": "llf:TOPIC-ROSSINI-WILLIAM-TELL", "state": "GROWN" },
+    { "edgeType": "COMMEMORATES", "label": "Napoleon's 1812 campaign", "state": "SEED" },
+    { "edgeType": "INSTRUMENTATION", "label": "Cannons and bells in orchestral music", "state": "SEED" }
+  ]
+}

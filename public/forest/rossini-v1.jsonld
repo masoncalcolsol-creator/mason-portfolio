@@ -1,0 +1,60 @@
+{
+  "@context": {
+    "schema": "https://schema.org/",
+    "llf": "https://nullworks.example/schema/live-learning-forest#"
+  },
+  "@id": "llf:TOPIC-ROSSINI-WILLIAM-TELL",
+  "@type": ["schema:LearningResource", "llf:CanonicalTopic"],
+  "name": "Gioachino Rossini & the William Tell Overture",
+  "version": "NW-LLF-PAGE-ROSSINI-V1",
+  "datePublished": "2026-07-27",
+  "isAccessibleForFree": true,
+  "inLanguage": "en-US",
+  "creator": { "@type": "schema:Organization", "name": "NULLWORKS" },
+  "accountablePerson": { "@type": "schema:Person", "name": "Mason Perry" },
+  "llf:truthPolicy": "Preferences change routing, not truth state.",
+  "llf:origin": "BLOOD PAGODA song concept → Rossini-inspired gallop → childhood encyclopedia memory → factual reconciliation → Live Learning Forest.",
+  "llf:claims": [
+    {
+      "@id": "llf:CLM-ROSSINI-001",
+      "statement": "Guillaume Tell received its first performance at the Paris Opéra on August 3, 1829.",
+      "truthState": "VERIFIED",
+      "citation": "https://www.rossinioperafestival.it/en/stories/guillaume-tell/"
+    },
+    {
+      "@id": "llf:CLM-ROSSINI-002",
+      "statement": "Guillaume Tell was Rossini's last work for the operatic stage.",
+      "truthState": "VERIFIED",
+      "citation": "https://www.rossinioperafestival.it/en/foundation/rof-people/gioachino-rossini/"
+    },
+    {
+      "@id": "llf:CLM-ROSSINI-003",
+      "statement": "In the opera, Tell is ordered to pierce an apple placed on the head of his young son, Jemmy.",
+      "truthState": "VERIFIED",
+      "citation": "https://www.rossinioperafestival.it/en/stories/guillaume-tell/"
+    },
+    {
+      "@id": "llf:CLM-ROSSINI-005",
+      "statement": "Library of Congress catalog records preserve the overture as four named sections: dawn, storm, calm, and finale.",
+      "truthState": "VERIFIED",
+      "citation": [
+        "https://www.loc.gov/item/jukebox-245816/",
+        "https://www.loc.gov/resource/jukebox-119720.1",
+        "https://www.loc.gov/item/jukebox-119725/",
+        "https://www.loc.gov/item/jukebox-119734/"
+      ]
+    },
+    {
+      "@id": "llf:CLM-ROSSINI-006",
+      "statement": "The famous 1812 Overture belongs to Pyotr Ilyich Tchaikovsky and was composed in 1880 to commemorate Russia's defeat of Napoleon.",
+      "truthState": "VERIFIED",
+      "citation": "https://en.tchaikovsky-research.net/pages/1812_Overture"
+    }
+  ],
+  "llf:branches": [
+    { "edgeType": "RECONCILES_WITH", "target": "llf:TOPIC-TCHAIKOVSKY-1812", "state": "GROWN" },
+    { "edgeType": "BASED_ON", "label": "William Tell legend and Schiller's play", "state": "SEED" },
+    { "edgeType": "CULTURAL_REUSE", "label": "Classical music in cartoons and television", "state": "SEED" },
+    { "edgeType": "ORIGIN_MEMORY", "label": "Early CD-ROM encyclopedias", "state": "SEED" }
+  ]
+}
