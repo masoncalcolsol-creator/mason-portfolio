@@ -45,6 +45,15 @@ function confirmationResponse(requestUrl: string, token: string, prompt: string)
 </Response>`);
 }
 
+function receiptStatus(result: Awaited<ReturnType<typeof publishDerekRule>>): string {
+  const receipts: string[] = [];
+  if (result.hiveReceiptUrl) receipts.push("the Hive receipt was written");
+  if (result.emailMessageId) receipts.push("the email receipt was sent to Mason");
+  if (!receipts.length) return "No receipt delivery was confirmed, so keep the reference number.";
+  if (receipts.length === 1) return `${receipts[0]}.`;
+  return `${receipts[0]}, and ${receipts[1]}.`;
+}
+
 export async function POST(request: Request) {
   const params = await readTwilioForm(request);
   if (!validateTwilioRequest(request, params)) {
@@ -72,9 +81,10 @@ export async function POST(request: Request) {
       });
       const freshToken = createDerekCallSession(callSid, caller);
       const next = workroomUrl(request.url, freshToken);
+      const receiptStatement = receiptStatus(result);
       const spoken = result.ok
-        ? `The rule is published. Reference ${result.reference}. Refresh LenderFlow and rerun the Catalina Wine Mixer sample. That lender should no longer match outside the new boundary. What would you like to change next?`
-        : `The rule was not changed. Reference ${result.reference}. The LenderFlow write failed, so I did not describe it as complete. Mason received the failure receipt. You can give me another rule, or try this one again after the bridge is repaired.`;
+        ? `The rule is published. Reference ${result.reference}. ${receiptStatement} Refresh LenderFlow and rerun the Catalina Wine Mixer sample. That lender should no longer match outside the new boundary. What would you like to change next?`
+        : `The rule was not changed. Reference ${result.reference}. The LenderFlow write failed, so I did not describe it as complete. ${receiptStatement} You can give me another rule, or try this one again after the bridge is repaired.`;
 
       after(async () => {
         try {
@@ -96,6 +106,8 @@ export async function POST(request: Request) {
               permanent: !session.pending?.temporary,
               write_ok: result.ok,
               rule_id: result.ruleId || null,
+              hive_receipt_confirmed: Boolean(result.hiveReceiptUrl),
+              email_receipt_confirmed: Boolean(result.emailMessageId),
             },
           });
         } catch (error) {
