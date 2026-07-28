@@ -12,6 +12,10 @@ export type ForestSubmissionInput = {
   preference?: "red" | "yellow" | "green";
   routeDepth?: number;
   word?: string;
+  context?: string;
+  sourceLead?: string;
+  routeIntent?: string;
+  invitedBy?: string;
 };
 
 export type ForestSubmission = {
@@ -25,6 +29,7 @@ export type ForestSubmission = {
   preference: string | null;
   route_depth: number | null;
   state: string;
+  payload?: Record<string, unknown> | null;
   created_at: string;
 };
 
@@ -150,6 +155,10 @@ function validateSubmission(input: ForestSubmissionInput) {
     preference: input.preference,
     routeDepth: Number.isInteger(input.routeDepth) ? Math.min(3, Math.max(1, Number(input.routeDepth))) : null,
     word: cleanText(input.word, 80).toLowerCase().replace(/[^a-z0-9'-]/g, ""),
+    context: cleanText(input.context, 4000),
+    sourceLead: cleanText(input.sourceLead, 1500),
+    routeIntent: cleanText(input.routeIntent, 120),
+    invitedBy: cleanText(input.invitedBy, 100),
   };
 
   if (normalized.kind === "seed" && !normalized.label) {
@@ -180,8 +189,8 @@ export async function createForestSubmission(request: Request, input: ForestSubm
     topic_id: normalized.topicId || null,
     label: normalized.kind === "lexicon" ? normalized.word : normalized.label || null,
     edge_type: normalized.edge || null,
-    proposal_text: normalized.proposalText || null,
-    source_locator: normalized.sourceLocator || null,
+    proposal_text: normalized.proposalText || normalized.context || null,
+    source_locator: normalized.sourceLocator || normalized.sourceLead || null,
     preference: normalized.preference || null,
     route_depth: normalized.routeDepth,
     state: stateFor(normalized.kind),
@@ -190,7 +199,11 @@ export async function createForestSubmission(request: Request, input: ForestSubm
       canonical_effect: "NONE",
       truth_impact: "NONE",
       storage: "SERVER_DURABLE",
-      client_version: "PUBLIC_GROVE_1.0",
+      client_version: "PUBLIC_GROVE_1.1",
+      context: normalized.context || null,
+      source_lead: normalized.sourceLead || null,
+      route_intent: normalized.routeIntent || null,
+      invited_by: normalized.invitedBy || null,
     },
   };
 
@@ -209,7 +222,7 @@ export async function getForestSubmission(receipt: string) {
     throw new ForestStoreError("INVALID_RECEIPT", "The receipt format is invalid.", 400);
   }
   const query = new URLSearchParams({
-    select: "receipt,kind,topic_id,label,edge_type,preference,route_depth,state,created_at",
+    select: "receipt,kind,topic_id,label,edge_type,proposal_text,source_locator,preference,route_depth,state,payload,created_at",
     receipt: `eq.${cleaned}`,
     limit: "1",
   });
