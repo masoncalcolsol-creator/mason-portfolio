@@ -1,0 +1,30 @@
+{
+  "recordType": "LIVE_LEARNING_FOREST_LEXICON_RELEASE_RECEIPT",
+  "recordId": "NW-LLF-LEXICON-2026-07-28-001",
+  "project": "LIVE LEARNING FOREST",
+  "version": "0.2",
+  "authority": "Mason Perry · Final Human Authority",
+  "decision": "Ordinary unknown words receive lightweight dictionary and thesaurus leaves, not automatic full learning trees.",
+  "shipped": [
+    "floating built-in dictionary and thesaurus dock",
+    "plain-language definitions",
+    "close synonyms and related terms",
+    "Forest-specific usage examples",
+    "external lexical cross-check links",
+    "local missing-word lookup receipts",
+    "stable /live-learning-forest alias",
+    "/forest/health deployment receipt endpoint"
+  ],
+  "initialLexicon": [
+    "instantiate",
+    "parallelize",
+    "canonical",
+    "provenance",
+    "telemetry",
+    "reconcile"
+  ],
+  "routingRule": "Define the word in the lexicon. Grow a canonical tree only when the concept warrants history, evidence, competing claims, or meaningful branches.",
+  "truthBoundary": "A missing dictionary entry creates a lexical review receipt; it does not create an encyclopedia topic or an invented definition.",
+  "persistence": "LOCAL_PROTOTYPE_ONLY for missing-word lookup receipts",
+  "date": "2026-07-28"
+}
