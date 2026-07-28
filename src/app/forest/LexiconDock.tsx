@@ -96,21 +96,7 @@ const LEXICON: Record<string, LexiconEntry> = {
 };
 
 function normalize(value: string) {
-  return value.trim().toLowerCase().replace(/[^a-z-]/g, "");
-}
-
-function makeLookupReceipt(word: string) {
-  const random = typeof crypto !== "undefined" && crypto.randomUUID
-    ? crypto.randomUUID().slice(0, 8).toUpperCase()
-    : Math.random().toString(36).slice(2, 10).toUpperCase();
-  return {
-    receipt: `NW-LLF-LEX-${new Date().toISOString().replace(/[-:.TZ]/g, "").slice(0, 14)}-${random}`,
-    word,
-    event: "LEXICON_LOOKUP_MISSING",
-    state: "QUEUED_FOR_LEXICAL_REVIEW",
-    storage: "LOCAL_PROTOTYPE_ONLY",
-    createdAt: new Date().toISOString(),
-  };
+  return value.trim().toLowerCase().replace(/[^a-z0-9'-]/g, "").slice(0, 80);
 }
 
 export default function LexiconDock() {
@@ -118,10 +104,12 @@ export default function LexiconDock() {
   const [query, setQuery] = useState("instantiate");
   const [selected, setSelected] = useState("instantiate");
   const [missingReceipt, setMissingReceipt] = useState<string | null>(null);
+  const [missingError, setMissingError] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
 
   const entry = useMemo(() => LEXICON[selected] ?? null, [selected]);
 
-  function submit(event: FormEvent) {
+  async function submit(event: FormEvent) {
     event.preventDefault();
     const normalized = normalize(query);
     if (!normalized) return;
@@ -129,18 +117,28 @@ export default function LexiconDock() {
     if (LEXICON[normalized]) {
       setSelected(normalized);
       setMissingReceipt(null);
+      setMissingError(null);
       return;
     }
 
-    const lookup = makeLookupReceipt(normalized);
-    try {
-      const current = JSON.parse(localStorage.getItem("llf.lexicon.lookups") || "[]");
-      localStorage.setItem("llf.lexicon.lookups", JSON.stringify([lookup, ...current]));
-    } catch {
-      // The lexical lookup still works as an honest non-persistent prototype.
-    }
+    setBusy(true);
     setSelected("");
-    setMissingReceipt(lookup.receipt);
+    setMissingReceipt(null);
+    setMissingError(null);
+    try {
+      const response = await fetch("/api/forest/events", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ kind: "lexicon", word: normalized }),
+      });
+      const body = await response.json();
+      if (!response.ok) throw new Error(body?.error?.message || "The lexical review request could not be preserved.");
+      setMissingReceipt(body.event.receipt);
+    } catch (error) {
+      setMissingError(error instanceof Error ? error.message : "The lexical review request could not be preserved.");
+    } finally {
+      setBusy(false);
+    }
   }
 
   return (
@@ -166,12 +164,12 @@ export default function LexiconDock() {
 
           <form className={styles.search} onSubmit={submit}>
             <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Try instantiate, parallelize, provenance…" />
-            <button type="submit">Define</button>
+            <button type="submit" disabled={busy}>{busy ? "Saving…" : "Define"}</button>
           </form>
 
           <div className={styles.quickWords}>
             {Object.keys(LEXICON).map((word) => (
-              <button key={word} onClick={() => { setQuery(word); setSelected(word); setMissingReceipt(null); }}>
+              <button key={word} onClick={() => { setQuery(word); setSelected(word); setMissingReceipt(null); setMissingError(null); }}>
                 {word}
               </button>
             ))}
@@ -197,8 +195,9 @@ export default function LexiconDock() {
             <article className={styles.missing}>
               <span>WORD NOT YET IN THE BUILT-IN LEXICON</span>
               <h3>{normalize(query) || "Unknown word"}</h3>
-              <p>This creates a lexical lookup receipt, not an encyclopedia seed and not an invented definition.</p>
+              <p>This creates a durable lexical-review receipt, not an encyclopedia seed and not an invented definition.</p>
               {missingReceipt && <code>{missingReceipt}</code>}
+              {missingError && <p>{missingError} No substitute local receipt was created.</p>}
               <div>
                 <a href={`https://www.merriam-webster.com/dictionary/${encodeURIComponent(normalize(query))}`} target="_blank" rel="noreferrer">Check dictionary ↗</a>
                 <a href={`https://www.merriam-webster.com/thesaurus/${encodeURIComponent(normalize(query))}`} target="_blank" rel="noreferrer">Check thesaurus ↗</a>
