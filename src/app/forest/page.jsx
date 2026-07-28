@@ -4,21 +4,41 @@ import { useEffect, useMemo, useState } from "react";
 import styles from "./forest.module.css";
 
 const SOURCES = {
-  "rof-bio": {
-    id: "SRC-ROF-ROSSINI-BIO",
-    class: "B",
-    publisher: "Rossini Opera Festival",
-    title: "Gioachino Rossini — chronology",
-    url: "https://www.rossinioperafestival.it/en/foundation/rof-people/gioachino-rossini/",
-    note: "Institutional chronology identifying Guillaume Tell as Rossini's last work for the operatic stage.",
+  "bnf-tell": {
+    id: "SRC-BNF-GUILLAUME-TELL",
+    class: "A",
+    publisher: "Bibliothèque nationale de France",
+    title: "Guillaume Tell — authoritative musical work record",
+    url: "https://catalogue.bnf.fr/ark:/12148/cb13918026z",
+    note: "National-library authority record documenting the four-act opera, its Schiller source, the August 3, 1829 Paris premiere, and Jemmy in the cast.",
+    verifiedAt: "2026-07-28",
   },
-  "rof-tell": {
-    id: "SRC-ROF-GUILLAUME-TELL",
+  "met-rossini-timeline": {
+    id: "SRC-MET-ROSSINI-TIMELINE",
     class: "B",
-    publisher: "Rossini Opera Festival",
-    title: "Guillaume Tell — story and production record",
-    url: "https://www.rossinioperafestival.it/en/stories/guillaume-tell/",
-    note: "Institutional synopsis, premiere record, Schiller source, and the apple test involving Tell's son Jemmy.",
+    publisher: "Metropolitan Opera",
+    title: "Rossini timeline — final opera and retirement from the stage",
+    url: "https://www.metopera.org/discover/education/educator-guides/la-cenerentola/the-operas-plot-and-creation/",
+    note: "Metropolitan Opera education record identifying Guillaume Tell as Rossini's final opera and describing his retirement from stage composition after its Paris premiere.",
+    verifiedAt: "2026-07-28",
+  },
+  "met-tell": {
+    id: "SRC-MET-GUILLAUME-TELL",
+    class: "B",
+    publisher: "Metropolitan Opera",
+    title: "Guillaume Tell — composer, librettists, and source play",
+    url: "https://www.metopera.org/user-information/synopses-archive/guillaume-tell/",
+    note: "Metropolitan Opera synopsis archive naming Rossini as composer and identifying the libretto as based on Friedrich Schiller's play.",
+    verifiedAt: "2026-07-28",
+  },
+  "sfo-tell": {
+    id: "SRC-SFO-GUILLAUME-TELL-ARCHIVE",
+    class: "B",
+    publisher: "San Francisco Opera Performance Archive",
+    title: "Guillaume Tell — institutional performance archive",
+    url: "https://archive.sfopera.com/guillaume-tell/1991-1992",
+    note: "San Francisco Opera archive documenting Tell's son Jemmy and the apple-shooting scene in the opera.",
+    verifiedAt: "2026-07-28",
   },
   "loc-dawn": {
     id: "SRC-LOC-TELL-DAWN-1904",
@@ -27,14 +47,16 @@ const SOURCES = {
     title: "William Tell overture — Part 1: At dawn",
     url: "https://www.loc.gov/item/jukebox-245816/",
     note: "Archival catalog record for a 1904 recording naming Rossini as composer.",
+    verifiedAt: "2026-07-28",
   },
   "loc-storm": {
     id: "SRC-LOC-TELL-STORM-1907",
     class: "A",
     publisher: "Library of Congress",
     title: "William Tell overture — Part 2: The storm",
-    url: "https://www.loc.gov/resource/jukebox-119720.1",
+    url: "https://www.loc.gov/item/jukebox-119720/",
     note: "Archival catalog record for a 1907 recording of the storm section.",
+    verifiedAt: "2026-07-28",
   },
   "loc-calm": {
     id: "SRC-LOC-TELL-CALM-1909",
@@ -43,6 +65,7 @@ const SOURCES = {
     title: "William Tell overture — Part 3: The calm",
     url: "https://www.loc.gov/item/jukebox-119725/",
     note: "Archival catalog record for a 1909 recording of the calm section.",
+    verifiedAt: "2026-07-28",
   },
   "loc-finale": {
     id: "SRC-LOC-TELL-FINALE-1909",
@@ -51,14 +74,34 @@ const SOURCES = {
     title: "William Tell overture — Part 4: Finale",
     url: "https://www.loc.gov/item/jukebox-119734/",
     note: "Archival catalog record for a 1909 recording of the finale.",
+    verifiedAt: "2026-07-28",
   },
-  "tchaikovsky-1812": {
-    id: "SRC-TCH-1812-RESEARCH",
+  "carnegie-1812": {
+    id: "SRC-CARNEGIE-1812",
     class: "B",
-    publisher: "Tchaikovsky Research",
-    title: "The Year 1812",
-    url: "https://en.tchaikovsky-research.net/pages/1812_Overture",
-    note: "Specialist source documenting the commission, composition in 1880, commemorative purpose, and performance history.",
+    publisher: "Carnegie Hall Data Lab",
+    title: "1812 Overture, Op. 49 — work authority record",
+    url: "https://data.carnegiehall.org/works/18188/about",
+    note: "Carnegie Hall linked-data record naming Tchaikovsky as creator and dating the work to 1880.",
+    verifiedAt: "2026-07-28",
+  },
+  "utah-1812": {
+    id: "SRC-UTAH-SYMPHONY-1812",
+    class: "B",
+    publisher: "Utah Symphony",
+    title: "Tchaikovsky — 1812 Ouverture Solennelle, Op. 49",
+    url: "https://utahsymphony.org/explore/2013/09/tchaikovsky-1812-ouverture-solennelle-op-49/",
+    note: "Institutional orchestra program note describing the commission, Russian victory over Napoleon, and 1882 premiere context.",
+    verifiedAt: "2026-07-28",
+  },
+  "loc-1812": {
+    id: "SRC-LOC-1812-1909",
+    class: "A",
+    publisher: "Library of Congress",
+    title: "1812 overture — archival recording record",
+    url: "https://www.loc.gov/item/jukebox-422360/",
+    note: "Library of Congress National Jukebox record naming Tchaikovsky as composer of the 1812 Overture.",
+    verifiedAt: "2026-07-28",
   },
 };
 
@@ -78,13 +121,13 @@ const TOPICS = [
       { status: "INTERPRETATION", text: "The horse-racing feeling most likely attaches to the fast finale rather than to a work Rossini wrote for his own son." },
     ],
     claims: [
-      { id: "CLM-ROSSINI-001", depth: 1, state: "VERIFIED", text: "Guillaume Tell received its first performance at the Paris Opéra on August 3, 1829.", sources: ["rof-tell"] },
-      { id: "CLM-ROSSINI-002", depth: 1, state: "VERIFIED", text: "Guillaume Tell was Rossini's last work for the operatic stage.", sources: ["rof-bio"] },
-      { id: "CLM-ROSSINI-003", depth: 1, state: "VERIFIED", text: "In the opera, Tell is ordered to pierce an apple placed on the head of his young son, Jemmy.", sources: ["rof-tell"] },
-      { id: "CLM-ROSSINI-004", depth: 2, state: "VERIFIED", text: "The opera's story is taken from Friedrich Schiller's Wilhelm Tell, published in 1804.", sources: ["rof-tell"] },
+      { id: "CLM-ROSSINI-001", depth: 1, state: "VERIFIED", text: "Guillaume Tell received its first performance at the Paris Opéra on August 3, 1829.", sources: ["bnf-tell"] },
+      { id: "CLM-ROSSINI-002", depth: 1, state: "VERIFIED", text: "Guillaume Tell was Rossini's final opera, after which he retired from composing for the stage.", sources: ["met-rossini-timeline"] },
+      { id: "CLM-ROSSINI-003", depth: 1, state: "VERIFIED", text: "In the opera, Tell is ordered to shoot an apple placed on the head of his young son, Jemmy.", sources: ["sfo-tell"] },
+      { id: "CLM-ROSSINI-004", depth: 2, state: "VERIFIED", text: "The opera's story is based on Friedrich Schiller's Wilhelm Tell, published in 1804.", sources: ["bnf-tell", "met-tell"] },
       { id: "CLM-ROSSINI-005", depth: 2, state: "VERIFIED", text: "Library of Congress catalog records preserve the overture as four named sections: dawn, storm, calm, and finale.", sources: ["loc-dawn", "loc-storm", "loc-calm", "loc-finale"] },
-      { id: "CLM-ROSSINI-006", depth: 3, state: "VERIFIED", text: "The famous 1812 Overture belongs to Pyotr Ilyich Tchaikovsky and was composed in 1880 to commemorate Russia's defeat of Napoleon.", sources: ["tchaikovsky-1812"] },
-      { id: "CLM-ROSSINI-007", depth: 3, state: "INTERPRETATION", text: "Your memory appears to have compressed two famous overtures and one real father-son plot element into a single durable packet.", sources: ["rof-tell", "tchaikovsky-1812"] },
+      { id: "CLM-ROSSINI-006", depth: 3, state: "VERIFIED", text: "The famous 1812 Overture is by Pyotr Ilyich Tchaikovsky, and Carnegie Hall's work authority dates it to 1880.", sources: ["carnegie-1812", "loc-1812"] },
+      { id: "CLM-ROSSINI-007", depth: 3, state: "INTERPRETATION", text: "Your memory appears to have compressed two famous overtures and one real father-son plot element into a single durable packet.", sources: ["bnf-tell", "carnegie-1812", "loc-finale"] },
     ],
     branches: [
       { label: "Tchaikovsky & the 1812 Overture", edge: "RECONCILES_WITH", target: "TOPIC-TCHAIKOVSKY-1812", status: "GROWN" },
@@ -102,19 +145,19 @@ const TOPICS = [
     label: "Tchaikovsky & the 1812 Overture",
     aliases: ["1812", "1812 overture", "tchaikovsky", "cannons overture"],
     stage: "SEEDLING · VERSION 1",
-    summary: "The first grown branch from the Rossini memory: the separate composer, purpose, date, and performance history of The Year 1812.",
+    summary: "The first grown branch from the Rossini memory: the separate composer, purpose, date, and performance history of the 1812 Overture.",
     origin: "Branched from TOPIC-ROSSINI-WILLIAM-TELL through a memory-reconciliation edge.",
     memory: [
       { status: "CORRECT", text: "The 1812 Overture is one of the famous orchestral works in your remembered cluster." },
       { status: "CORRECTION", text: "Its composer is Pyotr Ilyich Tchaikovsky." },
-      { status: "CONTEXT", text: "It commemorates Russia's defeat of Napoleon in 1812; it was not written in 1812." },
+      { status: "CONTEXT", text: "It commemorates the Russian victory over Napoleon; it was not written in 1812." },
     ],
     claims: [
-      { id: "CLM-1812-001", depth: 1, state: "VERIFIED", text: "Tchaikovsky composed the festival overture The Year 1812 in 1880.", sources: ["tchaikovsky-1812"] },
-      { id: "CLM-1812-002", depth: 1, state: "VERIFIED", text: "The work commemorates Russia's defeat of Napoleon's invasion in 1812.", sources: ["tchaikovsky-1812"] },
-      { id: "CLM-1812-003", depth: 2, state: "VERIFIED", text: "It was commissioned in connection with the All-Russian Arts and Industrial Exhibition planned for Moscow.", sources: ["tchaikovsky-1812"] },
-      { id: "CLM-1812-004", depth: 3, state: "WELL_SUPPORTED", text: "The official premiere took place in Moscow in August 1882, after the composition was completed.", sources: ["tchaikovsky-1812"] },
-      { id: "CLM-1812-005", depth: 3, state: "INTERPRETATION", text: "Its proximity in popular memory to Rossini's finale is understandable: both are highly recognizable overtures whose most familiar passages circulate beyond their original dramatic context.", sources: ["tchaikovsky-1812", "loc-finale"] },
+      { id: "CLM-1812-001", depth: 1, state: "VERIFIED", text: "Tchaikovsky created the 1812 Overture in 1880.", sources: ["carnegie-1812"] },
+      { id: "CLM-1812-002", depth: 1, state: "WELL_SUPPORTED", text: "The work commemorates the Russian victory over Napoleon.", sources: ["utah-1812"] },
+      { id: "CLM-1812-003", depth: 2, state: "WELL_SUPPORTED", text: "The commission was connected to a Moscow exhibition and the Cathedral of Christ the Savior.", sources: ["utah-1812"] },
+      { id: "CLM-1812-004", depth: 3, state: "WELL_SUPPORTED", text: "The work premiered in Moscow in 1882, after its 1880 composition.", sources: ["utah-1812", "carnegie-1812"] },
+      { id: "CLM-1812-005", depth: 3, state: "INTERPRETATION", text: "Its proximity in popular memory to Rossini's finale is understandable: both are highly recognizable overtures whose most familiar passages circulate beyond their original contexts.", sources: ["loc-1812", "loc-finale"] },
     ],
     branches: [
       { label: "Rossini & the William Tell Overture", edge: "RECONCILES_WITH", target: "TOPIC-ROSSINI-WILLIAM-TELL", status: "GROWN" },
@@ -334,8 +377,8 @@ export default function ForestPage() {
         </section>
 
         <section className={styles.sourcesSection}>
-          <div className={styles.sectionHeading}><div><span className={styles.sectionKicker}>VISIBLE ROOTS</span><h3>Sources supporting this route</h3></div><span>Class A = archival / primary · Class B = institutional / specialist</span></div>
-          <div className={styles.sources}>{sourceIds.map((sourceId) => { const source = SOURCES[sourceId]; return <a key={source.id} href={source.url} target="_blank" rel="noreferrer"><span className={styles.sourceClass}>CLASS {source.class}</span><strong>{source.title}</strong><small>{source.publisher}</small><p>{source.note}</p><b>{source.id} ↗</b></a>; })}</div>
+          <div className={styles.sectionHeading}><div><span className={styles.sectionKicker}>VISIBLE ROOTS</span><h3>Sources supporting this route</h3></div><a href="/api/forest/sources/health" target="_blank" rel="noreferrer">Run live source integrity check ↗</a></div>
+          <div className={styles.sources}>{sourceIds.map((sourceId) => { const source = SOURCES[sourceId]; return <a key={source.id} href={source.url} target="_blank" rel="noreferrer"><span className={styles.sourceClass}>CLASS {source.class}</span><strong>{source.title}</strong><small>{source.publisher}</small><p>{source.note}</p><b>{source.id} · LINK VERIFIED {source.verifiedAt} ↗</b></a>; })}</div>
         </section>
 
         <section className={styles.contributeSection}>

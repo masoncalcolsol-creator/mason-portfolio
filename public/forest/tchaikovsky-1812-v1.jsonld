@@ -8,29 +8,38 @@
   "name": "Tchaikovsky & the 1812 Overture",
   "version": "NW-LLF-PAGE-1812-V1",
   "datePublished": "2026-07-27",
+  "dateModified": "2026-07-28",
   "isAccessibleForFree": true,
   "inLanguage": "en-US",
   "creator": { "@type": "schema:Organization", "name": "NULLWORKS" },
   "accountablePerson": { "@type": "schema:Person", "name": "Mason Perry" },
   "llf:parentTopic": "llf:TOPIC-ROSSINI-WILLIAM-TELL",
+  "llf:sourceIntegrityPolicy": "Every exact public source URL must resolve; a citation string alone is not a valid receipt.",
+  "llf:sourceHealthEndpoint": "/api/forest/sources/health",
   "llf:claims": [
     {
       "@id": "llf:CLM-1812-001",
-      "statement": "Tchaikovsky composed the festival overture The Year 1812 in 1880.",
+      "statement": "Tchaikovsky created the 1812 Overture in 1880.",
       "truthState": "VERIFIED",
-      "citation": "https://en.tchaikovsky-research.net/pages/1812_Overture"
+      "citation": "https://data.carnegiehall.org/works/18188/about"
     },
     {
       "@id": "llf:CLM-1812-002",
-      "statement": "The work commemorates Russia's defeat of Napoleon's invasion in 1812.",
-      "truthState": "VERIFIED",
-      "citation": "https://en.tchaikovsky-research.net/pages/1812_Overture"
+      "statement": "The work commemorates the Russian victory over Napoleon.",
+      "truthState": "WELL_SUPPORTED",
+      "citation": "https://utahsymphony.org/explore/2013/09/tchaikovsky-1812-ouverture-solennelle-op-49/"
     },
     {
       "@id": "llf:CLM-1812-003",
-      "statement": "It was commissioned in connection with the All-Russian Arts and Industrial Exhibition planned for Moscow.",
+      "statement": "The commission was connected to a Moscow exhibition and the Cathedral of Christ the Savior.",
+      "truthState": "WELL_SUPPORTED",
+      "citation": "https://utahsymphony.org/explore/2013/09/tchaikovsky-1812-ouverture-solennelle-op-49/"
+    },
+    {
+      "@id": "llf:CLM-1812-004",
+      "statement": "The Library of Congress preserves an archival recording record that names Tchaikovsky as composer of the 1812 Overture.",
       "truthState": "VERIFIED",
-      "citation": "https://en.tchaikovsky-research.net/pages/1812_Overture"
+      "citation": "https://www.loc.gov/item/jukebox-422360/"
     }
   ],
   "llf:branches": [
