@@ -1,0 +1,90 @@
+.mh-scope-stage {
+  position: relative;
+  min-height: 100vh;
+  isolation: isolate;
+  background: #030604;
+}
+
+.mh-scope-instrument {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.mh-scope-canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.mh-scope-glass {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 50% 42%, transparent 18%, rgba(0, 0, 0, 0.12) 62%, rgba(0, 0, 0, 0.42) 100%),
+    linear-gradient(180deg, rgba(3, 6, 4, 0.2), rgba(3, 6, 4, 0.58));
+  box-shadow: inset 0 0 130px rgba(0, 0, 0, 0.72);
+}
+
+.mh-scope-readout {
+  position: absolute;
+  right: 18px;
+  bottom: 14px;
+  display: flex;
+  gap: 14px;
+  color: rgba(190, 255, 154, 0.28);
+  font-family: var(--font-geist-mono), ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 8px;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+}
+
+.mh-scope-content {
+  position: relative;
+  z-index: 2;
+  min-height: 100vh;
+}
+
+.mh-scope-content .mh-page {
+  background:
+    radial-gradient(circle at 80% 8%, rgba(120, 227, 224, 0.1), transparent 29rem),
+    radial-gradient(circle at 8% 27%, rgba(165, 255, 55, 0.065), transparent 32rem),
+    linear-gradient(180deg, rgba(5, 7, 6, 0.5) 0%, rgba(7, 16, 10, 0.56) 48%, rgba(3, 5, 4, 0.7) 100%) !important;
+}
+
+.mh-scope-content .mh-page::before {
+  opacity: 0.24 !important;
+}
+
+@media (max-width: 640px) {
+  .mh-scope-readout {
+    right: 10px;
+    bottom: 8px;
+    flex-direction: column;
+    gap: 4px;
+    text-align: right;
+    font-size: 7px;
+    opacity: 0.72;
+  }
+
+  .mh-scope-glass {
+    background:
+      radial-gradient(circle at 50% 38%, transparent 10%, rgba(0, 0, 0, 0.16) 58%, rgba(0, 0, 0, 0.5) 100%),
+      linear-gradient(180deg, rgba(3, 6, 4, 0.16), rgba(3, 6, 4, 0.52));
+  }
+
+  .mh-scope-content .mh-page {
+    background:
+      radial-gradient(circle at 78% 7%, rgba(120, 227, 224, 0.085), transparent 20rem),
+      radial-gradient(circle at 10% 24%, rgba(165, 255, 55, 0.055), transparent 24rem),
+      linear-gradient(180deg, rgba(5, 7, 6, 0.46) 0%, rgba(7, 16, 10, 0.53) 48%, rgba(3, 5, 4, 0.68) 100%) !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mh-scope-readout {
+    opacity: 0.55;
+  }
+}
