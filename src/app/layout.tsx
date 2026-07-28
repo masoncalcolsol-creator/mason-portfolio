@@ -17,7 +17,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://mason-portfolio-phi.vercel.app"),
+  metadataBase: new URL("https://mason-portfolio-main.vercel.app"),
   title: {
     default: "Mason Perry | Operational Intelligence Systems Architect",
     template: "%s | Mason Perry",
@@ -29,7 +29,7 @@ export const metadata: Metadata = {
     description:
       "Human-centered AI orchestration, OI SUITes, workflow compression, and forward-deployed applied-AI systems.",
     type: "website",
-    url: "https://mason-portfolio-phi.vercel.app",
+    url: "https://mason-portfolio-main.vercel.app",
   },
 };
 
