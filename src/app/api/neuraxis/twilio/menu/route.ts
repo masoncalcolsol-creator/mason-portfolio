@@ -15,10 +15,11 @@ import { recordRoomSelection } from "@/lib/neuraxis-call-telemetry";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-function menuChoice(value: string): "1" | "2" | "5" | "7" | "8" | "9" | "" {
+function menuChoice(value: string): "1" | "2" | "3" | "5" | "7" | "8" | "9" | "" {
   const normalized = value.toLowerCase().trim();
   if (normalized === "1" || /\b(one|shared|workroom)\b/.test(normalized)) return "1";
   if (normalized === "2" || /\b(two|room two|private workroom two|anthony|black flag|fishing|kayak)\b/.test(normalized)) return "2";
+  if (normalized === "3" || /\b(three|gray matter|grey matter|journal|voice memo|note vault|storage unit)\b/.test(normalized)) return "3";
   if (normalized === "5" || /\b(five|audit|ai audit)\b/.test(normalized)) return "5";
   if (normalized === "7" || /\b(seven|mr sloth|mister sloth|sloth|quiet booth|observation)\b/.test(normalized)) return "7";
   if (normalized === "8" || /\b(eight|pressure cooker|kaironull|dane)\b/.test(normalized)) return "8";
@@ -39,15 +40,17 @@ export async function POST(request: Request) {
     ? "workroom"
     : choice === "2"
       ? "anthony"
-      : choice === "5"
-        ? "audit"
-        : choice === "7"
-          ? "sloth"
-          : choice === "8"
-            ? "pressure"
-            : choice === "9"
-              ? "private"
-              : undefined;
+      : choice === "3"
+        ? "private"
+        : choice === "5"
+          ? "audit"
+          : choice === "7"
+            ? "sloth"
+            : choice === "8"
+              ? "pressure"
+              : choice === "9"
+                ? "private"
+                : undefined;
 
   if (room && params.CallSid) {
     after(async () => {
@@ -56,7 +59,7 @@ export async function POST(request: Request) {
           callSid: params.CallSid,
           room: room as Parameters<typeof recordRoomSelection>[0]["room"],
           caller: params.From,
-          selection: spokenSelection,
+          selection: choice === "3" ? `GRAY_MATTER: ${spokenSelection}` : spokenSelection,
         });
       } catch (error) {
         console.error("NEURAXIS room-selection telemetry failed", error);
@@ -72,6 +75,11 @@ export async function POST(request: Request) {
   if (choice === "2") {
     const target = `${origin}/api/neuraxis/twilio/anthony`;
     return twiml(`<?xml version="1.0" encoding="UTF-8"?><Response><Redirect method="POST">${xmlEscape(target)}</Redirect></Response>`);
+  }
+
+  if (choice === "3") {
+    const target = `${origin}/api/neuraxis/twilio/gray-matter`;
+    return twiml(`<?xml version="1.0" encoding="UTF-8"?><Response>${speak("Opening Mason's Gray Matter Storage Unit.", request.url)}<Redirect method="POST">${xmlEscape(target)}</Redirect></Response>`);
   }
 
   if (choice === "5") {
