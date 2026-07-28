@@ -133,11 +133,6 @@ const ROUTES = [
   { key: 3, label: "Deep expedition", hint: "Interpretation, genealogy, and full receipts" },
 ];
 
-function makeReceipt(prefix) {
-  const random = typeof crypto !== "undefined" && crypto.randomUUID ? crypto.randomUUID().slice(0, 8).toUpperCase() : Math.random().toString(36).slice(2, 10).toUpperCase();
-  return `${prefix}-${new Date().toISOString().replace(/[-:.TZ]/g, "").slice(0, 14)}-${random}`;
-}
-
 function safeRead(key, fallback) {
   try {
     const raw = localStorage.getItem(key);
@@ -158,20 +153,37 @@ export default function ForestPage() {
   const [proposalText, setProposalText] = useState("");
   const [proposalSource, setProposalSource] = useState("");
   const [showLedger, setShowLedger] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [storageStatus, setStorageStatus] = useState({ state: "CHECKING", writesEnabled: false });
 
   useEffect(() => {
-    setSeeds(safeRead("llf.seeds", []));
-    setFeedback(safeRead("llf.feedback", {}));
-    setProposals(safeRead("llf.proposals", []));
+    setSeeds(safeRead("llf.server.seeds", []));
+    setFeedback(safeRead("llf.server.feedback", {}));
+    setProposals(safeRead("llf.server.proposals", []));
+    fetch("/api/forest/status", { cache: "no-store" })
+      .then(async (response) => ({ response, body: await response.json() }))
+      .then(({ response, body }) => setStorageStatus({ state: body?.storage?.state || (response.ok ? "READY" : "UNAVAILABLE"), writesEnabled: Boolean(body?.writesEnabled) }))
+      .catch(() => setStorageStatus({ state: "UNREACHABLE", writesEnabled: false }));
   }, []);
 
   const topic = useMemo(() => TOPICS.find((item) => item.id === topicId) || TOPICS[0], [topicId]);
   const visibleClaims = topic.claims.filter((claim) => claim.depth <= routeDepth);
   const sourceIds = [...new Set(visibleClaims.flatMap((claim) => claim.sources))];
 
-  function persist(key, value, setter) {
+  function cacheReceipt(key, value, setter) {
     setter(value);
-    try { localStorage.setItem(key, JSON.stringify(value)); } catch { /* local prototype remains usable */ }
+    try { localStorage.setItem(key, JSON.stringify(value)); } catch { /* server is canonical; cache is optional */ }
+  }
+
+  async function postEvent(payload) {
+    const response = await fetch("/api/forest/events", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+    const body = await response.json();
+    if (!response.ok) throw new Error(body?.error?.message || "The Forest could not preserve this event.");
+    return body.event;
   }
 
   function selectTopic(id) {
@@ -180,55 +192,80 @@ export default function ForestPage() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
-  function plantSeed(label, parentId = topic.id, edge = "USER_CURIOSITY") {
+  async function plantSeed(label, parentId = topic.id, edge = "USER_CURIOSITY") {
     const trimmed = label.trim();
-    if (!trimmed) return;
-    const duplicate = seeds.find((seed) => seed.label.toLowerCase() === trimmed.toLowerCase());
+    if (!trimmed || busy) return;
+    const duplicate = seeds.find((seed) => seed.label?.toLowerCase() === trimmed.toLowerCase());
     if (duplicate) {
       setNotice({ type: "seed", title: "Seed already receipted", body: duplicate.receipt });
       return;
     }
-    const seed = { receipt: makeReceipt("NW-LLF-SEED"), label: trimmed, parentTopicId: parentId, edge, state: "QUEUED_FOR_SOURCE_REVIEW", createdAt: new Date().toISOString(), storage: "LOCAL_PROTOTYPE_ONLY" };
-    persist("llf.seeds", [seed, ...seeds], setSeeds);
-    setNotice({ type: "seed", title: "Seed planted — not hallucinated", body: `${seed.receipt} · queued for source review. This prototype receipt is stored only on this device.` });
+    setBusy(true);
+    try {
+      const event = await postEvent({ kind: "seed", label: trimmed, topicId: parentId, edge });
+      const seed = { ...event, storage: "SERVER_DURABLE" };
+      cacheReceipt("llf.server.seeds", [seed, ...seeds], setSeeds);
+      setNotice({ type: "seed", title: "Seed planted — durable receipt created", body: `${seed.receipt} · queued for source review in the shared Forest ledger.` });
+    } catch (error) {
+      setNotice({ type: "error", title: "Seed not saved", body: `${error instanceof Error ? error.message : "Unknown storage error"} No substitute local receipt was created.` });
+    } finally {
+      setBusy(false);
+    }
   }
 
-  function handleSearch(event) {
+  async function handleSearch(event) {
     event.preventDefault();
     const normalized = query.trim().toLowerCase();
-    if (!normalized) return;
+    if (!normalized || busy) return;
     const match = TOPICS.find((item) => item.label.toLowerCase().includes(normalized) || item.aliases.some((alias) => alias.includes(normalized) || normalized.includes(alias)));
     if (match) {
       selectTopic(match.id);
       setNotice({ type: "match", title: "Canonical topic resolved", body: `${match.id} · ${match.stage}` });
     } else {
-      plantSeed(query, topic.id, "SEARCHED_FOR");
+      await plantSeed(query, topic.id, "SEARCHED_FOR");
     }
     setQuery("");
   }
 
-  function followBranch(branch) {
+  async function followBranch(branch) {
     if (branch.target) selectTopic(branch.target);
-    else plantSeed(branch.label, topic.id, branch.edge);
+    else await plantSeed(branch.label, topic.id, branch.edge);
   }
 
-  function rate(value) {
-    const event = { receipt: makeReceipt("NW-LLF-PREF"), target: topic.id, value, routeDepth, createdAt: new Date().toISOString(), truthImpact: "NONE" };
-    persist("llf.feedback", { ...feedback, [topic.id]: event }, setFeedback);
-    setNotice({ type: "feedback", title: `${value.toUpperCase()} route preference saved`, body: "This changes presentation preference only. It cannot change a claim's truth state." });
+  async function rate(value) {
+    if (busy) return;
+    setBusy(true);
+    try {
+      const event = await postEvent({ kind: "preference", topicId: topic.id, preference: value, routeDepth });
+      cacheReceipt("llf.server.feedback", { ...feedback, [topic.id]: { ...event, value, storage: "SERVER_DURABLE" } }, setFeedback);
+      setNotice({ type: "feedback", title: `${value.toUpperCase()} route preference preserved`, body: `${event.receipt} · this changes presentation preference only. It cannot change a claim's truth state.` });
+    } catch (error) {
+      setNotice({ type: "error", title: "Preference not saved", body: `${error instanceof Error ? error.message : "Unknown storage error"} Truth and routing remain unchanged.` });
+    } finally {
+      setBusy(false);
+    }
   }
 
-  function submitProposal(event) {
+  async function submitProposal(event) {
     event.preventDefault();
-    if (!proposalText.trim() || !proposalSource.trim()) return;
-    const proposal = { receipt: makeReceipt("NW-LLF-PROPOSAL"), topicId: topic.id, text: proposalText.trim(), source: proposalSource.trim(), state: "PROPOSED_NOT_PUBLISHED", createdAt: new Date().toISOString(), storage: "LOCAL_PROTOTYPE_ONLY" };
-    persist("llf.proposals", [proposal, ...proposals], setProposals);
-    setProposalText("");
-    setProposalSource("");
-    setNotice({ type: "proposal", title: "Proposal receipted", body: `${proposal.receipt} · proposal is not canonical and has not been published.` });
+    if (!proposalText.trim() || !proposalSource.trim() || busy) return;
+    setBusy(true);
+    try {
+      const saved = await postEvent({ kind: "proposal", topicId: topic.id, proposalText: proposalText.trim(), sourceLocator: proposalSource.trim() });
+      const proposal = { ...saved, text: proposalText.trim(), source: proposalSource.trim(), storage: "SERVER_DURABLE" };
+      cacheReceipt("llf.server.proposals", [proposal, ...proposals], setProposals);
+      setProposalText("");
+      setProposalSource("");
+      setNotice({ type: "proposal", title: "Proposal preserved in the review queue", body: `${proposal.receipt} · it is not canonical and has not been published.` });
+    } catch (error) {
+      setNotice({ type: "error", title: "Proposal not saved", body: `${error instanceof Error ? error.message : "Unknown storage error"} No local substitute was created.` });
+    } finally {
+      setBusy(false);
+    }
   }
 
   const currentRating = feedback[topic.id]?.value;
+  const ledgerReady = storageStatus.state === "READY" && storageStatus.writesEnabled;
 
   return (
     <main className={styles.page}>
@@ -237,9 +274,9 @@ export default function ForestPage() {
         <header className={styles.header}>
           <a href="/" className={styles.brand}>
             <span className={styles.mark}>NW</span>
-            <span><strong>LIVE LEARNING FOREST</strong><small>NULLWORKS · PUBLIC GROVE 0.1</small></span>
+            <span><strong>LIVE LEARNING FOREST</strong><small>NULLWORKS · PUBLIC GROVE 1.0</small></span>
           </a>
-          <div className={styles.headerMeta}><span>FREE TO ENTER</span><span>NO ACCOUNT</span><span>HUMAN AUTHORITY FINAL</span></div>
+          <div className={styles.headerMeta}><span>FREE TO ENTER</span><span>NO ACCOUNT</span><span>{ledgerReady ? "DURABLE LEDGER" : "READ-ONLY SAFETY"}</span></div>
         </header>
 
         <section className={styles.hero}>
@@ -250,9 +287,15 @@ export default function ForestPage() {
           </div>
           <form className={styles.search} onSubmit={handleSearch}>
             <label htmlFor="forest-search">What do you want to learn about?</label>
-            <div><input id="forest-search" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Try Rossini, 1812 Overture, or plant something new…" /><button type="submit">Ask the Librarian</button></div>
-            <small>Canonical match if one exists. Otherwise: receipted seed queued for evidence review.</small>
+            <div><input id="forest-search" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Try Rossini, 1812 Overture, or plant something new…" /><button type="submit" disabled={busy}>{busy ? "Preserving…" : "Ask the Librarian"}</button></div>
+            <small>Canonical match if one exists. Otherwise: durable seed receipt queued for evidence review.</small>
           </form>
+        </section>
+
+        <section className={styles.notice} role="status">
+          <strong>{ledgerReady ? "Production ledger connected" : storageStatus.state === "CHECKING" ? "Checking the production ledger" : "Production writes safely paused"}</strong>
+          <span>{ledgerReady ? "Seeds, proposals, route signals, and lexical-review requests are now preserved in the shared append-only ledger." : "Reading remains available. New events will fail visibly rather than create fake local receipts until the database is connected."}</span>
+          <a href="/forest/admin">Governed review console →</a>
         </section>
 
         {notice && <section className={styles.notice} role="status"><strong>{notice.title}</strong><span>{notice.body}</span><button onClick={() => setNotice(null)} aria-label="Dismiss notice">×</button></section>}
@@ -281,13 +324,13 @@ export default function ForestPage() {
           </div>
           <aside className={styles.sideColumn}>
             <section className={styles.sideCard}><span className={styles.sectionKicker}>HOW DID WE GET HERE?</span><p>{topic.origin}</p></section>
-            <section className={styles.sideCard}><span className={styles.sectionKicker}>ROUTE TRIAGE</span><h3>Should the Librarian offer more routes like this?</h3><div className={styles.triage}><button className={currentRating === "red" ? styles.selectedRed : ""} onClick={() => rate("red")}><span>RED</span><small>Less like this</small></button><button className={currentRating === "yellow" ? styles.selectedYellow : ""} onClick={() => rate("yellow")}><span>YELLOW</span><small>Context dependent</small></button><button className={currentRating === "green" ? styles.selectedGreen : ""} onClick={() => rate("green")}><span>GREEN</span><small>More like this</small></button></div><p className={styles.microcopy}>This tunes routing and presentation only. Truth state remains source-governed.</p></section>
+            <section className={styles.sideCard}><span className={styles.sectionKicker}>ROUTE TRIAGE</span><h3>Should the Librarian offer more routes like this?</h3><div className={styles.triage}><button disabled={busy} className={currentRating === "red" ? styles.selectedRed : ""} onClick={() => rate("red")}><span>RED</span><small>Less like this</small></button><button disabled={busy} className={currentRating === "yellow" ? styles.selectedYellow : ""} onClick={() => rate("yellow")}><span>YELLOW</span><small>Context dependent</small></button><button disabled={busy} className={currentRating === "green" ? styles.selectedGreen : ""} onClick={() => rate("green")}><span>GREEN</span><small>More like this</small></button></div><p className={styles.microcopy}>This tunes routing and presentation only. Truth state remains source-governed.</p></section>
           </aside>
         </section>
 
         <section className={styles.branchesSection}>
           <div className={styles.sectionHeading}><div><span className={styles.sectionKicker}>LIVING BRANCHES</span><h3>Choose a path or plant the missing tree.</h3></div><span>{topic.branches.filter((branch) => branch.status === "GROWN").length} grown · {topic.branches.filter((branch) => branch.status === "SEED").length} unplanted</span></div>
-          <div className={styles.branches}>{topic.branches.map((branch) => <button key={branch.label} onClick={() => followBranch(branch)}><span className={branch.status === "GROWN" ? styles.grown : styles.seed}>{branch.status}</span><strong>{branch.label}</strong><small>{branch.edge}</small><b>{branch.status === "GROWN" ? "Enter tree →" : "Plant seed +"}</b></button>)}</div>
+          <div className={styles.branches}>{topic.branches.map((branch) => <button disabled={busy} key={branch.label} onClick={() => followBranch(branch)}><span className={branch.status === "GROWN" ? styles.grown : styles.seed}>{branch.status}</span><strong>{branch.label}</strong><small>{branch.edge}</small><b>{branch.status === "GROWN" ? "Enter tree →" : "Plant seed +"}</b></button>)}</div>
         </section>
 
         <section className={styles.sourcesSection}>
@@ -296,16 +339,16 @@ export default function ForestPage() {
         </section>
 
         <section className={styles.contributeSection}>
-          <div><span className={styles.sectionKicker}>FERTILIZE THIS TREE</span><h3>Suggest a sourced improvement.</h3><p>You are creating a proposal, not editing the canonical page. Publication requires review and a new immutable version.</p></div>
-          <form onSubmit={submitProposal}><textarea value={proposalText} onChange={(event) => setProposalText(event.target.value)} placeholder="What claim, correction, or branch should be reviewed?" required /><input value={proposalSource} onChange={(event) => setProposalSource(event.target.value)} placeholder="Source URL or precise source citation" required /><button type="submit">Create proposal receipt</button></form>
+          <div><span className={styles.sectionKicker}>FERTILIZE THIS TREE</span><h3>Suggest a sourced improvement.</h3><p>You are creating a durable proposal, not editing the canonical page. Publication requires review and a new immutable version.</p></div>
+          <form onSubmit={submitProposal}><textarea value={proposalText} onChange={(event) => setProposalText(event.target.value)} placeholder="What claim, correction, or branch should be reviewed?" required /><input value={proposalSource} onChange={(event) => setProposalSource(event.target.value)} placeholder="Source URL or precise source citation" required /><button type="submit" disabled={busy}>{busy ? "Preserving…" : "Create proposal receipt"}</button></form>
         </section>
 
         <section className={styles.ledgerSection}>
-          <button className={styles.ledgerToggle} onClick={() => setShowLedger(!showLedger)}><span><span className={styles.sectionKicker}>LOCAL PROTOTYPE LEDGER</span><strong>Seeds, proposals, and preference receipts on this device</strong></span><b>{showLedger ? "Close" : "Inspect"}</b></button>
-          {showLedger && <div className={styles.ledger}><div><h4>Seeds ({seeds.length})</h4>{seeds.length ? seeds.map((seed) => <pre key={seed.receipt}>{JSON.stringify(seed, null, 2)}</pre>) : <p>No local seeds yet.</p>}</div><div><h4>Proposals ({proposals.length})</h4>{proposals.length ? proposals.map((proposal) => <pre key={proposal.receipt}>{JSON.stringify(proposal, null, 2)}</pre>) : <p>No local proposals yet.</p>}</div><div><h4>Route feedback</h4>{Object.keys(feedback).length ? Object.values(feedback).map((item) => <pre key={item.receipt}>{JSON.stringify(item, null, 2)}</pre>) : <p>No local route feedback yet.</p>}</div></div>}
+          <button className={styles.ledgerToggle} onClick={() => setShowLedger(!showLedger)}><span><span className={styles.sectionKicker}>DURABLE RECEIPT INDEX</span><strong>Server-accepted receipts cached on this device for convenience</strong></span><b>{showLedger ? "Close" : "Inspect"}</b></button>
+          {showLedger && <div className={styles.ledger}><div><h4>Seeds ({seeds.length})</h4>{seeds.length ? seeds.map((seed) => <div key={seed.receipt}><pre>{JSON.stringify(seed, null, 2)}</pre><a href={`/api/forest/events?receipt=${encodeURIComponent(seed.receipt)}`} target="_blank" rel="noreferrer">Verify durable receipt ↗</a></div>) : <p>No accepted seed receipts cached on this device.</p>}</div><div><h4>Proposals ({proposals.length})</h4>{proposals.length ? proposals.map((proposal) => <div key={proposal.receipt}><pre>{JSON.stringify(proposal, null, 2)}</pre><a href={`/api/forest/events?receipt=${encodeURIComponent(proposal.receipt)}`} target="_blank" rel="noreferrer">Verify durable receipt ↗</a></div>) : <p>No accepted proposal receipts cached on this device.</p>}</div><div><h4>Route feedback</h4>{Object.keys(feedback).length ? Object.values(feedback).map((item) => <div key={item.receipt}><pre>{JSON.stringify(item, null, 2)}</pre><a href={`/api/forest/events?receipt=${encodeURIComponent(item.receipt)}`} target="_blank" rel="noreferrer">Verify durable receipt ↗</a></div>) : <p>No accepted route feedback cached on this device.</p>}</div></div>}
         </section>
 
-        <footer className={styles.footer}><div><strong>The only credible forever-free system is one that can survive its original operator.</strong><span>Open exports · source-visible claims · static snapshots · no exclusive model or vendor dependency</span></div><div><span>Original seed planter: Mason Perry</span><span>NULLWORKS · PUBLIC GROVE 0.1 · 2026-07-27</span></div></footer>
+        <footer className={styles.footer}><div><strong>The only credible forever-free system is one that can survive its original operator.</strong><span>Open exports · source-visible claims · static snapshots · append-only public receipts</span></div><div><span>Original seed planter: Mason Perry</span><span>NULLWORKS · PUBLIC GROVE 1.0 · 2026-07-28</span></div></footer>
       </div>
     </main>
   );
