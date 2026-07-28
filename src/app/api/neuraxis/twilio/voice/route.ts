@@ -169,7 +169,7 @@ async function handle(request: Request): Promise<Response> {
 
     const menuUrl = new URL("/api/neuraxis/twilio/menu", request.url).toString();
     const retryUrl = new URL("/api/neuraxis/twilio/voice?telemetry=1", request.url).toString();
-    const prompt = "NEURAXIS is online. Press or say 1 for the shared workroom. Press or say 2 for private workroom two. Press or say 5 for the operating model audit. Press or say 7 for Mr. Sloth's quiet booth. Press or say 8 for the password protected NULLWORKS Pressure Cooker Workroom. Press or say 9 for Mason's private Hive.";
+    const prompt = "NEURAXIS is online. Press or say 1 for the shared workroom. Press or say 2 for private workroom two. Press or say 3 for Mason's Gray Matter Storage Unit. Press or say 5 for the operating model audit. Press or say 7 for Mr. Sloth's quiet booth. Press or say 8 for the password protected NULLWORKS Pressure Cooker Workroom. Press or say 9 for Mason's private Hive.";
     return twiml(`<?xml version="1.0" encoding="UTF-8"?>
 <Response>
   <Gather input="speech dtmf" numDigits="1" timeout="7" speechTimeout="2" actionOnEmptyResult="true" method="POST" action="${xmlEscape(menuUrl)}">
