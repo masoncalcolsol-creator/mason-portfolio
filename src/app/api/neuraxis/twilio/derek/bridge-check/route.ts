@@ -27,9 +27,9 @@ export async function GET(request: Request) {
       },
       body: JSON.stringify({
         action: "resolve_lender",
-        lenderSlug: "change-wholesale",
-        lenderDisplayName: "Change Wholesale",
-        utterance: "the lender named Change Wholesale",
+        lenderSlug: "",
+        lenderDisplayName: "",
+        utterance: "Please set Home Express Mortgages minimum FICO to 600.",
       }),
       cache: "no-store",
     });

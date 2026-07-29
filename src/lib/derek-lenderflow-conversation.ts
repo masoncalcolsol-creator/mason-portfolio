@@ -1,4 +1,5 @@
 import type { DerekRuleProposal } from "@/lib/derek-lenderflow-auth";
+import type { ResolvedLenderIdentity } from "@/lib/derek-lenderflow-resolver";
 
 const MAX_TURNS = 5;
 const MAX_TURN_LENGTH = 360;
@@ -12,19 +13,7 @@ function slugify(value: string): string {
 }
 
 export function containsGlobalLenderScope(value: string): boolean {
-  return /\b(?:all|every|each)\s+(?:the\s+)?lenders?\b/i.test(clean(value, 600));
-}
-
-/**
- * Targeted STT repair for a canonical company name. Twilio sometimes inserts
- * "all lenders" between the proper-name words Change and Wholesale. Only
- * normalize it inside an explicit "lender named/called" frame.
- */
-export function normalizeKnownLenderSpeech(value: string): string {
-  return clean(value).replace(
-    /\b((?:the\s+)?lender\s+(?:named|called)\s+)change\s+(?:(?:all|the)\s+)?lenders?\s+wholesale\b/gi,
-    "$1Change Wholesale",
-  );
+  return /\b(?:all|every|each)\s+(?:the\s+)?lenders?\b/i.test(clean(value, 1200));
 }
 
 function cleanLenderCandidate(value: string): string {
@@ -39,8 +28,8 @@ function cleanLenderCandidate(value: string): string {
 }
 
 export function appendDerekConversationTurn(turns: string[] | undefined, heard: string): string[] {
-  const next = normalizeKnownLenderSpeech(heard);
-  const existing = (turns || []).map((turn) => normalizeKnownLenderSpeech(turn)).filter(Boolean);
+  const next = clean(heard);
+  const existing = (turns || []).map((turn) => clean(turn)).filter(Boolean);
   if (!next) return existing.slice(-MAX_TURNS);
   if (existing.at(-1)?.toLowerCase() === next.toLowerCase()) return existing.slice(-MAX_TURNS);
   return [...existing, next].slice(-MAX_TURNS);
@@ -55,7 +44,7 @@ function findDesiredFico(turns: string[]): number | null {
   const patterns = [
     /\b(?:minimum|min|hard minimum|absolute minimum|floor)\s+(?:fico(?:\s+score)?|credit score)?\s*(?:to|at|of|is|=)?\s*(\d{3})\b/i,
     /\b(?:fico(?:\s+score)?|credit score)\s*(?:minimum|min|floor)?\s*(?:to|at|of|is|=)?\s*(\d{3})\b/i,
-    /\b(?:change|update|set|make)\b[^.]{0,160}?\bfico\b[^.]{0,60}?\bto\s*(\d{3})\b/i,
+    /\b(?:change|update|set|make)\b[^.]{0,180}?\bfico\b[^.]{0,70}?\bto\s*(\d{3})\b/i,
   ];
 
   for (const turn of candidates) {
@@ -77,7 +66,7 @@ function findDesiredFico(turns: string[]): number | null {
 
 function findClaimedCurrentFico(turns: string[], desired: number): number | null {
   const patterns = [
-    /\b(?:currently|right now|now)\b[^.]{0,70}?\b(?:set\s+(?:at|to)|is|of)?\s*(\d{3})\b/i,
+    /\b(?:currently|right now|now)\b[^.]{0,90}?\b(?:set\s+(?:at|to)|is|of)?\s*(\d{3})\b/i,
     /\bfrom\s+(\d{3})\s+(?:to|up to|down to)\s+\d{3}\b/i,
   ];
   for (const turn of [...turns].reverse()) {
@@ -133,18 +122,21 @@ function findLender(turns: string[]): string {
 }
 
 /**
- * Deterministic fast path for the first production use case. Lender names are
- * treated as proper nouns, never as verbs or multi-lender scope instructions.
+ * Deterministic FICO parser. When LenderFlow has already resolved the company
+ * from the full conversation, that canonical identity overrides fragile speech
+ * parsing entirely.
  */
-export function parseConversationalFicoRule(turns: string[]): DerekRuleProposal | null {
-  const normalizedTurns = turns.map(normalizeKnownLenderSpeech);
-  const fico = findDesiredFico(normalizedTurns);
-  const lenderDisplayName = findLender(normalizedTurns);
+export function parseConversationalFicoRule(
+  turns: string[],
+  canonicalLender?: ResolvedLenderIdentity,
+): DerekRuleProposal | null {
+  const fico = findDesiredFico(turns);
+  const lenderDisplayName = canonicalLender?.displayName || findLender(turns);
   if (!fico || !lenderDisplayName || containsGlobalLenderScope(lenderDisplayName)) return null;
 
-  const lenderSlug = slugify(lenderDisplayName);
+  const lenderSlug = canonicalLender?.slug || slugify(lenderDisplayName);
   if (!lenderSlug) return null;
-  const current = findClaimedCurrentFico(normalizedTurns, fico);
+  const current = findClaimedCurrentFico(turns, fico);
   const change = current ? ` from ${current} to ${fico}` : ` to ${fico}`;
 
   return {
@@ -157,7 +149,7 @@ export function parseConversationalFicoRule(turns: string[]): DerekRuleProposal 
     value: fico,
     temporary: false,
     expiresAt: null,
-    note: "Broker voice correction after conversational capture, canonical lender resolution, one exact read-back, and explicit confirmation.",
+    note: "Broker voice correction after catalog-first lender resolution, one exact read-back, and explicit confirmation.",
     spokenSummary: `Only the lender named ${lenderDisplayName}: change the minimum FICO${change}.`,
   };
 }

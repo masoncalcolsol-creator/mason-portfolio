@@ -11,7 +11,7 @@ import { validateDerekCallSession } from "@/lib/derek-lenderflow-auth";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-const LENDER_HINTS = "Change Wholesale, Change Lending, The Change Company, Figure, HomeXpress Mortgage";
+const LENDER_HINTS = "HomeXpress Mortgage, Home Express Mortgage, Figure, Homebridge, Rocket Pro, Newrez Wholesale, Angel Oak Mortgage Solutions";
 
 async function handle(request: Request) {
   const params = request.method === "POST" ? await readTwilioForm(request) : {};
@@ -33,7 +33,7 @@ async function handle(request: Request) {
   return twiml(`<?xml version="1.0" encoding="UTF-8"?>
 <Response>
   <Gather input="speech" hints="${xmlEscape(LENDER_HINTS)}" timeout="10" speechTimeout="auto" actionOnEmptyResult="true" method="POST" action="${xmlEscape(commandUrl.toString())}">
-    ${speak("Tell me one lender rule naturally. Say the exact company name, the field, and the new value. I will resolve one canonical lender and ask once before publishing.", request.url)}
+    ${speak("Tell me one lender rule naturally. Say the company name, the field, and the new value. I will check the complete sentence against the live lender catalog and ask once before publishing.", request.url)}
   </Gather>
   ${speak("I did not catch a rule. Say one lender name, the field, and the new boundary.", request.url)}
   <Redirect method="POST">${xmlEscape(url.toString())}</Redirect>
