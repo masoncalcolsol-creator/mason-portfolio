@@ -15,6 +15,18 @@ export function containsGlobalLenderScope(value: string): boolean {
   return /\b(?:all|every|each)\s+(?:the\s+)?lenders?\b/i.test(clean(value, 600));
 }
 
+/**
+ * Targeted STT repair for a canonical company name. Twilio sometimes inserts
+ * "all lenders" between the proper-name words Change and Wholesale. Only
+ * normalize it inside an explicit "lender named/called" frame.
+ */
+export function normalizeKnownLenderSpeech(value: string): string {
+  return clean(value).replace(
+    /\b((?:the\s+)?lender\s+(?:named|called)\s+)change\s+(?:(?:all|the)\s+)?lenders?\s+wholesale\b/gi,
+    "$1Change Wholesale",
+  );
+}
+
 function cleanLenderCandidate(value: string): string {
   return clean(value, 160)
     .replace(/^(?:hey|okay|ok|so)[, ]+/i, "")
@@ -27,8 +39,8 @@ function cleanLenderCandidate(value: string): string {
 }
 
 export function appendDerekConversationTurn(turns: string[] | undefined, heard: string): string[] {
-  const next = clean(heard);
-  const existing = (turns || []).map((turn) => clean(turn)).filter(Boolean);
+  const next = normalizeKnownLenderSpeech(heard);
+  const existing = (turns || []).map((turn) => normalizeKnownLenderSpeech(turn)).filter(Boolean);
   if (!next) return existing.slice(-MAX_TURNS);
   if (existing.at(-1)?.toLowerCase() === next.toLowerCase()) return existing.slice(-MAX_TURNS);
   return [...existing, next].slice(-MAX_TURNS);
@@ -125,13 +137,14 @@ function findLender(turns: string[]): string {
  * treated as proper nouns, never as verbs or multi-lender scope instructions.
  */
 export function parseConversationalFicoRule(turns: string[]): DerekRuleProposal | null {
-  const fico = findDesiredFico(turns);
-  const lenderDisplayName = findLender(turns);
+  const normalizedTurns = turns.map(normalizeKnownLenderSpeech);
+  const fico = findDesiredFico(normalizedTurns);
+  const lenderDisplayName = findLender(normalizedTurns);
   if (!fico || !lenderDisplayName || containsGlobalLenderScope(lenderDisplayName)) return null;
 
   const lenderSlug = slugify(lenderDisplayName);
   if (!lenderSlug) return null;
-  const current = findClaimedCurrentFico(turns, fico);
+  const current = findClaimedCurrentFico(normalizedTurns, fico);
   const change = current ? ` from ${current} to ${fico}` : ` to ${fico}`;
 
   return {
