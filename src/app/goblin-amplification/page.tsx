@@ -1,11 +1,17 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import {
+  useEffect,
+  useRef,
+  useState,
+  type PointerEvent as ReactPointerEvent,
+} from "react";
 import {
   Gauge,
   Pause,
   Play,
   RotateCcw,
+  Search,
   Sparkles,
   TriangleAlert,
   Zap,
@@ -17,22 +23,39 @@ const COMPRESSION = 100;
 const GOBLIN_SECONDS = REAL_SEAM_SECONDS * COMPRESSION;
 const CASCADE_POINT = 0.55;
 
+const GRAPH = {
+  width: 720,
+  height: 228,
+  left: 58,
+  right: 20,
+  top: 27,
+  bottom: 40,
+};
+
+const PLOT_WIDTH = GRAPH.width - GRAPH.left - GRAPH.right;
+const PLOT_HEIGHT = GRAPH.height - GRAPH.top - GRAPH.bottom;
+
 type CurveMode = "linear" | "quadratic" | "exponential";
+type LensPoint = { x: number; y: number; progress: number };
 
 const curveCopy: Record<CurveMode, { label: string; note: string }> = {
   linear: {
     label: "Measured 100×",
-    note: "Observed Goblin Clock behavior: one existing seam, amplified linearly by the compression factor.",
+    note: "Observed result: one existing seam amplified linearly by a constant 100× compression factor.",
   },
   quadratic: {
     label: "Cascade",
-    note: "Illustrative only: after one bad decision, each later cycle inherits more accumulated error.",
+    note: "Illustrative: after one bad handoff, every later cycle inherits a larger accumulated error.",
   },
   exponential: {
     label: "Feedback loop",
-    note: "Illustrative only: outputs recursively become inputs, creating an accelerating failure loop.",
+    note: "Illustrative: AI output recursively becomes the next input, accelerating the failure loop.",
   },
 };
+
+function clamp(value: number, minimum: number, maximum: number) {
+  return Math.min(maximum, Math.max(minimum, value));
+}
 
 function formatCountdown(seconds: number) {
   const safe = Math.max(0, seconds);
@@ -84,7 +107,7 @@ function Dial({
 }) {
   const radius = 44;
   const circumference = 2 * Math.PI * radius;
-  const dash = circumference * Math.min(1, Math.max(0, progress));
+  const dash = circumference * clamp(progress, 0, 1);
 
   return (
     <article className={`${styles.dialCard} ${styles[tone]}`}>
@@ -112,94 +135,188 @@ function Dial({
   );
 }
 
-function LiveGraph({ progress, mode }: { progress: number; mode: CurveMode }) {
-  const width = 720;
-  const height = 255;
-  const left = 48;
-  const right = 18;
-  const top = 20;
-  const bottom = 38;
-  const plotWidth = width - left - right;
-  const plotHeight = height - top - bottom;
+function GraphArtwork({
+  progress,
+  mode,
+  idPrefix,
+}: {
+  progress: number;
+  mode: CurveMode;
+  idPrefix: string;
+}) {
   const maxY = yMaximum(mode);
+  const count = Math.max(2, Math.ceil(progress * 96));
+  const humanPoints: string[] = [];
+  const goblinPoints: string[] = [];
 
-  const paths = useMemo(() => {
-    const count = Math.max(2, Math.ceil(progress * 72));
-    const humanPoints: string[] = [];
-    const goblinPoints: string[] = [];
+  for (let index = 0; index < count; index += 1) {
+    const pointProgress = count === 1 ? 0 : (progress * index) / (count - 1);
+    const x = GRAPH.left + pointProgress * PLOT_WIDTH;
+    const humanY = GRAPH.top + PLOT_HEIGHT - (REAL_SEAM_SECONDS * pointProgress * PLOT_HEIGHT) / maxY;
+    const goblinY = GRAPH.top + PLOT_HEIGHT - (amplifiedValue(pointProgress, mode) * PLOT_HEIGHT) / maxY;
+    humanPoints.push(`${index === 0 ? "M" : "L"}${x.toFixed(2)},${humanY.toFixed(2)}`);
+    goblinPoints.push(`${index === 0 ? "M" : "L"}${x.toFixed(2)},${goblinY.toFixed(2)}`);
+  }
 
-    for (let index = 0; index < count; index += 1) {
-      const pointProgress = count === 1 ? 0 : (progress * index) / (count - 1);
-      const x = left + pointProgress * plotWidth;
-      const humanY = top + plotHeight - (REAL_SEAM_SECONDS * pointProgress * plotHeight) / maxY;
-      const goblinY = top + plotHeight - (amplifiedValue(pointProgress, mode) * plotHeight) / maxY;
-      humanPoints.push(`${index === 0 ? "M" : "L"}${x.toFixed(2)},${humanY.toFixed(2)}`);
-      goblinPoints.push(`${index === 0 ? "M" : "L"}${x.toFixed(2)},${goblinY.toFixed(2)}`);
+  const eventX = GRAPH.left + CASCADE_POINT * PLOT_WIDTH;
+  const currentX = GRAPH.left + progress * PLOT_WIDTH;
+  const gradientId = `${idPrefix}-gradient`;
+  const glowId = `${idPrefix}-glow`;
+
+  return (
+    <>
+      <defs>
+        <linearGradient id={gradientId} x1="0" x2="1">
+          <stop offset="0%" stopColor="#65d8ff" />
+          <stop offset="100%" stopColor="#8f7dff" />
+        </linearGradient>
+        <filter id={glowId}>
+          <feGaussianBlur stdDeviation="3" result="blur" />
+          <feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge>
+        </filter>
+      </defs>
+
+      {[0, 0.25, 0.5, 0.75, 1].map((fraction) => {
+        const y = GRAPH.top + PLOT_HEIGHT - fraction * PLOT_HEIGHT;
+        return <line key={`h-${fraction}`} x1={GRAPH.left} y1={y} x2={GRAPH.width - GRAPH.right} y2={y} className={styles.gridLine} />;
+      })}
+      {[0, 0.25, 0.5, 0.75, 1].map((fraction) => {
+        const x = GRAPH.left + fraction * PLOT_WIDTH;
+        return <line key={`v-${fraction}`} x1={x} y1={GRAPH.top} x2={x} y2={GRAPH.top + PLOT_HEIGHT} className={styles.gridLine} />;
+      })}
+
+      <line x1={GRAPH.left} y1={GRAPH.top + PLOT_HEIGHT} x2={GRAPH.width - GRAPH.right} y2={GRAPH.top + PLOT_HEIGHT} className={styles.axis} />
+      <line x1={GRAPH.left} y1={GRAPH.top} x2={GRAPH.left} y2={GRAPH.top + PLOT_HEIGHT} className={styles.axis} />
+
+      {mode !== "linear" && (
+        <g>
+          <line x1={eventX} y1={GRAPH.top} x2={eventX} y2={GRAPH.top + PLOT_HEIGHT} className={styles.eventLine} />
+          <rect x={eventX + 7} y={GRAPH.top + 2} width="210" height="25" rx="6" className={styles.eventBadge} />
+          <text x={eventX + 16} y={GRAPH.top + 19} className={styles.eventLabel}>AI DECISION / BAD HANDOFF</text>
+        </g>
+      )}
+
+      <path d={humanPoints.join(" ")} className={styles.humanLine} />
+      <path
+        d={goblinPoints.join(" ")}
+        className={styles.goblinLine}
+        stroke={`url(#${gradientId})`}
+        filter={`url(#${glowId})`}
+      />
+      <line x1={currentX} y1={GRAPH.top} x2={currentX} y2={GRAPH.top + PLOT_HEIGHT} className={styles.cursorLine} />
+
+      <text x={GRAPH.left} y={GRAPH.height - 9} className={styles.axisLabel}>00:00</text>
+      <text x={GRAPH.width - GRAPH.right} y={GRAPH.height - 9} textAnchor="end" className={styles.axisLabel}>19:46.1</text>
+      <text x="8" y={GRAPH.top + 5} className={styles.axisLabel}>{Math.round(maxY)}s</text>
+      <text x="21" y={GRAPH.top + PLOT_HEIGHT} className={styles.axisLabel}>0</text>
+    </>
+  );
+}
+
+function GraphMagnifier({
+  lens,
+  progress,
+  mode,
+}: {
+  lens: LensPoint;
+  progress: number;
+  mode: CurveMode;
+}) {
+  const crop = 132;
+  const half = crop / 2;
+  const centerX = clamp(lens.x, half, GRAPH.width - half);
+  const centerY = clamp(lens.y, half, GRAPH.height - half);
+  const pointTime = lens.progress * GOBLIN_SECONDS;
+
+  return (
+    <aside className={styles.magnifier} aria-live="polite">
+      <div className={styles.magnifierHeader}>
+        <span><Search size={18} /> CHEATER ZOOM</span>
+        <strong>{formatCountdown(pointTime)} / 19:46.1</strong>
+      </div>
+      <div className={styles.magnifierViewport}>
+        <svg
+          viewBox={`${centerX - half} ${centerY - half} ${crop} ${crop}`}
+          preserveAspectRatio="xMidYMid meet"
+          aria-hidden="true"
+        >
+          <GraphArtwork progress={progress} mode={mode} idPrefix="lens" />
+        </svg>
+        <div className={styles.crosshairHorizontal} />
+        <div className={styles.crosshairVertical} />
+        <div className={styles.crosshairCenter} />
+      </div>
+      <div className={styles.magnifierReadout}>
+        <span>Human <strong>{formatSeconds(REAL_SEAM_SECONDS * lens.progress)}</strong></span>
+        <span>Amplified <strong>{formatSeconds(amplifiedValue(lens.progress, mode))}</strong></span>
+      </div>
+    </aside>
+  );
+}
+
+function LiveGraph({ progress, mode }: { progress: number; mode: CurveMode }) {
+  const [lens, setLens] = useState<LensPoint | null>(null);
+
+  const updateLens = (event: ReactPointerEvent<SVGSVGElement>) => {
+    event.preventDefault();
+    const rect = event.currentTarget.getBoundingClientRect();
+    const x = ((event.clientX - rect.left) / rect.width) * GRAPH.width;
+    const y = ((event.clientY - rect.top) / rect.height) * GRAPH.height;
+    const pointProgress = clamp((x - GRAPH.left) / PLOT_WIDTH, 0, 1);
+    setLens({
+      x: clamp(x, 0, GRAPH.width),
+      y: clamp(y, 0, GRAPH.height),
+      progress: pointProgress,
+    });
+  };
+
+  const beginLens = (event: ReactPointerEvent<SVGSVGElement>) => {
+    event.currentTarget.setPointerCapture(event.pointerId);
+    updateLens(event);
+  };
+
+  const endLens = (event: ReactPointerEvent<SVGSVGElement>) => {
+    if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+      event.currentTarget.releasePointerCapture(event.pointerId);
     }
-
-    return { human: humanPoints.join(" "), goblin: goblinPoints.join(" ") };
-  }, [progress, mode, maxY, plotWidth, plotHeight]);
-
-  const eventX = left + CASCADE_POINT * plotWidth;
-  const currentX = left + progress * plotWidth;
+    setLens(null);
+  };
 
   return (
     <div className={styles.graphCard}>
+      {lens && <GraphMagnifier lens={lens} progress={progress} mode={mode} />}
+
       <div className={styles.graphHeader}>
         <div>
           <span className={styles.kicker}>LIVE XY GRAPH</span>
           <strong>Operational drift over the same elapsed run</strong>
         </div>
         <div className={styles.legend}>
-          <span><i className={styles.humanDot} /> Human speed</span>
+          <span><i className={styles.humanDot} /> Human</span>
           <span><i className={styles.goblinDot} /> AI-amplified</span>
         </div>
       </div>
 
-      <svg viewBox={`0 0 ${width} ${height}`} className={styles.graph} role="img" aria-label="Live comparison of human-speed drift and amplified drift">
-        <defs>
-          <linearGradient id="goblinGlow" x1="0" x2="1">
-            <stop offset="0%" stopColor="#65d8ff" />
-            <stop offset="100%" stopColor="#8f7dff" />
-          </linearGradient>
-          <filter id="softGlow">
-            <feGaussianBlur stdDeviation="3" result="blur" />
-            <feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge>
-          </filter>
-        </defs>
-
-        {[0, 0.25, 0.5, 0.75, 1].map((fraction) => {
-          const y = top + plotHeight - fraction * plotHeight;
-          return <line key={`h-${fraction}`} x1={left} y1={y} x2={width - right} y2={y} className={styles.gridLine} />;
-        })}
-        {[0, 0.25, 0.5, 0.75, 1].map((fraction) => {
-          const x = left + fraction * plotWidth;
-          return <line key={`v-${fraction}`} x1={x} y1={top} x2={x} y2={top + plotHeight} className={styles.gridLine} />;
-        })}
-
-        <line x1={left} y1={top + plotHeight} x2={width - right} y2={top + plotHeight} className={styles.axis} />
-        <line x1={left} y1={top} x2={left} y2={top + plotHeight} className={styles.axis} />
-
-        {mode !== "linear" && (
-          <g>
-            <line x1={eventX} y1={top} x2={eventX} y2={top + plotHeight} className={styles.eventLine} />
-            <text x={eventX + 7} y={top + 14} className={styles.eventLabel}>AI DECISION / BAD HANDOFF</text>
-          </g>
-        )}
-
-        <path d={paths.human} className={styles.humanLine} />
-        <path d={paths.goblin} className={styles.goblinLine} filter="url(#softGlow)" />
-        <line x1={currentX} y1={top} x2={currentX} y2={top + plotHeight} className={styles.cursorLine} />
-
-        <text x={left} y={height - 10} className={styles.axisLabel}>00:00</text>
-        <text x={width - right} y={height - 10} textAnchor="end" className={styles.axisLabel}>19:46.1</text>
-        <text x={10} y={top + 4} className={styles.axisLabel}>{Math.round(maxY)}s</text>
-        <text x={10} y={top + plotHeight} className={styles.axisLabel}>0</text>
-      </svg>
+      <div className={styles.graphStage}>
+        <svg
+          viewBox={`0 0 ${GRAPH.width} ${GRAPH.height}`}
+          className={styles.graph}
+          role="img"
+          aria-label="Live comparison of human-speed drift and amplified drift. Touch and drag to magnify."
+          onPointerDown={beginLens}
+          onPointerMove={(event) => lens && updateLens(event)}
+          onPointerUp={endLens}
+          onPointerCancel={endLens}
+          onLostPointerCapture={() => setLens(null)}
+        >
+          <GraphArtwork progress={progress} mode={mode} idPrefix="main" />
+        </svg>
+        <div className={styles.dragHint}><Search size={16} /> Touch + drag to magnify</div>
+      </div>
 
       <div className={styles.graphReadout}>
-        <span>Human drift <strong>{formatSeconds(REAL_SEAM_SECONDS * progress)}</strong></span>
-        <span>Amplified drift <strong>{formatSeconds(amplifiedValue(progress, mode))}</strong></span>
+        <span>Human <strong>{formatSeconds(REAL_SEAM_SECONDS * progress)}</strong></span>
+        <span>Amplified <strong>{formatSeconds(amplifiedValue(progress, mode))}</strong></span>
       </div>
     </div>
   );
@@ -235,7 +352,7 @@ export default function GoblinAmplificationPage() {
     return () => cancelAnimationFrame(frame);
   }, [running, speed]);
 
-  const progress = Math.min(1, elapsed / GOBLIN_SECONDS);
+  const progress = clamp(elapsed / GOBLIN_SECONDS, 0, 1);
   const rawRevolutions = Math.floor(elapsed / REAL_SEAM_SECONDS);
   const revolutions = elapsed >= GOBLIN_SECONDS ? COMPRESSION : rawRevolutions;
   const realCycleProgress = elapsed >= GOBLIN_SECONDS ? 1 : (elapsed % REAL_SEAM_SECONDS) / REAL_SEAM_SECONDS;
@@ -265,7 +382,7 @@ export default function GoblinAmplificationPage() {
             <span className={styles.eyebrow}>NULLWORKS // GOBLIN CLOCK</span>
             <h1>The Amplification Seam</h1>
           </div>
-          <div className={styles.factor}><Zap size={15} /> 100×</div>
+          <div className={styles.factor}><Zap size={18} /> 100×</div>
         </header>
 
         <div className={styles.dials}>
@@ -304,11 +421,11 @@ export default function GoblinAmplificationPage() {
 
           <div className={styles.transportControls}>
             <button type="button" className={styles.runButton} onClick={toggleRun}>
-              {running ? <Pause size={17} /> : <Play size={17} />}
+              {running ? <Pause size={20} /> : <Play size={20} />}
               {running ? "Pause" : elapsed >= GOBLIN_SECONDS ? "Replay" : "Run"}
             </button>
             <button type="button" className={styles.iconButton} onClick={reset} aria-label="Reset animation">
-              <RotateCcw size={17} />
+              <RotateCcw size={20} />
             </button>
             <div className={styles.speedControl}>
               {[1, 10, 100].map((value) => (
@@ -325,13 +442,13 @@ export default function GoblinAmplificationPage() {
           </div>
 
           <p className={styles.modeNote}>
-            {mode === "linear" ? <Gauge size={15} /> : <TriangleAlert size={15} />}
+            {mode === "linear" ? <Gauge size={17} /> : <TriangleAlert size={17} />}
             {curveCopy[mode].note}
           </p>
         </div>
 
         <div className={styles.punchline}>
-          <Sparkles size={17} />
+          <Sparkles size={20} />
           <span><strong>AI does not create the seam.</strong> It compresses consequence until the seam becomes impossible to ignore.</span>
         </div>
       </section>
