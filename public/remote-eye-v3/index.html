@@ -6,7 +6,13 @@
   <meta name="theme-color" content="#05080b" />
   <meta name="description" content="NULLWORKS Remote Optical Eyeball field inspection console" />
   <title>NULLWORKS Remote Eye V3</title>
-  <link rel="stylesheet" href="styles.css" />
+  <script>
+    if (new URLSearchParams(location.search).get('embed') === 'weenis') {
+      document.documentElement.classList.add('embedded');
+    }
+  </script>
+  <link rel="stylesheet" href="styles.css?v=3.1.0" />
+  <link rel="stylesheet" href="weenis-embed.css?v=3.2.0" />
 </head>
 <body>
   <div id="bootFailure" hidden style="position:sticky;top:0;z-index:9999;background:#4a1017;color:#fff;padding:14px 18px;font-family:system-ui;border-bottom:2px solid #ff626f">
@@ -56,8 +62,9 @@
           <div id="sessionClock">00:00</div>
           <div id="eventCount">0 EVENTS</div>
           <div id="scaleReadout">SCALE: UNSET</div>
+          <div id="zoomReadout">ZOOM: 1.0×</div>
         </div>
-        <div class="fullscreen-hint">DOUBLE TAP VIEWFINDER · EXPAND / RETURN</div>
+        <div class="fullscreen-hint">PINCH / ± ZOOM · DOUBLE TAP EXPAND / RETURN</div>
       </div>
 
       <div class="primary-controls">
@@ -65,6 +72,9 @@
         <button id="captureBtn" class="accent">Capture Evidence Pair</button>
         <button id="voiceBtn">Start Voice</button>
         <button id="gridBtn">Grid On</button>
+        <button id="zoomOutBtn" aria-label="Zoom out">Zoom −</button>
+        <button id="zoomResetBtn" class="zoom-readout" aria-label="Reset zoom">1.0×</button>
+        <button id="zoomInBtn" aria-label="Zoom in">Zoom +</button>
         <button id="clearBtn">Clear Marks</button>
       </div>
     </section>
@@ -95,7 +105,7 @@
               </div>
             </label>
             <div id="reticleReadout" class="readout">Precision Cross · cyan</div>
-            <p class="note">These are neutral inspection-reference patterns. They do not calculate firing solutions, wind correction, or ballistic holdover.</p>
+            <p class="note">Neutral inspection-reference patterns only. Zoom is a visual aid and does not create verified dimensions.</p>
           </div>
           <div class="color-control">
             <div id="colorDial" class="color-dial" role="slider" tabindex="0" aria-label="Reticle color screw" aria-valuemin="0" aria-valuemax="420" aria-valuenow="215">
@@ -245,6 +255,6 @@
   <script src="app-core.js?v=3.0.0"></script>
   <script src="app-source.js?v=3.0.0"></script>
   <script src="app-session.js?v=3.0.0"></script>
-  <script src="app-controls.js?v=3.0.0"></script>
+  <script src="app-controls.js?v=3.2.0"></script>
 </body>
 </html>
