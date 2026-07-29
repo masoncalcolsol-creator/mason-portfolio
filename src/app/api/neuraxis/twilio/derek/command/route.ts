@@ -52,6 +52,13 @@ function commandUrl(requestUrl: string, session: string): string {
   return target.toString();
 }
 
+function isRepeat(value: string): boolean {
+  const normalized = String(value || "").toLowerCase().replace(/\s+/g, " ").trim();
+  return normalized === "9"
+    || /^(repeat|again|repeat that|say it again|reference|confirmation code|receipt)\b/.test(normalized);
+}
+
+/** Read the exact structured rule once and collect the one human-authority gate. */
 function confirmationResponse(requestUrl: string, token: string, prompt: string): Response {
   const action = commandUrl(requestUrl, token);
   return twiml(`<?xml version="1.0" encoding="UTF-8"?>
@@ -59,8 +66,33 @@ function confirmationResponse(requestUrl: string, token: string, prompt: string)
   <Gather input="speech dtmf" numDigits="1" timeout="8" speechTimeout="auto" actionOnEmptyResult="true" method="POST" action="${xmlEscape(action)}">
     ${speak(`${prompt} Correct? Say yes or press 1. Say no or press 2.`, requestUrl)}
   </Gather>
-  ${speak("I need one clear yes or no before anything changes.", requestUrl)}
-  <Redirect method="POST">${xmlEscape(action)}</Redirect>
+  ${say("No confirmation was received. Nothing changed.")}
+  <Hangup/>
+</Response>`);
+}
+
+/** A missed answer gets one short retry without reading the rule a second time. */
+function confirmationRetryResponse(requestUrl: string, token: string): Response {
+  const action = commandUrl(requestUrl, token);
+  return twiml(`<?xml version="1.0" encoding="UTF-8"?>
+<Response>
+  <Gather input="speech dtmf" numDigits="1" timeout="7" speechTimeout="auto" actionOnEmptyResult="true" method="POST" action="${xmlEscape(action)}">
+    ${speak("Say yes or press 1 to publish. Say no or press 2 to cancel. Say repeat or press 9 to hear the rule again.", requestUrl)}
+  </Gather>
+  ${say("No confirmation was received. Nothing changed.")}
+  <Hangup/>
+</Response>`);
+}
+
+/** Speak the result once, then offer an optional reference-only repeat. */
+function publishedResultResponse(requestUrl: string, token: string, spoken: string): Response {
+  const action = commandUrl(requestUrl, token);
+  return twiml(`<?xml version="1.0" encoding="UTF-8"?>
+<Response>
+  <Gather input="speech dtmf" numDigits="1" timeout="5" speechTimeout="auto" method="POST" action="${xmlEscape(action)}">
+    ${speak(`${spoken} Say repeat or press 9 to hear the result reference again. Otherwise you may hang up.`, requestUrl)}
+  </Gather>
+  <Hangup/>
 </Response>`);
 }
 
@@ -68,9 +100,11 @@ function receiptStatus(result: Awaited<ReturnType<typeof publishDerekRule>>): st
   const receipts: string[] = [];
   if (result.hiveReceiptUrl) receipts.push("the Hive receipt was written");
   if (result.emailMessageId) receipts.push("the email receipt was sent to Mason");
-  if (!receipts.length) return "No receipt delivery was confirmed, so keep the reference number.";
-  if (receipts.length === 1) return `${receipts[0]}.`;
-  return `${receipts[0]}, and ${receipts[1]}.`;
+  if (!receipts.length) {
+    return "The LenderFlow publish receipt is confirmed. Secondary Hive and email delivery were not confirmed.";
+  }
+  if (receipts.length === 1) return `The LenderFlow publish receipt is confirmed, and ${receipts[0]}.`;
+  return `The LenderFlow publish receipt is confirmed, ${receipts[0]}, and ${receipts[1]}.`;
 }
 
 function safeFailureDetail(value: string | undefined): string {
@@ -112,6 +146,13 @@ async function handlePost(request: Request): Promise<Response> {
   if (vercelOidcToken) process.env.LF_ADMIN_KEY = vercelOidcToken;
   ensureDerekBridgeCredential();
 
+  if (session.publishedResult) {
+    if (isRepeat(heard)) {
+      return twiml(`<?xml version="1.0" encoding="UTF-8"?><Response>${speak(session.publishedResult.spoken, request.url)}<Hangup/></Response>`);
+    }
+    return twiml(`<?xml version="1.0" encoding="UTF-8"?><Response>${speak("The transaction is complete. Goodbye.", request.url)}<Hangup/></Response>`);
+  }
+
   if (session.pending) {
     if (isAffirmative(heard)) {
       const result = await publishDerekRule({
@@ -120,12 +161,23 @@ async function handlePost(request: Request): Promise<Response> {
         caller,
         spokenCommand: session.pending.note || session.pending.spokenSummary,
       });
-      const freshToken = createDerekCallSession(callSid, caller);
-      const next = workroomUrl(request.url, freshToken);
       const receiptStatement = receiptStatus(result);
       const spoken = result.ok
-        ? `Done. The rule is published. Reference ${result.reference}. ${receiptStatement} Refresh LenderFlow and rerun the scenario.`
+        ? `Done. The rule is published. Reference ${result.reference}.${result.ruleId ? ` Rule ID ${result.ruleId}.` : ""} ${receiptStatement} Refresh LenderFlow and rerun the scenario.`
         : `Nothing changed. Reference ${result.reference}. LenderFlow rejected the write: ${safeFailureDetail(result.error)} ${receiptStatement}`;
+      const resultToken = createDerekCallSession(
+        callSid,
+        caller,
+        undefined,
+        undefined,
+        0,
+        {
+          ok: result.ok,
+          reference: result.reference,
+          ...(result.ruleId ? { ruleId: result.ruleId } : {}),
+          spoken,
+        },
+      );
 
       after(async () => {
         try {
@@ -151,6 +203,7 @@ async function handlePost(request: Request): Promise<Response> {
               email_receipt_confirmed: Boolean(result.emailMessageId),
               failure_class: result.ok ? null : safeFailureDetail(result.error),
               service_identity: vercelOidcToken ? "VERCEL_OIDC" : "LEGACY_ENV_KEY",
+              operator_flow: "ONE_READBACK_ONE_CONFIRMATION_OPTIONAL_REFERENCE_REPEAT",
             },
           });
         } catch (error) {
@@ -158,16 +211,23 @@ async function handlePost(request: Request): Promise<Response> {
         }
       });
 
-      return twiml(`<?xml version="1.0" encoding="UTF-8"?><Response>${speak(spoken, request.url)}<Redirect method="POST">${xmlEscape(next)}</Redirect></Response>`);
+      return publishedResultResponse(request.url, resultToken, spoken);
     }
 
     if (isNegative(heard)) {
-      const freshToken = createDerekCallSession(callSid, caller);
-      const next = workroomUrl(request.url, freshToken);
-      return twiml(`<?xml version="1.0" encoding="UTF-8"?><Response>${speak("Canceled. Nothing changed and no lender rule was published.", request.url)}<Redirect method="POST">${xmlEscape(next)}</Redirect></Response>`);
+      return twiml(`<?xml version="1.0" encoding="UTF-8"?><Response>${speak("Canceled. Nothing changed and no lender rule was published.", request.url)}<Hangup/></Response>`);
     }
 
-    return confirmationResponse(request.url, token, session.pending.spokenSummary);
+    if (isRepeat(heard)) {
+      return confirmationResponse(request.url, token, session.pending.spokenSummary);
+    }
+
+    if ((session.clarificationCount || 0) >= 1) {
+      return twiml(`<?xml version="1.0" encoding="UTF-8"?><Response>${speak("I did not receive a clear yes or no. Nothing changed. Call again when ready.", request.url)}<Hangup/></Response>`);
+    }
+
+    const retryToken = createDerekCallSession(callSid, caller, session.pending, undefined, 1);
+    return confirmationRetryResponse(request.url, retryToken);
   }
 
   const draftTurns = appendDerekConversationTurn(session.draftTurns, heard);
@@ -253,6 +313,7 @@ async function handlePost(request: Request): Promise<Response> {
           canonical_lender_resolved_before_confirmation: true,
           mutation_status: "AWAITING_EXPLICIT_CONFIRMATION",
           service_identity: vercelOidcToken ? "VERCEL_OIDC" : "LEGACY_ENV_KEY",
+          operator_flow: "ONE_READBACK_ONE_CONFIRMATION",
         },
       });
     } catch (error) {
