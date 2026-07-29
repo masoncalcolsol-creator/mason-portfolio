@@ -31,9 +31,9 @@ async function handle(request: Request) {
   return twiml(`<?xml version="1.0" encoding="UTF-8"?>
 <Response>
   <Gather input="speech" timeout="10" speechTimeout="auto" actionOnEmptyResult="true" method="POST" action="${xmlEscape(commandUrl.toString())}">
-    ${speak("Tell me the lender rule naturally in one sentence. For example: Change Wholesale minimum FICO to 600. I will keep any details you give me, ask only for what is missing, and read the complete rule back before anything changes.", request.url)}
+    ${speak("Tell me one lender rule naturally. Put the exact company name after the words, the lender named. For example: the lender named Change Wholesale, minimum FICO 600. I will resolve one canonical lender and ask for one confirmation before anything changes.", request.url)}
   </Gather>
-  ${speak("I did not catch a rule. Try one sentence with the lender, field, and boundary.", request.url)}
+  ${speak("I did not catch a rule. Say the lender named, the field, and the new boundary.", request.url)}
   <Redirect method="POST">${xmlEscape(url.toString())}</Redirect>
 </Response>`);
 }
