@@ -16,6 +16,11 @@ import {
   validateDerekCallSession,
 } from "@/lib/derek-lenderflow-auth";
 import {
+  appendDerekConversationTurn,
+  derekConversationInput,
+  parseConversationalFicoRule,
+} from "@/lib/derek-lenderflow-conversation";
+import {
   fetchDerekWorkroomContext,
   parseDerekRule,
   publishDerekRule,
@@ -26,22 +31,29 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 export const maxDuration = 30;
 
+const MAX_CLARIFICATION_ROUNDS = 4;
+
 function workroomUrl(requestUrl: string, session: string): string {
   const target = new URL("/api/neuraxis/twilio/derek/workroom", requestUrl);
   target.searchParams.set("session", session);
   return target.toString();
 }
 
+function commandUrl(requestUrl: string, session: string): string {
+  const target = new URL("/api/neuraxis/twilio/derek/command", requestUrl);
+  target.searchParams.set("session", session);
+  return target.toString();
+}
+
 function confirmationResponse(requestUrl: string, token: string, prompt: string): Response {
-  const action = new URL("/api/neuraxis/twilio/derek/command", requestUrl);
-  action.searchParams.set("session", token);
+  const action = commandUrl(requestUrl, token);
   return twiml(`<?xml version="1.0" encoding="UTF-8"?>
 <Response>
-  <Gather input="speech dtmf" numDigits="1" timeout="8" speechTimeout="2" actionOnEmptyResult="true" method="POST" action="${xmlEscape(action.toString())}">
+  <Gather input="speech dtmf" numDigits="1" timeout="8" speechTimeout="auto" actionOnEmptyResult="true" method="POST" action="${xmlEscape(action)}">
     ${speak(`${prompt} Say yes or press 1 to publish it. Say no or press 2 to cancel.`, requestUrl)}
   </Gather>
   ${speak("I need a clear yes or no before anything changes.", requestUrl)}
-  <Redirect method="POST">${xmlEscape(action.toString())}</Redirect>
+  <Redirect method="POST">${xmlEscape(action)}</Redirect>
 </Response>`);
 }
 
@@ -127,6 +139,8 @@ export async function POST(request: Request) {
     return confirmationResponse(request.url, token, `The pending change is: ${session.pending.spokenSummary}`);
   }
 
+  const draftTurns = appendDerekConversationTurn(session.draftTurns, heard);
+
   let context: string;
   try {
     context = await fetchDerekWorkroomContext();
@@ -136,17 +150,33 @@ export async function POST(request: Request) {
     return twiml(`<?xml version="1.0" encoding="UTF-8"?><Response>${speak("The governed workroom context is unavailable, so I will not translate or change a lender rule. Please try again shortly.", request.url)}<Redirect method="POST">${xmlEscape(next)}</Redirect></Response>`, 503);
   }
 
-  const parsed = await parseDerekRule(heard, context);
+  const deterministicProposal = parseConversationalFicoRule(draftTurns);
+  const parsed = deterministicProposal
+    ? { ok: true as const, proposal: deterministicProposal }
+    : await parseDerekRule(derekConversationInput(draftTurns), context);
+
   if (!parsed.ok) {
-    const action = new URL("/api/neuraxis/twilio/derek/command", request.url);
-    action.searchParams.set("session", token);
+    const clarificationCount = (session.clarificationCount || 0) + 1;
+
+    if (clarificationCount >= MAX_CLARIFICATION_ROUNDS) {
+      const freshToken = createDerekCallSession(callSid, caller);
+      const next = workroomUrl(request.url, freshToken);
+      return twiml(`<?xml version="1.0" encoding="UTF-8"?>
+<Response>
+  ${speak("I got stuck trying to assemble that rule, so I cleared only this unfinished draft instead of asking the same questions forever. Say the complete rule again in one sentence, for example: Change Wholesale minimum FICO to 600.", request.url)}
+  <Redirect method="POST">${xmlEscape(next)}</Redirect>
+</Response>`);
+    }
+
+    const draftToken = createDerekCallSession(callSid, caller, undefined, draftTurns, clarificationCount);
+    const action = commandUrl(request.url, draftToken);
     return twiml(`<?xml version="1.0" encoding="UTF-8"?>
 <Response>
-  <Gather input="speech" timeout="9" speechTimeout="3" actionOnEmptyResult="true" method="POST" action="${xmlEscape(action.toString())}">
-    ${speak(parsed.clarification, request.url)}
+  <Gather input="speech" timeout="10" speechTimeout="auto" actionOnEmptyResult="true" method="POST" action="${xmlEscape(action)}">
+    ${speak(`${parsed.clarification} I kept everything you already told me. Answer only the missing part.`, request.url)}
   </Gather>
-  ${speak("I still need the lender, field, and exact boundary.", request.url)}
-  <Redirect method="POST">${xmlEscape(workroomUrl(request.url, token))}</Redirect>
+  ${speak("I did not catch the missing detail. I kept the unfinished rule and will ask once more.", request.url)}
+  <Redirect method="POST">${xmlEscape(action)}</Redirect>
 </Response>`);
   }
 
@@ -168,6 +198,7 @@ export async function POST(request: Request) {
           value: parsed.proposal.value,
           program: parsed.proposal.program,
           permanent: !parsed.proposal.temporary,
+          clarification_turns: Math.max(0, draftTurns.length - 1),
           mutation_status: "AWAITING_EXPLICIT_CONFIRMATION",
         },
       });

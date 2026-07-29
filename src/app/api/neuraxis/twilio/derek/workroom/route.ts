@@ -30,10 +30,10 @@ async function handle(request: Request) {
   commandUrl.searchParams.set("session", token);
   return twiml(`<?xml version="1.0" encoding="UTF-8"?>
 <Response>
-  <Gather input="speech" timeout="9" speechTimeout="3" actionOnEmptyResult="true" method="POST" action="${xmlEscape(commandUrl.toString())}">
-    ${speak("Tell me one lender matching rule to change. I will read it back exactly and nothing changes until you say yes.", request.url)}
+  <Gather input="speech" timeout="10" speechTimeout="auto" actionOnEmptyResult="true" method="POST" action="${xmlEscape(commandUrl.toString())}">
+    ${speak("Tell me the lender rule naturally in one sentence. For example: Change Wholesale minimum FICO to 600. I will keep any details you give me, ask only for what is missing, and read the complete rule back before anything changes.", request.url)}
   </Gather>
-  ${speak("I did not catch a rule. Try one short sentence with the lender, field, and boundary.", request.url)}
+  ${speak("I did not catch a rule. Try one sentence with the lender, field, and boundary.", request.url)}
   <Redirect method="POST">${xmlEscape(url.toString())}</Redirect>
 </Response>`);
 }
