@@ -13,24 +13,26 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
-      - name: Query production health receipts
+      - name: Query production email readiness
         shell: bash
         run: |
           set -euo pipefail
-          echo "=== NEURAXIS ROOM 3 ==="
           curl --fail-with-body --silent --show-error \
-            https://mason-portfolio-main.vercel.app/api/neuraxis/twilio/derek/health | tee /tmp/neuraxis.json
-          echo
-          echo "=== LENDERFLOW DIRECT BRIDGE ==="
-          curl --fail-with-body --silent --show-error \
-            'https://lf-lender-intake.vercel.app/api/rules/direct?health=1' | tee /tmp/lenderflow.json
+            https://mason-portfolio-main.vercel.app/api/neuraxis/twilio/derek/health \
+            | tee /tmp/neuraxis.json
           echo
           python - <<'PY'
           import json
-          with open('/tmp/neuraxis.json') as f:
-              n = json.load(f)
-          with open('/tmp/lenderflow.json') as f:
-              l = json.load(f)
-          print('NEURAXIS_ENV=', json.dumps(n.get('environment', {}), sort_keys=True))
-          print('LENDERFLOW_HEALTH=', json.dumps(l, sort_keys=True))
+          from pathlib import Path
+
+          data = json.loads(Path('/tmp/neuraxis.json').read_text())
+          env = data.get('environment') or {}
+          print('ROOM3_VERSION=', data.get('version'))
+          print('GMAIL_OAUTH_READY=', env.get('gmailOAuthReady'))
+          print('GMAIL_CLIENT_ID=', env.get('gmailOAuthClientIdPresent'))
+          print('GMAIL_CLIENT_SECRET=', env.get('gmailOAuthClientSecretPresent'))
+          print('GMAIL_REFRESH_TOKEN=', env.get('gmailOAuthRefreshTokenPresent'))
+          print('RECEIPT_SENDER=', env.get('receiptSender'))
+          print('RECEIPT_RECIPIENT=', env.get('receiptRecipient'))
+          assert data.get('version') == 'room3-email-receipt-diagnostic-v2', data
           PY
