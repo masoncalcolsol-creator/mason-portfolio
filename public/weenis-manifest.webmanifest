@@ -1,0 +1,20 @@
+{
+  "name": "NULLWORKS WEENIS",
+  "short_name": "WEENIS",
+  "description": "Wearable Elite Empowering NULLWORKS Information System",
+  "start_url": "/weenis",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#050706",
+  "theme_color": "#050706",
+  "categories": ["productivity", "utilities"],
+  "icons": [
+    {
+      "src": "/weenis-icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
