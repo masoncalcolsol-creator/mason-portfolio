@@ -1,13 +1,13 @@
 import type { Metadata } from "next";
-import WeenisConsole from "./WeenisConsole";
+import WeenisIntegrated from "./WeenisIntegrated";
 
 export const metadata: Metadata = {
-  title: "WEENIS V0.1 | NULLWORKS",
+  title: "WEENIS V0.2 | NULLWORKS",
   description:
-    "Wearable Elite Empowering NULLWORKS Information System — mobile operator console for evidence, degraded operation, and human-authority receipts.",
+    "Wearable Elite Empowering NULLWORKS Information System with the integrated Remote Eye inspection viewfinder, governed local receipts, and GRAY WEENIS continuity.",
   manifest: "/weenis-manifest.webmanifest",
 };
 
 export default function WeenisPage() {
-  return <WeenisConsole />;
+  return <WeenisIntegrated />;
 }
