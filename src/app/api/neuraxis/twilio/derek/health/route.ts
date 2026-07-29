@@ -11,7 +11,7 @@ export async function GET(request: Request) {
   return NextResponse.json({
     ok: true,
     service: "NEURAXIS Derek Room 3",
-    version: "room3-email-receipt-diagnostic-v2",
+    version: "room3-email-receipt-health-v3",
     mutationPerformed: false,
     environment: {
       lfAdminKeyPresent: Boolean(process.env.LF_ADMIN_KEY),
@@ -24,8 +24,8 @@ export async function GET(request: Request) {
       gmailOAuthClientSecretPresent: googleClientSecretPresent,
       gmailOAuthRefreshTokenPresent: googleRefreshTokenPresent,
       gmailOAuthReady: googleClientIdPresent && googleClientSecretPresent && googleRefreshTokenPresent,
-      receiptSender: process.env.GRAY_MATTER_GMAIL_USER || process.env.NEURAXIS_GMAIL_USER || "NULLWORKS.Neuraxis@gmail.com",
-      receiptRecipient: process.env.DEREK_LENDERFLOW_RECEIPT_EMAIL || "masoncalcolsol@gmail.com",
+      receiptSenderConfigured: Boolean(process.env.GRAY_MATTER_GMAIL_USER || process.env.NEURAXIS_GMAIL_USER),
+      receiptRecipientConfigured: Boolean(process.env.DEREK_LENDERFLOW_RECEIPT_EMAIL),
     },
   }, {
     headers: {
