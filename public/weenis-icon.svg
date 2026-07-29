@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="NULLWORKS WEENIS icon">
+  <rect width="512" height="512" rx="92" fill="#050706"/>
+  <rect x="28" y="28" width="456" height="456" rx="70" fill="none" stroke="#8dff9b" stroke-width="8" opacity="0.78"/>
+  <path d="M92 126h62l42 220 60-166 60 166 42-220h62l-70 260h-66l-28-92-28 92h-66z" fill="#8dff9b"/>
+  <circle cx="256" cy="256" r="34" fill="#050706" stroke="#ffd76a" stroke-width="8"/>
+  <path d="M256 204v-42M256 350v-42M204 256h-42M350 256h-42" stroke="#ffd76a" stroke-width="8" stroke-linecap="round"/>
+  <text x="256" y="448" text-anchor="middle" fill="#b8c0ba" font-family="monospace" font-size="30" font-weight="700" letter-spacing="8">NULLWORKS</text>
+</svg>
