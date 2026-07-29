@@ -3,6 +3,7 @@ import { containsGlobalLenderScope } from "@/lib/derek-lenderflow-conversation";
 
 const DEFAULT_LF_BASE_URL = "https://lf-lender-intake.vercel.app";
 const DEFAULT_DIRECT_PATH = "/api/rules/direct";
+const CATALOG_TIMEOUT_MS = 5_000;
 
 type ResolveResponse = {
   ok?: boolean;
@@ -105,6 +106,7 @@ async function requestCanonicalIdentity(input: {
         utterance: input.utterance,
       }),
       cache: "no-store",
+      signal: AbortSignal.timeout(CATALOG_TIMEOUT_MS),
     });
 
     const data = await response.json().catch(() => ({})) as ResolveResponse;
@@ -129,9 +131,12 @@ async function requestCanonicalIdentity(input: {
     return { ok: true, lender: { slug, displayName } };
   } catch (error) {
     console.error("Derek canonical lender identity request failed", error);
+    const timedOut = error instanceof Error && /timeout|aborted/i.test(`${error.name} ${error.message}`);
     return {
       ok: false,
-      clarification: "LenderFlow did not answer the catalog lookup, so nothing is ready for confirmation.",
+      clarification: timedOut
+        ? "The lender catalog took too long to answer. Nothing changed. Say the company name again."
+        : "LenderFlow did not answer the catalog lookup, so nothing is ready for confirmation.",
     };
   }
 }
