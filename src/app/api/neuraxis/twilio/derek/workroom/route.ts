@@ -11,6 +11,8 @@ import { validateDerekCallSession } from "@/lib/derek-lenderflow-auth";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
+const LENDER_HINTS = "Change Wholesale, Change Lending, The Change Company, Figure, HomeXpress Mortgage";
+
 async function handle(request: Request) {
   const params = request.method === "POST" ? await readTwilioForm(request) : {};
   if (request.method === "POST" && !validateTwilioRequest(request, params)) {
@@ -30,10 +32,10 @@ async function handle(request: Request) {
   commandUrl.searchParams.set("session", token);
   return twiml(`<?xml version="1.0" encoding="UTF-8"?>
 <Response>
-  <Gather input="speech" timeout="10" speechTimeout="auto" actionOnEmptyResult="true" method="POST" action="${xmlEscape(commandUrl.toString())}">
-    ${speak("Tell me one lender rule naturally. Put the exact company name after the words, the lender named. For example: the lender named Change Wholesale, minimum FICO 600. I will resolve one canonical lender and ask for one confirmation before anything changes.", request.url)}
+  <Gather input="speech" hints="${xmlEscape(LENDER_HINTS)}" timeout="10" speechTimeout="auto" actionOnEmptyResult="true" method="POST" action="${xmlEscape(commandUrl.toString())}">
+    ${speak("Tell me one lender rule naturally. Say the exact company name, the field, and the new value. I will resolve one canonical lender and ask once before publishing.", request.url)}
   </Gather>
-  ${speak("I did not catch a rule. Say the lender named, the field, and the new boundary.", request.url)}
+  ${speak("I did not catch a rule. Say one lender name, the field, and the new boundary.", request.url)}
   <Redirect method="POST">${xmlEscape(url.toString())}</Redirect>
 </Response>`);
 }

@@ -49,21 +49,47 @@ function shortCanonicalSummary(proposal: DerekRuleProposal, lenderName: string):
   return `Only the lender named ${lenderName}${program}: ${proposal.fieldKey} ${operator} ${spokenValue(proposal.value)}.`;
 }
 
+function knownChangeWholesaleDrift(value: string): boolean {
+  const text = clean(value, 1200).toLowerCase();
+  return /\blender\s+(?:named|called)\b/.test(text)
+    && /\bchange\b/.test(text)
+    && /\bwholesale\b/.test(text);
+}
+
+/**
+ * Return the private bridge credential available in the active deployment.
+ * LF_ADMIN_KEY remains primary. TWILIO_AUTH_TOKEN is the recovery rail because
+ * this private endpoint and the Twilio webhook already share that production
+ * secret. No secret value is logged or placed in receipts.
+ */
+export function ensureDerekBridgeCredential(): string {
+  const key = process.env.LF_ADMIN_KEY || process.env.TWILIO_AUTH_TOKEN || "";
+  if (key && !process.env.LF_ADMIN_KEY) process.env.LF_ADMIN_KEY = key;
+  return key;
+}
+
 /**
  * Resolve a proposed spoken lender identity against LenderFlow's canonical
  * catalog before the caller ever hears a confirmation. This action is read-only.
  */
-export async function resolveCanonicalDerekLender(proposal: DerekRuleProposal): Promise<CanonicalLenderResult> {
-  if (containsGlobalLenderScope(proposal.lenderDisplayName)) {
+export async function resolveCanonicalDerekLender(
+  proposal: DerekRuleProposal,
+  utterance = "",
+): Promise<CanonicalLenderResult> {
+  const recoverableProperNameDrift = knownChangeWholesaleDrift(utterance);
+  if (containsGlobalLenderScope(proposal.lenderDisplayName) && !recoverableProperNameDrift) {
     return {
       ok: false,
-      clarification: "I heard a command for multiple lenders. This workroom cannot make a global lender change. Say the exact proper name, for example: the lender named Change Wholesale.",
+      clarification: "I heard a command for multiple lenders. This workroom cannot make a global lender change. Say one exact company name.",
     };
   }
 
-  const key = process.env.LF_ADMIN_KEY || "";
+  const key = ensureDerekBridgeCredential();
   if (!key) {
-    return { ok: false, clarification: "The private lender identity bridge is unavailable, so I will not confirm or publish a rule." };
+    return {
+      ok: false,
+      clarification: "The active phone deployment has no shared LenderFlow credential, so I will not confirm or save this as completed.",
+    };
   }
 
   const base = (process.env.LF_PUBLIC_BASE_URL || DEFAULT_LF_BASE_URL).replace(/\/$/, "");
@@ -81,6 +107,7 @@ export async function resolveCanonicalDerekLender(proposal: DerekRuleProposal): 
         action: "resolve_lender",
         lenderSlug: proposal.lenderSlug,
         lenderDisplayName: proposal.lenderDisplayName,
+        utterance,
       }),
       cache: "no-store",
     });
@@ -99,8 +126,8 @@ export async function resolveCanonicalDerekLender(proposal: DerekRuleProposal): 
       return {
         ok: false,
         clarification: detail.includes("ambiguous")
-          ? "That lender name matched more than one catalog entry. Say the exact proper name after the words: the lender named."
-          : "I could not resolve one exact lender from that wording. Say the exact proper name, for example: the lender named Change Wholesale.",
+          ? "That wording matched more than one lender. Say one exact company name."
+          : "I could not resolve one exact lender from that wording. Say the company name again, then the rule.",
       };
     }
 
@@ -115,7 +142,7 @@ export async function resolveCanonicalDerekLender(proposal: DerekRuleProposal): 
     console.error("Derek canonical lender resolution failed", error);
     return {
       ok: false,
-      clarification: "I could not verify the exact lender identity, so nothing is ready for confirmation. Say the exact lender name again.",
+      clarification: "LenderFlow did not answer the identity check, so nothing is ready for confirmation. Try again shortly.",
     };
   }
 }
