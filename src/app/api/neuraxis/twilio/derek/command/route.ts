@@ -75,7 +75,7 @@ function safeFailureDetail(value: string | undefined): string {
   const detail = String(value || "").replace(/\s+/g, " ").trim().slice(0, 240);
   if (!detail) return "LenderFlow did not return a publish receipt.";
   if (/key|token|credential|unauthorized|forbidden/i.test(detail)) {
-    return "The private service credential was rejected.";
+    return "The private service identity was rejected.";
   }
   return detail;
 }
@@ -96,6 +96,12 @@ export async function POST(request: Request) {
   }
 
   const heard = speechOrDigits(params);
+
+  // Vercel injects a short-lived signed workload token into every production
+  // function request. Reuse that token only for this private service-to-service
+  // call, replacing the missing manually copied LF_ADMIN_KEY.
+  const vercelOidcToken = request.headers.get("x-vercel-oidc-token") || "";
+  if (vercelOidcToken) process.env.LF_ADMIN_KEY = vercelOidcToken;
   ensureDerekBridgeCredential();
 
   if (session.pending) {
@@ -136,6 +142,7 @@ export async function POST(request: Request) {
               hive_receipt_confirmed: Boolean(result.hiveReceiptUrl),
               email_receipt_confirmed: Boolean(result.emailMessageId),
               failure_class: result.ok ? null : safeFailureDetail(result.error),
+              service_identity: vercelOidcToken ? "VERCEL_OIDC" : "LEGACY_ENV_KEY",
             },
           });
         } catch (error) {
@@ -222,6 +229,7 @@ export async function POST(request: Request) {
           clarification_turns: Math.max(0, draftTurns.length - 1),
           canonical_lender_resolved_before_confirmation: true,
           mutation_status: "AWAITING_EXPLICIT_CONFIRMATION",
+          service_identity: vercelOidcToken ? "VERCEL_OIDC" : "LEGACY_ENV_KEY",
         },
       });
     } catch (error) {
