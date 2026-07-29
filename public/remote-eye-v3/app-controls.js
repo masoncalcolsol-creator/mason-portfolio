@@ -197,6 +197,7 @@ function toggleVoice() {
   recognition.start(); $('voiceState').textContent = 'VOICE: LISTENING'; $('voiceBtn').textContent = 'Stop Voice';
 }
 
+$('cameraQuickBtn').onclick = usePhoneCamera;
 $('cameraBtn').onclick = usePhoneCamera;
 $('fileInput').onchange = (event) => openFile(event.target.files[0]);
 $('streamBtn').onclick = connectStream;
@@ -278,4 +279,4 @@ document.documentElement.dataset.remoteEyeBoot = 'ready';
 if (window.parent !== window) {
   window.parent.postMessage({ type: 'NW_REMOTE_EYE_READY', sessionId: session.id }, window.location.origin);
 }
-console.info('NULLWORKS Remote Eye V3.2 booted');
+console.info('NULLWORKS Remote Eye V3.2.1 booted');
