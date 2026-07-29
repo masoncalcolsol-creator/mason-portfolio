@@ -21,8 +21,10 @@ import {
   parseConversationalFicoRule,
 } from "@/lib/derek-lenderflow-conversation";
 import {
+  applyCanonicalLender,
   ensureDerekBridgeCredential,
   resolveCanonicalDerekLender,
+  resolveDerekLenderIdentity,
 } from "@/lib/derek-lenderflow-resolver";
 import {
   fetchDerekWorkroomContext,
@@ -36,7 +38,7 @@ export const dynamic = "force-dynamic";
 export const maxDuration = 30;
 
 const MAX_CLARIFICATION_ROUNDS = 4;
-const LENDER_HINTS = "Change Wholesale, Change Lending, The Change Company, Figure, HomeXpress Mortgage";
+const LENDER_HINTS = "HomeXpress Mortgage, Home Express Mortgage, Figure, Homebridge, Rocket Pro, Newrez Wholesale, Angel Oak Mortgage Solutions";
 
 function workroomUrl(requestUrl: string, session: string): string {
   const target = new URL("/api/neuraxis/twilio/derek/workroom", requestUrl);
@@ -97,9 +99,8 @@ export async function POST(request: Request) {
 
   const heard = speechOrDigits(params);
 
-  // Vercel injects a short-lived signed workload token into every production
-  // function request. Reuse that token only for this private service-to-service
-  // call, replacing the missing manually copied LF_ADMIN_KEY.
+  // Every Vercel function invocation receives a short-lived signed workload
+  // identity. Use it for both the catalog lookup and the confirmed write.
   const vercelOidcToken = request.headers.get("x-vercel-oidc-token") || "";
   if (vercelOidcToken) process.env.LF_ADMIN_KEY = vercelOidcToken;
   ensureDerekBridgeCredential();
@@ -116,7 +117,7 @@ export async function POST(request: Request) {
       const next = workroomUrl(request.url, freshToken);
       const receiptStatement = receiptStatus(result);
       const spoken = result.ok
-        ? `Done. The rule is published. Reference ${result.reference}. ${receiptStatement} Refresh LenderFlow and rerun the Catalina Wine Mixer sample.`
+        ? `Done. The rule is published. Reference ${result.reference}. ${receiptStatement} Refresh LenderFlow and rerun the scenario.`
         : `Nothing changed. Reference ${result.reference}. LenderFlow rejected the write: ${safeFailureDetail(result.error)} ${receiptStatement}`;
 
       after(async () => {
@@ -174,13 +175,25 @@ export async function POST(request: Request) {
     return twiml(`<?xml version="1.0" encoding="UTF-8"?><Response>${speak("The governed workroom context is unavailable, so I will not translate or change a lender rule. Please try again shortly.", request.url)}<Redirect method="POST">${xmlEscape(next)}</Redirect></Response>`, 503);
   }
 
-  const deterministicProposal = parseConversationalFicoRule(draftTurns);
+  // Resolve the company from the entire conversation before asking the rule
+  // parser to identify fields. This prevents a lender-name parsing miss from
+  // blocking a name that is plainly present in the canonical catalog.
+  const lenderIdentity = await resolveDerekLenderIdentity(fullUtterance);
+  const deterministicProposal = parseConversationalFicoRule(
+    draftTurns,
+    lenderIdentity.ok ? lenderIdentity.lender : undefined,
+  );
+
   let parsed = deterministicProposal
     ? { ok: true as const, proposal: deterministicProposal }
     : await parseDerekRule(fullUtterance, context);
 
   if (parsed.ok) {
-    parsed = await resolveCanonicalDerekLender(parsed.proposal, fullUtterance);
+    parsed = lenderIdentity.ok
+      ? { ok: true as const, proposal: applyCanonicalLender(parsed.proposal, lenderIdentity.lender) }
+      : await resolveCanonicalDerekLender(parsed.proposal, fullUtterance);
+  } else if (!lenderIdentity.ok && /which lender|lender name|company name/i.test(parsed.clarification)) {
+    parsed = lenderIdentity;
   }
 
   if (!parsed.ok) {
@@ -203,7 +216,7 @@ export async function POST(request: Request) {
   <Gather input="speech" hints="${xmlEscape(LENDER_HINTS)}" timeout="10" speechTimeout="auto" actionOnEmptyResult="true" method="POST" action="${xmlEscape(action)}">
     ${speak(`${parsed.clarification} I kept the usable details you already gave me.`, request.url)}
   </Gather>
-  ${speak("I did not catch the exact lender name. I kept the unfinished rule and will ask once more.", request.url)}
+  ${speak("I kept the unfinished rule and will ask once more.", request.url)}
   <Redirect method="POST">${xmlEscape(action)}</Redirect>
 </Response>`);
   }
@@ -227,6 +240,7 @@ export async function POST(request: Request) {
           program: parsed.proposal.program,
           permanent: !parsed.proposal.temporary,
           clarification_turns: Math.max(0, draftTurns.length - 1),
+          catalog_first_lender_resolution: lenderIdentity.ok,
           canonical_lender_resolved_before_confirmation: true,
           mutation_status: "AWAITING_EXPLICIT_CONFIRMATION",
           service_identity: vercelOidcToken ? "VERCEL_OIDC" : "LEGACY_ENV_KEY",
