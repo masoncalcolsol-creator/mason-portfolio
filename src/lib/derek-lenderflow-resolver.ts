@@ -58,13 +58,13 @@ function knownChangeWholesaleDrift(value: string): boolean {
 
 /**
  * Return the private bridge credential available in the active deployment.
- * LF_ADMIN_KEY remains primary. TWILIO_AUTH_TOKEN is the recovery rail because
- * this private endpoint and the Twilio webhook already share that production
- * secret. No secret value is logged or placed in receipts.
+ * TWILIO_AUTH_TOKEN is preferred because it proves we are using the same active
+ * private phone deployment on both sides of the bridge. LF_ADMIN_KEY remains a
+ * fallback. No secret value is logged or placed in receipts.
  */
 export function ensureDerekBridgeCredential(): string {
-  const key = process.env.LF_ADMIN_KEY || process.env.TWILIO_AUTH_TOKEN || "";
-  if (key && !process.env.LF_ADMIN_KEY) process.env.LF_ADMIN_KEY = key;
+  const key = process.env.TWILIO_AUTH_TOKEN || process.env.LF_ADMIN_KEY || "";
+  if (key) process.env.LF_ADMIN_KEY = key;
   return key;
 }
 
