@@ -12,6 +12,15 @@ type ResolveResponse = {
   error?: string;
 };
 
+export type ResolvedLenderIdentity = {
+  slug: string;
+  displayName: string;
+};
+
+export type LenderIdentityResult =
+  | { ok: true; lender: ResolvedLenderIdentity }
+  | { ok: false; clarification: string };
+
 export type CanonicalLenderResult =
   | { ok: true; proposal: DerekRuleProposal }
   | { ok: false; clarification: string };
@@ -49,38 +58,24 @@ function shortCanonicalSummary(proposal: DerekRuleProposal, lenderName: string):
   return `Only the lender named ${lenderName}${program}: ${proposal.fieldKey} ${operator} ${spokenValue(proposal.value)}.`;
 }
 
-function knownChangeWholesaleDrift(value: string): boolean {
-  const text = clean(value, 1200).toLowerCase();
-  return /\blender\s+(?:named|called)\b/.test(text)
-    && /\bchange\b/.test(text)
-    && /\bwholesale\b/.test(text);
-}
-
 /**
- * Return the private bridge credential available in the active deployment.
- * TWILIO_AUTH_TOKEN is preferred because it proves we are using the same active
- * private phone deployment on both sides of the bridge. LF_ADMIN_KEY remains a
- * fallback. No secret value is logged or placed in receipts.
+ * The command route places Vercel's short-lived production workload identity in
+ * LF_ADMIN_KEY for the duration of each invocation. Legacy environment keys
+ * remain compatible, but are no longer required.
  */
 export function ensureDerekBridgeCredential(): string {
-  const key = process.env.TWILIO_AUTH_TOKEN || process.env.LF_ADMIN_KEY || "";
-  if (key) process.env.LF_ADMIN_KEY = key;
-  return key;
+  return process.env.LF_ADMIN_KEY || process.env.TWILIO_AUTH_TOKEN || "";
 }
 
-/**
- * Resolve a proposed spoken lender identity against LenderFlow's canonical
- * catalog before the caller ever hears a confirmation. This action is read-only.
- */
-export async function resolveCanonicalDerekLender(
-  proposal: DerekRuleProposal,
-  utterance = "",
-): Promise<CanonicalLenderResult> {
-  const recoverableProperNameDrift = knownChangeWholesaleDrift(utterance);
-  if (containsGlobalLenderScope(proposal.lenderDisplayName) && !recoverableProperNameDrift) {
+async function requestCanonicalIdentity(input: {
+  utterance: string;
+  lenderSlug?: string;
+  lenderDisplayName?: string;
+}): Promise<LenderIdentityResult> {
+  if (containsGlobalLenderScope(input.utterance)) {
     return {
       ok: false,
-      clarification: "I heard a command for multiple lenders. This workroom cannot make a global lender change. Say one exact company name.",
+      clarification: "I heard a command for multiple lenders. This workroom can change only one lender at a time.",
     };
   }
 
@@ -88,7 +83,7 @@ export async function resolveCanonicalDerekLender(
   if (!key) {
     return {
       ok: false,
-      clarification: "The active phone deployment has no shared LenderFlow credential, so I will not confirm or save this as completed.",
+      clarification: "The production workload identity is unavailable, so I will not confirm or publish a lender rule.",
     };
   }
 
@@ -105,9 +100,9 @@ export async function resolveCanonicalDerekLender(
       },
       body: JSON.stringify({
         action: "resolve_lender",
-        lenderSlug: proposal.lenderSlug,
-        lenderDisplayName: proposal.lenderDisplayName,
-        utterance,
+        lenderSlug: input.lenderSlug || "",
+        lenderDisplayName: input.lenderDisplayName || "",
+        utterance: input.utterance,
       }),
       cache: "no-store",
     });
@@ -122,27 +117,52 @@ export async function resolveCanonicalDerekLender(
       && Boolean(slug && displayName);
 
     if (!exact) {
-      const detail = clean(data.error, 220);
+      const detail = clean(data.error, 220).toLowerCase();
       return {
         ok: false,
         clarification: detail.includes("ambiguous")
-          ? "That wording matched more than one lender. Say one exact company name."
-          : "I could not resolve one exact lender from that wording. Say the company name again, then the rule.",
+          ? "I found more than one possible lender. Say the full company name once."
+          : "I could not match that company name to the active lender catalog. Say the full company name once.",
       };
     }
 
-    const canonical: DerekRuleProposal = {
-      ...proposal,
-      lenderSlug: slug,
-      lenderDisplayName: displayName,
-      spokenSummary: shortCanonicalSummary(proposal, displayName),
-    };
-    return { ok: true, proposal: canonical };
+    return { ok: true, lender: { slug, displayName } };
   } catch (error) {
-    console.error("Derek canonical lender resolution failed", error);
+    console.error("Derek canonical lender identity request failed", error);
     return {
       ok: false,
-      clarification: "LenderFlow did not answer the identity check, so nothing is ready for confirmation. Try again shortly.",
+      clarification: "LenderFlow did not answer the catalog lookup, so nothing is ready for confirmation.",
     };
   }
+}
+
+/** Resolve the lender directly from the entire short conversation before rule parsing. */
+export async function resolveDerekLenderIdentity(utterance: string): Promise<LenderIdentityResult> {
+  return requestCanonicalIdentity({ utterance });
+}
+
+export function applyCanonicalLender(
+  proposal: DerekRuleProposal,
+  lender: ResolvedLenderIdentity,
+): DerekRuleProposal {
+  return {
+    ...proposal,
+    lenderSlug: lender.slug,
+    lenderDisplayName: lender.displayName,
+    spokenSummary: shortCanonicalSummary(proposal, lender.displayName),
+  };
+}
+
+/** Fallback for non-FICO rules whose parser supplied a candidate lender name. */
+export async function resolveCanonicalDerekLender(
+  proposal: DerekRuleProposal,
+  utterance = "",
+): Promise<CanonicalLenderResult> {
+  const identity = await requestCanonicalIdentity({
+    utterance,
+    lenderSlug: proposal.lenderSlug,
+    lenderDisplayName: proposal.lenderDisplayName,
+  });
+  if (!identity.ok) return identity;
+  return { ok: true, proposal: applyCanonicalLender(proposal, identity.lender) };
 }
