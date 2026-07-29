@@ -1,0 +1,152 @@
+:root {
+  --source-zoom: 1;
+}
+
+.viewport video,
+.viewport img,
+#demoCanvas {
+  transform: scale(var(--source-zoom));
+  transform-origin: center center;
+  transition: transform 90ms linear;
+  will-change: transform;
+}
+
+.zoom-readout {
+  min-width: 74px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+html.embedded,
+html.embedded body {
+  min-height: 100%;
+  background: #020405;
+}
+
+html.embedded body {
+  overflow-x: hidden;
+}
+
+html.embedded .topbar,
+html.embedded footer,
+html.embedded .event-panel {
+  display: none;
+}
+
+html.embedded main {
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  padding: 0;
+}
+
+html.embedded .viewer-card {
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  background: #000;
+}
+
+html.embedded .viewport {
+  height: min(68dvh, 680px);
+  min-height: 340px;
+  max-height: none;
+  aspect-ratio: auto;
+  border: 0;
+  border-radius: 0;
+}
+
+html.embedded .primary-controls {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 6px;
+  margin: 0;
+  padding: 8px;
+  background: #071016;
+  border-top: 1px solid #1b3440;
+}
+
+html.embedded .primary-controls button {
+  min-height: 44px;
+  padding: 8px 7px;
+  font-size: 0.72rem;
+}
+
+html.embedded .panel-grid {
+  display: block;
+  margin: 0;
+  padding: 8px;
+  background: #05080b;
+}
+
+html.embedded .panel-grid > .panel:not(.reticle-panel) {
+  display: none;
+}
+
+html.embedded .reticle-panel {
+  margin: 0;
+  padding: 14px;
+  border-radius: 12px;
+}
+
+html.embedded .reticle-panel h2 {
+  margin-bottom: 10px;
+}
+
+html.embedded .fullscreen-hint {
+  bottom: 12px;
+}
+
+.viewport.zooming {
+  cursor: zoom-in;
+}
+
+@media (max-width: 700px) {
+  html.embedded .viewport {
+    height: 62dvh;
+    min-height: 320px;
+  }
+
+  html.embedded .primary-controls {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  html.embedded .primary-controls button {
+    min-height: 42px;
+    padding: 7px 5px;
+    font-size: 0.66rem;
+  }
+
+  html.embedded .reticle-layout {
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 10px;
+  }
+
+  html.embedded .color-dial {
+    width: 86px;
+    height: 86px;
+  }
+
+  html.embedded .color-swatch {
+    inset: 27px;
+  }
+
+  html.embedded .dial-label,
+  html.embedded .note,
+  html.embedded .compact {
+    display: none;
+  }
+}
+
+@media (max-width: 470px) {
+  html.embedded .viewport {
+    height: 58dvh;
+  }
+
+  html.embedded .reticle-layout {
+    grid-template-columns: 1fr;
+  }
+
+  html.embedded .color-control {
+    display: none;
+  }
+}
