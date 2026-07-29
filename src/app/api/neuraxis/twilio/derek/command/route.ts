@@ -20,6 +20,7 @@ import {
   derekConversationInput,
   parseConversationalFicoRule,
 } from "@/lib/derek-lenderflow-conversation";
+import { resolveCanonicalDerekLender } from "@/lib/derek-lenderflow-resolver";
 import {
   fetchDerekWorkroomContext,
   parseDerekRule,
@@ -50,9 +51,9 @@ function confirmationResponse(requestUrl: string, token: string, prompt: string)
   return twiml(`<?xml version="1.0" encoding="UTF-8"?>
 <Response>
   <Gather input="speech dtmf" numDigits="1" timeout="8" speechTimeout="auto" actionOnEmptyResult="true" method="POST" action="${xmlEscape(action)}">
-    ${speak(`${prompt} Say yes or press 1 to publish it. Say no or press 2 to cancel.`, requestUrl)}
+    ${speak(`${prompt} Correct? Say yes or press 1. Say no or press 2.`, requestUrl)}
   </Gather>
-  ${speak("I need a clear yes or no before anything changes.", requestUrl)}
+  ${speak("I need one clear yes or no before anything changes.", requestUrl)}
   <Redirect method="POST">${xmlEscape(action)}</Redirect>
 </Response>`);
 }
@@ -136,7 +137,7 @@ export async function POST(request: Request) {
       return twiml(`<?xml version="1.0" encoding="UTF-8"?><Response>${speak("Canceled. Nothing changed and no lender rule was published.", request.url)}<Redirect method="POST">${xmlEscape(next)}</Redirect></Response>`);
     }
 
-    return confirmationResponse(request.url, token, `The pending change is: ${session.pending.spokenSummary}`);
+    return confirmationResponse(request.url, token, session.pending.spokenSummary);
   }
 
   const draftTurns = appendDerekConversationTurn(session.draftTurns, heard);
@@ -151,9 +152,15 @@ export async function POST(request: Request) {
   }
 
   const deterministicProposal = parseConversationalFicoRule(draftTurns);
-  const parsed = deterministicProposal
+  let parsed = deterministicProposal
     ? { ok: true as const, proposal: deterministicProposal }
     : await parseDerekRule(derekConversationInput(draftTurns), context);
+
+  // Canonical lender identity must be proven before the confirmation is spoken.
+  // This is read-only and prevents speech syntax from becoming a global command.
+  if (parsed.ok) {
+    parsed = await resolveCanonicalDerekLender(parsed.proposal);
+  }
 
   if (!parsed.ok) {
     const clarificationCount = (session.clarificationCount || 0) + 1;
@@ -163,7 +170,7 @@ export async function POST(request: Request) {
       const next = workroomUrl(request.url, freshToken);
       return twiml(`<?xml version="1.0" encoding="UTF-8"?>
 <Response>
-  ${speak("I got stuck trying to assemble that rule, so I cleared only this unfinished draft instead of asking the same questions forever. Say the complete rule again in one sentence, for example: Change Wholesale minimum FICO to 600.", request.url)}
+  ${speak("I cleared only this unfinished draft rather than risk changing the wrong lender. Say the complete rule again using the words: the lender named. For example: the lender named Change Wholesale, minimum FICO 600.", request.url)}
   <Redirect method="POST">${xmlEscape(next)}</Redirect>
 </Response>`);
     }
@@ -173,9 +180,9 @@ export async function POST(request: Request) {
     return twiml(`<?xml version="1.0" encoding="UTF-8"?>
 <Response>
   <Gather input="speech" timeout="10" speechTimeout="auto" actionOnEmptyResult="true" method="POST" action="${xmlEscape(action)}">
-    ${speak(`${parsed.clarification} I kept everything you already told me. Answer only the missing part.`, request.url)}
+    ${speak(`${parsed.clarification} I kept the usable details you already gave me.`, request.url)}
   </Gather>
-  ${speak("I did not catch the missing detail. I kept the unfinished rule and will ask once more.", request.url)}
+  ${speak("I did not catch the exact lender name. I kept the unfinished rule and will ask once more.", request.url)}
   <Redirect method="POST">${xmlEscape(action)}</Redirect>
 </Response>`);
   }
@@ -199,6 +206,7 @@ export async function POST(request: Request) {
           program: parsed.proposal.program,
           permanent: !parsed.proposal.temporary,
           clarification_turns: Math.max(0, draftTurns.length - 1),
+          canonical_lender_resolved_before_confirmation: true,
           mutation_status: "AWAITING_EXPLICIT_CONFIRMATION",
         },
       });
@@ -206,5 +214,5 @@ export async function POST(request: Request) {
       console.error("Derek LenderFlow proposal telemetry failed", error);
     }
   });
-  return confirmationResponse(request.url, pendingToken, `I heard this proposed matching rule: ${parsed.proposal.spokenSummary}`);
+  return confirmationResponse(request.url, pendingToken, parsed.proposal.spokenSummary);
 }
