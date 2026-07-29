@@ -12,12 +12,13 @@
 
 .livePanel {
   width: min(100%, 1120px);
-  min-height: 100svh;
+  height: 100svh;
+  min-height: 680px;
   margin: 0 auto;
-  padding: max(14px, env(safe-area-inset-top)) 14px max(14px, env(safe-area-inset-bottom));
+  padding: max(10px, env(safe-area-inset-top)) 10px max(10px, env(safe-area-inset-bottom));
   display: grid;
-  grid-template-rows: auto auto minmax(220px, 1fr) auto auto;
-  gap: 10px;
+  grid-template-rows: auto minmax(150px, 23vh) minmax(205px, 1fr) auto auto;
+  gap: 7px;
   overflow: hidden;
 }
 
@@ -25,76 +26,81 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
+  gap: 10px;
 }
 
 .header h1 {
   margin: 2px 0 0;
-  font-size: clamp(1.45rem, 6vw, 2.5rem);
-  line-height: 1;
-  letter-spacing: -0.05em;
+  font-size: clamp(1.7rem, 7vw, 2.65rem);
+  line-height: 0.96;
+  letter-spacing: -0.055em;
 }
 
 .eyebrow,
 .kicker,
 .paperKicker {
-  color: #92a0b4;
+  color: #a4b1c3;
   font-family: var(--font-geist-mono), monospace;
-  font-size: 0.67rem;
-  font-weight: 750;
-  letter-spacing: 0.12em;
+  font-size: clamp(0.73rem, 2.9vw, 0.9rem);
+  font-weight: 850;
+  letter-spacing: 0.11em;
 }
 
 .factor {
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  padding: 7px 10px;
-  border: 1px solid rgba(101, 216, 255, 0.38);
+  flex: 0 0 auto;
+  padding: 9px 11px;
+  border: 1px solid rgba(101, 216, 255, 0.5);
   border-radius: 999px;
   color: var(--goblin);
-  background: rgba(101, 216, 255, 0.08);
+  background: rgba(101, 216, 255, 0.1);
   font-family: var(--font-geist-mono), monospace;
-  font-weight: 850;
+  font-size: 1rem;
+  font-weight: 900;
 }
 
 .dials {
+  min-height: 0;
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 10px;
+  gap: 7px;
 }
 
 .dialCard,
 .graphCard,
 .controlDeck,
 .punchline {
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  background: linear-gradient(145deg, rgba(18, 22, 31, 0.94), rgba(8, 10, 16, 0.97));
-  box-shadow: inset 0 1px rgba(255, 255, 255, 0.035), 0 16px 45px rgba(0, 0, 0, 0.28);
+  border: 1px solid rgba(255, 255, 255, 0.13);
+  background: linear-gradient(145deg, rgba(18, 22, 31, 0.97), rgba(8, 10, 16, 0.98));
+  box-shadow: inset 0 1px rgba(255, 255, 255, 0.045), 0 14px 38px rgba(0, 0, 0, 0.28);
 }
 
 .dialCard {
-  min-height: 158px;
-  padding: 9px;
-  border-radius: 18px;
+  min-height: 0;
+  padding: 7px 6px 5px;
+  border-radius: 17px;
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: flex-start;
 }
 
 .dialTitle {
   font-family: var(--font-geist-mono), monospace;
-  font-size: 0.66rem;
-  font-weight: 800;
-  letter-spacing: 0.1em;
-  color: #a7b1bf;
+  font-size: clamp(0.76rem, 3.2vw, 0.94rem);
+  font-weight: 900;
+  letter-spacing: 0.09em;
+  color: #c0c9d5;
+  white-space: nowrap;
 }
 
 .dialWrap {
   position: relative;
-  width: min(30vw, 142px);
+  width: min(31vw, 152px, 18vh);
   aspect-ratio: 1;
-  margin-top: 2px;
+  margin-top: 1px;
 }
 
 .dialSvg {
@@ -107,20 +113,27 @@
 .dialTrack,
 .dialProgress {
   fill: none;
-  stroke-width: 7;
+  stroke-width: 8;
 }
 
 .dialTrack {
-  stroke: rgba(255, 255, 255, 0.08);
+  stroke: rgba(255, 255, 255, 0.1);
 }
 
 .dialProgress {
   stroke-linecap: round;
-  transition: stroke-dasharray 80ms linear;
+  transition: stroke-dasharray 70ms linear;
 }
 
-.human .dialProgress { stroke: var(--human); filter: drop-shadow(0 0 6px rgba(242, 168, 59, 0.5)); }
-.goblin .dialProgress { stroke: var(--goblin); filter: drop-shadow(0 0 6px rgba(101, 216, 255, 0.5)); }
+.human .dialProgress {
+  stroke: var(--human);
+  filter: drop-shadow(0 0 7px rgba(242, 168, 59, 0.6));
+}
+
+.goblin .dialProgress {
+  stroke: var(--goblin);
+  filter: drop-shadow(0 0 7px rgba(101, 216, 255, 0.6));
+}
 
 .dialCenter {
   position: absolute;
@@ -134,30 +147,35 @@
 
 .dialCenter strong {
   font-family: var(--font-geist-mono), monospace;
-  font-size: clamp(1rem, 4vw, 1.45rem);
-  letter-spacing: -0.05em;
+  font-size: clamp(1.25rem, 5.5vw, 1.85rem);
+  line-height: 1;
+  letter-spacing: -0.065em;
 }
 
 .dialCenter span {
-  max-width: 90%;
-  color: #8e9aad;
-  font-size: clamp(0.58rem, 2.5vw, 0.72rem);
+  max-width: 94%;
+  color: #a8b3c2;
+  font-size: clamp(0.68rem, 2.9vw, 0.86rem);
+  line-height: 1.13;
 }
 
 .dialCenter .revolution {
-  margin-bottom: 3px;
+  margin-bottom: 4px;
   color: var(--human);
   font-family: var(--font-geist-mono), monospace;
-  font-weight: 850;
-  letter-spacing: 0.08em;
+  font-size: clamp(0.7rem, 3vw, 0.88rem);
+  font-weight: 950;
+  letter-spacing: 0.07em;
 }
 
 .graphCard {
+  position: relative;
   min-height: 0;
-  padding: 10px;
-  border-radius: 18px;
+  padding: 8px 9px 7px;
+  border-radius: 17px;
   display: grid;
   grid-template-rows: auto minmax(0, 1fr) auto;
+  overflow: visible;
 }
 
 .graphHeader,
@@ -165,74 +183,262 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 10px;
+  gap: 8px;
 }
 
 .graphHeader strong {
   display: block;
-  margin-top: 2px;
-  font-size: clamp(0.78rem, 3vw, 1rem);
+  margin-top: 1px;
+  max-width: 225px;
+  font-size: clamp(0.9rem, 3.9vw, 1.15rem);
+  line-height: 1.08;
 }
 
 .legend {
   display: flex;
-  flex-wrap: wrap;
-  justify-content: flex-end;
-  gap: 7px;
-  color: #9ba6b6;
-  font-size: 0.64rem;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 3px;
+  color: #bac3d0;
+  font-size: clamp(0.72rem, 3vw, 0.88rem);
+  font-weight: 750;
 }
 
 .legend span {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
+  gap: 5px;
+  white-space: nowrap;
 }
 
 .humanDot,
 .goblinDot {
-  width: 7px;
-  height: 7px;
+  width: 9px;
+  height: 9px;
   border-radius: 999px;
 }
-.humanDot { background: var(--human); }
-.goblinDot { background: var(--goblin); }
+
+.humanDot { background: var(--human); box-shadow: 0 0 8px rgba(242, 168, 59, 0.55); }
+.goblinDot { background: var(--goblin); box-shadow: 0 0 8px rgba(101, 216, 255, 0.55); }
+
+.graphStage {
+  position: relative;
+  min-height: 0;
+}
 
 .graph {
   width: 100%;
   height: 100%;
-  min-height: 165px;
+  min-height: 142px;
+  display: block;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  cursor: crosshair;
 }
 
-.gridLine { stroke: rgba(255, 255, 255, 0.065); stroke-width: 1; }
-.axis { stroke: rgba(255, 255, 255, 0.28); stroke-width: 1.4; }
+.gridLine {
+  stroke: rgba(255, 255, 255, 0.09);
+  stroke-width: 1.25;
+}
+
+.axis {
+  stroke: rgba(255, 255, 255, 0.42);
+  stroke-width: 2;
+}
+
 .humanLine,
 .goblinLine {
   fill: none;
-  stroke-width: 4;
+  stroke-width: 7;
   stroke-linecap: round;
   stroke-linejoin: round;
 }
-.humanLine { stroke: var(--human); }
-.goblinLine { stroke: url(#goblinGlow); }
-.cursorLine { stroke: rgba(255, 255, 255, 0.25); stroke-width: 1; stroke-dasharray: 5 5; }
-.eventLine { stroke: #ff5964; stroke-width: 1.5; stroke-dasharray: 5 5; }
-.eventLabel { fill: #ff8490; font-size: 9px; font-family: var(--font-geist-mono), monospace; }
-.axisLabel { fill: #7e8998; font-size: 11px; font-family: var(--font-geist-mono), monospace; }
 
-.graphReadout {
-  padding-top: 3px;
-  color: #8e99aa;
-  font-size: 0.69rem;
+.humanLine {
+  stroke: var(--human);
+  filter: drop-shadow(0 0 3px rgba(242, 168, 59, 0.8));
 }
 
-.graphReadout strong { color: #f4f6fa; font-family: var(--font-geist-mono), monospace; }
+.goblinLine {
+  filter: drop-shadow(0 0 5px rgba(101, 216, 255, 0.75));
+}
+
+.cursorLine {
+  stroke: rgba(255, 255, 255, 0.45);
+  stroke-width: 2;
+  stroke-dasharray: 7 6;
+}
+
+.eventLine {
+  stroke: #ff5964;
+  stroke-width: 4;
+  stroke-dasharray: 8 6;
+  filter: drop-shadow(0 0 4px rgba(255, 89, 100, 0.75));
+}
+
+.eventBadge {
+  fill: rgba(75, 7, 14, 0.94);
+  stroke: rgba(255, 89, 100, 0.82);
+  stroke-width: 1.5;
+}
+
+.eventLabel {
+  fill: #ffacb4;
+  font-size: 15px;
+  font-weight: 900;
+  font-family: var(--font-geist-mono), monospace;
+}
+
+.axisLabel {
+  fill: #b8c3d2;
+  font-size: 15px;
+  font-weight: 850;
+  font-family: var(--font-geist-mono), monospace;
+}
+
+.dragHint {
+  position: absolute;
+  right: 4px;
+  bottom: 7px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 7px;
+  border: 1px solid rgba(101, 216, 255, 0.35);
+  border-radius: 999px;
+  color: #d4f4ff;
+  background: rgba(4, 10, 16, 0.84);
+  font-size: clamp(0.68rem, 2.8vw, 0.8rem);
+  font-weight: 800;
+  pointer-events: none;
+}
+
+.graphReadout {
+  padding-top: 1px;
+  color: #bdc6d3;
+  font-size: clamp(0.78rem, 3.4vw, 0.96rem);
+}
+
+.graphReadout strong {
+  color: #fff;
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 1.05em;
+}
+
+.magnifier {
+  position: fixed;
+  z-index: 1000;
+  top: max(8px, env(safe-area-inset-top));
+  left: 50%;
+  width: min(92vw, 48vh, 460px);
+  aspect-ratio: 1;
+  transform: translateX(-50%);
+  padding: 9px;
+  border: 2px solid rgba(101, 216, 255, 0.88);
+  border-radius: 20px;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  gap: 6px;
+  background: rgba(3, 6, 11, 0.97);
+  box-shadow:
+    0 0 0 4px rgba(3, 6, 11, 0.92),
+    0 18px 60px rgba(0, 0, 0, 0.78),
+    0 0 35px rgba(101, 216, 255, 0.25);
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.magnifierHeader,
+.magnifierReadout {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.magnifierHeader {
+  color: #e6f9ff;
+  font-family: var(--font-geist-mono), monospace;
+  font-size: clamp(0.78rem, 3.4vw, 1rem);
+  font-weight: 900;
+}
+
+.magnifierHeader span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--goblin);
+}
+
+.magnifierHeader strong {
+  white-space: nowrap;
+}
+
+.magnifierViewport {
+  position: relative;
+  min-height: 0;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 13px;
+  background: #080b11;
+}
+
+.magnifierViewport svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.crosshairHorizontal,
+.crosshairVertical {
+  position: absolute;
+  background: rgba(255, 255, 255, 0.78);
+  box-shadow: 0 0 6px rgba(101, 216, 255, 0.9);
+}
+
+.crosshairHorizontal {
+  left: 10%;
+  right: 10%;
+  top: 50%;
+  height: 1px;
+}
+
+.crosshairVertical {
+  top: 10%;
+  bottom: 10%;
+  left: 50%;
+  width: 1px;
+}
+
+.crosshairCenter {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 13px;
+  height: 13px;
+  transform: translate(-50%, -50%);
+  border: 2px solid #fff;
+  border-radius: 50%;
+  background: rgba(101, 216, 255, 0.2);
+  box-shadow: 0 0 12px var(--goblin);
+}
+
+.magnifierReadout {
+  color: #c6d0dd;
+  font-size: clamp(0.78rem, 3.2vw, 0.95rem);
+}
+
+.magnifierReadout strong {
+  color: #fff;
+  font-family: var(--font-geist-mono), monospace;
+}
 
 .controlDeck {
-  padding: 8px;
-  border-radius: 16px;
+  padding: 7px;
+  border-radius: 15px;
   display: grid;
-  gap: 7px;
+  gap: 6px;
 }
 
 .modeControl,
@@ -240,16 +446,16 @@
 .speedControl {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 5px;
 }
 
 .modeControl button,
 .speedControl button,
 .runButton,
 .iconButton {
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  color: #9da8b8;
-  background: rgba(255, 255, 255, 0.035);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  color: #bdc6d3;
+  background: rgba(255, 255, 255, 0.045);
   font: inherit;
   cursor: pointer;
 }
@@ -257,9 +463,11 @@
 .modeControl button {
   flex: 1;
   min-width: 0;
-  padding: 7px 4px;
+  min-height: 36px;
+  padding: 6px 3px;
   border-radius: 9px;
-  font-size: 0.68rem;
+  font-size: clamp(0.72rem, 3vw, 0.86rem);
+  font-weight: 750;
   white-space: nowrap;
 }
 
@@ -267,38 +475,53 @@
   color: #071018;
   border-color: var(--goblin);
   background: var(--goblin);
-  font-weight: 850;
+  font-weight: 950;
 }
 
-.transportControls { justify-content: space-between; }
+.transportControls {
+  justify-content: space-between;
+}
+
 .runButton,
 .iconButton {
-  min-height: 34px;
+  min-height: 39px;
   border-radius: 10px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 6px;
 }
+
 .runButton {
-  padding: 0 13px;
+  padding: 0 14px;
   color: #160f05;
   border-color: var(--human);
   background: var(--human);
-  font-weight: 850;
+  font-size: 1rem;
+  font-weight: 950;
 }
-.iconButton { width: 36px; }
-.speedControl { margin-left: auto; }
+
+.iconButton {
+  width: 42px;
+}
+
+.speedControl {
+  margin-left: auto;
+}
+
 .speedControl button {
-  min-width: 38px;
-  padding: 7px 8px;
+  min-width: 43px;
+  min-height: 38px;
+  padding: 6px 8px;
   border-radius: 9px;
-  font-size: 0.68rem;
+  font-size: clamp(0.75rem, 3.1vw, 0.9rem);
+  font-weight: 800;
 }
+
 .speedControl .activeSpeed {
   color: var(--goblin);
-  border-color: rgba(101, 216, 255, 0.5);
-  background: rgba(101, 216, 255, 0.1);
+  border-color: rgba(101, 216, 255, 0.6);
+  background: rgba(101, 216, 255, 0.13);
 }
 
 .modeNote {
@@ -306,23 +529,35 @@
   display: flex;
   align-items: flex-start;
   gap: 6px;
-  color: #8f9aaa;
-  font-size: 0.66rem;
-  line-height: 1.35;
+  color: #aeb8c7;
+  font-size: clamp(0.7rem, 2.85vw, 0.82rem);
+  line-height: 1.25;
 }
-.modeNote svg { flex: 0 0 auto; margin-top: 1px; }
+
+.modeNote svg {
+  flex: 0 0 auto;
+  margin-top: 1px;
+}
 
 .punchline {
-  padding: 9px 11px;
+  padding: 8px 10px;
   border-radius: 14px;
   display: flex;
   align-items: center;
   gap: 8px;
-  color: #b7c1cf;
-  font-size: 0.72rem;
+  color: #c5ceda;
+  font-size: clamp(0.76rem, 3.2vw, 0.93rem);
+  line-height: 1.2;
 }
-.punchline svg { color: var(--human); flex: 0 0 auto; }
-.punchline strong { color: #fff; }
+
+.punchline svg {
+  color: var(--human);
+  flex: 0 0 auto;
+}
+
+.punchline strong {
+  color: #fff;
+}
 
 .paperSection {
   width: min(calc(100% - 28px), 920px);
@@ -345,24 +580,89 @@
 
 @media (min-width: 760px) {
   .livePanel {
-    padding: 24px;
-    grid-template-rows: auto 190px minmax(280px, 1fr) auto auto;
+    min-height: 760px;
+    padding: 18px;
+    grid-template-rows: auto 190px minmax(285px, 1fr) auto auto;
+    gap: 10px;
   }
-  .dials { width: min(100%, 660px); margin: 0 auto; }
-  .controlDeck { grid-template-columns: 1.4fr 1fr; align-items: center; }
-  .transportControls { grid-column: 2; grid-row: 1; }
-  .modeNote { grid-column: 1 / -1; }
+
+  .dials {
+    width: min(100%, 660px);
+    margin: 0 auto;
+  }
+
+  .dialWrap {
+    width: min(19vh, 158px);
+  }
+
+  .controlDeck {
+    grid-template-columns: 1.4fr 1fr;
+    align-items: center;
+  }
+
+  .transportControls {
+    grid-column: 2;
+    grid-row: 1;
+  }
+
+  .modeNote {
+    grid-column: 1 / -1;
+  }
 }
 
-@media (max-height: 760px) and (max-width: 759px) {
-  .livePanel { gap: 7px; }
-  .dialCard { min-height: 132px; }
-  .dialWrap { width: min(26vw, 118px); }
-  .graph { min-height: 135px; }
-  .punchline { font-size: 0.64rem; }
-  .modeNote { display: none; }
+@media (max-width: 380px) {
+  .header h1 {
+    font-size: 1.55rem;
+  }
+
+  .factor {
+    padding: 7px 9px;
+    font-size: 0.9rem;
+  }
+
+  .dialTitle {
+    font-size: 0.69rem;
+  }
+
+  .modeControl button {
+    font-size: 0.66rem;
+  }
+
+  .speedControl button {
+    min-width: 38px;
+  }
+}
+
+@media (max-height: 730px) and (max-width: 759px) {
+  .livePanel {
+    min-height: 650px;
+    grid-template-rows: auto 142px minmax(190px, 1fr) auto auto;
+    gap: 5px;
+  }
+
+  .header h1 {
+    font-size: 1.55rem;
+  }
+
+  .dialWrap {
+    width: min(28vw, 118px, 16vh);
+  }
+
+  .graph {
+    min-height: 128px;
+  }
+
+  .modeNote {
+    display: none;
+  }
+
+  .punchline {
+    font-size: 0.71rem;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .dialProgress { transition: none; }
+  .dialProgress {
+    transition: none;
+  }
 }
