@@ -34,3 +34,4 @@ jobs:
           print('NEURAXIS_ENV=', json.dumps(n.get('environment', {}), sort_keys=True))
           print('LENDERFLOW_HEALTH=', json.dumps(l, sort_keys=True))
           PY
+          echo "Production diagnostic complete."
