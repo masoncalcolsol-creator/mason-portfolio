@@ -18,6 +18,13 @@ export type DerekRuleProposal = {
   spokenSummary: string;
 };
 
+export type DerekPublishedResult = {
+  ok: boolean;
+  reference: string;
+  ruleId?: string;
+  spoken: string;
+};
+
 export type DerekLenderFlowCallSession = {
   kind: "DEREK_LENDERFLOW_CALL_SESSION";
   callSid: string;
@@ -32,6 +39,12 @@ export type DerekLenderFlowCallSession = {
    */
   draftTurns?: string[];
   clarificationCount?: number;
+  /**
+   * The most recent publish result is held only long enough for the caller to say
+   * "repeat" or press 9. It prevents the operator from losing the reference while
+   * avoiding a second automatic rule read-back.
+   */
+  publishedResult?: DerekPublishedResult;
 };
 
 function safeEqual(left: string, right: string): boolean {
@@ -56,6 +69,7 @@ export function createDerekCallSession(
   pending?: DerekRuleProposal,
   draftTurns?: string[],
   clarificationCount = 0,
+  publishedResult?: DerekPublishedResult,
 ): string {
   const now = Date.now();
   const session: DerekLenderFlowCallSession = {
@@ -67,6 +81,7 @@ export function createDerekCallSession(
     ...(pending ? { pending } : {}),
     ...(draftTurns?.length ? { draftTurns } : {}),
     ...(clarificationCount > 0 ? { clarificationCount } : {}),
+    ...(publishedResult ? { publishedResult } : {}),
   };
   return encodeState(session);
 }
