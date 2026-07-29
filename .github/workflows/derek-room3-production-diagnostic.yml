@@ -13,24 +13,54 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
-      - name: Query production health receipts
+      - name: Verify HomeXpress production resolution
         shell: bash
         run: |
           set -euo pipefail
+
           echo "=== NEURAXIS ROOM 3 ==="
           curl --fail-with-body --silent --show-error \
             https://mason-portfolio-main.vercel.app/api/neuraxis/twilio/derek/health | tee /tmp/neuraxis.json
           echo
+
           echo "=== LENDERFLOW DIRECT BRIDGE ==="
           curl --fail-with-body --silent --show-error \
             'https://lf-lender-intake.vercel.app/api/rules/direct?health=1' | tee /tmp/lenderflow.json
           echo
+
+          echo "=== NON-MUTATING HOMEXPRESS CATALOG CHECK ==="
+          curl --fail-with-body --silent --show-error \
+            https://mason-portfolio-main.vercel.app/api/neuraxis/twilio/derek/bridge-check | tee /tmp/bridge.json
+          echo
+
           python - <<'PY'
           import json
+
           with open('/tmp/neuraxis.json') as f:
               n = json.load(f)
           with open('/tmp/lenderflow.json') as f:
               l = json.load(f)
+          with open('/tmp/bridge.json') as f:
+              b = json.load(f)
+
           print('NEURAXIS_ENV=', json.dumps(n.get('environment', {}), sort_keys=True))
           print('LENDERFLOW_HEALTH=', json.dumps(l, sort_keys=True))
+          print('HOMEXPRESS_BRIDGE_CHECK=', json.dumps(b, sort_keys=True))
+
+          assert l.get('ok') is True, l
+          assert l.get('version') == 'room3-bridge-v5-catalog-speech', l
+          assert 'change-wholesale' in (l.get('excludedLenders') or []), l
+
+          assert b.get('ok') is True, b
+          assert b.get('mutationPerformed') is False, b
+          assert b.get('serviceIdentity') == 'VERCEL_OIDC', b
+
+          lf = b.get('lenderflow') or {}
+          assert lf.get('exactLenderMatch') is True, b
+          assert lf.get('mutationPerformed') is False, b
+          resolved = lf.get('resolvedLender') or {}
+          assert resolved.get('slug') == 'homexpress-mortgage', b
+          assert resolved.get('displayName') == 'HomeXpress Mortgage', b
           PY
+
+          echo "HomeXpress production resolution verified without mutation."
