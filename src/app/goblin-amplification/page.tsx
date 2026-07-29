@@ -222,10 +222,12 @@ function GraphMagnifier({
   progress: number;
   mode: CurveMode;
 }) {
-  const crop = 132;
-  const half = crop / 2;
-  const centerX = clamp(lens.x, half, GRAPH.width - half);
-  const centerY = clamp(lens.y, half, GRAPH.height - half);
+  const cropWidth = 264;
+  const cropHeight = GRAPH.height;
+  const halfWidth = cropWidth / 2;
+  const halfHeight = cropHeight / 2;
+  const centerX = clamp(lens.x, halfWidth, GRAPH.width - halfWidth);
+  const centerY = clamp(lens.y, halfHeight, GRAPH.height - halfHeight);
   const pointTime = lens.progress * GOBLIN_SECONDS;
 
   return (
@@ -236,7 +238,7 @@ function GraphMagnifier({
       </div>
       <div className={styles.magnifierViewport}>
         <svg
-          viewBox={`${centerX - half} ${centerY - half} ${crop} ${crop}`}
+          viewBox={`${centerX - halfWidth} ${centerY - halfHeight} ${cropWidth} ${cropHeight}`}
           preserveAspectRatio="xMidYMid meet"
           aria-hidden="true"
         >
