@@ -25,6 +25,13 @@ export type DerekLenderFlowCallSession = {
   issuedAt: number;
   expiresAt: number;
   pending?: DerekRuleProposal;
+  /**
+   * Short-lived encrypted call state only. These utterances are carried inside the
+   * signed session token so clarification answers can complete the same command.
+   * They are not written to telemetry, the Hive, Gmail, or LenderFlow.
+   */
+  draftTurns?: string[];
+  clarificationCount?: number;
 };
 
 function safeEqual(left: string, right: string): boolean {
@@ -43,7 +50,13 @@ export function verifyDerekPin(value: string, expectedHash: string): boolean {
   return safeEqual(hashDerekPin(value), expected);
 }
 
-export function createDerekCallSession(callSid: string, caller: string, pending?: DerekRuleProposal): string {
+export function createDerekCallSession(
+  callSid: string,
+  caller: string,
+  pending?: DerekRuleProposal,
+  draftTurns?: string[],
+  clarificationCount = 0,
+): string {
   const now = Date.now();
   const session: DerekLenderFlowCallSession = {
     kind: "DEREK_LENDERFLOW_CALL_SESSION",
@@ -52,6 +65,8 @@ export function createDerekCallSession(callSid: string, caller: string, pending?
     issuedAt: now,
     expiresAt: now + 30 * 60 * 1000,
     ...(pending ? { pending } : {}),
+    ...(draftTurns?.length ? { draftTurns } : {}),
+    ...(clarificationCount > 0 ? { clarificationCount } : {}),
   };
   return encodeState(session);
 }
