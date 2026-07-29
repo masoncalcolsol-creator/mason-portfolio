@@ -11,10 +11,16 @@ function slugify(value: string): string {
   return clean(value, 160).toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
 }
 
+export function containsGlobalLenderScope(value: string): boolean {
+  return /\b(?:all|every|each)\s+(?:the\s+)?lenders?\b/i.test(clean(value, 600));
+}
+
 function cleanLenderCandidate(value: string): string {
   return clean(value, 160)
     .replace(/^(?:hey|okay|ok|so)[, ]+/i, "")
     .replace(/^(?:please\s+)?(?:i\s+(?:need|want)\s+you\s+to|can\s+you|could\s+you|would\s+you)\s+(?:change|update|set|make)\s+/i, "")
+    .replace(/^(?:change|update|set|make)\s+/i, "")
+    .replace(/^(?:the\s+)?lender\s+(?:named|called)\s+/i, "")
     .replace(/\b(?:right now|currently|today)\b.*$/i, "")
     .replace(/[,:;.-]+$/g, "")
     .trim();
@@ -37,7 +43,7 @@ function findDesiredFico(turns: string[]): number | null {
   const patterns = [
     /\b(?:minimum|min|hard minimum|absolute minimum|floor)\s+(?:fico(?:\s+score)?|credit score)?\s*(?:to|at|of|is|=)?\s*(\d{3})\b/i,
     /\b(?:fico(?:\s+score)?|credit score)\s*(?:minimum|min|floor)?\s*(?:to|at|of|is|=)?\s*(\d{3})\b/i,
-    /\b(?:change|update|set|make)\b[^.]{0,120}?\bfico\b[^.]{0,50}?\bto\s*(\d{3})\b/i,
+    /\b(?:change|update|set|make)\b[^.]{0,160}?\bfico\b[^.]{0,60}?\bto\s*(\d{3})\b/i,
   ];
 
   for (const turn of candidates) {
@@ -57,23 +63,56 @@ function findDesiredFico(turns: string[]): number | null {
   return null;
 }
 
+function findClaimedCurrentFico(turns: string[], desired: number): number | null {
+  const patterns = [
+    /\b(?:currently|right now|now)\b[^.]{0,70}?\b(?:set\s+(?:at|to)|is|of)?\s*(\d{3})\b/i,
+    /\bfrom\s+(\d{3})\s+(?:to|up to|down to)\s+\d{3}\b/i,
+  ];
+  for (const turn of [...turns].reverse()) {
+    for (const pattern of patterns) {
+      const value = Number(turn.match(pattern)?.[1]);
+      if (Number.isInteger(value) && value >= 300 && value <= 850 && value !== desired) return value;
+    }
+  }
+  return null;
+}
+
+function explicitNamedLender(turns: string[]): string {
+  const patterns = [
+    /\b(?:the\s+)?lender\s+(?:named|called)\s+(.+?)\s+(?:to\s+(?:a\s+|the\s+)?|with\s+(?:a\s+|the\s+)?|at\s+(?:a\s+|the\s+)?|for\s+(?:a\s+|the\s+)?)?(?:hard\s+|absolute\s+)?(?:minimum|min|floor)\s+(?:fico(?:\s+score)?|credit score)\b/i,
+    /\b(?:the\s+)?lender\s+(?:named|called)\s+(.+?)(?=[,.]|$)/i,
+  ];
+  for (const turn of [...turns].reverse()) {
+    for (const pattern of patterns) {
+      const match = turn.match(pattern);
+      if (!match?.[1]) continue;
+      const candidate = cleanLenderCandidate(match[1]);
+      if (candidate && !containsGlobalLenderScope(candidate)) return candidate;
+    }
+  }
+  return "";
+}
+
 function findLender(turns: string[]): string {
+  const explicit = explicitNamedLender(turns);
+  if (explicit) return explicit;
+
   const joined = turns.join(" || ");
   const commandMatch = joined.match(/\b(?:change|update|set|make)\s+(.+?)\s+(?:the\s+)?(?:hard\s+|absolute\s+)?(?:minimum|min|floor)\s+(?:fico(?:\s+score)?|credit score)\b/i);
   if (commandMatch?.[1]) {
     const candidate = cleanLenderCandidate(commandMatch[1]);
-    if (candidate) return candidate;
+    if (candidate && !containsGlobalLenderScope(candidate)) return candidate;
   }
 
   const boundaryMatch = joined.match(/(.+?)\s+(?:hard\s+|absolute\s+)?(?:minimum|min|floor)\s+(?:fico(?:\s+score)?|credit score)\b/i);
   if (boundaryMatch?.[1]) {
     const candidate = cleanLenderCandidate(boundaryMatch[1]);
-    if (candidate && !/^(?:the|a|this|that)$/i.test(candidate)) return candidate;
+    if (candidate && !containsGlobalLenderScope(candidate) && !/^(?:the|a|this|that)$/i.test(candidate)) return candidate;
   }
 
   for (const turn of [...turns].reverse()) {
     const candidate = cleanLenderCandidate(turn);
-    if (!candidate) continue;
+    if (!candidate || containsGlobalLenderScope(candidate)) continue;
     if (/\d|\b(?:fico|score|minimum|min|floor|field|boundary|lender|apply|applies|change|update|set)\b/i.test(candidate)) continue;
     const words = candidate.split(/\s+/);
     if (words.length >= 1 && words.length <= 8) return candidate;
@@ -82,16 +121,18 @@ function findLender(turns: string[]): string {
 }
 
 /**
- * Deterministic fast path for the first production use case. The general model
- * parser remains available for every other supported lender rule.
+ * Deterministic fast path for the first production use case. Lender names are
+ * treated as proper nouns, never as verbs or multi-lender scope instructions.
  */
 export function parseConversationalFicoRule(turns: string[]): DerekRuleProposal | null {
   const fico = findDesiredFico(turns);
   const lenderDisplayName = findLender(turns);
-  if (!fico || !lenderDisplayName) return null;
+  if (!fico || !lenderDisplayName || containsGlobalLenderScope(lenderDisplayName)) return null;
 
   const lenderSlug = slugify(lenderDisplayName);
   if (!lenderSlug) return null;
+  const current = findClaimedCurrentFico(turns, fico);
+  const change = current ? ` from ${current} to ${fico}` : ` to ${fico}`;
 
   return {
     lenderDisplayName,
@@ -103,7 +144,7 @@ export function parseConversationalFicoRule(turns: string[]): DerekRuleProposal 
     value: fico,
     temporary: false,
     expiresAt: null,
-    note: "Broker voice correction after conversational capture, exact read-back, and explicit confirmation.",
-    spokenSummary: `${lenderDisplayName}, for all programs: set the hard minimum FICO to ${fico} as a permanent broker-verified rule.`,
+    note: "Broker voice correction after conversational capture, canonical lender resolution, one exact read-back, and explicit confirmation.",
+    spokenSummary: `Only the lender named ${lenderDisplayName}: change the minimum FICO${change}.`,
   };
 }
