@@ -35,7 +35,7 @@ import { appendCallTurn } from "@/lib/neuraxis-call-telemetry";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
-export const maxDuration = 30;
+export const maxDuration = 20;
 
 const MAX_CLARIFICATION_ROUNDS = 4;
 const LENDER_HINTS = "HomeXpress Mortgage, Home Express Mortgage, Figure, Homebridge, Rocket Pro, Newrez Wholesale, Angel Oak Mortgage Solutions";
@@ -82,7 +82,14 @@ function safeFailureDetail(value: string | undefined): string {
   return detail;
 }
 
-export async function POST(request: Request) {
+function operationalFailure(message: string): Response {
+  // Always return valid 200 TwiML for caller-facing operational failures.
+  // Non-2xx Twilio webhook responses trigger Twilio's generic application-error
+  // voice instead of playing our controlled US-English message.
+  return twiml(`<?xml version="1.0" encoding="UTF-8"?><Response>${say(message)}<Hangup/></Response>`);
+}
+
+async function handlePost(request: Request): Promise<Response> {
   const params = await readTwilioForm(request);
   if (!validateTwilioRequest(request, params)) {
     return twiml(`<?xml version="1.0" encoding="UTF-8"?><Response>${say("Access denied.")}<Hangup/></Response>`, 403);
@@ -94,7 +101,7 @@ export async function POST(request: Request) {
   const caller = params.From || "";
   const session = validateDerekCallSession(token, callSid, caller);
   if (!session) {
-    return twiml(`<?xml version="1.0" encoding="UTF-8"?><Response>${speak("Your private workroom session expired. Return to the main menu and choose room three.", request.url)}<Hangup/></Response>`, 403);
+    return operationalFailure("Your private workroom session expired. Nothing changed. Call again and choose room three.");
   }
 
   const heard = speechOrDigits(params);
@@ -166,27 +173,28 @@ export async function POST(request: Request) {
   const draftTurns = appendDerekConversationTurn(session.draftTurns, heard);
   const fullUtterance = derekConversationInput(draftTurns);
 
-  let context: string;
-  try {
-    context = await fetchDerekWorkroomContext();
-  } catch (error) {
-    console.error("Derek LenderFlow context load failed", error);
-    const next = workroomUrl(request.url, token);
-    return twiml(`<?xml version="1.0" encoding="UTF-8"?><Response>${speak("The governed workroom context is unavailable, so I will not translate or change a lender rule. Please try again shortly.", request.url)}<Redirect method="POST">${xmlEscape(next)}</Redirect></Response>`, 503);
-  }
-
-  // Resolve the company from the entire conversation before asking the rule
-  // parser to identify fields. This prevents a lender-name parsing miss from
-  // blocking a name that is plainly present in the canonical catalog.
+  // Fast path: resolve the lender from LenderFlow's lightweight identity catalog,
+  // then parse the common FICO command locally. Do not fetch Hive policy or call
+  // a model unless this deterministic route cannot understand the requested field.
   const lenderIdentity = await resolveDerekLenderIdentity(fullUtterance);
   const deterministicProposal = parseConversationalFicoRule(
     draftTurns,
     lenderIdentity.ok ? lenderIdentity.lender : undefined,
   );
 
-  let parsed = deterministicProposal
-    ? { ok: true as const, proposal: deterministicProposal }
-    : await parseDerekRule(fullUtterance, context);
+  let parsed;
+  if (deterministicProposal) {
+    parsed = { ok: true as const, proposal: deterministicProposal };
+  } else {
+    let context: string;
+    try {
+      context = await fetchDerekWorkroomContext();
+    } catch (error) {
+      console.error("Derek LenderFlow context load failed", error);
+      return operationalFailure("The governed workroom context is temporarily unavailable. Nothing changed. Please call again shortly.");
+    }
+    parsed = await parseDerekRule(fullUtterance, context);
+  }
 
   if (parsed.ok) {
     parsed = lenderIdentity.ok
@@ -241,6 +249,7 @@ export async function POST(request: Request) {
           permanent: !parsed.proposal.temporary,
           clarification_turns: Math.max(0, draftTurns.length - 1),
           catalog_first_lender_resolution: lenderIdentity.ok,
+          deterministic_phone_fast_path: Boolean(deterministicProposal),
           canonical_lender_resolved_before_confirmation: true,
           mutation_status: "AWAITING_EXPLICIT_CONFIRMATION",
           service_identity: vercelOidcToken ? "VERCEL_OIDC" : "LEGACY_ENV_KEY",
@@ -251,4 +260,13 @@ export async function POST(request: Request) {
     }
   });
   return confirmationResponse(request.url, pendingToken, parsed.proposal.spokenSummary);
+}
+
+export async function POST(request: Request) {
+  try {
+    return await handlePost(request);
+  } catch (error) {
+    console.error("Derek Room 3 unhandled webhook failure", error);
+    return operationalFailure("Room three hit a temporary processing error. Nothing changed. Please call again shortly.");
+  }
 }
