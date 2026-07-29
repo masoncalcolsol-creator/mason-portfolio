@@ -20,7 +20,10 @@ import {
   derekConversationInput,
   parseConversationalFicoRule,
 } from "@/lib/derek-lenderflow-conversation";
-import { resolveCanonicalDerekLender } from "@/lib/derek-lenderflow-resolver";
+import {
+  ensureDerekBridgeCredential,
+  resolveCanonicalDerekLender,
+} from "@/lib/derek-lenderflow-resolver";
 import {
   fetchDerekWorkroomContext,
   parseDerekRule,
@@ -33,6 +36,7 @@ export const dynamic = "force-dynamic";
 export const maxDuration = 30;
 
 const MAX_CLARIFICATION_ROUNDS = 4;
+const LENDER_HINTS = "Change Wholesale, Change Lending, The Change Company, Figure, HomeXpress Mortgage";
 
 function workroomUrl(requestUrl: string, session: string): string {
   const target = new URL("/api/neuraxis/twilio/derek/workroom", requestUrl);
@@ -67,6 +71,15 @@ function receiptStatus(result: Awaited<ReturnType<typeof publishDerekRule>>): st
   return `${receipts[0]}, and ${receipts[1]}.`;
 }
 
+function safeFailureDetail(value: string | undefined): string {
+  const detail = String(value || "").replace(/\s+/g, " ").trim().slice(0, 240);
+  if (!detail) return "LenderFlow did not return a publish receipt.";
+  if (/key|token|credential|unauthorized|forbidden/i.test(detail)) {
+    return "The private service credential was rejected.";
+  }
+  return detail;
+}
+
 export async function POST(request: Request) {
   const params = await readTwilioForm(request);
   if (!validateTwilioRequest(request, params)) {
@@ -83,6 +96,7 @@ export async function POST(request: Request) {
   }
 
   const heard = speechOrDigits(params);
+  ensureDerekBridgeCredential();
 
   if (session.pending) {
     if (isAffirmative(heard)) {
@@ -96,8 +110,8 @@ export async function POST(request: Request) {
       const next = workroomUrl(request.url, freshToken);
       const receiptStatement = receiptStatus(result);
       const spoken = result.ok
-        ? `The rule is published. Reference ${result.reference}. ${receiptStatement} Refresh LenderFlow and rerun the Catalina Wine Mixer sample. That lender should no longer match outside the new boundary. What would you like to change next?`
-        : `The rule was not changed. Reference ${result.reference}. The LenderFlow write failed, so I did not describe it as complete. ${receiptStatement} You can give me another rule, or try this one again after the bridge is repaired.`;
+        ? `Done. The rule is published. Reference ${result.reference}. ${receiptStatement} Refresh LenderFlow and rerun the Catalina Wine Mixer sample.`
+        : `Nothing changed. Reference ${result.reference}. LenderFlow rejected the write: ${safeFailureDetail(result.error)} ${receiptStatement}`;
 
       after(async () => {
         try {
@@ -121,6 +135,7 @@ export async function POST(request: Request) {
               rule_id: result.ruleId || null,
               hive_receipt_confirmed: Boolean(result.hiveReceiptUrl),
               email_receipt_confirmed: Boolean(result.emailMessageId),
+              failure_class: result.ok ? null : safeFailureDetail(result.error),
             },
           });
         } catch (error) {
@@ -141,6 +156,7 @@ export async function POST(request: Request) {
   }
 
   const draftTurns = appendDerekConversationTurn(session.draftTurns, heard);
+  const fullUtterance = derekConversationInput(draftTurns);
 
   let context: string;
   try {
@@ -154,12 +170,10 @@ export async function POST(request: Request) {
   const deterministicProposal = parseConversationalFicoRule(draftTurns);
   let parsed = deterministicProposal
     ? { ok: true as const, proposal: deterministicProposal }
-    : await parseDerekRule(derekConversationInput(draftTurns), context);
+    : await parseDerekRule(fullUtterance, context);
 
-  // Canonical lender identity must be proven before the confirmation is spoken.
-  // This is read-only and prevents speech syntax from becoming a global command.
   if (parsed.ok) {
-    parsed = await resolveCanonicalDerekLender(parsed.proposal);
+    parsed = await resolveCanonicalDerekLender(parsed.proposal, fullUtterance);
   }
 
   if (!parsed.ok) {
@@ -170,7 +184,7 @@ export async function POST(request: Request) {
       const next = workroomUrl(request.url, freshToken);
       return twiml(`<?xml version="1.0" encoding="UTF-8"?>
 <Response>
-  ${speak("I cleared only this unfinished draft rather than risk changing the wrong lender. Say the complete rule again using the words: the lender named. For example: the lender named Change Wholesale, minimum FICO 600.", request.url)}
+  ${speak("I cleared only this unfinished draft rather than risk changing the wrong lender. Start again with one company name and one rule.", request.url)}
   <Redirect method="POST">${xmlEscape(next)}</Redirect>
 </Response>`);
     }
@@ -179,7 +193,7 @@ export async function POST(request: Request) {
     const action = commandUrl(request.url, draftToken);
     return twiml(`<?xml version="1.0" encoding="UTF-8"?>
 <Response>
-  <Gather input="speech" timeout="10" speechTimeout="auto" actionOnEmptyResult="true" method="POST" action="${xmlEscape(action)}">
+  <Gather input="speech" hints="${xmlEscape(LENDER_HINTS)}" timeout="10" speechTimeout="auto" actionOnEmptyResult="true" method="POST" action="${xmlEscape(action)}">
     ${speak(`${parsed.clarification} I kept the usable details you already gave me.`, request.url)}
   </Gather>
   ${speak("I did not catch the exact lender name. I kept the unfinished rule and will ask once more.", request.url)}
