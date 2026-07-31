@@ -14,6 +14,80 @@ const HIVE_BRANCH = process.env.HIVE_BRANCH || "main";
 const HIVE_TOKEN = process.env.HIVE_GITHUB_TOKEN || process.env.GITHUB_TOKEN || "";
 const DEREK_WORKROOM_PATH = "hive/current/derek_lenderflow_phone_workroom.yaml";
 
+const RULE_TOOLS = [
+  {
+    type: "function",
+    name: "prepare_lenderflow_rule",
+    description: "Validate one proposed lender-wide or program-specific matching rule against the governed field set and exact LenderFlow lender catalog. Use only after the humans have supplied one lender, one field, one operator, one value, and the rule scope. This tool never changes data. After it succeeds, read its spokenSummary exactly and ask for a separate explicit yes or no.",
+    parameters: {
+      type: "object",
+      additionalProperties: false,
+      properties: {
+        lenderDisplayName: { type: "string", description: "Full lender company name spoken by the user." },
+        lenderSlug: { type: "string", description: "Optional candidate slug; exact canonical resolution still occurs server-side." },
+        fieldKey: {
+          type: "string",
+          enum: [
+            "absoluteMinFico",
+            "typicalMinFico",
+            "minLoanAmount",
+            "maxLoanAmount",
+            "typicalMaxLtv",
+            "purchaseMaxLtv",
+            "cashOutMaxLtv",
+            "loanTypes",
+            "statesServed",
+            "statesNotServed",
+            "propertyTypes",
+            "borrowerTypes",
+          ],
+        },
+        operator: {
+          type: "string",
+          enum: ["equals", "minimum", "maximum", "includes", "excludes", "not_applicable"],
+        },
+        value: {
+          description: "Exact number, text value, or list to publish.",
+          oneOf: [
+            { type: "number" },
+            { type: "string" },
+            { type: "boolean" },
+            { type: "array", items: { type: "string" } },
+            { type: "null" },
+          ],
+        },
+        appliesToAllPrograms: { type: "boolean" },
+        program: { type: ["string", "null"] },
+        temporary: { type: "boolean" },
+        expiresAt: { type: ["string", "null"], description: "YYYY-MM-DD when temporary; null when permanent." },
+        note: { type: "string", description: "Short structured reason without borrower PII." },
+      },
+      required: [
+        "lenderDisplayName",
+        "fieldKey",
+        "operator",
+        "value",
+        "appliesToAllPrograms",
+        "temporary",
+      ],
+    },
+  },
+  {
+    type: "function",
+    name: "publish_lenderflow_rule",
+    description: "Publish the exact prepared rule only after a human gives a separate explicit affirmative answer after hearing the complete read-back. Never call this during the same turn that prepared the rule. The browser independently verifies that a later spoken approval occurred. After the tool returns, say that the rule changed only when mutationPerformed is true. State the reference and whether the email receipt was confirmed.",
+    parameters: {
+      type: "object",
+      additionalProperties: false,
+      properties: {
+        confirmationToken: { type: "string", description: "Use the token returned by prepare_lenderflow_rule without changing it." },
+        confirmedBy: { type: "string", description: "Name stated by the approving human, or Authorized LenderFlow room participant if unclear." },
+      },
+      required: ["confirmationToken", "confirmedBy"],
+    },
+  },
+];
+
 function safeLabel(value: string | null, fallback: string): string {
   const cleaned = (value || "").replace(/[^a-zA-Z0-9 _.-]/g, "").trim();
   return cleaned.slice(0, 48) || fallback;
@@ -43,11 +117,11 @@ async function fetchHiveFile(path: string): Promise<string> {
 async function loadBriefing(): Promise<string> {
   try {
     const workroom = await fetchHiveFile(DEREK_WORKROOM_PATH);
-    if (!workroom) return "The governed Derek LenderFlow briefing is unavailable. Remain read-only and fail closed.";
+    if (!workroom) return "The governed Derek LenderFlow briefing is unavailable. Fail closed and do not prepare or publish a rule.";
     return `ACTIVE DEREK LENDERFLOW WORKROOM:\n${workroom.slice(0, 9000)}`;
   } catch (error) {
     console.error("LenderFlow room briefing failed", error);
-    return "The governed Derek LenderFlow briefing is unavailable. Remain read-only and fail closed.";
+    return "The governed Derek LenderFlow briefing is unavailable. Fail closed and do not prepare or publish a rule.";
   }
 }
 
@@ -140,7 +214,11 @@ Locked doctrine: AI answers. OI operates. LENA communicates. Derek decides.
 
 Derek retains lending judgment, lender relationships, creative deal structure, exceptions, approvals, and final decisions. Speak naturally and promptly in compact turns. Let people finish, accept interruption, answer the immediate question first, and ask at most one useful clarification question.
 
-This room is conversational and read-only. You may discuss LenderFlow behavior, translate an expert correction into a proposed structured lender rule, explain scope, and read the exact proposal back. Never claim that a lender rule, deployment, database, email, receipt, borrower profile, or external system changed. Do not quote live rates, recommend a lender for an actual borrower, approve credit, claim qualification, make lender commitments, provide legal or financial advice, or imply Derek approved something he did not explicitly approve. Do not request or accept SSNs, bank credentials, account numbers, sensitive documents, or unnecessary borrower PII. Use de-identified examples. Unknown lender identities, ambiguous fields, borrower-specific exceptions disguised as lender rules, and unsupported matcher fields fail closed.
+This room now has a governed rule-write path. Discussion itself never changes data. For a requested change, gather exactly one lender, one supported field, one operator, one exact value, the all-programs or named-program scope, and whether it is permanent or temporary. Call prepare_lenderflow_rule only when those details are complete. The prepare tool performs exact canonical lender resolution and returns an exact spokenSummary; read that summary exactly once and ask, "Correct? Say yes or no." Do not call publish_lenderflow_rule in the same turn as preparation. Only after a later, separate spoken affirmative may you call publish_lenderflow_rule with the untouched confirmation token. The browser and server independently reject missing, stale, duplicated, or unclear approvals.
+
+After publish_lenderflow_rule returns, say "changed" or "published" only when mutationPerformed is true. When it is true, speak the reference, rule ID when present, and whether emailReceiptConfirmed is true. If mutationPerformed is false, say plainly that nothing changed and give the returned reason. Never invent a receipt or claim email delivery without emailReceiptConfirmed true.
+
+Do not quote live rates, recommend a lender for an actual borrower, approve credit, claim qualification, make lender commitments, provide legal or financial advice, or imply Derek approved something he did not explicitly approve. Do not request or accept SSNs, bank credentials, account numbers, sensitive documents, or unnecessary borrower PII. Use de-identified examples. Unknown lender identities, ambiguous fields, borrower-specific exceptions disguised as lender rules, and unsupported matcher fields fail closed.
 
 Room: ${LENDERFLOW_ROOM_SLUG}. Profile: ${LENDERFLOW_PROFILE}. The session is live and ephemeral; automated transcripts may contain errors.
 
@@ -166,6 +244,8 @@ ${briefing}`;
             instructions,
             output_modalities: ["audio"],
             max_output_tokens: 900,
+            tools: RULE_TOOLS,
+            tool_choice: "auto",
             audio: {
               input: {
                 noise_reduction: { type: "far_field" },
@@ -187,7 +267,16 @@ ${briefing}`;
             },
           },
         },
-        { name: "compatibility", session: { type: "realtime", model, instructions } },
+        {
+          name: "compatibility",
+          session: {
+            type: "realtime",
+            model,
+            instructions,
+            tools: RULE_TOOLS,
+            tool_choice: "auto",
+          },
+        },
       ];
 
       for (const profile of profiles) {
@@ -200,6 +289,7 @@ ${briefing}`;
               "Cache-Control": "no-store, max-age=0",
               "X-NULLWORKS-Realtime-Model": model,
               "X-NULLWORKS-Realtime-Profile": profile.name,
+              "X-NULLWORKS-Rule-Writeback": "confirmed-with-email-receipt",
             },
           });
         }
