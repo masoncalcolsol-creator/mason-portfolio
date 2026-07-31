@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 
 import LenderFlowRoomClient from "./LenderFlowRoomClient";
+import LenderFlowToolBridge from "./LenderFlowToolBridge";
 
 export const metadata: Metadata = {
   title: "LenderFlow Room | NULLWORKS",
@@ -9,5 +10,10 @@ export const metadata: Metadata = {
 };
 
 export default function LenderFlowRoomPage() {
-  return <LenderFlowRoomClient />;
+  return (
+    <>
+      <LenderFlowToolBridge />
+      <LenderFlowRoomClient />
+    </>
+  );
 }
