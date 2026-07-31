@@ -37,3 +37,231 @@ jobs:
       - name: Fail when build failed
         if: steps.build.outputs.exit_code != '0'
         run: exit 1
+
+  ciris_assurance:
+    name: CIRIS pinned assurance campaign
+    runs-on: ubuntu-24.04
+    timeout-minutes: 75
+    env:
+      CIRIS_AGENT_COMMIT: 7f2369bed22c626404a1dcf8e09bfeb81a573d82
+      CIRIS_PERSIST_COMMIT: e8cdb535b60a549948f2b0ceb43deb6921009260
+    steps:
+      - name: Checkout NULLWORKS harness
+        uses: actions/checkout@v4
+
+      - name: Checkout pinned CIRISAgent
+        uses: actions/checkout@v4
+        with:
+          repository: CIRISAI/CIRISAgent
+          ref: 7f2369bed22c626404a1dcf8e09bfeb81a573d82
+          path: ciris
+
+      - name: Checkout pinned CIRISPersist
+        uses: actions/checkout@v4
+        with:
+          repository: CIRISAI/CIRISPersist
+          ref: e8cdb535b60a549948f2b0ceb43deb6921009260
+          path: ciris-persist
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Set up Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Initialize evidence directory
+        shell: bash
+        run: |
+          mkdir -p artifacts
+          {
+            echo "run_started_utc=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+            echo "runner_os=$RUNNER_OS"
+            echo "runner_arch=$RUNNER_ARCH"
+            echo "github_run_id=$GITHUB_RUN_ID"
+            echo "github_sha=$GITHUB_SHA"
+            python --version
+            rustc --version
+            cargo --version
+          } | tee artifacts/environment.txt
+          git -C ciris rev-parse HEAD | tee artifacts/ciris-agent-actual-commit.txt
+          git -C ciris-persist rev-parse HEAD | tee artifacts/ciris-persist-actual-commit.txt
+
+      - name: Run independent source-conformance harness
+        continue-on-error: true
+        shell: bash
+        run: |
+          set +e
+          python tools/ciris_assurance_2026_07_31/source_conformance.py \
+            --agent-root ciris --persist-root ciris-persist --out artifacts \
+            > artifacts/source-conformance-console.log 2>&1
+          code=$?
+          echo "$code" > artifacts/source-conformance.exit
+          cat artifacts/source-conformance-console.log
+          exit $code
+
+      - name: Compile pinned Python source
+        continue-on-error: true
+        shell: bash
+        run: |
+          set +e
+          python -m compileall -q ciris/ciris_engine ciris/ciris_adapters \
+            > artifacts/python-compile.log 2>&1
+          code=$?
+          echo "$code" > artifacts/python-compile.exit
+          cat artifacts/python-compile.log
+          exit $code
+
+      - name: Install CIRISAgent and development dependencies
+        id: install_agent
+        continue-on-error: true
+        shell: bash
+        run: |
+          set +e
+          python -m venv .venv
+          source .venv/bin/activate
+          python -m pip install --upgrade pip setuptools wheel \
+            > artifacts/pip-bootstrap.log 2>&1
+          python -m pip install -e './ciris[dev]' \
+            > artifacts/pip-install.log 2>&1
+          code=$?
+          echo "$code" > artifacts/pip-install.exit
+          tail -n 160 artifacts/pip-install.log
+          if [ "$code" -eq 0 ]; then
+            python -m pip freeze | sort > artifacts/pip-freeze.txt
+            python - <<'PY' > artifacts/import-smoke.log 2>&1
+import ciris_engine
+from ciris_engine.logic.services.lifecycle.scheduler.service import TaskSchedulerService
+from ciris_engine.logic.services.governance.wise_authority.service import WiseAuthorityService
+print('IMPORT_SMOKE_PASS')
+print(ciris_engine.__file__)
+print(TaskSchedulerService.__name__)
+print(WiseAuthorityService.__name__)
+PY
+            echo "$?" > artifacts/import-smoke.exit
+          else
+            echo "NOT_RUN_INSTALL_FAILED" > artifacts/import-smoke.exit
+          fi
+          exit $code
+
+      - name: Collect targeted CIRIS tests
+        if: steps.install_agent.outcome == 'success'
+        continue-on-error: true
+        shell: bash
+        run: |
+          set +e
+          source .venv/bin/activate
+          cd ciris
+          python -m pytest -q -o addopts= --collect-only \
+            tests/test_deferral_permissions.py \
+            tests/services/lifecycle/scheduler/test_deferred_reactivation.py \
+            tests/adapters/accord_metrics/test_lens_fold_integration.py \
+            tests/ciris_engine/logic/processors/core/thought_processor/test_conscience_execution_helpers.py \
+            tests/test_updated_status_conscience.py \
+            > ../artifacts/pytest-collect.log 2>&1
+          code=$?
+          echo "$code" > ../artifacts/pytest-collect.exit
+          cat ../artifacts/pytest-collect.log
+          exit $code
+
+      - name: Execute targeted CIRIS project tests
+        if: steps.install_agent.outcome == 'success'
+        continue-on-error: true
+        shell: bash
+        run: |
+          set +e
+          source .venv/bin/activate
+          cd ciris
+          python -m pytest -q -o addopts= \
+            tests/test_deferral_permissions.py \
+            tests/services/lifecycle/scheduler/test_deferred_reactivation.py \
+            tests/adapters/accord_metrics/test_lens_fold_integration.py \
+            tests/ciris_engine/logic/processors/core/thought_processor/test_conscience_execution_helpers.py \
+            tests/test_updated_status_conscience.py \
+            --junitxml=../artifacts/pytest-targeted-junit.xml \
+            > ../artifacts/pytest-targeted.log 2>&1
+          code=$?
+          echo "$code" > ../artifacts/pytest-targeted.exit
+          cat ../artifacts/pytest-targeted.log
+          exit $code
+
+      - name: Run CIRISPersist correction-precedence tests
+        continue-on-error: true
+        shell: bash
+        run: |
+          set +e
+          cd ciris-persist
+          cargo test --locked precedence -- --nocapture \
+            > ../artifacts/cargo-precedence.log 2>&1
+          code=$?
+          echo "$code" > ../artifacts/cargo-precedence.exit
+          tail -n 200 ../artifacts/cargo-precedence.log
+          exit $code
+
+      - name: Build telemetry and SHA-256 manifest
+        if: always()
+        shell: bash
+        run: |
+          python - <<'PY'
+import hashlib, json, os
+from datetime import datetime, timezone
+from pathlib import Path
+root = Path('artifacts'); root.mkdir(exist_ok=True)
+def read_exit(name):
+    p = root / name
+    if not p.exists(): return 'NOT_RUN'
+    value = p.read_text().strip()
+    try: return int(value)
+    except ValueError: return value
+def digest(path):
+    h = hashlib.sha256()
+    with path.open('rb') as f:
+        for chunk in iter(lambda: f.read(1048576), b''): h.update(chunk)
+    return h.hexdigest()
+status = {
+    'source_conformance': read_exit('source-conformance.exit'),
+    'python_compile': read_exit('python-compile.exit'),
+    'pip_install': read_exit('pip-install.exit'),
+    'import_smoke': read_exit('import-smoke.exit'),
+    'pytest_collect': read_exit('pytest-collect.exit'),
+    'pytest_targeted': read_exit('pytest-targeted.exit'),
+    'cargo_precedence': read_exit('cargo-precedence.exit'),
+}
+files=[]
+for p in sorted(root.rglob('*')):
+    if p.is_file() and p.name != 'run_manifest.json':
+        files.append({'path':str(p),'bytes':p.stat().st_size,'sha256':digest(p)})
+manifest={
+    'record_type':'NULLWORKS_CIRIS_ISOLATED_TEST_RUN',
+    'generated_at_utc':datetime.now(timezone.utc).isoformat(),
+    'github_run_id':os.getenv('GITHUB_RUN_ID'),
+    'harness_commit':os.getenv('GITHUB_SHA'),
+    'ciris_agent_commit':os.getenv('CIRIS_AGENT_COMMIT'),
+    'ciris_persist_commit':os.getenv('CIRIS_PERSIST_COMMIT'),
+    'status':status,
+    'truth_boundary':'GitHub-hosted isolated runner. Project-owned targeted tests are reproduced; NULLWORKS source-conformance checks are independent documentary/code checks. Passing tests do not establish production correctness or certification.',
+    'files':files,
+}
+(root/'run_manifest.json').write_text(json.dumps(manifest,indent=2))
+lines=['# CIRIS Isolated Test Run','',f"Generated: {manifest['generated_at_utc']}",'','## Step status','']
+for k,v in status.items(): lines.append(f'- **{k}:** `{v}`')
+lines += ['', '## Truth boundary','',manifest['truth_boundary'],'']
+(root/'RUN_SUMMARY.md').write_text('\n'.join(lines))
+PY
+          sha256sum artifacts/* | sort > artifacts/SHA256SUMS.txt
+          cat artifacts/RUN_SUMMARY.md
+
+      - name: Upload assurance evidence packet
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ciris-assurance-2026-07-31-${{ github.run_id }}
+          path: artifacts/
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Publish assurance summary
+        if: always()
+        shell: bash
+        run: cat artifacts/RUN_SUMMARY.md >> "$GITHUB_STEP_SUMMARY"
