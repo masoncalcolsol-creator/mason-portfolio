@@ -31,10 +31,11 @@ def digest(path: Path) -> str:
 
 
 status = {
-    "source_conformance": read_exit("source-conformance.exit"),
+    "source_conformance_v2": read_exit("source-conformance-v2.exit"),
     "python_compile": read_exit("python-compile.exit"),
     "pip_install": read_exit("pip-install.exit"),
     "import_smoke": read_exit("import-smoke.exit"),
+    "runtime_jurisdiction_probe": read_exit("runtime-jurisdiction-probe.exit"),
     "pytest_collect": read_exit("pytest-collect.exit"),
     "pytest_targeted": read_exit("pytest-targeted.exit"),
     "cargo_precedence": read_exit("cargo-precedence.exit"),
@@ -52,7 +53,7 @@ for path in sorted(ROOT.rglob("*")):
         )
 
 manifest = {
-    "record_type": "NULLWORKS_CIRIS_ISOLATED_TEST_RUN",
+    "record_type": "NULLWORKS_CIRIS_ISOLATED_TEST_RUN_V2",
     "generated_at_utc": datetime.now(timezone.utc).isoformat(),
     "github_run_id": os.getenv("GITHUB_RUN_ID"),
     "harness_commit": os.getenv("GITHUB_SHA"),
@@ -60,16 +61,17 @@ manifest = {
     "ciris_persist_commit": os.getenv("CIRIS_PERSIST_COMMIT"),
     "status": status,
     "truth_boundary": (
-        "GitHub-hosted isolated runner. Project-owned targeted tests are reproduced; "
-        "NULLWORKS source-conformance checks are independent documentary/code checks. "
-        "Passing tests do not establish production correctness or certification."
+        "GitHub-hosted isolated runner. Selected CIRIS project tests were independently rerun; "
+        "the jurisdiction probe directly executed the pinned core method with mocked dependencies; "
+        "source-conformance checks remain documentary/code checks. No result is a production "
+        "observation, security certification, or proof of universal correctness."
     ),
     "files": files,
 }
 (ROOT / "run_manifest.json").write_text(json.dumps(manifest, indent=2), encoding="utf-8")
 
 lines = [
-    "# CIRIS Isolated Test Run",
+    "# CIRIS Isolated Test Run V2",
     "",
     f"Generated: {manifest['generated_at_utc']}",
     "",
