@@ -6,10 +6,27 @@ const CONFIGURED_REALTIME_MODEL = (process.env.OPENAI_REALTIME_MODEL || "").trim
 const HIVE_REPO = process.env.HIVE_REPO || "masoncalcolsol-creator/nullworks-corporate-wifi-hive";
 const HIVE_BRANCH = process.env.HIVE_BRANCH || "main";
 const HIVE_TOKEN = process.env.HIVE_GITHUB_TOKEN || process.env.GITHUB_TOKEN || "";
+const DEREK_PROFILE = "derek_lenderflow";
+const DEREK_WORKROOM_PATH = "hive/current/derek_lenderflow_phone_workroom.yaml";
 
 function safeLabel(value: string | null, fallback: string): string {
   const cleaned = (value || "").replace(/[^a-zA-Z0-9 _.-]/g, "").trim();
   return cleaned.slice(0, 48) || fallback;
+}
+
+function cookieValue(request: Request, name: string): string {
+  const raw = request.headers.get("cookie") || "";
+  for (const part of raw.split(";")) {
+    const [key, ...rest] = part.trim().split("=");
+    if (key === name) {
+      try {
+        return decodeURIComponent(rest.join("="));
+      } catch {
+        return rest.join("=");
+      }
+    }
+  }
+  return "";
 }
 
 function yamlValue(content: string, key: string): string | undefined {
@@ -39,14 +56,21 @@ async function fetchHiveFile(path: string): Promise<string> {
   return Buffer.from(data.content.replace(/\n/g, ""), "base64").toString("utf8");
 }
 
-async function loadHiveBriefing(): Promise<string> {
+async function loadHiveBriefing(profile: string): Promise<string> {
   try {
     const boot = await fetchHiveFile("HIVE_BOOT.yaml");
     if (!boot) return "Hive briefing unavailable for this session.";
     const floorPath = yamlValue(boot, "company_floor") || "hive/current/company_floor.yaml";
     const floor = await fetchHiveFile(floorPath);
-    const briefing = `HIVE BOOT:\n${boot.slice(0, 2400)}\n\nCURRENT COMPANY FLOOR:\n${floor.slice(0, 4200)}`;
-    return briefing.slice(0, 6600);
+    const profileBriefing = profile === DEREK_PROFILE
+      ? await fetchHiveFile(DEREK_WORKROOM_PATH)
+      : "";
+    const briefing = [
+      `HIVE BOOT:\n${boot.slice(0, 2200)}`,
+      `CURRENT COMPANY FLOOR:\n${floor.slice(0, 3400)}`,
+      profileBriefing ? `ACTIVE WORKROOM PROFILE:\n${profileBriefing.slice(0, 6200)}` : "",
+    ].filter(Boolean).join("\n\n");
+    return briefing.slice(0, 11800);
   } catch (error) {
     console.error("Huddle Hive briefing failed", error);
     return "Hive briefing unavailable for this session.";
@@ -128,6 +152,14 @@ async function createRealtimeCall(
   return { response, body: await response.text() };
 }
 
+function derekInstructions(): string {
+  return `This room is the Derek Bullen LenderFlow workroom transported through NULLWORKS Huddle. In this profile, identify yourself as LENA, Derek's Organic Intelligence assistant inside LenderFlow. The locked doctrine is: AI answers. OI operates. LENA communicates. Derek decides.
+
+Derek retains lending judgment, lender relationships, creative deal structure, exceptions, approvals, and final decisions. You may discuss LenderFlow behavior, translate Derek's expert corrections into a proposed structured lender rule, and read the exact proposal back for confirmation. This first Huddle profile is conversational and read-only: do not claim that any lender rule, deployment, email, receipt, database record, borrower profile, or external system was changed.
+
+Do not quote live rates, recommend a lender for a real borrower, approve credit, claim qualification, make lender commitments, provide legal or financial advice, or imply Derek approved anything he did not explicitly approve. Do not request or accept SSNs, bank credentials, account numbers, sensitive documents, or unnecessary borrower PII. Use de-identified examples for testing. Unknown lender identities, ambiguous fields, borrower-specific exceptions disguised as lender rules, and unsupported matcher fields must fail closed and trigger one concise clarification question.`;
+}
+
 export async function POST(request: Request): Promise<Response> {
   if (!OPENAI_API_KEY) {
     return Response.json(
@@ -144,12 +176,17 @@ export async function POST(request: Request): Promise<Response> {
   const requestUrl = new URL(request.url);
   const room = safeLabel(requestUrl.searchParams.get("room"), "private-room");
   const hostName = safeLabel(requestUrl.searchParams.get("host"), "Mason");
-  const guestName = safeLabel(requestUrl.searchParams.get("guest"), "Guest");
-  const hiveBriefing = await loadHiveBriefing();
+  const activeProfile = cookieValue(request, "nw_huddle_profile");
+  const isDerekRoom = activeProfile === DEREK_PROFILE;
+  const guestName = isDerekRoom
+    ? "Derek"
+    : safeLabel(requestUrl.searchParams.get("guest"), "Guest");
+  const hiveBriefing = await loadHiveBriefing(activeProfile);
+  const profileInstructions = isDerekRoom ? `\n\n${derekInstructions()}` : "";
 
   const instructions = `You are the NULLWORKS Huddle voice agent inside a private browser room. The human participants are ${hostName}, the room host and final Human Authority, and possibly ${guestName}, an invited guest. More than one human voice may arrive through the same mixed audio channel. Do not pretend you can identify a speaker with certainty from voice alone. Use names only when the speaker states or clarifies who is speaking.
 
-Speak naturally, promptly, and in compact conversational turns. Let the humans finish. You may be interrupted. Answer the immediate question first, then ask at most one useful follow-up. Never call yourself a telephone bot. Do not expose credentials, private tokens, protected personal records, or unnecessary compartmentalized Hive material. Do not claim that a deployment, writeback, receipt, external action, or verification occurred unless the session has direct evidence. Mason remains final Human Authority. If the invited guest asks for restricted or personal information, explain that the room has a privacy boundary and answer only from approved context.
+Speak naturally, promptly, and in compact conversational turns. Let the humans finish. You may be interrupted. Answer the immediate question first, then ask at most one useful follow-up. Never call yourself a telephone bot. Do not expose credentials, private tokens, protected personal records, or unnecessary compartmentalized Hive material. Do not claim that a deployment, writeback, receipt, external action, or verification occurred unless the session has direct evidence. Mason remains final Human Authority. If the invited guest asks for restricted or personal information, explain that the room has a privacy boundary and answer only from approved context.${profileInstructions}
 
 This is room ${room}. This session is live and ephemeral. The browser may display an automated transcript, which can contain transcription errors.
 
@@ -216,7 +253,10 @@ ${hiveBriefing}`;
               "Content-Type": "application/sdp",
               "Cache-Control": "no-store, max-age=0",
               "X-NULLWORKS-Realtime-Model": model,
-              "X-NULLWORKS-Realtime-Profile": profile.name,
+              "X-NULLWORKS-Realtime-Profile": isDerekRoom ? DEREK_PROFILE : profile.name,
+              ...(isDerekRoom
+                ? { "Set-Cookie": "nw_huddle_profile=; Path=/; Max-Age=0; HttpOnly; Secure; SameSite=Lax" }
+                : {}),
             },
           });
         }
