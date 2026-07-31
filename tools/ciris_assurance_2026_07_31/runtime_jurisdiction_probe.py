@@ -18,7 +18,7 @@ from ciris_engine.schemas.services.authority_core import WACertificate, WARole
 
 async def run() -> dict[str, object]:
     certificate = WACertificate(
-        wa_id="wa-2026-07-31-LIMITED",
+        wa_id="wa-2026-07-31-LIMT01",
         name="NULLWORKS Limited Medical Authority Probe",
         role=WARole.AUTHORITY,
         pubkey="probe_pubkey_base64url",
@@ -52,7 +52,7 @@ async def run() -> dict[str, object]:
         resource="financial_defer_001",
     )
 
-    observer_certificate = certificate.model_copy(update={"wa_id": "wa-observer", "role": WARole.OBSERVER})
+    observer_certificate = certificate.model_copy(update={"wa_id": "wa-2026-07-31-OBSR01", "role": WARole.OBSERVER})
     auth_service.get_wa = AsyncMock(return_value=observer_certificate)
     observer = await service.check_authorization(
         wa_id=observer_certificate.wa_id,
