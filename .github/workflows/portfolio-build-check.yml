@@ -39,7 +39,7 @@ jobs:
         run: exit 1
 
   ciris_assurance:
-    name: CIRIS pinned assurance campaign
+    name: CIRIS pinned assurance campaign V2
     runs-on: ubuntu-24.04
     timeout-minutes: 75
     env:
@@ -88,17 +88,17 @@ jobs:
           git -C ciris rev-parse HEAD | tee artifacts/ciris-agent-actual-commit.txt
           git -C ciris-persist rev-parse HEAD | tee artifacts/ciris-persist-actual-commit.txt
 
-      - name: Run independent source-conformance harness
+      - name: Run independent source-conformance harness V2
         continue-on-error: true
         shell: bash
         run: |
           set +e
-          python tools/ciris_assurance_2026_07_31/source_conformance.py \
+          python tools/ciris_assurance_2026_07_31/source_conformance_v2.py \
             --agent-root ciris --persist-root ciris-persist --out artifacts \
-            > artifacts/source-conformance-console.log 2>&1
+            > artifacts/source-conformance-v2-console.log 2>&1
           code=$?
-          echo "$code" > artifacts/source-conformance.exit
-          cat artifacts/source-conformance-console.log
+          echo "$code" > artifacts/source-conformance-v2.exit
+          cat artifacts/source-conformance-v2-console.log
           exit $code
 
       - name: Compile pinned Python source
@@ -137,6 +137,21 @@ jobs:
           else
             echo "NOT_RUN_INSTALL_FAILED" > artifacts/import-smoke.exit
           fi
+          exit $code
+
+      - name: Execute imported-code jurisdiction probe
+        if: steps.install_agent.outcome == 'success'
+        continue-on-error: true
+        shell: bash
+        run: |
+          set +e
+          source .venv/bin/activate
+          python tools/ciris_assurance_2026_07_31/runtime_jurisdiction_probe.py \
+            > artifacts/runtime-jurisdiction-probe.json 2> artifacts/runtime-jurisdiction-probe.err
+          code=$?
+          echo "$code" > artifacts/runtime-jurisdiction-probe.exit
+          cat artifacts/runtime-jurisdiction-probe.json
+          cat artifacts/runtime-jurisdiction-probe.err
           exit $code
 
       - name: Collect targeted CIRIS tests
@@ -186,11 +201,11 @@ jobs:
         run: |
           set +e
           cd ciris-persist
-          cargo test --locked precedence -- --nocapture \
+          cargo test precedence -- --nocapture \
             > ../artifacts/cargo-precedence.log 2>&1
           code=$?
           echo "$code" > ../artifacts/cargo-precedence.exit
-          tail -n 200 ../artifacts/cargo-precedence.log
+          tail -n 240 ../artifacts/cargo-precedence.log
           exit $code
 
       - name: Build telemetry and SHA-256 manifest
@@ -205,7 +220,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: ciris-assurance-2026-07-31-${{ github.run_id }}
+          name: ciris-assurance-v2-2026-07-31-${{ github.run_id }}
           path: artifacts/
           if-no-files-found: error
           retention-days: 30
