@@ -85,21 +85,44 @@ function modelCandidates(): string[] {
   );
 }
 
-function buildForm(offerSdp: string, session: Record<string, unknown>): FormData {
-  const form = new FormData();
-  form.append("sdp", new Blob([offerSdp], { type: "application/sdp" }), "offer.sdp");
-  form.append("session", new Blob([JSON.stringify(session)], { type: "application/json" }), "session.json");
-  return form;
+function buildMultipartBody(
+  offerSdp: string,
+  session: Record<string, unknown>,
+): { body: Uint8Array; contentType: string } {
+  const boundary = `----nullworks-huddle-${crypto.randomUUID()}`;
+  const payload = [
+    `--${boundary}`,
+    'Content-Disposition: form-data; name="sdp"',
+    "Content-Type: application/sdp",
+    "",
+    offerSdp,
+    `--${boundary}`,
+    'Content-Disposition: form-data; name="session"',
+    "Content-Type: application/json",
+    "",
+    JSON.stringify(session),
+    `--${boundary}--`,
+    "",
+  ].join("\r\n");
+
+  return {
+    body: new TextEncoder().encode(payload),
+    contentType: `multipart/form-data; boundary=${boundary}`,
+  };
 }
 
 async function createRealtimeCall(
   offerSdp: string,
   session: Record<string, unknown>,
 ): Promise<{ response: Response; body: string }> {
+  const multipart = buildMultipartBody(offerSdp, session);
   const response = await fetch("https://api.openai.com/v1/realtime/calls", {
     method: "POST",
-    headers: { Authorization: `Bearer ${OPENAI_API_KEY}` },
-    body: buildForm(offerSdp, session),
+    headers: {
+      Authorization: `Bearer ${OPENAI_API_KEY}`,
+      "Content-Type": multipart.contentType,
+    },
+    body: multipart.body,
     cache: "no-store",
   });
   return { response, body: await response.text() };
