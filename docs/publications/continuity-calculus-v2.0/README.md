@@ -3,11 +3,17 @@
 **Author / Human Authority:** Mason Perry  
 **Organization:** NULLWORKS  
 **Release date:** August 1, 2026  
-**Canonical web edition:** https://mason-portfolio-main.vercel.app/continuity-calculus
+**Canonical web edition:** https://mason-portfolio-main.vercel.app/continuity-calculus  
+**Zenodo record:** https://zenodo.org/records/21745167  
+**DOI:** https://doi.org/10.5281/zenodo.21745167
 
 ## Canonical definition
 
 Continuity Calculus is a proposed systems and governance discipline developed by NULLWORKS for examining how data, meaning, context, authority, operational state, and verification survive or degrade across time, transformation, handoff, and institutional boundaries.
+
+## Citation
+
+Perry, M. (2026). *Continuity Calculus: Preserving Institutional Judgment Across Time, Systems, and Agents* (Public Research Release 2.0). Zenodo. https://doi.org/10.5281/zenodo.21745167
 
 ## Release boundary
 
@@ -23,4 +29,4 @@ Any changed byte creates a different release object and requires a descendant re
 
 ## DOI state
 
-No DOI has been issued yet. The Zenodo metadata draft is included, but a public-license decision and authenticated Zenodo deposit remain required before DOI registration.
+The exact Public Research Release 2.0 is publicly registered on Zenodo as DOI `10.5281/zenodo.21745167`.
