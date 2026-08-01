@@ -40,16 +40,27 @@ function injectAfterOpeningBody(html: string, fragment: string) {
   return `${html.slice(0, insertAt)}${fragment}${html.slice(insertAt)}`;
 }
 
+function rewriteCostModel(html: string) {
+  const breakdown =
+    "<strong>Current $166.62 monthly stack:</strong> ChatGPT $21.82 + OpenAI/API $8.73 + LinkedIn $19.99 + Vercel $91.30 + GitHub $0 currently observed + Slack $4.78 + Twilio $20.00.<br><br><strong>Monthly business expenses after revenue:</strong> plan for approximately $500–$750 per month depending on data, attorney, financial-record, operational, compliance, and other real business costs. The subscription-update page remains the working board for the live stack, personal spending, and canceled services.";
+
+  return html
+    .replace(/(?:~|≈)?\$400\b/g, "$166.62")
+    .replace(/Pre-revenue hard cap/gi, "Monthly business expenses after revenue")
+    .replace(/>\s*\$600\s*</g, ">$500–$750<")
+    .replace(
+      /The subscription-update page is now the working board for AI stack vs personal spend vs canceled services\.?/gi,
+      breakdown,
+    );
+}
+
 function getBriefHtml() {
   if (!cachedBrief) {
-    const baseBrief = gunzipSync(
-      Buffer.from(amandaBriefGzipBase64, "base64"),
-    )
-      .toString("utf8")
-      .replace(
-        "<strong>≈$400</strong><span>current working estimate of monthly business operating cost</span>",
-        "<strong>$166.62</strong><span>current verified working stack: OpenAI/ChatGPT, LinkedIn, Vercel, GitHub, Slack and Twilio</span>",
-      );
+    const baseBrief = rewriteCostModel(
+      gunzipSync(Buffer.from(amandaBriefGzipBase64, "base64")).toString(
+        "utf8",
+      ),
+    );
 
     const combinedStyles = `${visualEnhancementStyles}${collaboratorNetworkStyles}`;
     const withStyles = baseBrief.includes("</head>")
@@ -126,8 +137,8 @@ export async function GET(request: NextRequest) {
       status: 200,
       headers: {
         "Cache-Control": "private, no-store, max-age=0, must-revalidate",
-        "Content-Type": "image/avif",
-        "Content-Disposition": 'inline; filename="NULLWORKS_Continuity_Calculus.avif"',
+        "Content-Type": "image/webp",
+        "Content-Disposition": 'inline; filename="NULLWORKS_Continuity_Calculus.webp"',
         "Referrer-Policy": "no-referrer",
         "X-Content-Type-Options": "nosniff",
         "X-Robots-Tag": "noindex, nofollow, noarchive",
@@ -161,6 +172,6 @@ export async function POST(request: NextRequest) {
     path: "/",
   });
   response.headers.set("Cache-Control", "private, no-store, max-age=0");
-  response.headers.set("X-Robots-Tag", "noindex, nofollow, noarchive");
+  response.headers.set("X-Robots-Tag", "noindex, nofollow,noarchive");
   return response;
 }
