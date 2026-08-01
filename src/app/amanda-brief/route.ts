@@ -6,6 +6,11 @@ import {
   collaboratorNetworkStyles,
 } from "./collaborators";
 import { amandaBriefGzipBase64 } from "./content";
+import {
+  ambientBackgroundHtml,
+  continuityCalculusHtml,
+  visualEnhancementStyles,
+} from "./visualEnhancements";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -18,7 +23,7 @@ const privateHeaders = {
   "Cache-Control": "private, no-store, max-age=0, must-revalidate",
   "Content-Type": "text/html; charset=utf-8",
   "Content-Security-Policy":
-    "default-src 'self'; img-src 'self' data:; style-src 'unsafe-inline'; script-src 'unsafe-inline'; connect-src 'none'; frame-ancestors 'none'; base-uri 'none'; form-action 'self'",
+    "default-src 'self'; img-src 'self' data: https://unavatar.io; style-src 'unsafe-inline'; script-src 'unsafe-inline'; frame-src 'self'; connect-src 'none'; frame-ancestors 'none'; base-uri 'none'; form-action 'self'",
   "Referrer-Policy": "no-referrer",
   "X-Content-Type-Options": "nosniff",
   "X-Frame-Options": "DENY",
@@ -27,25 +32,33 @@ const privateHeaders = {
 
 let cachedBrief: string | null = null;
 
+function injectAfterOpeningBody(html: string, fragment: string) {
+  const match = html.match(/<body[^>]*>/i);
+  if (!match || match.index === undefined) return `${fragment}${html}`;
+  const insertAt = match.index + match[0].length;
+  return `${html.slice(0, insertAt)}${fragment}${html.slice(insertAt)}`;
+}
+
 function getBriefHtml() {
   if (!cachedBrief) {
     const baseBrief = gunzipSync(
       Buffer.from(amandaBriefGzipBase64, "base64"),
     ).toString("utf8");
 
-    const withNetworkStyles = baseBrief.includes("</head>")
-      ? baseBrief.replace(
-          "</head>",
-          `${collaboratorNetworkStyles}</head>`,
-        )
-      : `${collaboratorNetworkStyles}${baseBrief}`;
+    const combinedStyles = `${visualEnhancementStyles}${collaboratorNetworkStyles}`;
+    const withStyles = baseBrief.includes("</head>")
+      ? baseBrief.replace("</head>", `${combinedStyles}</head>`)
+      : `${combinedStyles}${baseBrief}`;
 
-    cachedBrief = withNetworkStyles.includes("</body>")
-      ? withNetworkStyles.replace(
-          "</body>",
-          `${collaboratorNetworkHtml}</body>`,
-        )
-      : `${withNetworkStyles}${collaboratorNetworkHtml}`;
+    const withBackground = injectAfterOpeningBody(
+      withStyles,
+      ambientBackgroundHtml,
+    );
+
+    const addedSections = `${continuityCalculusHtml}${collaboratorNetworkHtml}`;
+    cachedBrief = withBackground.includes("</body>")
+      ? withBackground.replace("</body>", `${addedSections}</body>`)
+      : `${withBackground}${addedSections}`;
   }
   return cachedBrief;
 }
