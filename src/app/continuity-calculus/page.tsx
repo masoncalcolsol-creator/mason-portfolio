@@ -1,6 +1,11 @@
 import type { Metadata } from "next";
 import styles from "./continuity-calculus.module.css";
-import { paperHtml } from "./paper-content";
+import { paperPart01 } from "./paper-part-01";
+import { paperPart02 } from "./paper-part-02";
+import { paperPart03 } from "./paper-part-03";
+import { paperPart04 } from "./paper-part-04";
+
+const paperHtml = paperPart01 + paperPart02 + paperPart03 + paperPart04;
 
 const canonical = "https://mason-portfolio-main.vercel.app/continuity-calculus";
 const pdfSha = "c0954a9a6dc787b77b437c20389cc71c73e4606e1e270e88615aa13d1b182494";
