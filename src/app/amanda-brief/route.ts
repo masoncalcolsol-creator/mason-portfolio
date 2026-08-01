@@ -6,6 +6,7 @@ import {
   collaboratorNetworkStyles,
 } from "./collaborators";
 import { amandaBriefGzipBase64 } from "./content";
+import { continuityCalculusAvifBase64 } from "./continuityImage";
 import {
   ambientBackgroundHtml,
   continuityCalculusHtml,
@@ -43,7 +44,12 @@ function getBriefHtml() {
   if (!cachedBrief) {
     const baseBrief = gunzipSync(
       Buffer.from(amandaBriefGzipBase64, "base64"),
-    ).toString("utf8");
+    )
+      .toString("utf8")
+      .replace(
+        "<strong>≈$400</strong><span>current working estimate of monthly business operating cost</span>",
+        "<strong>$166.62</strong><span>current verified working stack: OpenAI/ChatGPT, LinkedIn, Vercel, GitHub, Slack and Twilio</span>",
+      );
 
     const combinedStyles = `${visualEnhancementStyles}${collaboratorNetworkStyles}`;
     const withStyles = baseBrief.includes("</head>")
@@ -111,6 +117,24 @@ export async function GET(request: NextRequest) {
   }
 
   const unlocked = request.cookies.get(COOKIE_NAME)?.value === COOKIE_VALUE;
+
+  if (request.nextUrl.searchParams.get("asset") === "continuity-calculus") {
+    if (!unlocked) {
+      return NextResponse.redirect(new URL("/amanda-brief", request.url), 303);
+    }
+    return new Response(Buffer.from(continuityCalculusAvifBase64, "base64"), {
+      status: 200,
+      headers: {
+        "Cache-Control": "private, no-store, max-age=0, must-revalidate",
+        "Content-Type": "image/avif",
+        "Content-Disposition": 'inline; filename="NULLWORKS_Continuity_Calculus.avif"',
+        "Referrer-Policy": "no-referrer",
+        "X-Content-Type-Options": "nosniff",
+        "X-Robots-Tag": "noindex, nofollow, noarchive",
+      },
+    });
+  }
+
   return new Response(unlocked ? getBriefHtml() : loginHtml(), {
     status: 200,
     headers: privateHeaders,
