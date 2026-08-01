@@ -1,0 +1,26 @@
+cff-version: 1.2.0
+message: "If you use or discuss this work, cite this exact public release."
+title: "Continuity Calculus: Preserving Institutional Judgment Across Time, Systems, and Agents"
+type: article
+authors:
+  - family-names: Perry
+    given-names: Mason
+    affiliation: NULLWORKS
+version: "Public Research Release 2.0"
+date-released: 2026-08-01
+url: "https://mason-portfolio-main.vercel.app/continuity-calculus"
+repository-code: "https://github.com/masoncalcolsol-creator/mason-portfolio"
+abstract: >-
+  Continuity Calculus is a proposed systems and governance discipline for preserving
+  data, meaning, context, authority, operational state, and verification across time,
+  transformations, handoffs, systems, and agents. This release is theoretical and
+  exploratory and does not claim certification, regulatory compliance, mathematical
+  completeness, production deployment, or independent external assurance.
+keywords:
+  - continuity calculus
+  - institutional judgment
+  - operational intelligence
+  - AI governance
+  - provenance
+  - decision records
+  - human authority

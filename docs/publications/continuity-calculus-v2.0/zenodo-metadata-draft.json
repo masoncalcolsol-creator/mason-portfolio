@@ -1,0 +1,36 @@
+{
+  "title": "Continuity Calculus: Preserving Institutional Judgment Across Time, Systems, and Agents",
+  "creators": [
+    {
+      "name": "Perry, Mason",
+      "affiliation": "NULLWORKS"
+    }
+  ],
+  "description": "A theoretical and exploratory public research release proposing a constitutional architecture for preserving why decisions were made, recognizing when assumptions fail, and preventing automation from accelerating forgotten judgment.",
+  "publication_date": "2026-08-01",
+  "version": "2.0",
+  "upload_type": "publication",
+  "publication_type": "workingpaper",
+  "keywords": [
+    "Continuity Calculus",
+    "institutional judgment",
+    "operational intelligence",
+    "AI governance",
+    "provenance",
+    "decision records",
+    "human authority"
+  ],
+  "related_identifiers": [
+    {
+      "identifier": "https://mason-portfolio-main.vercel.app/continuity-calculus",
+      "relation": "isIdenticalTo",
+      "resource_type": "publication-workingpaper"
+    },
+    {
+      "identifier": "https://github.com/masoncalcolsol-creator/mason-portfolio",
+      "relation": "isSupplementTo",
+      "resource_type": "software"
+    }
+  ],
+  "notes": "DRAFT DEPOSIT METADATA. DOI not yet issued. Select and confirm a public license before Zenodo publication."
+}
