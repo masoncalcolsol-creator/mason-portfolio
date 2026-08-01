@@ -1,6 +1,10 @@
 import { createHash, timingSafeEqual } from "node:crypto";
 import { gunzipSync } from "node:zlib";
 import { NextRequest, NextResponse } from "next/server";
+import {
+  collaboratorNetworkHtml,
+  collaboratorNetworkStyles,
+} from "./collaborators";
 import { amandaBriefGzipBase64 } from "./content";
 
 export const runtime = "nodejs";
@@ -25,7 +29,23 @@ let cachedBrief: string | null = null;
 
 function getBriefHtml() {
   if (!cachedBrief) {
-    cachedBrief = gunzipSync(Buffer.from(amandaBriefGzipBase64, "base64")).toString("utf8");
+    const baseBrief = gunzipSync(
+      Buffer.from(amandaBriefGzipBase64, "base64"),
+    ).toString("utf8");
+
+    const withNetworkStyles = baseBrief.includes("</head>")
+      ? baseBrief.replace(
+          "</head>",
+          `${collaboratorNetworkStyles}</head>`,
+        )
+      : `${collaboratorNetworkStyles}${baseBrief}`;
+
+    cachedBrief = withNetworkStyles.includes("</body>")
+      ? withNetworkStyles.replace(
+          "</body>",
+          `${collaboratorNetworkHtml}</body>`,
+        )
+      : `${withNetworkStyles}${collaboratorNetworkHtml}`;
   }
   return cachedBrief;
 }
