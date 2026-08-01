@@ -6,9 +6,9 @@ import { amandaBriefGzipBase64 } from "./content";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-const COOKIE_NAME = "nw_amanda_brief";
-const COOKIE_VALUE = "eb503aa396de2b97a4417cdb02d204058d2c6d701627832eb5a0517d31c8f36e";
-const PIN_HASH = "75992a5ac67ff644d3063976c2effd10bdd93fcc109798e3d5c1acf2e530d01a";
+const COOKIE_NAME = "nw_amanda_brief_v2";
+const COOKIE_VALUE = "53b2909c505964ee41af85f140139c99f7c0d4f7165bb80e2fe0b9bf0d6a6f9e";
+const PIN_HASH = "1f329cb02948dbcd0abe5d6f8550c283aa40fa0908ec853c92f27b547fbceafd";
 
 const privateHeaders = {
   "Cache-Control": "private, no-store, max-age=0, must-revalidate",
