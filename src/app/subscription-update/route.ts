@@ -22,9 +22,49 @@ const privateHeaders = {
 
 let cachedPage: string | null = null;
 
+function removeContainerContaining(html: string, needle: string) {
+  const targetIndex = html.toLowerCase().indexOf(needle.toLowerCase());
+  if (targetIndex < 0) return html;
+
+  const prefix = html.slice(0, targetIndex);
+  const containerPattern = /<(article|div|li|section)\b[^>]*class=(["'])[^"']*(?:card|item|proof|receipt)[^"']*\2[^>]*>/gi;
+  const candidates = [...prefix.matchAll(containerPattern)];
+  const candidate = candidates.at(-1);
+  if (!candidate || candidate.index === undefined) return html;
+
+  const tagName = candidate[1];
+  const start = candidate.index;
+  const tagPattern = new RegExp(`<\\/?${tagName}\\b[^>]*>`, "gi");
+  tagPattern.lastIndex = start;
+
+  let depth = 0;
+  let match: RegExpExecArray | null;
+  while ((match = tagPattern.exec(html))) {
+    const closing = match[0].startsWith("</");
+    depth += closing ? -1 : 1;
+    if (depth === 0) {
+      return `${html.slice(0, start)}${html.slice(tagPattern.lastIndex)}`;
+    }
+  }
+
+  return html;
+}
+
 function getPageHtml() {
   if (!cachedPage) {
-    cachedPage = gunzipSync(Buffer.from(subscriptionUpdateGzipBase64, "base64")).toString("utf8");
+    let page = gunzipSync(
+      Buffer.from(subscriptionUpdateGzipBase64, "base64"),
+    ).toString("utf8");
+
+    for (const label of [
+      "escort pay features",
+      "sport pay features",
+      "x paid features",
+    ]) {
+      page = removeContainerContaining(page, label);
+    }
+
+    cachedPage = page;
   }
   return cachedPage;
 }
