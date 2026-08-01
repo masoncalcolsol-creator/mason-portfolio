@@ -8,6 +8,7 @@ import { paperPart04 } from "./paper-part-04";
 const paperHtml = paperPart01 + paperPart02 + paperPart03 + paperPart04;
 
 const canonical = "https://mason-portfolio-main.vercel.app/continuity-calculus";
+const infographicUrl = `${canonical}/infographic`;
 const pdfSha = "c0954a9a6dc787b77b437c20389cc71c73e4606e1e270e88615aa13d1b182494";
 
 export const metadata: Metadata = {
@@ -23,12 +24,14 @@ export const metadata: Metadata = {
     type: "article",
     url: canonical,
     siteName: "NULLWORKS",
+    images: [{ url: infographicUrl, width: 1075, height: 1519 }],
   },
   twitter: {
     card: "summary_large_image",
     title: "Continuity Calculus: Preserving Institutional Judgment",
     description:
       "A constitutional architecture for maintaining institutional judgment across time, systems, and agents.",
+    images: [infographicUrl],
   },
 };
 
@@ -60,6 +63,7 @@ export default function ContinuityCalculusPage() {
     datePublished: "2026-08-01",
     version: "2.0",
     url: canonical,
+    image: infographicUrl,
     isAccessibleForFree: true,
     encoding: {
       "@type": "MediaObject",
@@ -81,6 +85,7 @@ export default function ContinuityCalculusPage() {
           <strong>NULLWORKS</strong>
         </a>
         <nav aria-label="Page navigation">
+          <a href="#infographic">Infographic</a>
           <a href="#constitution">Constitution</a>
           <a href="#descendant">Descendant</a>
           <a href="#boundaries">Boundaries</a>
@@ -105,8 +110,8 @@ export default function ContinuityCalculusPage() {
             <a className={styles.primary} href="#paper">
               Read the full web edition
             </a>
-            <a className={styles.secondary} href="#constitution">
-              Inspect the architecture
+            <a className={styles.secondary} href="#infographic">
+              View the infographic
             </a>
           </div>
           <p className={styles.byline}>Mason Perry · Founder, NULLWORKS · August 1, 2026</p>
@@ -138,16 +143,47 @@ export default function ContinuityCalculusPage() {
 
       <section className={styles.abstract}>
         <p className={styles.sectionLabel}>ABSTRACT</p>
-        <h2>Data can survive while judgment disappears.</h2>
-        <p>
-          Institutions routinely preserve records yet lose the meaning, assumptions,
-          authority, state, uncertainty, and verification that made a decision fit its
-          original reality. Continuity Calculus treats those dimensions as a governed
-          handoff contract. The paper extends the architecture toward maintainable
-          institutional judgment: the capacity to reconstruct why a decision was justified,
-          detect when its fit has failed, and reopen it through legitimate authority without
-          pretending the institution always knew.
-        </p>
+        <div>
+          <h2>Data can survive while judgment disappears.</h2>
+          <p>
+            Institutions routinely preserve records yet lose the meaning, assumptions,
+            authority, state, uncertainty, and verification that made a decision fit its
+            original reality. Continuity Calculus treats those dimensions as a governed
+            handoff contract. The paper extends the architecture toward maintainable
+            institutional judgment: the capacity to reconstruct why a decision was justified,
+            detect when its fit has failed, and reopen it through legitimate authority without
+            pretending the institution always knew.
+          </p>
+        </div>
+      </section>
+
+      <section className={styles.infographicSection} id="infographic">
+        <div className={styles.infographicHeading}>
+          <p className={styles.sectionLabel}>FEATURED ARCHITECTURE</p>
+          <h2>The complete Continuity Calculus at a glance.</h2>
+          <p>
+            The infographic shows the six constitutional requirements, the continuity packet,
+            final Human Authority, and the systems the architecture coordinates without replacing.
+          </p>
+        </div>
+        <figure className={styles.infographicFrame}>
+          <a
+            href="/continuity-calculus/infographic"
+            target="_blank"
+            rel="noreferrer"
+            aria-label="Open the full-resolution Continuity Calculus infographic"
+          >
+            <img
+              src="/continuity-calculus/infographic"
+              width="1075"
+              height="1519"
+              alt="NULLWORKS Continuity Calculus infographic showing final Human Authority, the Continuity Packet, six constitutional layers, coordinated systems, executive value, and doctrine."
+            />
+          </a>
+          <figcaption>
+            NULLWORKS Continuity Calculus · High-resolution architecture infographic · Open for full size
+          </figcaption>
+        </figure>
       </section>
 
       <section className={styles.section} id="constitution">
