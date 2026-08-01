@@ -22,18 +22,16 @@ const privateHeaders = {
 
 let cachedPage: string | null = null;
 
-function removeContainerContaining(html: string, needle: string) {
-  const targetIndex = html.toLowerCase().indexOf(needle.toLowerCase());
-  if (targetIndex < 0) return html;
+type ContainerRange = {
+  start: number;
+  end: number;
+};
 
-  const prefix = html.slice(0, targetIndex);
-  const containerPattern = /<(article|div|li|section)\b[^>]*class=(["'])[^"']*(?:card|item|proof|receipt)[^"']*\2[^>]*>/gi;
-  const candidates = [...prefix.matchAll(containerPattern)];
-  const candidate = candidates.at(-1);
-  if (!candidate || candidate.index === undefined) return html;
-
-  const tagName = candidate[1];
-  const start = candidate.index;
+function findMatchingContainerEnd(
+  html: string,
+  start: number,
+  tagName: string,
+): number | null {
   const tagPattern = new RegExp(`<\\/?${tagName}\\b[^>]*>`, "gi");
   tagPattern.lastIndex = start;
 
@@ -42,12 +40,43 @@ function removeContainerContaining(html: string, needle: string) {
   while ((match = tagPattern.exec(html))) {
     const closing = match[0].startsWith("</");
     depth += closing ? -1 : 1;
-    if (depth === 0) {
-      return `${html.slice(0, start)}${html.slice(tagPattern.lastIndex)}`;
+    if (depth === 0) return tagPattern.lastIndex;
+  }
+
+  return null;
+}
+
+function findSmallestCardContaining(
+  html: string,
+  targetIndex: number,
+): ContainerRange | null {
+  const prefix = html.slice(0, targetIndex);
+  const cardPattern =
+    /<(article|div|li|section)\b[^>]*class=(["'])[^"']*card[^"']*\2[^>]*>/gi;
+  const candidates = [...prefix.matchAll(cardPattern)];
+
+  for (let index = candidates.length - 1; index >= 0; index -= 1) {
+    const candidate = candidates[index];
+    if (candidate.index === undefined) continue;
+
+    const start = candidate.index;
+    const end = findMatchingContainerEnd(html, start, candidate[1]);
+    if (end !== null && start <= targetIndex && targetIndex < end) {
+      return { start, end };
     }
   }
 
-  return html;
+  return null;
+}
+
+function removeCompleteCardContaining(html: string, needle: string) {
+  const targetIndex = html.toLowerCase().indexOf(needle.toLowerCase());
+  if (targetIndex < 0) return html;
+
+  const range = findSmallestCardContaining(html, targetIndex);
+  if (!range) return html;
+
+  return `${html.slice(0, range.start)}${html.slice(range.end)}`;
 }
 
 function getPageHtml() {
@@ -61,7 +90,7 @@ function getPageHtml() {
       "sport pay features",
       "x paid features",
     ]) {
-      page = removeContainerContaining(page, label);
+      page = removeCompleteCardContaining(page, label);
     }
 
     cachedPage = page;
