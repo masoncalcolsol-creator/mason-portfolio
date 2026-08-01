@@ -1,0 +1,58 @@
+record_type: NULLWORKS_PUBLIC_RESEARCH_RELEASE_RECEIPT
+record_version: 2026-08-01.1
+recorded_at: "2026-08-01T11:30:00-07:00"
+timezone: America/Phoenix
+human_authority: Mason Perry
+organization: NULLWORKS
+status: PUBLIC_WEB_EDITION_ACTIVE_DOI_PENDING
+
+publication:
+  name: Continuity Calculus
+  title: "Continuity Calculus: Preserving Institutional Judgment Across Time, Systems, and Agents"
+  version: Public Research Release 2.0
+  release_date: 2026-08-01
+  canonical_url: https://mason-portfolio-main.vercel.app/continuity-calculus
+  machine_readable_record: https://mason-portfolio-main.vercel.app/continuity-calculus/release.json
+
+canonical_definition: >-
+  Continuity Calculus is a proposed systems and governance discipline developed by
+  NULLWORKS for examining how data, meaning, context, authority, operational state,
+  and verification survive or degrade across time, transformation, handoff, and
+  institutional boundaries.
+
+artifacts:
+  pdf:
+    filename: NULLWORKS_Continuity_Calculus_Preserving_Institutional_Judgment_v2.0_2026-08-01.pdf
+    sha256: c0954a9a6dc787b77b437c20389cc71c73e4606e1e270e88615aa13d1b182494
+    public_download: NOT_YET_ATTACHED
+  docx:
+    filename: NULLWORKS_Continuity_Calculus_Preserving_Institutional_Judgment_v2.0_2026-08-01.docx
+    sha256: daae5e727dab0141c1cd52ac6b81f45b6345736495d74c49308daaf4d55fbc78
+    public_download: NOT_YET_ATTACHED
+  infographic:
+    filename: Nullworks Continuity Calculus Framework.png
+    sha256: ad7975ea23ddc925ffef203c57c6bccc9504798efbe6f430a7b063c9efc25557
+    public_url: https://mason-portfolio-main.vercel.app/continuity-calculus/infographic
+  release_package:
+    filename: NULLWORKS_Continuity_Calculus_Public_Release_2.0_2026-08-01.zip
+    sha256: ca583d97a47c9c2a9b2f8ab1b54e1d0379d9e47111d91dc269a7c04464e8c6f0
+    custody: CHATGPT_FILE_LIBRARY_AND_CURRENT_CONVERSATION
+
+doi:
+  state: NOT_ISSUED
+  deposit_target: Zenodo
+  blockers:
+    - authenticated Zenodo account action is not available through the current connector set
+    - Mason must explicitly select the public license before deposit
+  rule: Do not claim or fabricate a DOI before registration succeeds.
+
+name_provenance_boundary: >-
+  NULLWORKS may state that it uses Continuity Calculus as the proper name of this
+  proposed discipline and that no prior public framework with the same definition was
+  identified in the completed search. Do not claim globally proven uniqueness.
+
+truth_boundary: >-
+  The public web edition and machine-readable release record establish a dated,
+  attributable, inspectable definition. They do not by themselves establish academic
+  novelty, Wikipedia notability, certification, production readiness, universal validity,
+  or independent external acceptance.
