@@ -10,6 +10,11 @@ const release = {
   organization: "NULLWORKS",
   canonical_url:
     "https://mason-portfolio-main.vercel.app/continuity-calculus",
+  zenodo_record_url: "https://zenodo.org/records/21745167",
+  doi: "10.5281/zenodo.21745167",
+  doi_url: "https://doi.org/10.5281/zenodo.21745167",
+  canonical_citation:
+    "Perry, M. (2026). Continuity Calculus: Preserving Institutional Judgment Across Time, Systems, and Agents (Public Research Release 2.0). Zenodo. https://doi.org/10.5281/zenodo.21745167",
   canonical_definition:
     "Continuity Calculus is a proposed systems and governance discipline developed by NULLWORKS for examining how data, meaning, context, authority, operational state, and verification survive or degrade across time, transformation, handoff, and institutional boundaries.",
   doctrine: [
@@ -33,14 +38,14 @@ const release = {
         "NULLWORKS_Continuity_Calculus_Preserving_Institutional_Judgment_v2.0_2026-08-01.pdf",
       sha256:
         "c0954a9a6dc787b77b437c20389cc71c73e4606e1e270e88615aa13d1b182494",
-      public_download_url: null,
+      public_repository_url: "https://zenodo.org/records/21745167",
     },
     docx: {
       filename:
         "NULLWORKS_Continuity_Calculus_Preserving_Institutional_Judgment_v2.0_2026-08-01.docx",
       sha256:
         "daae5e727dab0141c1cd52ac6b81f45b6345736495d74c49308daaf4d55fbc78",
-      public_download_url: null,
+      public_repository_url: "https://zenodo.org/records/21745167",
     },
     infographic: {
       filename: "Nullworks Continuity Calculus Framework.png",
@@ -50,11 +55,9 @@ const release = {
         "https://mason-portfolio-main.vercel.app/continuity-calculus/infographic",
     },
   },
-  doi: null,
-  doi_state:
-    "Not issued. Authenticated Zenodo deposit and explicit public-license selection remain required.",
+  doi_state: "Registered and public on Zenodo for this exact release.",
   release_boundary:
-    "Theoretical and exploratory public research release. No certification, regulatory compliance, mathematical completeness, production deployment, completed field pilot, or independent external assurance is claimed.",
+    "Theoretical and exploratory public research release. No certification, regulatory compliance, mathematical completeness, production deployment, completed field pilot, peer review, or independent external assurance is claimed.",
 };
 
 export async function GET() {
