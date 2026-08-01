@@ -1,0 +1,35 @@
+record_type: NULLWORKS_DOI_REGISTRATION_RECEIPT
+record_version: 2026-08-01.1
+recorded_at: "2026-08-01T12:37:00-07:00"
+timezone: America/Phoenix
+human_authority: Mason Perry
+organization: NULLWORKS
+status: DOI_REGISTERED_AND_PUBLIC
+
+publication:
+  title: "Continuity Calculus: Preserving Institutional Judgment Across Time, Systems, and Agents"
+  version: Public Research Release 2.0
+  release_date: 2026-08-01
+  author: Mason Perry
+  publisher: Zenodo
+
+identifiers:
+  version_doi: 10.5281/zenodo.21745167
+  version_doi_url: https://doi.org/10.5281/zenodo.21745167
+  zenodo_record_url: https://zenodo.org/records/21745167
+
+verification:
+  evidence_class: OWNER_SUPPLIED_SCREENSHOT_AND_PUBLIC_RECORD_URL
+  screenshot_observation: >-
+    Zenodo displayed the APA citation for Mason Perry, publication year 2026,
+    the complete paper title, Version Public Research Release 2.0, publisher
+    Zenodo, and DOI 10.5281/zenodo.21745167.
+  independent_fetch_state: >-
+    The public record URL was supplied by Mason. Search indexing may lag immediately
+    after publication; absence from an external search index is not treated as a failed registration.
+
+truth_boundary: >-
+  This receipt establishes the registered DOI and public Zenodo record for this exact
+  release. It does not establish academic endorsement, peer review, independent assurance,
+  Wikipedia notability, certification, production readiness, mathematical completeness,
+  or globally proven uniqueness of the term Continuity Calculus.
