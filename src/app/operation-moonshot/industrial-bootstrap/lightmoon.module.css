@@ -1,0 +1,183 @@
+.frame{
+  min-height:100vh;
+  position:relative;
+  isolation:isolate;
+  overflow:hidden;
+  background:#f3f7fa;
+}
+
+.canvas{
+  position:fixed;
+  inset:0;
+  z-index:0;
+  width:100vw;
+  height:100vh;
+  pointer-events:none;
+  opacity:.82;
+}
+
+.frame > main{
+  --ink:#111d2c!important;
+  --muted:#596879!important;
+  --line:rgba(54,72,92,.17)!important;
+  --blue:#48647f!important;
+  --cyan:#8299ae!important;
+  --gold:#9e8961!important;
+  position:relative;
+  z-index:1;
+  background:transparent!important;
+  overflow:visible!important;
+}
+
+.frame > main::before{
+  opacity:.035!important;
+  background-image:repeating-linear-gradient(0deg,transparent 0 4px,rgba(50,69,88,.08) 5px)!important;
+}
+
+.frame nav{
+  position:relative;
+  z-index:4;
+}
+
+.frame nav > a > div:first-child{
+  background:rgba(255,255,255,.94)!important;
+  border-color:rgba(61,80,101,.18)!important;
+  box-shadow:0 16px 42px rgba(45,65,87,.11)!important;
+}
+
+.frame nav a{
+  backdrop-filter:blur(14px);
+}
+
+.frame nav a:last-child,
+.frame header a[href="#paper"]{
+  color:#fff!important;
+  border-color:rgba(63,82,104,.2)!important;
+  background:linear-gradient(135deg,#526f8b,#2e465f)!important;
+  box-shadow:0 16px 40px rgba(52,75,99,.2)!important;
+}
+
+.frame header a[href="/operation-moonshot"]{
+  color:#1d2b3a!important;
+  border-color:rgba(60,79,99,.18)!important;
+  background:rgba(255,255,255,.9)!important;
+}
+
+.frame h1{
+  text-shadow:0 2px 0 rgba(255,255,255,.8),0 24px 60px rgba(58,77,98,.12)!important;
+}
+
+.frame header > div:first-child > div:last-child{
+  border-left-color:#607b95!important;
+  background:rgba(255,255,255,.94)!important;
+  backdrop-filter:blur(18px);
+  box-shadow:0 22px 64px rgba(55,73,94,.12);
+}
+
+.frame [aria-label="Bright lunar systems illustration"]{
+  filter:grayscale(.82) contrast(.96) saturate(.5);
+  opacity:.86;
+}
+
+.frame [aria-label="Bright lunar systems illustration"] > div:first-child{
+  border-color:rgba(61,79,99,.2)!important;
+}
+
+.frame [aria-label="Bright lunar systems illustration"] > div:first-child::after{
+  background:#566f88!important;
+  box-shadow:0 0 24px rgba(86,111,136,.42)!important;
+}
+
+.frame [aria-label="Bright lunar systems illustration"] > div:last-child{
+  color:#223244!important;
+  border-color:rgba(61,79,99,.18)!important;
+  background:rgba(255,255,255,.9)!important;
+}
+
+.frame > main > div > section:first-of-type > article{
+  background:rgba(255,255,255,.94)!important;
+  border-color:rgba(54,72,92,.16)!important;
+  box-shadow:0 22px 66px rgba(50,70,92,.1)!important;
+  backdrop-filter:blur(16px);
+}
+
+.frame > main > div > section:nth-of-type(2){
+  color:#172434!important;
+  background:
+    radial-gradient(circle at 84% 18%,rgba(255,255,255,.82),transparent 25rem),
+    linear-gradient(135deg,rgba(255,255,255,.97),rgba(232,238,244,.96) 68%,rgba(217,225,233,.94))!important;
+  border:1px solid rgba(56,75,96,.18)!important;
+  box-shadow:0 34px 95px rgba(52,72,94,.12),inset 0 0 70px rgba(255,255,255,.56)!important;
+  backdrop-filter:blur(18px);
+}
+
+.frame article#paper > section{
+  margin:24px 0;
+  padding:clamp(28px,5vw,58px)!important;
+  border:1px solid rgba(54,72,92,.16)!important;
+  border-radius:24px;
+  background:rgba(255,255,255,.955)!important;
+  box-shadow:0 26px 82px rgba(52,72,94,.1);
+  backdrop-filter:blur(20px);
+}
+
+.frame article#paper section article{
+  background:rgba(249,251,253,.98)!important;
+  border-color:rgba(54,72,92,.15)!important;
+  box-shadow:0 14px 42px rgba(53,72,93,.06);
+}
+
+.frame blockquote{
+  border-left-color:#8699aa!important;
+  background:rgba(89,107,126,.065)!important;
+}
+
+.frame article#paper > section > p,
+.frame article#paper > section li,
+.frame article#paper table td{
+  color:#566576!important;
+}
+
+.frame table,
+.frame table th,
+.frame table td{
+  border-color:rgba(54,72,92,.15)!important;
+}
+
+.frame .equation,
+.frame [class*="equation"]{
+  background:rgba(247,250,252,.98)!important;
+}
+
+.frame [class*="warning"]{
+  border-color:rgba(117,100,68,.2)!important;
+  background:rgba(159,137,96,.075)!important;
+}
+
+.frame footer{
+  position:relative;
+  z-index:2;
+  color:#647283!important;
+}
+
+@media(max-width:900px){
+  .canvas{opacity:.72}
+}
+
+@media(max-width:640px){
+  .canvas{opacity:.62}
+  .frame article#paper > section{
+    margin:16px 0;
+    border-radius:18px;
+    padding:28px 18px!important;
+    background:rgba(255,255,255,.98)!important;
+  }
+  .frame > main > div > section:first-of-type > article,
+  .frame header > div:first-child > div:last-child{
+    background:rgba(255,255,255,.98)!important;
+  }
+}
+
+@media(prefers-reduced-motion:reduce){
+  .canvas{opacity:.7}
+}
