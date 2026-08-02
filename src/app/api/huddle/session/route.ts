@@ -8,6 +8,9 @@ const HIVE_BRANCH = process.env.HIVE_BRANCH || "main";
 const HIVE_TOKEN = process.env.HIVE_GITHUB_TOKEN || process.env.GITHUB_TOKEN || "";
 const DEREK_PROFILE = "derek_lenderflow";
 const DEREK_WORKROOM_PATH = "hive/current/derek_lenderflow_phone_workroom.yaml";
+const JASON_PROFILE = "jason_rains";
+const JASON_WORKROOM_PATH = "hive/current/jason_rains_huddle_workroom.yaml";
+const FULL_SPECTRUM_BUNDLE_PATH = "hive/current/full_spectrum_boot_bundle.yaml";
 
 function safeLabel(value: string | null, fallback: string): string {
   const cleaned = (value || "").replace(/[^a-zA-Z0-9 _.-]/g, "").trim();
@@ -58,6 +61,16 @@ async function fetchHiveFile(path: string): Promise<string> {
 
 async function loadHiveBriefing(profile: string): Promise<string> {
   try {
+    if (profile === JASON_PROFILE) {
+      const bundle = await fetchHiveFile(FULL_SPECTRUM_BUNDLE_PATH);
+      const workroom = await fetchHiveFile(JASON_WORKROOM_PATH);
+      if (!bundle && !workroom) return "Hive briefing unavailable for this session.";
+      return [
+        bundle ? `FULL SPECTRUM BOOT BUNDLE:\n${bundle.slice(0, 7200)}` : "",
+        workroom ? `ACTIVE WORKROOM PROFILE:\n${workroom.slice(0, 4400)}` : "",
+      ].filter(Boolean).join("\n\n").slice(0, 11800);
+    }
+
     const boot = await fetchHiveFile("HIVE_BOOT.yaml");
     if (!boot) return "Hive briefing unavailable for this session.";
     const floorPath = yamlValue(boot, "company_floor") || "hive/current/company_floor.yaml";
@@ -160,6 +173,18 @@ Derek retains lending judgment, lender relationships, creative deal structure, e
 Do not quote live rates, recommend a lender for a real borrower, approve credit, claim qualification, make lender commitments, provide legal or financial advice, or imply Derek approved anything he did not explicitly approve. Do not request or accept SSNs, bank credentials, account numbers, sensitive documents, or unnecessary borrower PII. Use de-identified examples for testing. Unknown lender identities, ambiguous fields, borrower-specific exceptions disguised as lender rules, and unsupported matcher fields must fail closed and trigger one concise clarification question.`;
 }
 
+function jasonInstructions(): string {
+  return `This room is the Jason Rains Infrastructure Huddle transported through NULLWORKS Huddle. Identify yourself as a NULLWORKS AI workroom participant and conversational systems facilitator, not a human employee, government representative, or legal authority. Mason Perry remains final Human Authority for NULLWORKS actions.
+
+Mason supplied preliminary orientation that Jason works for USPS, previously worked as a mechanic, helped rebolt 48 bolt chutes, has long government infrastructure and information-technology experience, and later drove cattle trucks. Treat every one of those items as an unverified Mason-reported orientation fact until Jason confirms, corrects, or expands it. Jason's own account controls his biography and work history.
+
+At the beginning, confirm both humans can hear the room, disclose that the browser may display an automated transcript that can be wrong, and ask whether both humans consent to using the live transcript for session notes. Then ask Jason to describe his government, infrastructure, IT, maintenance, networking, or systems background in his own words and what would make the session useful. Ask at most one concise follow-up question at a time.
+
+Answer Jason's questions directly and naturally. Separate confirmed fact, participant claim, inference, proposal, and unknown. Do not request passwords, access tokens, credentials, protected network details, security procedures, nonpublic vulnerabilities, classified or law-enforcement-sensitive information, procurement-sensitive information, or protected personnel data. Do not represent Jason's statements as official USPS or government positions. Do not expose unrelated compartmentalized Hive material.
+
+This session is conversational and ephemeral by default. Do not claim that any durable writeback, deployment, invitation, message, publication, access change, or verification occurred unless the session has direct evidence and Mason explicitly approved the exact action. Preserve corrections and useful operational lessons, but do not force every story into a product or project.`;
+}
+
 export async function POST(request: Request): Promise<Response> {
   if (!OPENAI_API_KEY) {
     return Response.json(
@@ -178,11 +203,18 @@ export async function POST(request: Request): Promise<Response> {
   const hostName = safeLabel(requestUrl.searchParams.get("host"), "Mason");
   const activeProfile = cookieValue(request, "nw_huddle_profile");
   const isDerekRoom = activeProfile === DEREK_PROFILE;
+  const isJasonRoom = activeProfile === JASON_PROFILE;
   const guestName = isDerekRoom
     ? "Derek"
-    : safeLabel(requestUrl.searchParams.get("guest"), "Guest");
+    : isJasonRoom
+      ? "Jason"
+      : safeLabel(requestUrl.searchParams.get("guest"), "Guest");
   const hiveBriefing = await loadHiveBriefing(activeProfile);
-  const profileInstructions = isDerekRoom ? `\n\n${derekInstructions()}` : "";
+  const profileInstructions = isDerekRoom
+    ? `\n\n${derekInstructions()}`
+    : isJasonRoom
+      ? `\n\n${jasonInstructions()}`
+      : "";
 
   const instructions = `You are the NULLWORKS Huddle voice agent inside a private browser room. The human participants are ${hostName}, the room host and final Human Authority, and possibly ${guestName}, an invited guest. More than one human voice may arrive through the same mixed audio channel. Do not pretend you can identify a speaker with certainty from voice alone. Use names only when the speaker states or clarifies who is speaking.
 
@@ -247,14 +279,20 @@ ${hiveBriefing}`;
       for (const profile of profiles) {
         const upstream = await createRealtimeCall(offerSdp, profile.session);
         if (upstream.response.ok) {
+          const namedProfile = isDerekRoom
+            ? DEREK_PROFILE
+            : isJasonRoom
+              ? JASON_PROFILE
+              : profile.name;
+          const clearProfileCookie = isDerekRoom || isJasonRoom;
           return new Response(upstream.body, {
             status: 201,
             headers: {
               "Content-Type": "application/sdp",
               "Cache-Control": "no-store, max-age=0",
               "X-NULLWORKS-Realtime-Model": model,
-              "X-NULLWORKS-Realtime-Profile": isDerekRoom ? DEREK_PROFILE : profile.name,
-              ...(isDerekRoom
+              "X-NULLWORKS-Realtime-Profile": namedProfile,
+              ...(clearProfileCookie
                 ? { "Set-Cookie": "nw_huddle_profile=; Path=/; Max-Age=0; HttpOnly; Secure; SameSite=Lax" }
                 : {}),
             },
