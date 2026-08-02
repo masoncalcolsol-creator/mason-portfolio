@@ -1,0 +1,45 @@
+.tune > div:last-child header > div:first-child > div:last-child{
+  background:rgba(4,4,7,.44)!important;
+  backdrop-filter:blur(6px)!important;
+}
+
+.tune > div:last-child > main > div > section:first-of-type > article{
+  background:rgba(4,4,7,.44)!important;
+  backdrop-filter:blur(6px)!important;
+}
+
+.tune > div:last-child > main > div > section:nth-of-type(2){
+  background:
+    radial-gradient(circle at 83% 18%,rgba(120,30,42,.04),transparent 26rem),
+    linear-gradient(135deg,rgba(5,5,8,.47),rgba(9,6,9,.46) 68%,rgba(17,7,11,.44))!important;
+  backdrop-filter:blur(6px)!important;
+}
+
+.tune > div:last-child article#paper > section{
+  background:linear-gradient(145deg,rgba(3,3,6,.46),rgba(3,3,6,.39))!important;
+  backdrop-filter:blur(4px)!important;
+  box-shadow:0 26px 88px rgba(0,0,0,.29)!important;
+}
+
+.tune > div:last-child article#paper section article{
+  background:rgba(7,7,10,.44)!important;
+  backdrop-filter:blur(3px)!important;
+}
+
+.tune > div:last-child blockquote{
+  background:rgba(81,25,35,.075)!important;
+}
+
+@media(max-width:640px){
+  .tune > div:last-child article#paper > section,
+  .tune > div:last-child article#paper > section:nth-child(3n+2),
+  .tune > div:last-child article#paper > section:nth-child(3n){
+    background:linear-gradient(145deg,rgba(3,3,6,.455),rgba(3,3,6,.41))!important;
+    backdrop-filter:blur(3px)!important;
+  }
+
+  .tune > div:last-child > main > div > section:first-of-type > article,
+  .tune > div:last-child header > div:first-child > div:last-child{
+    background:rgba(4,4,7,.455)!important;
+  }
+}
