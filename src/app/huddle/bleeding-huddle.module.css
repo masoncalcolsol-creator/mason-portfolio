@@ -1,0 +1,187 @@
+.matrixTheme {
+  --matrix-accent: #ff3048;
+  --matrix-accent-rgb: 255, 48, 72;
+  position: relative;
+  min-height: 100svh;
+  isolation: isolate;
+  overflow-x: hidden;
+  background: #050204;
+  color: #fff4f5;
+}
+
+.hostMode {}
+
+.huddleContent {
+  position: relative;
+  z-index: 2;
+  min-height: 100svh;
+}
+
+.matrixNav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 130;
+  min-height: 72px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 12px max(16px, env(safe-area-inset-left));
+  border-bottom: 1px solid rgba(var(--matrix-accent-rgb), 0.28);
+  background: rgba(5, 2, 4, 0.76);
+  box-shadow: 0 14px 60px rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+}
+
+.matrixNav > div:first-child {
+  display: grid;
+  gap: 4px;
+}
+
+.matrixNav span {
+  color: var(--matrix-accent);
+  font: 950 9px ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  letter-spacing: 0.16em;
+}
+
+.matrixNav strong {
+  color: #fff4f5;
+  font-size: clamp(15px, 2.8vw, 24px);
+  line-height: 0.96;
+  letter-spacing: -0.035em;
+}
+
+.matrixNav strong i {
+  display: block;
+  color: transparent;
+  font-style: normal;
+  -webkit-text-stroke: 1px rgba(var(--matrix-accent-rgb), 0.8);
+}
+
+.matrixStatus {
+  flex: 0 0 auto;
+  border: 1px solid rgba(var(--matrix-accent-rgb), 0.34);
+  border-radius: 999px;
+  padding: 8px 10px;
+  color: #e0cbd0;
+  background: rgba(12, 3, 6, 0.72);
+  font: 900 9px ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  letter-spacing: 0.08em;
+  white-space: nowrap;
+}
+
+.matrixSharePanel {
+  position: relative;
+  z-index: 4;
+  width: min(780px, calc(100% - 28px));
+  margin: 92px auto -88px;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 18px;
+  align-items: center;
+  border: 1px solid rgba(var(--matrix-accent-rgb), 0.42);
+  border-radius: 22px;
+  padding: 16px;
+  background: linear-gradient(145deg, rgba(var(--matrix-accent-rgb), 0.14), rgba(8, 2, 4, 0.9));
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.58), 0 0 30px rgba(var(--matrix-accent-rgb), 0.08);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+}
+
+.matrixSharePanel > div:first-child {
+  display: grid;
+  gap: 5px;
+}
+
+.matrixSharePanel span {
+  color: var(--matrix-accent);
+  font: 950 9px ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  letter-spacing: 0.14em;
+}
+
+.matrixSharePanel strong {
+  color: #fff4f5;
+  font-size: clamp(15px, 2.8vw, 21px);
+  line-height: 1.05;
+  letter-spacing: -0.028em;
+}
+
+.shareActions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.shareActions button {
+  min-height: 46px;
+  border: 1px solid rgba(var(--matrix-accent-rgb), 0.38);
+  border-radius: 13px;
+  padding: 0 13px;
+  color: #f7e9ec;
+  background: rgba(255, 255, 255, 0.035);
+  font: 950 9px ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+}
+
+.shareActions button:first-child {
+  color: #190106;
+  background: linear-gradient(135deg, #ff596d, #ff3048 55%, #bd0928);
+  box-shadow: 0 12px 28px rgba(var(--matrix-accent-rgb), 0.18);
+}
+
+.shareActions button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+@media (max-width: 720px) {
+  .matrixNav {
+    min-height: 82px;
+    align-items: flex-start;
+    padding-top: max(10px, env(safe-area-inset-top));
+  }
+
+  .matrixStatus {
+    max-width: 42vw;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .matrixSharePanel {
+    width: min(100% - 20px, 780px);
+    margin-top: 98px;
+    margin-bottom: -82px;
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 430px) {
+  .matrixNav {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 8px;
+  }
+
+  .matrixNav strong {
+    font-size: 15px;
+  }
+
+  .matrixStatus {
+    max-width: 35vw;
+    font-size: 7px;
+    padding: 7px 8px;
+  }
+
+  .matrixSharePanel {
+    margin-bottom: -74px;
+    padding: 14px;
+  }
+
+  .shareActions {
+    grid-template-columns: 1fr;
+  }
+}
