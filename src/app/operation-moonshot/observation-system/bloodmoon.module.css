@@ -16,8 +16,8 @@
   z-index:-1;
   pointer-events:none;
   background:
-    linear-gradient(90deg,rgba(0,0,0,.42),transparent 28%,transparent 72%,rgba(0,0,0,.36)),
-    linear-gradient(180deg,rgba(0,0,0,.08),rgba(0,0,0,.34));
+    linear-gradient(90deg,rgba(0,0,0,.27),transparent 24%,transparent 76%,rgba(0,0,0,.24)),
+    linear-gradient(180deg,rgba(0,0,0,.03),rgba(0,0,0,.18));
 }
 
 .signalCanvas{
@@ -27,7 +27,7 @@
   width:100%;
   height:100%;
   pointer-events:none;
-  opacity:.92;
+  opacity:.98;
 }
 
 .content{
@@ -36,9 +36,9 @@
 }
 
 .content > main{
-  --ink:#ece8e9!important;
-  --muted:#aaa3a5!important;
-  --line:rgba(163,58,71,.14)!important;
+  --ink:#f0eced!important;
+  --muted:#b8b0b2!important;
+  --line:rgba(163,58,71,.15)!important;
   --blue:#a43a47!important;
   --cyan:#b75a65!important;
   --gold:#b78388!important;
@@ -49,70 +49,70 @@
 }
 
 .content > main::before{
-  opacity:.035!important;
-  background-image:repeating-linear-gradient(0deg,transparent 0 3px,rgba(141,49,62,.055) 4px)!important;
+  opacity:.025!important;
+  background-image:repeating-linear-gradient(0deg,transparent 0 3px,rgba(141,49,62,.045) 4px)!important;
 }
 
 .content nav{
   position:relative;
   z-index:4;
   border-bottom-color:rgba(155,53,67,.12)!important;
-  background:rgba(3,3,5,.82)!important;
-  backdrop-filter:blur(20px);
+  background:rgba(3,3,5,.84)!important;
+  backdrop-filter:blur(18px);
 }
 
 .content nav > a > div:first-child{
-  background:rgba(7,7,10,.92)!important;
+  background:rgba(7,7,10,.9)!important;
   border-color:rgba(155,53,67,.18)!important;
   box-shadow:none!important;
 }
 
 .content nav a{
-  color:#d9d4d5!important;
+  color:#ddd7d9!important;
 }
 
 .content nav a:last-child,
 .content header a[href="#paper"]{
   color:#f5f1f2!important;
   border:1px solid rgba(166,59,73,.27)!important;
-  background:linear-gradient(135deg,rgba(92,16,29,.96),rgba(49,7,14,.96))!important;
+  background:linear-gradient(135deg,rgba(92,16,29,.93),rgba(49,7,14,.93))!important;
   box-shadow:0 10px 30px rgba(0,0,0,.34)!important;
 }
 
 .content header a[href="/operation-moonshot/industrial-bootstrap"]{
   color:#d8d2d3!important;
   border-color:rgba(145,53,65,.18)!important;
-  background:rgba(5,5,8,.9)!important;
+  background:rgba(5,5,8,.84)!important;
 }
 
 .content h1{
-  color:#f2eff0!important;
+  color:#f4f0f1!important;
   text-shadow:0 2px 28px rgba(0,0,0,.72)!important;
 }
 
 .content header > div:first-child > div:last-child{
   border-left-color:#8f2c3a!important;
-  background:rgba(4,4,7,.93)!important;
-  backdrop-filter:blur(22px);
-  box-shadow:0 22px 65px rgba(0,0,0,.42);
+  background:rgba(4,4,7,.88)!important;
+  backdrop-filter:blur(12px);
+  box-shadow:0 22px 65px rgba(0,0,0,.4);
 }
 
 .content [aria-label="Dark speculative lunar observation illustration"]{
-  opacity:.68;
-  filter:saturate(.72) contrast(1.03);
+  opacity:.79;
+  filter:saturate(.76) contrast(1.04);
 }
 
 .content [aria-label="Dark speculative lunar observation illustration"] > div:first-child{
-  border-color:rgba(143,48,61,.18)!important;
+  border-color:rgba(143,48,61,.2)!important;
 }
 
 .content [aria-label="Dark speculative lunar observation illustration"] > div:first-child::after{
   background:#943140!important;
-  box-shadow:0 0 18px rgba(148,49,64,.5)!important;
+  box-shadow:0 0 20px rgba(148,49,64,.58)!important;
 }
 
 .content [aria-label="Dark speculative lunar observation illustration"] > div:nth-child(2){
-  opacity:.42;
+  opacity:.58;
   background:
     radial-gradient(circle at 31% 27%,rgba(189,115,116,.26) 0 1.3%,transparent 2%),
     radial-gradient(circle at 67% 30%,rgba(32,4,9,.62) 0 7%,transparent 8%),
@@ -120,103 +120,129 @@
     radial-gradient(circle at 72% 66%,rgba(29,3,8,.67) 0 6%,transparent 7%),
     radial-gradient(circle at 43% 47%,#6f1f2a,#2b080f 61%,#050204 100%)!important;
   box-shadow:
-    18px 0 56px rgba(123,31,43,.13),
+    18px 0 56px rgba(123,31,43,.16),
     0 0 100px rgba(0,0,0,.9),
-    inset 58px 0 82px rgba(121,39,49,.06)!important;
+    inset 58px 0 82px rgba(121,39,49,.07)!important;
 }
 
 .content [aria-label="Dark speculative lunar observation illustration"] > div:nth-child(2)::after{
-  background:radial-gradient(circle at 72% 46%,transparent 0 28%,rgba(0,0,0,.42) 54%,rgba(0,0,0,.9))!important;
+  background:radial-gradient(circle at 72% 46%,transparent 0 28%,rgba(0,0,0,.38) 54%,rgba(0,0,0,.88))!important;
 }
 
 .content [aria-label="Dark speculative lunar observation illustration"] > div:last-child{
   color:#d7d0d1!important;
-  border-color:rgba(144,51,64,.17)!important;
-  background:rgba(4,4,7,.94)!important;
+  border-color:rgba(144,51,64,.18)!important;
+  background:rgba(4,4,7,.88)!important;
 }
 
 .content > main > div > section:first-of-type > article{
-  background:rgba(4,4,7,.94)!important;
-  border-color:rgba(150,53,67,.13)!important;
-  box-shadow:0 20px 62px rgba(0,0,0,.4)!important;
-  backdrop-filter:blur(22px);
+  background:rgba(4,4,7,.88)!important;
+  border-color:rgba(150,53,67,.15)!important;
+  box-shadow:0 20px 62px rgba(0,0,0,.36)!important;
+  backdrop-filter:blur(12px);
 }
 
 .content > main > div > section:nth-of-type(2){
   color:#ece8e9!important;
   background:
     radial-gradient(circle at 83% 18%,rgba(120,30,42,.08),transparent 26rem),
-    linear-gradient(135deg,rgba(5,5,8,.97),rgba(9,6,9,.97) 68%,rgba(17,7,11,.96))!important;
-  border:1px solid rgba(153,53,67,.15)!important;
-  box-shadow:0 30px 105px rgba(0,0,0,.55)!important;
-  backdrop-filter:blur(24px);
+    linear-gradient(135deg,rgba(5,5,8,.93),rgba(9,6,9,.91) 68%,rgba(17,7,11,.88))!important;
+  border:1px solid rgba(153,53,67,.16)!important;
+  box-shadow:0 30px 105px rgba(0,0,0,.5)!important;
+  backdrop-filter:blur(12px);
+}
+
+.content article#paper{
+  display:grid;
+  gap:clamp(58px,7vw,94px);
+  padding:clamp(26px,4vw,54px) 0;
 }
 
 .content article#paper > section{
-  margin:24px 0;
+  position:relative;
+  margin:0;
   padding:clamp(28px,5vw,58px)!important;
-  border:1px solid rgba(150,53,67,.13)!important;
+  border:1px solid rgba(150,53,67,.15)!important;
   border-radius:24px;
-  background:rgba(3,3,6,.945)!important;
-  box-shadow:0 26px 88px rgba(0,0,0,.43);
-  backdrop-filter:blur(24px);
+  background:linear-gradient(145deg,rgba(3,3,6,.92),rgba(3,3,6,.78))!important;
+  box-shadow:0 26px 88px rgba(0,0,0,.39);
+  backdrop-filter:blur(9px);
+}
+
+.content article#paper > section:nth-child(3n+2){
+  margin-left:clamp(0px,3vw,38px);
+  margin-right:clamp(0px,1vw,12px);
+}
+
+.content article#paper > section:nth-child(3n){
+  margin-left:clamp(0px,1vw,12px);
+  margin-right:clamp(0px,3vw,38px);
 }
 
 .content article#paper section article{
-  background:rgba(7,7,10,.95)!important;
-  border-color:rgba(151,55,68,.13)!important;
+  background:rgba(7,7,10,.88)!important;
+  border-color:rgba(151,55,68,.15)!important;
   box-shadow:none!important;
+  backdrop-filter:blur(7px);
 }
 
 .content article#paper p,
 .content article#paper li,
 .content table td{
-  color:#aaa3a5!important;
+  color:#b6aeb0!important;
 }
 
 .content blockquote{
   border-left-color:#98606a!important;
-  background:rgba(81,25,35,.12)!important;
-  color:#d8d2d3!important;
+  background:rgba(81,25,35,.15)!important;
+  color:#ded8da!important;
 }
 
 .content table,
 .content table th,
 .content table td{
-  border-color:rgba(148,52,65,.12)!important;
+  border-color:rgba(148,52,65,.14)!important;
 }
 
 .content table th,
 .content article#paper a,
 .content article#paper div:first-child{
-  color:#ad6670;
+  color:#b66e78;
 }
 
 .content footer{
   position:relative;
   z-index:2;
-  color:#8e8789!important;
+  color:#989092!important;
 }
 
 @media(max-width:900px){
-  .signalCanvas{opacity:.82}
-  .content [aria-label="Dark speculative lunar observation illustration"]{opacity:.48}
+  .signalCanvas{opacity:.91}
+  .content [aria-label="Dark speculative lunar observation illustration"]{opacity:.63}
+  .content article#paper{gap:68px}
 }
 
 @media(max-width:640px){
-  .signalCanvas{opacity:.7}
-  .content article#paper > section{
-    margin:16px 0;
+  .signalCanvas{opacity:.84}
+  .content article#paper{
+    gap:58px;
+    padding:30px 0;
+  }
+  .content article#paper > section,
+  .content article#paper > section:nth-child(3n+2),
+  .content article#paper > section:nth-child(3n){
+    margin:0;
     border-radius:18px;
     padding:28px 18px!important;
-    background:rgba(3,3,6,.97)!important;
+    background:linear-gradient(145deg,rgba(3,3,6,.91),rgba(3,3,6,.82))!important;
+    backdrop-filter:blur(7px);
   }
   .content > main > div > section:first-of-type > article,
   .content header > div:first-child > div:last-child{
-    background:rgba(4,4,7,.97)!important;
+    background:rgba(4,4,7,.91)!important;
   }
 }
 
 @media(prefers-reduced-motion:reduce){
-  .signalCanvas{opacity:.78}
+  .signalCanvas{opacity:.82}
 }
