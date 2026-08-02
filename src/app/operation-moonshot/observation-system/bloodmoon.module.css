@@ -4,229 +4,219 @@
   isolation:isolate;
   overflow:hidden;
   background:
-    radial-gradient(circle at 14% 18%,rgba(135,0,17,.16),transparent 28rem),
-    radial-gradient(circle at 82% 72%,rgba(72,0,10,.2),transparent 34rem),
-    linear-gradient(180deg,#030102 0%,#0b0204 46%,#020102 100%);
+    radial-gradient(circle at 78% 12%,rgba(85,12,23,.08),transparent 31rem),
+    radial-gradient(circle at 13% 72%,rgba(52,8,16,.06),transparent 36rem),
+    linear-gradient(180deg,#020203 0%,#050406 48%,#010102 100%);
 }
 
 .frame::before{
   content:"";
   position:fixed;
-  inset:-18%;
-  z-index:-3;
+  inset:0;
+  z-index:-1;
   pointer-events:none;
-  opacity:.74;
-  background-image:
-    radial-gradient(circle,rgba(255,255,255,.94) 0 1px,transparent 1.6px),
-    radial-gradient(circle,rgba(255,214,218,.72) 0 1px,transparent 1.5px),
-    radial-gradient(circle,rgba(255,255,255,.5) 0 .7px,transparent 1.3px),
-    radial-gradient(circle,rgba(161,23,38,.58) 0 1px,transparent 1.7px);
-  background-size:173px 173px,257px 257px,89px 89px,331px 331px;
-  background-position:0 0,41px 78px,17px 29px,113px 19px;
-  animation:starPan 90s linear infinite;
-}
-
-.frame::after{
-  content:"";
-  position:fixed;
-  z-index:-2;
-  pointer-events:none;
-  width:min(76vw,940px);
-  aspect-ratio:1;
-  right:-15vw;
-  top:7vh;
-  border-radius:50%;
-  opacity:.72;
   background:
-    radial-gradient(circle at 31% 27%,rgba(255,188,180,.52) 0 1.2%,transparent 1.8%),
-    radial-gradient(circle at 68% 26%,rgba(52,0,4,.55) 0 6%,transparent 6.8%),
-    radial-gradient(circle at 42% 61%,rgba(68,0,6,.58) 0 9%,transparent 9.8%),
-    radial-gradient(circle at 76% 69%,rgba(39,0,3,.66) 0 5%,transparent 5.8%),
-    radial-gradient(circle at 24% 72%,rgba(255,68,68,.18) 0 8%,transparent 8.8%),
-    radial-gradient(circle at 38% 35%,#d63a3f 0%,#8e101c 36%,#3a0208 70%,#090103 100%);
-  box-shadow:
-    -52px 0 130px rgba(255,31,49,.2),
-    0 0 220px rgba(111,0,14,.42),
-    inset -95px -22px 135px rgba(0,0,0,.82),
-    inset 38px 0 65px rgba(255,84,84,.12);
-  filter:saturate(1.16) contrast(1.08);
-  animation:bloodMoonDrift 34s ease-in-out infinite alternate;
+    linear-gradient(90deg,rgba(0,0,0,.42),transparent 28%,transparent 72%,rgba(0,0,0,.36)),
+    linear-gradient(180deg,rgba(0,0,0,.08),rgba(0,0,0,.34));
 }
 
-.frame > main{
-  --ink:#fff2f2!important;
-  --muted:#c5a6a9!important;
-  --line:rgba(255,67,82,.24)!important;
-  --blue:#e0182d!important;
-  --cyan:#ff6673!important;
-  --gold:#ff9a9f!important;
+.signalCanvas{
+  position:fixed;
+  inset:0;
+  z-index:-2;
+  width:100%;
+  height:100%;
+  pointer-events:none;
+  opacity:.92;
+}
+
+.content{
+  position:relative;
+  z-index:1;
+}
+
+.content > main{
+  --ink:#ece8e9!important;
+  --muted:#aaa3a5!important;
+  --line:rgba(163,58,71,.14)!important;
+  --blue:#a43a47!important;
+  --cyan:#b75a65!important;
+  --gold:#b78388!important;
   background:transparent!important;
   overflow:visible!important;
   position:relative;
   z-index:1;
 }
 
-.frame > main::before{
-  opacity:.19!important;
-  background-image:
-    repeating-linear-gradient(0deg,transparent 0 3px,rgba(255,54,70,.09) 4px)!important;
+.content > main::before{
+  opacity:.035!important;
+  background-image:repeating-linear-gradient(0deg,transparent 0 3px,rgba(141,49,62,.055) 4px)!important;
 }
 
-.frame nav{
+.content nav{
   position:relative;
   z-index:4;
+  border-bottom-color:rgba(155,53,67,.12)!important;
+  background:rgba(3,3,5,.82)!important;
+  backdrop-filter:blur(20px);
 }
 
-.frame nav > a > div:first-child{
-  background:rgba(24,2,6,.82)!important;
-  border-color:rgba(255,65,80,.3)!important;
-  box-shadow:0 0 34px rgba(224,24,45,.2)!important;
+.content nav > a > div:first-child{
+  background:rgba(7,7,10,.92)!important;
+  border-color:rgba(155,53,67,.18)!important;
+  box-shadow:none!important;
 }
 
-.frame nav a:last-child,
-.frame header a[href="#paper"]{
-  color:#fff!important;
-  border-color:rgba(255,87,98,.35)!important;
-  background:linear-gradient(135deg,#e0182d,#72020d)!important;
-  box-shadow:0 0 38px rgba(224,24,45,.22)!important;
+.content nav a{
+  color:#d9d4d5!important;
 }
 
-.frame header a[href="/operation-moonshot/industrial-bootstrap"]{
-  color:#ffe7e9!important;
-  border-color:rgba(255,74,89,.25)!important;
-  background:rgba(19,2,5,.72)!important;
+.content nav a:last-child,
+.content header a[href="#paper"]{
+  color:#f5f1f2!important;
+  border:1px solid rgba(166,59,73,.27)!important;
+  background:linear-gradient(135deg,rgba(92,16,29,.96),rgba(49,7,14,.96))!important;
+  box-shadow:0 10px 30px rgba(0,0,0,.34)!important;
 }
 
-.frame h1{
-  text-shadow:0 0 38px rgba(255,35,54,.2)!important;
+.content header a[href="/operation-moonshot/industrial-bootstrap"]{
+  color:#d8d2d3!important;
+  border-color:rgba(145,53,65,.18)!important;
+  background:rgba(5,5,8,.9)!important;
 }
 
-.frame header > div:first-child > div:last-child{
-  border-left-color:#e0182d!important;
-  background:rgba(17,2,5,.73)!important;
-  backdrop-filter:blur(16px);
-  box-shadow:0 22px 60px rgba(0,0,0,.3);
+.content h1{
+  color:#f2eff0!important;
+  text-shadow:0 2px 28px rgba(0,0,0,.72)!important;
 }
 
-.frame [aria-label="Dark speculative lunar observation illustration"]{
-  filter:saturate(1.08);
+.content header > div:first-child > div:last-child{
+  border-left-color:#8f2c3a!important;
+  background:rgba(4,4,7,.93)!important;
+  backdrop-filter:blur(22px);
+  box-shadow:0 22px 65px rgba(0,0,0,.42);
 }
 
-.frame [aria-label="Dark speculative lunar observation illustration"] > div:first-child{
-  border-color:rgba(255,70,85,.28)!important;
+.content [aria-label="Dark speculative lunar observation illustration"]{
+  opacity:.68;
+  filter:saturate(.72) contrast(1.03);
 }
 
-.frame [aria-label="Dark speculative lunar observation illustration"] > div:first-child::after{
-  background:#e0182d!important;
-  box-shadow:0 0 28px #ff3047!important;
+.content [aria-label="Dark speculative lunar observation illustration"] > div:first-child{
+  border-color:rgba(143,48,61,.18)!important;
 }
 
-.frame [aria-label="Dark speculative lunar observation illustration"] > div:nth-child(2){
+.content [aria-label="Dark speculative lunar observation illustration"] > div:first-child::after{
+  background:#943140!important;
+  box-shadow:0 0 18px rgba(148,49,64,.5)!important;
+}
+
+.content [aria-label="Dark speculative lunar observation illustration"] > div:nth-child(2){
+  opacity:.42;
   background:
-    radial-gradient(circle at 31% 27%,rgba(255,193,183,.42) 0 1.3%,transparent 2%),
-    radial-gradient(circle at 67% 30%,rgba(58,0,7,.58) 0 7%,transparent 8%),
-    radial-gradient(circle at 34% 69%,rgba(73,0,8,.52) 0 10%,transparent 11%),
-    radial-gradient(circle at 72% 66%,rgba(48,0,6,.62) 0 6%,transparent 7%),
-    radial-gradient(circle at 43% 47%,#b92532,#560710 61%,#080103 100%)!important;
+    radial-gradient(circle at 31% 27%,rgba(189,115,116,.26) 0 1.3%,transparent 2%),
+    radial-gradient(circle at 67% 30%,rgba(32,4,9,.62) 0 7%,transparent 8%),
+    radial-gradient(circle at 34% 69%,rgba(48,7,13,.56) 0 10%,transparent 11%),
+    radial-gradient(circle at 72% 66%,rgba(29,3,8,.67) 0 6%,transparent 7%),
+    radial-gradient(circle at 43% 47%,#6f1f2a,#2b080f 61%,#050204 100%)!important;
   box-shadow:
-    20px 0 72px rgba(255,38,55,.2),
-    0 0 120px rgba(0,0,0,.9),
-    inset 58px 0 82px rgba(255,45,61,.09)!important;
+    18px 0 56px rgba(123,31,43,.13),
+    0 0 100px rgba(0,0,0,.9),
+    inset 58px 0 82px rgba(121,39,49,.06)!important;
 }
 
-.frame [aria-label="Dark speculative lunar observation illustration"] > div:nth-child(2)::after{
-  background:radial-gradient(circle at 72% 46%,transparent 0 28%,rgba(0,0,0,.28) 54%,rgba(0,0,0,.86))!important;
+.content [aria-label="Dark speculative lunar observation illustration"] > div:nth-child(2)::after{
+  background:radial-gradient(circle at 72% 46%,transparent 0 28%,rgba(0,0,0,.42) 54%,rgba(0,0,0,.9))!important;
 }
 
-.frame [aria-label="Dark speculative lunar observation illustration"] > div:last-child{
-  color:#ffe7e9!important;
-  border-color:rgba(255,68,82,.28)!important;
-  background:rgba(15,1,4,.82)!important;
+.content [aria-label="Dark speculative lunar observation illustration"] > div:last-child{
+  color:#d7d0d1!important;
+  border-color:rgba(144,51,64,.17)!important;
+  background:rgba(4,4,7,.94)!important;
 }
 
-.frame > main > div > section:first-of-type > article{
-  background:rgba(16,2,5,.7)!important;
-  border-color:rgba(255,65,80,.2)!important;
-  box-shadow:0 20px 58px rgba(0,0,0,.34)!important;
-  backdrop-filter:blur(15px);
+.content > main > div > section:first-of-type > article{
+  background:rgba(4,4,7,.94)!important;
+  border-color:rgba(150,53,67,.13)!important;
+  box-shadow:0 20px 62px rgba(0,0,0,.4)!important;
+  backdrop-filter:blur(22px);
 }
 
-.frame > main > div > section:nth-of-type(2){
-  color:#fff0f1!important;
+.content > main > div > section:nth-of-type(2){
+  color:#ece8e9!important;
   background:
-    radial-gradient(circle at 82% 20%,rgba(255,61,76,.16),transparent 28rem),
-    linear-gradient(135deg,rgba(13,1,3,.94),rgba(57,3,10,.92) 66%,rgba(111,3,16,.88))!important;
-  border:1px solid rgba(255,69,83,.25)!important;
-  box-shadow:0 0 110px rgba(0,0,0,.62),inset 0 0 75px rgba(255,38,55,.045)!important;
-  backdrop-filter:blur(18px);
+    radial-gradient(circle at 83% 18%,rgba(120,30,42,.08),transparent 26rem),
+    linear-gradient(135deg,rgba(5,5,8,.97),rgba(9,6,9,.97) 68%,rgba(17,7,11,.96))!important;
+  border:1px solid rgba(153,53,67,.15)!important;
+  box-shadow:0 30px 105px rgba(0,0,0,.55)!important;
+  backdrop-filter:blur(24px);
 }
 
-.frame article#paper > section{
+.content article#paper > section{
   margin:24px 0;
   padding:clamp(28px,5vw,58px)!important;
-  border:1px solid rgba(255,61,77,.2)!important;
+  border:1px solid rgba(150,53,67,.13)!important;
   border-radius:24px;
-  background:
-    linear-gradient(145deg,rgba(17,2,5,.79),rgba(6,1,2,.69))!important;
-  box-shadow:0 25px 85px rgba(0,0,0,.34);
-  backdrop-filter:blur(18px);
+  background:rgba(3,3,6,.945)!important;
+  box-shadow:0 26px 88px rgba(0,0,0,.43);
+  backdrop-filter:blur(24px);
 }
 
-.frame article#paper section article{
-  background:rgba(21,2,6,.7)!important;
-  border-color:rgba(255,67,82,.2)!important;
+.content article#paper section article{
+  background:rgba(7,7,10,.95)!important;
+  border-color:rgba(151,55,68,.13)!important;
+  box-shadow:none!important;
 }
 
-.frame blockquote{
-  border-left-color:#ff858e!important;
-  background:rgba(190,10,30,.1)!important;
+.content article#paper p,
+.content article#paper li,
+.content table td{
+  color:#aaa3a5!important;
 }
 
-.frame table,
-.frame table th,
-.frame table td{
-  border-color:rgba(255,65,80,.2)!important;
+.content blockquote{
+  border-left-color:#98606a!important;
+  background:rgba(81,25,35,.12)!important;
+  color:#d8d2d3!important;
 }
 
-.frame footer{
+.content table,
+.content table th,
+.content table td{
+  border-color:rgba(148,52,65,.12)!important;
+}
+
+.content table th,
+.content article#paper a,
+.content article#paper div:first-child{
+  color:#ad6670;
+}
+
+.content footer{
   position:relative;
   z-index:2;
-}
-
-@keyframes starPan{
-  from{transform:translate3d(-3%,0,0) rotate(.001deg)}
-  to{transform:translate3d(8%,5%,0) rotate(.001deg)}
-}
-
-@keyframes bloodMoonDrift{
-  from{transform:translate3d(0,-2%,0) scale(.96) rotate(-2deg)}
-  to{transform:translate3d(-7%,7%,0) scale(1.05) rotate(4deg)}
+  color:#8e8789!important;
 }
 
 @media(max-width:900px){
-  .frame::after{
-    width:min(104vw,720px);
-    right:-39vw;
-    top:17vh;
-    opacity:.55;
-  }
+  .signalCanvas{opacity:.82}
+  .content [aria-label="Dark speculative lunar observation illustration"]{opacity:.48}
 }
 
 @media(max-width:640px){
-  .frame::before{opacity:.62}
-  .frame::after{
-    width:130vw;
-    right:-61vw;
-    top:19vh;
-    opacity:.48;
-  }
-  .frame article#paper > section{
+  .signalCanvas{opacity:.7}
+  .content article#paper > section{
     margin:16px 0;
     border-radius:18px;
     padding:28px 18px!important;
+    background:rgba(3,3,6,.97)!important;
+  }
+  .content > main > div > section:first-of-type > article,
+  .content header > div:first-child > div:last-child{
+    background:rgba(4,4,7,.97)!important;
   }
 }
 
 @media(prefers-reduced-motion:reduce){
-  .frame::before,.frame::after{animation:none}
+  .signalCanvas{opacity:.78}
 }
