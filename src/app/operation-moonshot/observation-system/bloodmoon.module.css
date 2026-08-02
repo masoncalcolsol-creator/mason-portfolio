@@ -1,0 +1,232 @@
+.frame{
+  min-height:100vh;
+  position:relative;
+  isolation:isolate;
+  overflow:hidden;
+  background:
+    radial-gradient(circle at 14% 18%,rgba(135,0,17,.16),transparent 28rem),
+    radial-gradient(circle at 82% 72%,rgba(72,0,10,.2),transparent 34rem),
+    linear-gradient(180deg,#030102 0%,#0b0204 46%,#020102 100%);
+}
+
+.frame::before{
+  content:"";
+  position:fixed;
+  inset:-18%;
+  z-index:-3;
+  pointer-events:none;
+  opacity:.74;
+  background-image:
+    radial-gradient(circle,rgba(255,255,255,.94) 0 1px,transparent 1.6px),
+    radial-gradient(circle,rgba(255,214,218,.72) 0 1px,transparent 1.5px),
+    radial-gradient(circle,rgba(255,255,255,.5) 0 .7px,transparent 1.3px),
+    radial-gradient(circle,rgba(161,23,38,.58) 0 1px,transparent 1.7px);
+  background-size:173px 173px,257px 257px,89px 89px,331px 331px;
+  background-position:0 0,41px 78px,17px 29px,113px 19px;
+  animation:starPan 90s linear infinite;
+}
+
+.frame::after{
+  content:"";
+  position:fixed;
+  z-index:-2;
+  pointer-events:none;
+  width:min(76vw,940px);
+  aspect-ratio:1;
+  right:-15vw;
+  top:7vh;
+  border-radius:50%;
+  opacity:.72;
+  background:
+    radial-gradient(circle at 31% 27%,rgba(255,188,180,.52) 0 1.2%,transparent 1.8%),
+    radial-gradient(circle at 68% 26%,rgba(52,0,4,.55) 0 6%,transparent 6.8%),
+    radial-gradient(circle at 42% 61%,rgba(68,0,6,.58) 0 9%,transparent 9.8%),
+    radial-gradient(circle at 76% 69%,rgba(39,0,3,.66) 0 5%,transparent 5.8%),
+    radial-gradient(circle at 24% 72%,rgba(255,68,68,.18) 0 8%,transparent 8.8%),
+    radial-gradient(circle at 38% 35%,#d63a3f 0%,#8e101c 36%,#3a0208 70%,#090103 100%);
+  box-shadow:
+    -52px 0 130px rgba(255,31,49,.2),
+    0 0 220px rgba(111,0,14,.42),
+    inset -95px -22px 135px rgba(0,0,0,.82),
+    inset 38px 0 65px rgba(255,84,84,.12);
+  filter:saturate(1.16) contrast(1.08);
+  animation:bloodMoonDrift 34s ease-in-out infinite alternate;
+}
+
+.frame > main{
+  --ink:#fff2f2!important;
+  --muted:#c5a6a9!important;
+  --line:rgba(255,67,82,.24)!important;
+  --blue:#e0182d!important;
+  --cyan:#ff6673!important;
+  --gold:#ff9a9f!important;
+  background:transparent!important;
+  overflow:visible!important;
+  position:relative;
+  z-index:1;
+}
+
+.frame > main::before{
+  opacity:.19!important;
+  background-image:
+    repeating-linear-gradient(0deg,transparent 0 3px,rgba(255,54,70,.09) 4px)!important;
+}
+
+.frame nav{
+  position:relative;
+  z-index:4;
+}
+
+.frame nav > a > div:first-child{
+  background:rgba(24,2,6,.82)!important;
+  border-color:rgba(255,65,80,.3)!important;
+  box-shadow:0 0 34px rgba(224,24,45,.2)!important;
+}
+
+.frame nav a:last-child,
+.frame header a[href="#paper"]{
+  color:#fff!important;
+  border-color:rgba(255,87,98,.35)!important;
+  background:linear-gradient(135deg,#e0182d,#72020d)!important;
+  box-shadow:0 0 38px rgba(224,24,45,.22)!important;
+}
+
+.frame header a[href="/operation-moonshot/industrial-bootstrap"]{
+  color:#ffe7e9!important;
+  border-color:rgba(255,74,89,.25)!important;
+  background:rgba(19,2,5,.72)!important;
+}
+
+.frame h1{
+  text-shadow:0 0 38px rgba(255,35,54,.2)!important;
+}
+
+.frame header > div:first-child > div:last-child{
+  border-left-color:#e0182d!important;
+  background:rgba(17,2,5,.73)!important;
+  backdrop-filter:blur(16px);
+  box-shadow:0 22px 60px rgba(0,0,0,.3);
+}
+
+.frame [aria-label="Dark speculative lunar observation illustration"]{
+  filter:saturate(1.08);
+}
+
+.frame [aria-label="Dark speculative lunar observation illustration"] > div:first-child{
+  border-color:rgba(255,70,85,.28)!important;
+}
+
+.frame [aria-label="Dark speculative lunar observation illustration"] > div:first-child::after{
+  background:#e0182d!important;
+  box-shadow:0 0 28px #ff3047!important;
+}
+
+.frame [aria-label="Dark speculative lunar observation illustration"] > div:nth-child(2){
+  background:
+    radial-gradient(circle at 31% 27%,rgba(255,193,183,.42) 0 1.3%,transparent 2%),
+    radial-gradient(circle at 67% 30%,rgba(58,0,7,.58) 0 7%,transparent 8%),
+    radial-gradient(circle at 34% 69%,rgba(73,0,8,.52) 0 10%,transparent 11%),
+    radial-gradient(circle at 72% 66%,rgba(48,0,6,.62) 0 6%,transparent 7%),
+    radial-gradient(circle at 43% 47%,#b92532,#560710 61%,#080103 100%)!important;
+  box-shadow:
+    20px 0 72px rgba(255,38,55,.2),
+    0 0 120px rgba(0,0,0,.9),
+    inset 58px 0 82px rgba(255,45,61,.09)!important;
+}
+
+.frame [aria-label="Dark speculative lunar observation illustration"] > div:nth-child(2)::after{
+  background:radial-gradient(circle at 72% 46%,transparent 0 28%,rgba(0,0,0,.28) 54%,rgba(0,0,0,.86))!important;
+}
+
+.frame [aria-label="Dark speculative lunar observation illustration"] > div:last-child{
+  color:#ffe7e9!important;
+  border-color:rgba(255,68,82,.28)!important;
+  background:rgba(15,1,4,.82)!important;
+}
+
+.frame > main > div > section:first-of-type > article{
+  background:rgba(16,2,5,.7)!important;
+  border-color:rgba(255,65,80,.2)!important;
+  box-shadow:0 20px 58px rgba(0,0,0,.34)!important;
+  backdrop-filter:blur(15px);
+}
+
+.frame > main > div > section:nth-of-type(2){
+  color:#fff0f1!important;
+  background:
+    radial-gradient(circle at 82% 20%,rgba(255,61,76,.16),transparent 28rem),
+    linear-gradient(135deg,rgba(13,1,3,.94),rgba(57,3,10,.92) 66%,rgba(111,3,16,.88))!important;
+  border:1px solid rgba(255,69,83,.25)!important;
+  box-shadow:0 0 110px rgba(0,0,0,.62),inset 0 0 75px rgba(255,38,55,.045)!important;
+  backdrop-filter:blur(18px);
+}
+
+.frame article#paper > section{
+  margin:24px 0;
+  padding:clamp(28px,5vw,58px)!important;
+  border:1px solid rgba(255,61,77,.2)!important;
+  border-radius:24px;
+  background:
+    linear-gradient(145deg,rgba(17,2,5,.79),rgba(6,1,2,.69))!important;
+  box-shadow:0 25px 85px rgba(0,0,0,.34);
+  backdrop-filter:blur(18px);
+}
+
+.frame article#paper section article{
+  background:rgba(21,2,6,.7)!important;
+  border-color:rgba(255,67,82,.2)!important;
+}
+
+.frame blockquote{
+  border-left-color:#ff858e!important;
+  background:rgba(190,10,30,.1)!important;
+}
+
+.frame table,
+.frame table th,
+.frame table td{
+  border-color:rgba(255,65,80,.2)!important;
+}
+
+.frame footer{
+  position:relative;
+  z-index:2;
+}
+
+@keyframes starPan{
+  from{transform:translate3d(-3%,0,0) rotate(.001deg)}
+  to{transform:translate3d(8%,5%,0) rotate(.001deg)}
+}
+
+@keyframes bloodMoonDrift{
+  from{transform:translate3d(0,-2%,0) scale(.96) rotate(-2deg)}
+  to{transform:translate3d(-7%,7%,0) scale(1.05) rotate(4deg)}
+}
+
+@media(max-width:900px){
+  .frame::after{
+    width:min(104vw,720px);
+    right:-39vw;
+    top:17vh;
+    opacity:.55;
+  }
+}
+
+@media(max-width:640px){
+  .frame::before{opacity:.62}
+  .frame::after{
+    width:130vw;
+    right:-61vw;
+    top:19vh;
+    opacity:.48;
+  }
+  .frame article#paper > section{
+    margin:16px 0;
+    border-radius:18px;
+    padding:28px 18px!important;
+  }
+}
+
+@media(prefers-reduced-motion:reduce){
+  .frame::before,.frame::after{animation:none}
+}
