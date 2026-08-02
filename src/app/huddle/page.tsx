@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
 
+import BleedingHuddleFrame from "./BleedingHuddleFrame";
 import HuddleClient from "./HuddleClient";
 
 export const metadata: Metadata = {
@@ -10,8 +11,10 @@ export const metadata: Metadata = {
 
 export default function HuddlePage() {
   return (
-    <Suspense fallback={<main style={{ minHeight: "100vh", background: "#050709" }} />}>
-      <HuddleClient />
+    <Suspense fallback={<main style={{ minHeight: "100vh", background: "#050204" }} />}>
+      <BleedingHuddleFrame>
+        <HuddleClient />
+      </BleedingHuddleFrame>
     </Suspense>
   );
 }
