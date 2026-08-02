@@ -23,50 +23,20 @@ type RosterEntry = {
   listenOnly?: boolean;
 };
 
-type DataConnectionLike = {
-  peer: string;
-  open?: boolean;
-  metadata?: Record<string, unknown>;
-  on: (event: string, callback: (...args: any[]) => void) => void;
-  send: (data: unknown) => void;
-  close: () => void;
-};
-
-type MediaConnectionLike = {
-  peer: string;
-  open?: boolean;
-  metadata?: Record<string, unknown>;
-  on: (event: string, callback: (...args: any[]) => void) => void;
-  answer: (stream?: MediaStream) => void;
-  close: () => void;
-};
-
-type PeerLike = {
-  id?: string;
-  on: (event: string, callback: (...args: any[]) => void) => void;
-  connect: (peerId: string, options?: Record<string, unknown>) => DataConnectionLike;
-  call: (peerId: string, stream: MediaStream, options?: Record<string, unknown>) => MediaConnectionLike;
-  destroy: () => void;
-};
-
-type PeerConstructor = new (id?: string, options?: Record<string, unknown>) => PeerLike;
-
-declare global {
-  interface Window {
-    Peer?: PeerConstructor;
-    webkitAudioContext?: typeof AudioContext;
-  }
-}
-
 const ROOM_SLUG = "stewart-field-scope-20260802";
 const COORDINATOR_PEER_ID = `nw-stewart-${ROOM_SLUG}`.slice(0, 60);
 const MAX_HUMANS = 5;
 
-let peerScriptPromise: Promise<PeerConstructor> | null = null;
+let peerScriptPromise: Promise<any> | null = null;
 
-function loadPeerJs(): Promise<PeerConstructor> {
+function peerConstructor(): any {
+  return (window as unknown as { Peer?: any }).Peer;
+}
+
+function loadPeerJs(): Promise<any> {
   if (typeof window === "undefined") return Promise.reject(new Error("Browser unavailable."));
-  if (window.Peer) return Promise.resolve(window.Peer);
+  const existingConstructor = peerConstructor();
+  if (existingConstructor) return Promise.resolve(existingConstructor);
   if (peerScriptPromise) return peerScriptPromise;
 
   peerScriptPromise = new Promise((resolve, reject) => {
@@ -81,15 +51,18 @@ function loadPeerJs(): Promise<PeerConstructor> {
     }
 
     const finish = () => {
-      if (window.Peer) resolve(window.Peer);
+      const constructor = peerConstructor();
+      if (constructor) resolve(constructor);
       else reject(new Error("Room signaling loaded without a browser client."));
     };
-    if (window.Peer) finish();
+
+    if (peerConstructor()) finish();
     else {
       script.addEventListener("load", finish, { once: true });
       script.addEventListener("error", () => reject(new Error("Could not load room signaling.")), { once: true });
     }
   });
+
   return peerScriptPromise;
 }
 
@@ -108,22 +81,13 @@ function timeLabel(): string {
   return new Date().toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
 }
 
-function audioConstraints(): MediaTrackConstraints {
-  return {
-    echoCancellation: true,
-    noiseSuppression: true,
-    autoGainControl: true,
-    channelCount: 1,
-  };
-}
-
 function errorMessage(error: unknown): string {
   if (error instanceof DOMException && error.name === "NotAllowedError") return "Microphone permission was denied.";
   if (error instanceof Error) return error.message;
   return "An unknown room error occurred.";
 }
 
-function waitForPeerOpen(peer: PeerLike, timeoutMs = 12000): Promise<void> {
+function waitForPeerOpen(peer: any, timeoutMs = 12000): Promise<void> {
   return new Promise((resolve, reject) => {
     const timer = window.setTimeout(() => reject(new Error("Room signaling timed out.")), timeoutMs);
     peer.on("open", () => {
@@ -137,7 +101,7 @@ function waitForPeerOpen(peer: PeerLike, timeoutMs = 12000): Promise<void> {
   });
 }
 
-function waitForDataOpen(connection: DataConnectionLike, timeoutMs = 12000): Promise<void> {
+function waitForDataOpen(connection: any, timeoutMs = 12000): Promise<void> {
   if (connection.open) return Promise.resolve();
   return new Promise((resolve, reject) => {
     const timer = window.setTimeout(() => reject(new Error("The active room did not answer in time.")), timeoutMs);
@@ -167,7 +131,7 @@ function waitForIce(pc: RTCPeerConnection, timeoutMs = 3500): Promise<void> {
   });
 }
 
-async function claimRoom(PeerClass: PeerConstructor): Promise<{ peer: PeerLike; role: Exclude<RoomRole, null> }> {
+async function claimRoom(PeerClass: any): Promise<{ peer: any; role: Exclude<RoomRole, null> }> {
   return new Promise((resolve, reject) => {
     const candidate = new PeerClass(COORDINATOR_PEER_ID);
     let settled = false;
@@ -223,12 +187,12 @@ export default function StewartRoomClient() {
   const [pinAttempts, setPinAttempts] = useState(0);
   const [lockUntil, setLockUntil] = useState(0);
 
-  const peerRef = useRef<PeerLike | null>(null);
+  const peerRef = useRef<any>(null);
   const localStreamRef = useRef<MediaStream | null>(null);
-  const coordinatorDataRef = useRef<DataConnectionLike | null>(null);
-  const coordinatorCallRef = useRef<MediaConnectionLike | null>(null);
-  const dataConnectionsRef = useRef(new Map<string, DataConnectionLike>());
-  const mediaCallsRef = useRef(new Map<string, MediaConnectionLike>());
+  const coordinatorDataRef = useRef<any>(null);
+  const coordinatorCallRef = useRef<any>(null);
+  const dataConnectionsRef = useRef<Map<string, any>>(new Map());
+  const mediaCallsRef = useRef<Map<string, any>>(new Map());
   const participantNamesRef = useRef(new Map<string, { name: string; listenOnly: boolean }>());
   const participantSourcesRef = useRef(new Map<string, MediaStreamAudioSourceNode>());
   const participantDestinationsRef = useRef(new Map<string, MediaStreamAudioDestinationNode>());
@@ -242,12 +206,19 @@ export default function StewartRoomClient() {
   const audioElementsRef = useRef<HTMLAudioElement[]>([]);
   const coordinatorNameRef = useRef("Jeff");
   const coordinatorListenOnlyRef = useRef(false);
+  const transcriptRef = useRef<TranscriptEntry[]>([]);
+  const aiStateRef = useRef<AiState>("offline");
 
   const broadcast = useCallback((payload: unknown) => {
     for (const connection of dataConnectionsRef.current.values()) {
-      if (!connection.open) continue;
+      if (!connection?.open) continue;
       try { connection.send(payload); } catch (error) { console.error("Stewart room broadcast failed", error); }
     }
+  }, []);
+
+  const setAi = useCallback((next: AiState) => {
+    aiStateRef.current = next;
+    setAiState(next);
   }, []);
 
   const addTranscript = useCallback((speaker: string, text: string, relay = true) => {
@@ -259,7 +230,9 @@ export default function StewartRoomClient() {
       text: cleaned,
       at: timeLabel(),
     };
-    setTranscript((current) => [...current.slice(-119), entry]);
+    const next = [...transcriptRef.current.slice(-119), entry];
+    transcriptRef.current = next;
+    setTranscript(next);
     if (relay) broadcast({ type: "transcript", entry });
   }, [broadcast]);
 
@@ -349,12 +322,12 @@ export default function StewartRoomClient() {
     realtimeDataRef.current = null;
     audioElementsRef.current = [];
     setRole(null);
-    setAiState("offline");
+    setAi("offline");
     setRoster([]);
     setMuted(false);
     setPhase(nextPhase);
     setStatus(nextPhase === "ended" ? "You left the Stewart field scope." : "Room stopped.");
-  }, []);
+  }, [setAi]);
 
   useEffect(() => {
     let cancelled = false;
@@ -370,7 +343,14 @@ export default function StewartRoomClient() {
     return () => { cancelled = true; };
   }, []);
 
-  useEffect(() => () => teardown("ended"), [teardown]);
+  useEffect(() => {
+    return () => {
+      try { realtimeDataRef.current?.close(); } catch { /* no-op */ }
+      try { realtimePcRef.current?.close(); } catch { /* no-op */ }
+      try { peerRef.current?.destroy(); } catch { /* no-op */ }
+      localStreamRef.current?.getTracks().forEach((track) => track.stop());
+    };
+  }, []);
 
   const unlockAccess = useCallback(async (): Promise<boolean> => {
     if (accessGranted) return true;
@@ -399,6 +379,7 @@ export default function StewartRoomClient() {
       } else setErrorText(data.error || "Incorrect room PIN.");
       return false;
     }
+
     setAccessGranted(true);
     setPin("");
     setPinAttempts(0);
@@ -410,7 +391,7 @@ export default function StewartRoomClient() {
       const event = JSON.parse(raw) as Record<string, any>;
       const type = String(event.type || "");
       if (type === "session.created" || type === "session.updated") {
-        setAiState("live");
+        setAi("live");
         setStatus("NULLWORKS is live on the field scope.");
         broadcast({ type: "ai-state", value: "live" });
       } else if (type === "conversation.item.input_audio_transcription.completed") {
@@ -421,17 +402,17 @@ export default function StewartRoomClient() {
         addTranscript("NULLWORKS", String(event.text || ""));
       } else if (type === "error") {
         const message = String(event.error?.message || "Realtime model error.");
-        setAiState("error");
+        setAi("error");
         setErrorText(message);
         broadcast({ type: "ai-state", value: "error", message });
       }
     } catch (error) {
       console.error("Stewart Realtime event parse failed", error);
     }
-  }, [addTranscript, broadcast]);
+  }, [addTranscript, broadcast, setAi]);
 
   const connectRealtime = useCallback(async (aiInput: MediaStream, coordinatorName: string) => {
-    setAiState("connecting");
+    setAi("connecting");
     setStatus("Connecting the NULLWORKS realtime voice agent...");
 
     const context = audioContextRef.current;
@@ -462,7 +443,7 @@ export default function StewartRoomClient() {
 
     pc.addEventListener("connectionstatechange", () => {
       if (pc.connectionState === "failed" || pc.connectionState === "closed") {
-        setAiState("error");
+        setAi("error");
         setErrorText("The realtime voice connection closed unexpectedly.");
         broadcast({ type: "ai-state", value: "error", message: "Realtime voice connection closed." });
       }
@@ -488,17 +469,16 @@ export default function StewartRoomClient() {
 
     const answerSdp = await response.text();
     await pc.setRemoteDescription({ type: "answer", sdp: answerSdp });
-    setAiState("live");
+    setAi("live");
     addTranscript("System", "NULLWORKS joined the Stewart field scope.");
     broadcast({ type: "ai-state", value: "live" });
-  }, [addTranscript, broadcast, handleRealtimeEvent, rebuildMixes]);
+  }, [addTranscript, broadcast, handleRealtimeEvent, rebuildMixes, setAi]);
 
   const removeParticipant = useCallback((peerId: string) => {
     try { mediaCallsRef.current.get(peerId)?.close(); } catch { /* no-op */ }
     try { dataConnectionsRef.current.get(peerId)?.close(); } catch { /* no-op */ }
     try { participantSourcesRef.current.get(peerId)?.disconnect(); } catch { /* no-op */ }
-    const destination = participantDestinationsRef.current.get(peerId);
-    destination?.stream.getTracks().forEach((track) => track.stop());
+    participantDestinationsRef.current.get(peerId)?.stream.getTracks().forEach((track) => track.stop());
     const audio = participantAudioRef.current.get(peerId);
     if (audio) {
       audio.pause();
@@ -515,12 +495,12 @@ export default function StewartRoomClient() {
   }, [publishRoster, rebuildMixes]);
 
   const startCoordinator = useCallback(async (
-    peer: PeerLike,
+    peer: any,
     localStream: MediaStream,
     coordinatorName: string,
     coordinatorListenOnly: boolean,
   ) => {
-    const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+    const AudioContextClass = window.AudioContext || (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
     if (!AudioContextClass) throw new Error("This browser does not support live audio mixing.");
     const context = new AudioContextClass();
     audioContextRef.current = context;
@@ -533,8 +513,8 @@ export default function StewartRoomClient() {
     coordinatorListenOnlyRef.current = coordinatorListenOnly;
     rebuildMixes();
 
-    peer.on("connection", (connection: DataConnectionLike) => {
-      const peerId = connection.peer;
+    peer.on("connection", (connection: any) => {
+      const peerId = String(connection.peer || randomHex(4));
       if (!participantNamesRef.current.has(peerId) && participantNamesRef.current.size >= MAX_HUMANS - 1) {
         connection.on("open", () => {
           connection.send({ type: "room-full", message: "This beta room is full." });
@@ -545,9 +525,9 @@ export default function StewartRoomClient() {
 
       dataConnectionsRef.current.set(peerId, connection);
       connection.on("open", () => {
-        connection.send({ type: "transcript-snapshot", entries: transcript });
+        connection.send({ type: "transcript-snapshot", entries: transcriptRef.current });
         connection.send({ type: "roster", entries: [{ id: COORDINATOR_PEER_ID, name: coordinatorName, coordinator: true, listenOnly: coordinatorListenOnly }] });
-        connection.send({ type: "ai-state", value: aiState });
+        connection.send({ type: "ai-state", value: aiStateRef.current });
       });
       connection.on("data", (data: Record<string, any>) => {
         if (data?.type !== "hello") return;
@@ -561,8 +541,8 @@ export default function StewartRoomClient() {
       connection.on("error", () => removeParticipant(peerId));
     });
 
-    peer.on("call", (call: MediaConnectionLike) => {
-      const peerId = call.peer;
+    peer.on("call", (call: any) => {
+      const peerId = String(call.peer || randomHex(4));
       if (!participantNamesRef.current.has(peerId) && participantNamesRef.current.size >= MAX_HUMANS - 1) {
         call.close();
         return;
@@ -584,8 +564,7 @@ export default function StewartRoomClient() {
         try { participantSourcesRef.current.get(peerId)?.disconnect(); } catch { /* no-op */ }
         participantSourcesRef.current.set(peerId, context.createMediaStreamSource(participantStream));
 
-        const existingAudio = participantAudioRef.current.get(peerId);
-        existingAudio?.pause();
+        participantAudioRef.current.get(peerId)?.pause();
         const audio = new Audio();
         audio.autoplay = true;
         audio.playsInline = true;
@@ -613,11 +592,11 @@ export default function StewartRoomClient() {
     try {
       await connectRealtime(aiMix.stream, coordinatorName);
     } catch (error) {
-      setAiState("error");
+      setAi("error");
       setErrorText(errorMessage(error));
       setStatus("Human audio is live, but NULLWORKS did not connect.");
     }
-  }, [addTranscript, aiState, connectRealtime, publishRoster, rebuildMixes, removeParticipant, transcript]);
+  }, [addTranscript, connectRealtime, publishRoster, rebuildMixes, removeParticipant, setAi]);
 
   const handleParticipantData = useCallback((data: Record<string, any>) => {
     if (!data || typeof data !== "object") return;
@@ -625,20 +604,24 @@ export default function StewartRoomClient() {
       setErrorText(String(data.message || "The field scope is full."));
       teardown("error");
     } else if (data.type === "transcript" && data.entry) {
-      setTranscript((current) => [...current.slice(-119), data.entry as TranscriptEntry]);
+      const next = [...transcriptRef.current.slice(-119), data.entry as TranscriptEntry];
+      transcriptRef.current = next;
+      setTranscript(next);
     } else if (data.type === "transcript-snapshot" && Array.isArray(data.entries)) {
-      setTranscript(data.entries.slice(-120));
+      const next = data.entries.slice(-120) as TranscriptEntry[];
+      transcriptRef.current = next;
+      setTranscript(next);
     } else if (data.type === "roster" && Array.isArray(data.entries)) {
       setRoster(data.entries as RosterEntry[]);
     } else if (data.type === "ai-state") {
-      const next = data.value === "live" ? "live" : data.value === "error" ? "error" : "connecting";
-      setAiState(next);
+      const next: AiState = data.value === "live" ? "live" : data.value === "error" ? "error" : "connecting";
+      setAi(next);
       if (data.message) setErrorText(String(data.message));
     }
-  }, [teardown]);
+  }, [setAi, teardown]);
 
   const startParticipant = useCallback(async (
-    peer: PeerLike,
+    peer: any,
     localStream: MediaStream,
     participantName: string,
     participantListenOnly: boolean,
@@ -700,7 +683,15 @@ export default function StewartRoomClient() {
       }
 
       const participantName = cleanName(name);
-      const localStream = await navigator.mediaDevices.getUserMedia({ audio: audioConstraints(), video: false });
+      const localStream = await navigator.mediaDevices.getUserMedia({
+        audio: {
+          echoCancellation: true,
+          noiseSuppression: true,
+          autoGainControl: true,
+          channelCount: 1,
+        },
+        video: false,
+      });
       if (listenOnly) localStream.getAudioTracks().forEach((track) => { track.enabled = false; });
       localStreamRef.current = localStream;
 
