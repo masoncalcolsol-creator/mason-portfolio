@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import AnvilUniversalStudioClient from "./AnvilUniversalStudioClient";
+import AnvilStudioWithTracks from "./AnvilStudioWithTracks";
 
 export const metadata: Metadata = {
   title: "ANVIL Universal Music Studio | NULLWORKS",
@@ -21,5 +21,5 @@ export const metadata: Metadata = {
 };
 
 export default function JasonAnvilPage() {
-  return <AnvilUniversalStudioClient />;
+  return <AnvilStudioWithTracks />;
 }
