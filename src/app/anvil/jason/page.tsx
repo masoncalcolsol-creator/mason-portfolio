@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
-import JasonAnvil1000Client from "./JasonAnvil1000Client";
+import AnvilUniversalStudioClient from "./AnvilUniversalStudioClient";
 
 export const metadata: Metadata = {
-  title: "Jason Rains 1000-Character ANVIL Sound Forge | NULLWORKS",
+  title: "ANVIL Universal Music Studio | NULLWORKS",
   description:
-    "A Jason-led, Mason-produced mobile music workroom that converts private artist shorthand into name-free Suno production traits and hard-caps the style prompt at 1,000 characters.",
+    "A Jason-led and Mason-produced mobile music workroom for building any original band, song, genre, or hybrid into a five-block Suno production packet.",
   robots: {
     index: false,
     follow: false,
@@ -14,12 +14,12 @@ export const metadata: Metadata = {
     },
   },
   openGraph: {
-    title: "Jason Rains 1000-Character ANVIL Sound Forge",
-    description: "Names in. Traits out. Style capped at 1,000 characters.",
+    title: "ANVIL Universal Music Studio",
+    description: "Any band. Any style. Five clean Suno blocks.",
     type: "website",
   },
 };
 
 export default function JasonAnvilPage() {
-  return <JasonAnvil1000Client />;
+  return <AnvilUniversalStudioClient />;
 }
