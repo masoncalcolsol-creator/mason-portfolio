@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
-import JasonAnvilPromptSafeClient from "./JasonAnvilPromptSafeClient";
+import JasonAnvil1000Client from "./JasonAnvil1000Client";
 
 export const metadata: Metadata = {
-  title: "Jason Rains Prompt-Safe ANVIL Sound Forge | NULLWORKS",
+  title: "Jason Rains 1000-Character ANVIL Sound Forge | NULLWORKS",
   description:
-    "A Jason-led, Mason-produced mobile music workroom that converts private artist shorthand into name-free production traits before exporting Suno prompts.",
+    "A Jason-led, Mason-produced mobile music workroom that converts private artist shorthand into name-free Suno production traits and hard-caps the style prompt at 1,000 characters.",
   robots: {
     index: false,
     follow: false,
@@ -14,12 +14,12 @@ export const metadata: Metadata = {
     },
   },
   openGraph: {
-    title: "Jason Rains Prompt-Safe ANVIL Sound Forge",
-    description: "Names in. Traits out. Jason steers; Mason produces.",
+    title: "Jason Rains 1000-Character ANVIL Sound Forge",
+    description: "Names in. Traits out. Style capped at 1,000 characters.",
     type: "website",
   },
 };
 
 export default function JasonAnvilPage() {
-  return <JasonAnvilPromptSafeClient />;
+  return <JasonAnvil1000Client />;
 }
