@@ -10,6 +10,11 @@ export default function PersonalSoundtrackLayout({ children }: { children: React
           -webkit-text-stroke: 1.35px rgba(255,255,255,.92) !important;
           text-shadow: 0 0 22px rgba(0,0,0,.55) !important;
         }
+        body > div:has(a[href*="triage"]),
+        body > aside:has(a[href*="triage"]),
+        body > a[href*="triage"] {
+          display: none !important;
+        }
       `}</style>
       {children}
     </>
