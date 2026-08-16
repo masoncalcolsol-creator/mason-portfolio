@@ -73,7 +73,7 @@ export default function NicaraguanReleasePage() {
           <article><span>02</span><h3>We forge the world.</h3><p>Band identity, lyrics, sound, cover art, metadata, and a coherent release package.</p></article>
           <article><span>03</span><h3>You get the artifact.</h3><p>A song people can actually hear, share, remember, and connect back to you.</p></article>
         </div>
-        <a className={styles.cta} href="mailto:hello@nullworks.ai?subject=ANVIL%20Custom%20Song">WHAT SHOULD YOUR STORY SOUND LIKE? →</a>
+        <a className={styles.cta} href="mailto:nullworks.neuraxis@gmail.com?subject=ANVIL%20Custom%20Song">WHAT SHOULD YOUR STORY SOUND LIKE? →</a>
       </section>
 
       <section className={styles.lyricSection}>
