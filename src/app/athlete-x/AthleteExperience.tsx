@@ -47,7 +47,7 @@ export default function AthleteExperience() {
         <div className={styles.kicker}>ATHLETE X / LIVE CAMPAIGN CONCEPT / {active.mark}</div>
         <h1>{active.line}</h1>
         <p>{active.copy}</p>
-        <div className={styles.actions}><a href="#sound">Hear the identity ↓</a><a className={styles.secondary} href="#system">See the system</a></div>
+        <div className={styles.actions}><Link href="/athlete-x/answer-loud">Watch ANSWER LOUD ▶</Link><a className={styles.secondary} href="#system">See the system</a></div>
         <aside className={styles.status}><span>CONCEPT SIGNAL</span><b>{active.label.toUpperCase()}</b><small>Simulated visual atmosphere · media-ready page architecture</small></aside>
       </section>
 
