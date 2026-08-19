@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import AnvilGhostScroll from "./components/AnvilGhostScroll";
-import AssuranceRail from "./components/AssuranceRail";
 import "./globals.css";
 import "./oisa.css";
 import "./mars-hero.css";
@@ -44,7 +43,6 @@ export default function RootLayout({
       <body className="min-h-full flex flex-col">
         <AnvilGhostScroll />
         {children}
-        <AssuranceRail />
       </body>
     </html>
   );
