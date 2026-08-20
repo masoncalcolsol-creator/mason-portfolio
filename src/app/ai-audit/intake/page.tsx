@@ -1,12 +1,7 @@
-import type { Metadata } from "next";
-import TriageIntake from "./triage-intake";
+import { redirect } from "next/navigation";
 
-export const metadata: Metadata = {
-  title: "Start With One Workflow | NULLWORKS",
-  description:
-    "Prepare a provisional AI Operating Model Audit request around one real workflow.",
-};
+const CANONICAL_TRIAGE = "https://nullworks-triage.nullworks-6346.chatgpt.site/";
 
 export default function AiAuditIntakePage() {
-  return <TriageIntake />;
+  redirect(CANONICAL_TRIAGE);
 }
