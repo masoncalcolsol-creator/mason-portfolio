@@ -1,0 +1,51 @@
+name: Import NULLWORKS Triage
+
+on:
+  push:
+    paths:
+      - .github/workflows/import-nullworks-triage.yml
+
+permissions:
+  contents: write
+
+jobs:
+  import-triage:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Import exact triage artifact
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p public
+          curl --fail --location --retry 3 --retry-delay 2 'https://nullworks-triage.nullworks-6346.chatgpt.site/' -o public/nullworks-operational-assurance-triage-v2.html
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('public/nullworks-operational-assurance-triage-v2.html')
+          s=p.read_text()
+          old="<button class=\"btn\" onclick=\"mailtoRoute('${m.state}','${m.score}')\">I’M INTERESTED IN ${m.route.toUpperCase()} →</button>"
+          new="<button class=\"btn\" onclick=\"nextStepRoute('${m.state}','${m.score}','${m.route}')\">SEE WHAT NULLWORKS CAN DO NEXT →</button>"
+          if old not in s:
+              raise SystemExit('Expected triage CTA not found; refusing silent drift')
+          s=s.replace(old,new)
+          start="function mailtoRoute(state,score){"
+          end="\nfunction restart(){"
+          a=s.find(start); b=s.find(end,a)
+          if a < 0 or b < 0:
+              raise SystemExit('Expected routing function not found; refusing silent drift')
+          replacement="function nextStepRoute(state,score,route){const q=new URLSearchParams({state:String(state),score:String(score),route:String(route)});location.href='/ai-audit/next-step?'+q.toString()}"
+          s=s[:a]+replacement+s[b:]
+          p.write_text(s)
+          PY
+          rm -f src/app/ai-audit/intake/page.tsx src/app/ai-audit/intake/triage-intake.tsx
+          git config user.name 'NULLWORKS Build Bot'
+          git config user.email 'actions@users.noreply.github.com'
+          git add -A
+          if git diff --cached --quiet; then
+            echo 'No changes to commit.'
+            exit 0
+          fi
+          git commit -m 'Port red-teamed 18-question NULLWORKS triage artifact'
+          git push
