@@ -26,10 +26,9 @@ export default function Page(){
       <header style={{padding:"22px 6px 18px",borderBottom:"1px solid #242424"}}>
         <div style={{fontSize:12,letterSpacing:3,color:"#a8a39a"}}>NULLWORKS // ANVIL // 9 VOLT</div>
         <h1 style={{fontSize:"clamp(38px,11vw,72px)",lineHeight:.95,margin:"10px 0 8px",letterSpacing:-2}}>VEX LIKES SEX</h1>
-        <div style={{display:"flex",gap:12,flexWrap:"wrap",fontSize:13,color:"#aaa69e"}}><span>1982</span><span>•</span><span>{total} tracks</span><span>•</span><span>private-preview style / public-unlisted</span></div>
+        <div style={{display:"flex",gap:12,flexWrap:"wrap",fontSize:13,color:"#aaa69e"}}><span>1982</span><span>•</span><span>{total} tracks</span><span>•</span><span>public unlisted preview</span></div>
         <p style={{margin:"18px 0 0",color:"#c5c0b6",lineHeight:1.55,maxWidth:620}}>Peak-era 9V. Play it in the intended CD order. The weird organ trip stays near the end. The bassist gets the last word because nobody had the energy to stop him.</p>
       </header>
-
       <section style={{display:"grid",gap:12,marginTop:18}}>
         {tracks.map((t,i)=><article key={t.id} style={{display:"grid",gridTemplateColumns:"64px 1fr",gap:12,background:active===i?"#17130f":"#111",border:"1px solid #242424",borderRadius:14,padding:12,boxShadow:active===i?"0 0 0 1px #5b4630 inset":"none"}}>
           <img src={t.art} alt="" style={{width:64,height:64,borderRadius:10,objectFit:"cover",background:"#1d1d1d"}}/>
@@ -39,8 +38,7 @@ export default function Page(){
           </div>
         </article>)}
       </section>
-
-      <footer style={{marginTop:24,padding:"18px 6px",borderTop:"1px solid #242424",fontSize:12,color:"#777",lineHeight:1.6}}>UNLISTED PREVIEW // Direct audio served from the original Suno render IDs. Sequence locked for album auditioning.</footer>
+      <footer style={{marginTop:24,padding:"18px 6px",borderTop:"1px solid #242424",fontSize:12,color:"#777",lineHeight:1.6}}>UNLISTED PREVIEW // Direct audio served from the original Suno render IDs. Sequence locked for album auditioning. // DEPLOY MARKER 2026-08-21</footer>
     </div>
   </main>
 }
