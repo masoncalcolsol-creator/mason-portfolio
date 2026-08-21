@@ -23,6 +23,9 @@ export default function Page(){
   const play=(i:number)=>{Object.entries(refs.current).forEach(([k,a])=>{if(Number(k)!==i&&a)a.pause()});setActive(i)};
   return <main style={{minHeight:"100vh",background:"#090909",color:"#f2f0ea",fontFamily:"Arial,Helvetica,sans-serif",padding:"20px 14px 72px"}}>
     <div style={{maxWidth:760,margin:"0 auto"}}>
+      <div style={{padding:"10px 6px 20px"}}>
+        <img src="/9v/vex-likes-sex-cover.jpg" alt="9 VOLT - Vex Likes Sex, 1982 album cover" style={{display:"block",width:"100%",height:"auto",aspectRatio:"1 / 1",objectFit:"cover",borderRadius:18,border:"1px solid #2a2723",boxShadow:"0 20px 60px rgba(0,0,0,.55)"}}/>
+      </div>
       <header style={{padding:"22px 6px 18px",borderBottom:"1px solid #242424"}}>
         <div style={{fontSize:12,letterSpacing:3,color:"#a8a39a"}}>NULLWORKS // ANVIL // 9 VOLT</div>
         <h1 style={{fontSize:"clamp(38px,11vw,72px)",lineHeight:.95,margin:"10px 0 8px",letterSpacing:-2}}>VEX LIKES SEX</h1>
