@@ -15,39 +15,84 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - name: Import exact triage artifact
+
+      - name: Import approved 18-question triage and wire production funnel
         shell: bash
         run: |
           set -euo pipefail
-          mkdir -p public
-          curl --fail --location --retry 3 --retry-delay 2 'https://nullworks-triage.nullworks-6346.chatgpt.site/' -o public/nullworks-operational-assurance-triage-v2.html
+
+          mkdir -p public src/app/ai-audit/intake
+
+          curl --fail --location --retry 3 --retry-delay 2 \
+            'https://nullworks-triage.nullworks-6346.chatgpt.site/' \
+            -o public/nullworks-operational-assurance-triage-v2.html
+
           python3 - <<'PY'
           from pathlib import Path
-          p=Path('public/nullworks-operational-assurance-triage-v2.html')
-          s=p.read_text()
-          old="<button class=\"btn\" onclick=\"mailtoRoute('${m.state}','${m.score}')\">I’M INTERESTED IN ${m.route.toUpperCase()} →</button>"
-          new="<button class=\"btn\" onclick=\"nextStepRoute('${m.state}','${m.score}','${m.route}')\">SEE WHAT NULLWORKS CAN DO NEXT →</button>"
-          if old not in s:
-              raise SystemExit('Expected triage CTA not found; refusing silent drift')
-          s=s.replace(old,new)
-          start="function mailtoRoute(state,score){"
-          end="\nfunction restart(){"
-          a=s.find(start); b=s.find(end,a)
+
+          triage = Path('public/nullworks-operational-assurance-triage-v2.html')
+          s = triage.read_text()
+
+          old_button = "<button class=\"btn\" onclick=\"mailtoRoute('${m.state}','${m.score}')\">I’M INTERESTED IN ${m.route.toUpperCase()} →</button>"
+          new_button = "<button class=\"btn\" onclick=\"nextStepRoute('${m.state}','${m.score}','${m.route}')\">SEE WHAT NULLWORKS CAN DO NEXT →</button>"
+          if old_button not in s:
+              raise SystemExit('Expected approved triage CTA not found; refusing silent drift')
+          s = s.replace(old_button, new_button)
+
+          start = "function mailtoRoute(state,score){"
+          end = "\nfunction restart(){"
+          a = s.find(start)
+          b = s.find(end, a)
           if a < 0 or b < 0:
-              raise SystemExit('Expected routing function not found; refusing silent drift')
-          replacement="function nextStepRoute(state,score,route){const q=new URLSearchParams({state:String(state),score:String(score),route:String(route)});location.href='/ai-audit/next-step?'+q.toString()}"
-          s=s[:a]+replacement+s[b:]
-          p.write_text(s)
+              raise SystemExit('Expected approved triage routing function not found; refusing silent drift')
+
+          replacement = "function nextStepRoute(state,score,route){const q=new URLSearchParams({state:String(state),score:String(score),route:String(route)});location.href='/ai-audit/next-step?'+q.toString()}"
+          s = s[:a] + replacement + s[b:]
+
+          if 'assurance@nullworks.ai' in s:
+              raise SystemExit('Placeholder assurance email remains in canonical triage')
+
+          triage.write_text(s)
+
+          # Retire the obsolete beige implementation while preserving the established URL.
+          Path('src/app/ai-audit/intake/page.tsx').write_text('''import { redirect } from "next/navigation";\n\nexport default function AiAuditIntakePage() {\n  redirect("/nullworks-operational-assurance-triage-v2.html");\n}\n''')
+
+          old_component = Path('src/app/ai-audit/intake/triage-intake.tsx')
+          if old_component.exists():
+              old_component.unlink()
+
+          # Funnel email law: use the real NULLWORKS/Neuraxis inbox, never a placeholder mailbox.
+          for p in Path('src/app').rglob('*'):
+              if p.is_file() and p.suffix in {'.tsx', '.ts', '.jsx', '.js', '.html'}:
+                  text = p.read_text()
+                  fixed = text.replace('assurance@nullworks.ai', 'nullworks.neuraxis@gmail.com')
+                  if fixed != text:
+                      p.write_text(fixed)
+
+          remaining = []
+          for p in Path('src/app').rglob('*'):
+              if p.is_file() and p.suffix in {'.tsx', '.ts', '.jsx', '.js', '.html'}:
+                  if 'assurance@nullworks.ai' in p.read_text():
+                      remaining.append(str(p))
+          if remaining:
+              raise SystemExit('Placeholder assurance email remains: ' + ', '.join(remaining))
           PY
-          rm -f src/app/ai-audit/intake/page.tsx src/app/ai-audit/intake/triage-intake.tsx
+
           git config user.name 'NULLWORKS Build Bot'
           git config user.email 'actions@users.noreply.github.com'
           git add -A
+
           if git diff --cached --quiet; then
             echo 'No changes to commit.'
             exit 0
           fi
-          git commit -m 'Port red-teamed 18-question NULLWORKS triage artifact'
+
+          git commit -m 'Make approved 18-question triage canonical production funnel'
           git push
+
       - name: Receipt
-        run: echo 'NULLWORKS triage import complete'
+        run: |
+          echo 'Canonical route: /ai-audit/intake'
+          echo 'Static artifact: /nullworks-operational-assurance-triage-v2.html'
+          echo 'Result route: /ai-audit/next-step'
+          echo 'Funnel inbox: nullworks.neuraxis@gmail.com'
