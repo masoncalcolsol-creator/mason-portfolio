@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
 
 export default function AiAuditIntakePage() {
-  redirect("/api/triage-proxy");
+  redirect("https://nullworks-triage.nullworks-6346.chatgpt.site/");
 }
