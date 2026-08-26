@@ -250,26 +250,6 @@ export default function HomePage() {
               <div className={styles.proof}><strong>Prove before scaling</strong><span>Prototype the smallest intervention, preserve the receipt, and measure what changed.</span></div>
             </div>
           </div>
-
-          <div className={styles.marsMission} aria-label="NULLWORKS Mars mission visual">
-            <div className={styles.marsStars} />
-            <div className={styles.marsTopline}>
-              <span>PHRONONAUT // PUBLIC MISSION MAP</span>
-              <span>HUMAN AUTHORITY FINAL</span>
-            </div>
-            <div className={styles.marsPlanet} />
-            <div className={styles.flagPole}>
-              <div className={styles.flag}>NULL<br />WORKS</div>
-            </div>
-            <div className={styles.operatorSilhouette}>
-              <div className={styles.operatorHelmet} />
-              <div className={styles.operatorBody}><span>NW</span></div>
-            </div>
-            <div className={styles.marsCaption}>
-              <strong>Plant the flag where the category does not exist yet.</strong>
-              <span>Then leave enough receipts for everyone else to find the route.</span>
-            </div>
-          </div>
         </section>
 
         <section className={styles.thesis}>
