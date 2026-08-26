@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import AnvilGhostScroll from "./components/AnvilGhostScroll";
 import PublicQuickNav from "./components/PublicQuickNav";
+import PublicLinkNormalizer from "./components/PublicLinkNormalizer";
 import "./globals.css";
 import "./oisa.css";
 import "./landing-fixes.css";
@@ -27,6 +28,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
     <html lang="en" className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}>
       <body className="min-h-full flex flex-col">
         <AnvilGhostScroll />
+        <PublicLinkNormalizer />
         {children}
         <PublicQuickNav />
       </body>
