@@ -32,6 +32,35 @@ body { padding-bottom: 74px; }
   font: 800 12px/1.1 Inter,ui-sans-serif,system-ui,sans-serif;
 }
 
+/* Desktop: compact utility bar, not four upholstered ottomans. */
+@media (min-width: 761px) {
+  .nw-public-quicknav {
+    width: auto !important;
+    grid-template-columns: repeat(4, minmax(88px, 108px)) !important;
+    gap: 4px !important;
+    padding: 4px !important;
+    border-radius: 14px !important;
+  }
+  .nw-public-quicknav a {
+    min-height: 34px !important;
+    padding: 6px 10px !important;
+    border-radius: 10px !important;
+    font-size: 11px !important;
+  }
+}
+
+/* Mobile keeps generous touch targets. */
+@media (max-width: 760px) {
+  .nw-public-quicknav {
+    width: min(680px, calc(100% - 24px)) !important;
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+  }
+  .nw-public-quicknav a {
+    min-height: 42px !important;
+    padding: 8px 6px !important;
+  }
+}
+
 /* The legacy rescue stylesheet owns a generic .card rule. Theme-aware pages win here. */
 html[data-nw-theme="light"] main .card {
   border-color: var(--nw-border) !important;
