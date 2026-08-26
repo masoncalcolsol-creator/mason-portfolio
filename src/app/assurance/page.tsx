@@ -1,5 +1,13 @@
-import { redirect } from "next/navigation";
+import type { Metadata } from "next";
 
-export default function LegacyAssuranceRedirectPage() {
-  redirect("/triage");
-}
+export const metadata: Metadata = { title: "AI Operational Assurance Services | NULLWORKS", description: "Operational assurance services for consequential AI systems." };
+
+const services = [
+  ["Architecture Signal Scan", "Starting at $7,500", "Focused diagnosis of claims, controls, authority, evidence, correction paths, and meaningful unknowns."],
+  ["Operational Assurance Sprint", "$20,000-$35,000", "Deeper claim-to-control and claim-to-test review with prioritized remediation and preserved findings."],
+  ["Full Operational Pressure Test", "$50,000-$125,000+", "High-consequence review with independent challenge, failure-path testing, receipts, and retest evidence."],
+];
+
+const css=`*{box-sizing:border-box}body{margin:0;background:#0b1118!important;color:#f5ead5!important;font-family:Inter,Arial,sans-serif}.page{min-height:100vh;padding:70px 0 130px;background:radial-gradient(circle at 85% 5%,rgba(255,106,26,.15),transparent 32rem),#0b1118}.wrap{width:min(1050px,calc(100% - 34px));margin:auto}.ey{color:#ff8b46;font-size:12px;font-weight:900;letter-spacing:.16em;text-transform:uppercase}h1,h2,h3{font-family:Georgia,serif}h1{font-size:clamp(48px,9vw,92px);line-height:.92;letter-spacing:-.05em;margin:18px 0 22px}.lead{max-width:820px;color:#b9c0c8;font-size:20px;line-height:1.6}.actions{display:flex;gap:10px;flex-wrap:wrap;margin:28px 0 55px}.btn{display:inline-flex;padding:13px 18px;border:1px solid #a86435;border-radius:999px;color:#f5ead5;text-decoration:none;font-weight:900;background:#17212a}.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:15px}.card{border:1px solid #394550;border-radius:22px;padding:24px;background:#151e27}.card h3{font-size:27px;margin:10px 0}.price{color:#7fd5ad;font-size:24px;font-weight:900}.card p{color:#b9c0c8;line-height:1.6}.section{padding-top:42px}.section h2{font-size:42px;margin-bottom:12px}.fine{color:#929aa3;line-height:1.6}@media(max-width:760px){.grid{grid-template-columns:1fr}.page{padding-top:45px}.btn{width:100%;justify-content:center}}`;
+
+export default function AssuranceServicesPage(){return <main className="page"><style dangerouslySetInnerHTML={{__html:css}}/><div className="wrap"><div className="ey">NULLWORKS / OPERATIONAL ASSURANCE</div><h1>Services for systems that need evidence, not optimism.</h1><p className="lead">NULLWORKS traces operational claims into architecture, human authority, controls, tests, failure paths, correction behavior, and preserved receipts. Start with the smallest engagement the evidence actually justifies.</p><div className="actions"><a className="btn" href="/triage">Run Triage</a><a className="btn" href="/pricing">See Pricing</a><a className="btn" href="/assurance-matrix">Evidence Matrix</a></div><section className="section"><h2>Services offered</h2><div className="grid">{services.map(([name,price,body])=><article className="card" key={name}><div className="price">{price}</div><h3>{name}</h3><p>{body}</p></article>)}</div></section><section className="section"><h2>Claim → Control → Test → Receipt.</h2><p className="fine">The work is scoped to what can actually be examined and reproduced. NULLWORKS does not turn an assurance engagement into a decorative certification sticker. Findings preserve what is verified, contradicted, incomplete, or still unknown.</p></section></div></main>}
