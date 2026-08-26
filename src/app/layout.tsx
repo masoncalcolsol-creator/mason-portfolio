@@ -3,7 +3,6 @@ import { Geist, Geist_Mono } from "next/font/google";
 import AnvilGhostScroll from "./components/AnvilGhostScroll";
 import "./globals.css";
 import "./oisa.css";
-import "./mars-hero.css";
 import "./landing-fixes.css";
 
 const geistSans = Geist({
