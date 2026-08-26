@@ -5,6 +5,7 @@ import PublicQuickNav from "./components/PublicQuickNav";
 import "./globals.css";
 import "./oisa.css";
 import "./landing-fixes.css";
+import "./public-quicknav.css";
 
 const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
 const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"] });
