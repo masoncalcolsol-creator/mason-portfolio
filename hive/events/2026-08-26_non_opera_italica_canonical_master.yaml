@@ -1,0 +1,104 @@
+receipt_id: ANVIL-NON-OPERA-ITALICA-20260826-001
+recorded_at_local: 2026-08-26T02:25:00-07:00
+timezone: America/Phoenix
+human_authority: Mason Perry
+system: NULLWORKS_ANVIL_HIVE
+project: NON OPERA ITALICA
+status: CANONICAL_MASTER_LOCKED
+artist_voice: CARNIFICINA
+concept: >-
+  Twelve-movement fictional c.1890 Latin-language industrial doom opera. The narrative
+  begins with the Earth before industrial intervention, moves through extraction,
+  ecological conversion, industrial accumulation, Homo Morbus, human commodification,
+  depopulation, and ends after the human voice disappears. Earth remembers and remains.
+
+canonical_sequence:
+  - n: 1
+    title: TERRA RESPIRAT
+    duration: '3:20'
+    suno_id: b66f0d59-359a-4ad1-a762-607731d5e87e
+    sha256: 1e50fbfcf67fd4c3bba90d9cf550d20ddde5880a794166d933b26036a62ff064
+  - n: 2
+    title: FERRUM IN MONTE
+    duration: '2:44'
+    suno_id: b54a3b96-40f9-42e3-837e-f50d3930c120
+    sha256: f1471c7ab90fc53d4a85ff30e0c487daf54d8c4dd97f63005900aa18203e4e60
+  - n: 3
+    title: SILVA CADIT
+    duration: '2:44'
+    suno_id: ecac1a7e-d27d-487d-ad27-a21e6311b6a6
+    sha256: 7750b801dff0173d311b2f6f90d2a234172112944d14edbbe09dd04705609093
+  - n: 4
+    title: FLUMEN CAPTUM
+    duration: '2:13'
+    suno_id: 12baab79-8c17-4594-9ba4-5e05a6f89820
+    sha256: b29700e6f24ff3134f0034d9ecd42ed3dda9242c4d5c0b6d8d9c3a7aaefaff6c
+  - n: 5
+    title: FUMUS SUPER URBEM
+    duration: '3:35'
+    suno_id: 69553b1e-c738-4c61-8d73-0e0a918227f2
+    sha256: 3b4c2a8b30477a67d489d5c0f0db0c15548423bc6a80b837ece9c3f52d8179db
+  - n: 6
+    title: HOMO MORBUS
+    duration: '2:59'
+    suno_id: 7a88807f-2564-493b-a40f-41d1533847d9
+    sha256: eca53bc6281f352e4b81c1f2448353c1bb862732d8934840f51a25fbdb9ccbd1
+  - n: 7
+    title: TERRA SUB PONDERE
+    duration: '3:59'
+    suno_id: 1ed26a6e-9d18-410d-b290-d6dc267668fb
+    sha256: 879af8a8ea89eb4deaabf0c336fcb83321ab8e64a8a1ddd0ea9abd83d50cdd38
+  - n: 8
+    title: CARO MACHINAE
+    duration: '5:04'
+    suno_id: cc1f0478-4e00-48dc-8a86-c8a52f33c411
+    sha256: 0220b49dc1cb5708b3be5ada2fd0c7a6962667a8932fe38ba8ffcc9b4639681a
+  - n: 9
+    title: LUX SINE SOLE
+    duration: '3:33'
+    suno_id: 9e054a4a-18b2-4f57-b987-db7512a63836
+    sha256: e481156d8431882161c8d38798d2c4000fb7b56231e3bdfe634a62eadc47c430
+  - n: 10
+    title: ULTIMA TURBA
+    keeper_render: v2
+    duration: '3:28'
+    suno_id: 9f5d8518-349f-4ce2-b329-8bab945eb6b6
+    sha256: 53d43cae4a0e61df3e8a99975ec374ebae9f81df1318cc5aa51d9bb68b5496eb
+  - n: 11
+    title: TERRA MEMINIT
+    duration: '3:21'
+    suno_id: 4e0717af-2fe4-42a6-a506-2f7bfb6fbe26
+    sha256: 83dfa1150635a6c11b18e6e4a07f99bf8562158e6290a30a5be250fe32c42b71
+  - n: 12
+    title: TERRA MANET
+    keeper_render: v3
+    duration: '3:18'
+    suno_id: 4e564049-60fe-45a1-8c75-8cb889879419
+    sha256: 10fd7716b46641145ead0ad03dc3de9d5f188d34493b1b042eeebb033c8d6e82
+
+web_page:
+  route: /non-opera-italica
+  repository: masoncalcolsol-creator/mason-portfolio
+  implementation_reference: /9v-vex-likes-sex
+  behavior:
+    - independent per-track HTML audio controls
+    - only one track plays at a time
+    - next movement auto-starts after current movement ends
+    - audio streams from original Suno CDN render IDs
+    - original Suno artwork displayed per movement
+
+canonical_notes:
+  - Public-facing titles omit render suffixes.
+  - ULTIMA TURBA v2 is canonical ULTIMA TURBA.
+  - TERRA MANET v3 is canonical TERRA MANET.
+  - CARNIFICINA is the central female operatic voice.
+  - The closing conceptual triptych is Terra respirat / Terra meminit / Terra manet.
+  - No heroic or sentimental resolution; the human voice ends and Earth continues.
+
+binary_archive_note: >-
+  Canonical uploaded MP3 files were inspected locally and SHA-256 hashes are recorded
+  above. The repository Hive event records their immutable identity and Suno source IDs;
+  the streaming page uses those original source renders rather than duplicating binary
+  MP3 assets into GitHub.
+
+final_disposition: SAVED_STAMPED_EARMARKED_LOCKED
