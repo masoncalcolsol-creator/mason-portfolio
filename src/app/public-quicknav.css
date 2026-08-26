@@ -1,0 +1,57 @@
+/* Shared NULLWORKS public navigation + narrow compatibility fixes. */
+body { padding-bottom: 74px; }
+
+.nw-public-quicknav {
+  position: fixed !important;
+  left: 50% !important;
+  bottom: max(10px, env(safe-area-inset-bottom)) !important;
+  transform: translateX(-50%) !important;
+  z-index: 1000 !important;
+  width: min(560px, calc(100% - 24px)) !important;
+  display: grid !important;
+  grid-template-columns: repeat(3, 1fr) !important;
+  gap: 6px !important;
+  padding: 6px !important;
+  border: 1px solid rgba(191,151,78,.55) !important;
+  border-radius: 18px !important;
+  background: rgba(15,21,28,.96) !important;
+  box-shadow: 0 14px 42px rgba(0,0,0,.28) !important;
+  backdrop-filter: blur(18px) !important;
+}
+.nw-public-quicknav a {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 42px;
+  padding: 8px 10px;
+  border: 1px solid rgba(255,255,255,.12);
+  border-radius: 13px;
+  background: rgba(255,255,255,.055);
+  color: #f5ead5 !important;
+  text-decoration: none;
+  font: 800 12px/1.1 Inter,ui-sans-serif,system-ui,sans-serif;
+}
+
+/* The legacy rescue stylesheet owns a generic .card rule. Theme-aware pages win here. */
+html[data-nw-theme="light"] main .card {
+  border-color: var(--nw-border) !important;
+  background: var(--nw-card) !important;
+  color: var(--nw-text) !important;
+  box-shadow: var(--nw-shadow) !important;
+}
+html[data-nw-theme="dark"] main .card {
+  border-color: var(--nw-border) !important;
+  background: var(--nw-card) !important;
+  color: var(--nw-text) !important;
+  box-shadow: var(--nw-shadow) !important;
+}
+html[data-nw-theme] main .btn.primary {
+  background: var(--nw-ink) !important;
+  color: var(--nw-paper) !important;
+  box-shadow: none !important;
+}
+html[data-nw-theme] main .btn.proof {
+  background: color-mix(in srgb,var(--nw-gold) 11%,var(--nw-card)) !important;
+  color: var(--nw-ink) !important;
+  box-shadow: none !important;
+}
