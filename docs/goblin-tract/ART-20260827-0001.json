@@ -1,0 +1,101 @@
+{
+  "schema": "nullworks.goblin-tract.artifact.v0.1",
+  "artifact_code": "ART-20260827-0001",
+  "title": "The Suno Shelf That Started the Goblin Tract",
+  "occurred_at": "2026-08-27T07:43:00-07:00",
+  "status": "provisional",
+  "summary": "Founding multimodal artifact: a NULLWORKS Suno library screenshot whose juxtaposition of UEBER DER REUSS, BIG SQUIRTSKEEZE, SUCCESSOR, PACKED IN A BOX, and HARRY PLOPPINS triggered the idea of a living multimedia artifact archive and future coffee-table/digital exploration experience.",
+  "media": [
+    {
+      "role": "original",
+      "type": "image",
+      "source": "chat-upload",
+      "filename": "47138.png",
+      "preservation_status": "pending-object-storage"
+    },
+    {
+      "role": "related",
+      "type": "image",
+      "source": "chat-upload",
+      "filename": "47141.png",
+      "preservation_status": "pending-object-storage"
+    },
+    {
+      "role": "related",
+      "type": "image",
+      "source": "chat-upload",
+      "filename": "47142.png",
+      "preservation_status": "pending-object-storage"
+    },
+    {
+      "role": "related",
+      "type": "audio",
+      "source": "chat-upload",
+      "filename": "HARRY PLOPPINS (Remix) MIREILLE FR.mp3",
+      "preservation_status": "pending-object-storage"
+    },
+    {
+      "role": "related",
+      "type": "audio",
+      "source": "chat-upload",
+      "filename": "HARRY PLOPPINS (Remix) MIREILLE FR (1).mp3",
+      "preservation_status": "pending-object-storage"
+    },
+    {
+      "role": "external_reference",
+      "type": "audio-page",
+      "uri": "https://suno.com/s/4K4rS3sx2p72qoOS"
+    },
+    {
+      "role": "external_reference",
+      "type": "audio-page",
+      "uri": "https://suno.com/s/U00g55j8zOX67qol"
+    }
+  ],
+  "entities": [
+    "NULLWORKS",
+    "UEBER DER REUSS",
+    "BIG SQUIRTSKEEZE",
+    "SUCCESSOR",
+    "PACKED IN A BOX",
+    "HARRY PLOPPINS",
+    "MIREILLE",
+    "NAN VIOLENCE",
+    "9 VOLT"
+  ],
+  "observations": [
+    {
+      "asserted_at": "2026-08-27",
+      "asserted_by": "NULLWORKS founding conversation",
+      "body": "A future PHRONONAUT should be able to enter through a strange artifact and follow why it exists, who created or covered it, what preceded it, what descended from it, and what apparently unrelated lineages later collided."
+    },
+    {
+      "asserted_at": "2026-08-27",
+      "asserted_by": "NULLWORKS founding conversation",
+      "body": "The physical coffee-table book is one interface into the archive, not the archive itself. QR/NFC or future interfaces may expose related audio, video, provenance, and graph trails."
+    }
+  ],
+  "relationships": [
+    {
+      "subject": "ART-20260827-0001",
+      "predicate": "SPAWNED",
+      "object": "NULLWORKS // GOBLIN TRACT",
+      "status": "canonical"
+    },
+    {
+      "subject": "MIREILLE HARRY PLOPPINS remixes",
+      "predicate": "COVER_OF",
+      "object": "HARRY PLOPPINS original",
+      "status": "proposed",
+      "note": "Exact original artifact ID to be resolved during backfill."
+    },
+    {
+      "subject": "HARRY PLOPPINS",
+      "predicate": "INTERSECTS_WITH",
+      "object": "NAN VIOLENCE",
+      "status": "proposed",
+      "note": "Preserve the known conceptual lineage now; resolve exact artifact/event edges as source history is backfilled."
+    }
+  ],
+  "phrononaut_prompt": "Good luck, Young PHRONONAUT."
+}
