@@ -84,42 +84,49 @@ export default function StallworksSharePage() {
         }
         .stallworks-signal { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
         .stall-label {
+          position: relative;
           width: 1.1in;
           height: 3.5in;
           box-sizing: border-box;
           overflow: hidden;
-          display: flex;
-          align-items: center;
-          justify-content: center;
           background: #fff;
           color: #000;
           text-align: center;
         }
         .label-content {
+          position: absolute;
+          left: 50%;
+          top: 50%;
+          transform: translate(-50%, -50%);
+          width: .96in;
           display: flex;
           flex-direction: column;
           align-items: center;
           justify-content: center;
-          width: 100%;
+          box-sizing: border-box;
         }
         .qr-wrap {
-          width: .94in;
-          height: .94in;
+          width: .82in;
+          height: .82in;
           flex: 0 0 auto;
+          margin: 0 auto;
         }
         .stall-qr {
           display: block;
-          width: .94in !important;
-          height: .94in !important;
+          width: .82in !important;
+          height: .82in !important;
+          margin: 0 auto;
           image-rendering: pixelated;
         }
         .scan-copy {
-          margin-top: .08in;
-          font-size: 5.6pt;
+          width: .96in;
+          margin: .09in auto 0;
+          font-size: 5.1pt;
           line-height: 1;
           font-weight: 900;
-          letter-spacing: .025em;
+          letter-spacing: .015em;
           white-space: nowrap;
+          text-align: center;
         }
 
         @media print {
@@ -154,12 +161,21 @@ export default function StallworksSharePage() {
             padding: 0 !important;
           }
           .stall-label {
+            position: relative !important;
             width: 1.1in !important;
             height: 3.5in !important;
             margin: 0 !important;
+            padding: 0 !important;
             box-shadow: none !important;
             break-after: avoid !important;
             page-break-after: avoid !important;
+          }
+          .label-content {
+            position: absolute !important;
+            left: 50% !important;
+            top: 50% !important;
+            transform: translate(-50%, -50%) !important;
+            margin: 0 !important;
           }
         }
       `}</style>
