@@ -6,10 +6,6 @@ import OscilloscopeBackground from '../../receipt-wallet/OscilloscopeBackground'
 
 const url = 'https://mason-portfolio-main.vercel.app/stallworks';
 
-// Pixel-poop mark embedded INSIDE a real QR. qrcode.react excavates the
-// modules underneath this tiny center mark, while level H error correction
-// keeps the code recoverable. The three finder squares and quiet zone remain
-// completely standard, because comedy is not worth breaking the scanner.
 const pooSvg = `
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" shape-rendering="crispEdges">
   <rect width="64" height="64" fill="white"/>
@@ -51,30 +47,28 @@ export default function StallworksSharePage() {
 
       <section className="label-stage relative z-10 mx-auto mt-8 flex max-w-md justify-center">
         <div className="stall-label">
-          <div className="stall-wordmark">STALLWORKS</div>
-          <div className="wall-copy">WALL IS ON</div>
-
-          <div className="qr-wrap">
-            <QRCodeSVG
-              value={url}
-              size={256}
-              level="H"
-              marginSize={4}
-              bgColor="#ffffff"
-              fgColor="#000000"
-              imageSettings={{
-                src: pooDataUri,
-                x: undefined,
-                y: undefined,
-                height: 70,
-                width: 70,
-                excavate: true,
-              }}
-              className="stall-qr"
-            />
+          <div className="label-content">
+            <div className="qr-wrap">
+              <QRCodeSVG
+                value={url}
+                size={256}
+                level="H"
+                marginSize={4}
+                bgColor="#ffffff"
+                fgColor="#000000"
+                imageSettings={{
+                  src: pooDataUri,
+                  x: undefined,
+                  y: undefined,
+                  height: 70,
+                  width: 70,
+                  excavate: true,
+                }}
+                className="stall-qr"
+              />
+            </div>
+            <div className="scan-copy">SCAN INSTEAD OF SHARPIE</div>
           </div>
-
-          <div className="scan-copy">SCAN INSTEAD OF SHARPIE</div>
         </div>
       </section>
 
@@ -89,61 +83,49 @@ export default function StallworksSharePage() {
             #050706;
         }
         .stallworks-signal { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
-
         .stall-label {
-          width: 1.4in;
+          width: 1.1in;
           height: 3.5in;
           box-sizing: border-box;
           overflow: hidden;
           display: flex;
-          flex-direction: column;
           align-items: center;
-          justify-content: flex-start;
+          justify-content: center;
           background: #fff;
           color: #000;
-          padding: .11in .09in .09in;
           text-align: center;
         }
-        .stall-wordmark {
-          font-size: 7.5pt;
-          line-height: 1;
-          font-weight: 900;
-          letter-spacing: .18em;
-          white-space: nowrap;
-        }
-        .wall-copy {
-          margin-top: .055in;
-          font-size: 11pt;
-          line-height: 1;
-          font-weight: 950;
-          letter-spacing: .02em;
-          white-space: nowrap;
+        .label-content {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          width: 100%;
         }
         .qr-wrap {
-          margin-top: .075in;
-          width: 1.08in;
-          height: 1.08in;
+          width: .94in;
+          height: .94in;
           flex: 0 0 auto;
         }
         .stall-qr {
           display: block;
-          width: 1.08in !important;
-          height: 1.08in !important;
+          width: .94in !important;
+          height: .94in !important;
           image-rendering: pixelated;
         }
         .scan-copy {
-          margin-top: .075in;
-          font-size: 6.5pt;
+          margin-top: .08in;
+          font-size: 5.6pt;
           line-height: 1;
           font-weight: 900;
-          letter-spacing: .04em;
+          letter-spacing: .025em;
           white-space: nowrap;
         }
 
         @media print {
-          @page { size: 1.4in 3.5in; margin: 0; }
+          @page { size: 1.1in 3.5in; margin: 0; }
           html, body {
-            width: 1.4in !important;
+            width: 1.1in !important;
             height: 3.5in !important;
             margin: 0 !important;
             padding: 0 !important;
@@ -154,7 +136,7 @@ export default function StallworksSharePage() {
           .stallworks-signal,
           .nw-public-quicknav { display: none !important; }
           .stallworks-scope {
-            width: 1.4in !important;
+            width: 1.1in !important;
             height: 3.5in !important;
             min-height: 0 !important;
             margin: 0 !important;
@@ -165,14 +147,14 @@ export default function StallworksSharePage() {
           }
           .label-stage {
             display: block !important;
-            width: 1.4in !important;
+            width: 1.1in !important;
             height: 3.5in !important;
             max-width: none !important;
             margin: 0 !important;
             padding: 0 !important;
           }
           .stall-label {
-            width: 1.4in !important;
+            width: 1.1in !important;
             height: 3.5in !important;
             margin: 0 !important;
             box-shadow: none !important;
