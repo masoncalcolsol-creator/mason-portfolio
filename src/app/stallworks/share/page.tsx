@@ -47,28 +47,23 @@ export default function StallworksSharePage() {
 
       <section className="label-stage relative z-10 mx-auto mt-8 flex max-w-md justify-center">
         <div className="stall-label">
-          <div className="label-content">
-            <div className="qr-wrap">
-              <QRCodeSVG
-                value={url}
-                size={256}
-                level="H"
-                marginSize={4}
-                bgColor="#ffffff"
-                fgColor="#000000"
-                imageSettings={{
-                  src: pooDataUri,
-                  x: undefined,
-                  y: undefined,
-                  height: 70,
-                  width: 70,
-                  excavate: true,
-                }}
-                className="stall-qr"
-              />
-            </div>
-            <div className="scan-copy">SCAN INSTEAD OF SHARPIE</div>
-          </div>
+          <QRCodeSVG
+            value={url}
+            size={256}
+            level="H"
+            marginSize={4}
+            bgColor="#ffffff"
+            fgColor="#000000"
+            imageSettings={{
+              src: pooDataUri,
+              x: undefined,
+              y: undefined,
+              height: 70,
+              width: 70,
+              excavate: true,
+            }}
+            className="stall-qr"
+          />
         </div>
       </section>
 
@@ -84,49 +79,20 @@ export default function StallworksSharePage() {
         }
         .stallworks-signal { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
         .stall-label {
-          position: relative;
           width: 1.1in;
           height: 3.5in;
           box-sizing: border-box;
           overflow: hidden;
+          display: grid;
+          place-items: center;
           background: #fff;
-          color: #000;
-          text-align: center;
-        }
-        .label-content {
-          position: absolute;
-          left: 50%;
-          top: 50%;
-          transform: translate(-50%, -50%);
-          width: .96in;
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          justify-content: center;
-          box-sizing: border-box;
-        }
-        .qr-wrap {
-          width: .82in;
-          height: .82in;
-          flex: 0 0 auto;
-          margin: 0 auto;
         }
         .stall-qr {
           display: block;
-          width: .82in !important;
-          height: .82in !important;
-          margin: 0 auto;
+          width: .86in !important;
+          height: .86in !important;
+          margin: 0 !important;
           image-rendering: pixelated;
-        }
-        .scan-copy {
-          width: .96in;
-          margin: .09in auto 0;
-          font-size: 5.1pt;
-          line-height: 1;
-          font-weight: 900;
-          letter-spacing: .015em;
-          white-space: nowrap;
-          text-align: center;
         }
 
         @media print {
@@ -150,7 +116,6 @@ export default function StallworksSharePage() {
             padding: 0 !important;
             overflow: hidden !important;
             background: #fff !important;
-            color: #000 !important;
           }
           .label-stage {
             display: block !important;
@@ -161,21 +126,15 @@ export default function StallworksSharePage() {
             padding: 0 !important;
           }
           .stall-label {
-            position: relative !important;
             width: 1.1in !important;
             height: 3.5in !important;
             margin: 0 !important;
             padding: 0 !important;
+            display: grid !important;
+            place-items: center !important;
             box-shadow: none !important;
             break-after: avoid !important;
             page-break-after: avoid !important;
-          }
-          .label-content {
-            position: absolute !important;
-            left: 50% !important;
-            top: 50% !important;
-            transform: translate(-50%, -50%) !important;
-            margin: 0 !important;
           }
         }
       `}</style>
