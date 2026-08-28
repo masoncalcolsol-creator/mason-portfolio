@@ -61,6 +61,12 @@ body { padding-bottom: 74px; }
   }
 }
 
+/* Printing is content-only. The fixed public menu must never become a label/page. */
+@media print {
+  body { padding-bottom: 0 !important; }
+  .nw-public-quicknav { display: none !important; }
+}
+
 /* The legacy rescue stylesheet owns a generic .card rule. Theme-aware pages win here. */
 html[data-nw-theme="light"] main .card {
   border-color: var(--nw-border) !important;
