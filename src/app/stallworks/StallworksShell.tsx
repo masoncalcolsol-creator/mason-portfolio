@@ -60,8 +60,26 @@ export default function StallworksShell({ children }: { children: ReactNode }) {
           backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px);
         }
         .stallworks-root input,.stallworks-root textarea,.stallworks-root select {
-          border:1px solid rgba(111,155,119,.28) !important; border-radius:18px !important;
-          background:rgba(0,0,0,.80) !important; color:#fff !important; box-shadow:none !important;
+          width:100% !important;
+          max-width:100% !important;
+          box-sizing:border-box !important;
+          border:1px solid rgba(111,155,119,.28) !important;
+          border-radius:18px !important;
+          background:rgba(0,0,0,.80) !important;
+          color:#fff !important;
+          box-shadow:none !important;
+          padding:12px 14px !important;
+          line-height:1.35 !important;
+          overflow:hidden !important;
+        }
+        .stallworks-root textarea {
+          min-height:112px !important;
+          resize:vertical !important;
+          overflow:auto !important;
+        }
+        .stallworks-root input[type='file'] {
+          min-height:52px !important;
+          padding:7px 9px !important;
         }
         .stallworks-root input::placeholder,.stallworks-root textarea::placeholder { color:rgba(255,255,255,.35) !important; }
         .stallworks-root button {
