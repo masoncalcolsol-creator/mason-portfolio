@@ -1,345 +1,57 @@
-import {
-  ArrowRight,
-  Boxes,
-  BriefcaseBusiness,
-  ExternalLink,
-  Factory,
-  FileSearch,
-  Gauge,
-  GitBranch,
-  Mail,
-  Network,
-  ScanLine,
-  ShieldCheck,
-  Sparkles,
-  UserRoundCheck,
-  Workflow,
-} from "lucide-react";
-import styles from "./home.module.css";
+import type { Metadata } from "next";
+import styles from "./corporate.module.css";
 
-type PublicLink = {
-  title: string;
-  tag: string;
-  body: string;
-  auditFit: string;
-  href: string;
-  external?: boolean;
-  icon: typeof Workflow;
+export const metadata: Metadata = {
+  title: "NULLWORKS | AI Architecture for Consequential Systems",
+  description: "NULLWORKS designs governable operating architecture connecting humans, AI, software, evidence, authority, and physical systems.",
 };
 
-const foundations: PublicLink[] = [
-  {
-    title: "Operational Systems",
-    tag: "Commercial front door",
-    body: "The real-world problem, industrial operating method, and bridge from physical systems to human-AI operations.",
-    auditFit: "Makes the work legible before asking the visitor to learn new category language.",
-    href: "/operational-systems",
-    icon: Factory,
-  },
-  {
-    title: "Operational Intelligence Systems Architect",
-    tag: "The role",
-    body: "The emerging systems function connecting human experts, AI workers, software, evidence, authority, exceptions, recovery, telemetry, and organizational intent.",
-    auditFit: "Names who owns the whole operating system rather than one technical component.",
-    href: "/oisa-category",
-    icon: UserRoundCheck,
-  },
-  {
-    title: "OI SUITe",
-    tag: "The product",
-    body: "The model-agnostic operating layer around AI workers: roles, workrooms, evidence, authority, continuity, exception paths, review gates, and telemetry.",
-    auditFit: "Defines the framework installed after the real workflow and authority boundary are understood.",
-    href: "/field-notes/oi-suite",
-    icon: Network,
-  },
-  {
-    title: "AI Operating Model Audit",
-    tag: "The entry point",
-    body: "A workflow-first assessment of whether AI is improving the work, multiplying the mess, or exposing a deeper operating-model problem.",
-    auditFit: "Starts with one real workflow and determines the smallest defensible next move.",
-    href: "/ai-audit",
-    icon: ShieldCheck,
-  },
-  {
-    title: "Operational Intelligence Field Notes",
-    tag: "The doctrine",
-    body: "A six-part public briefing series explaining expert augmentation, digital workforce design, OI SUITe, OISA, workflow compression, and Digital Toyota.",
-    auditFit: "Explains the operating doctrine behind the role and product.",
-    href: "/field-notes",
-    icon: FileSearch,
-  },
-  {
-    title: "Complete Operating Map",
-    tag: "Table of contents",
-    body: "The canonical inventory connecting the role, product, work cells, receipts, research pages, field notes, and external public systems.",
-    auditFit: "Lets each visitor enter the system at the level they already understand.",
-    href: "/operating-map",
-    icon: Boxes,
-  },
+const capabilities = [
+  ["Architecture", "UMBRA / PENUMBRA", "Governed operational architecture for identity, authority, intent, policy, execution, telemetry, verification, and receipts.", "/architecture"],
+  ["Systems", "Products + deployments", "Working systems across assurance, maintenance, evidence, document intake, lending, creative production, and continuity.", "/products"],
+  ["Evidence", "Proof, not promises", "Field receipts, targeted tests, case studies, research, and the boundaries around every claim.", "/proof"],
 ];
-
-const systems: PublicLink[] = [
-  {
-    title: "ORI TAC OPS",
-    tag: "Physical operations",
-    body: "A compact damaged-label recovery cell combining OCR, human verification, helper-label output, re-entry into automated flow, and measurable exception recovery.",
-    auditFit: "Shows how a field exception becomes a system redesign instead of another software feature request.",
-    href: "/tac-ops",
-    icon: ScanLine,
-  },
-  {
-    title: "LINKED-OUT",
-    tag: "Hiring-system receipt",
-    body: "A field thesis on nonlinear candidates, AI screening, missing whole-path ownership, and the person capable of redesigning the system being rejected by it.",
-    auditFit: "Shows how a filter can optimize each local step while failing the complete organizational outcome.",
-    href: "/linked-out",
-    icon: BriefcaseBusiness,
-  },
-  {
-    title: "LenderFlow / LENA",
-    tag: "Lending OI",
-    body: "A human-reviewed lender-fit and workflow system built through direct broker discovery, source receipts, exception handling, freshness, and visible missing information.",
-    auditFit: "Demonstrates forward deployment: learn the work, prototype the missing layer, validate it with the expert, and hand it back.",
-    href: "https://lf-lender-intake.vercel.app/",
-    external: true,
-    icon: BriefcaseBusiness,
-  },
-  {
-    title: "LegalFlow LF2 / KONRAN",
-    tag: "Evidence OI",
-    body: "Source-linked evidence search, derivative records, chronology reconstruction, uncertainty separation, and human-expert authority for complex document workflows.",
-    auditFit: "Tests whether evidence, provenance, and review survive when the volume becomes too large for memory alone.",
-    href: "https://legalflow-lf2-beta.vercel.app/dashboard",
-    external: true,
-    icon: FileSearch,
-  },
-  {
-    title: "PAPERGOBLIN",
-    tag: "OCR + intake OI",
-    body: "A document-intake prototype that converts messy receipts, labels, and scans into editable corrections, structured packets, persistence, and reusable human-feedback telemetry.",
-    auditFit: "Shows that unreliable input is an operating condition to design around—not a reason to blame the user.",
-    href: "https://ori-intake-papergoblin.vercel.app/",
-    external: true,
-    icon: ScanLine,
-  },
-  {
-    title: "NULLWORKS AIRLIFT",
-    tag: "Talent evidence",
-    body: "A candidate-controlled evidence environment for people whose real capability is larger than their title, degree, industry, or résumé format can explain.",
-    auditFit: "Applies the same evidence-first architecture to broken hiring filters and hidden systems talent.",
-    href: "/airlift",
-    icon: BriefcaseBusiness,
-  },
-  {
-    title: "ANVIL / CUTSYNC",
-    tag: "Creative production OI",
-    body: "Structured creative intake, reusable production packets, versioning, canon, licensing boundaries, direction, selection, and human review for high-output media work.",
-    auditFit: "Shows how creative work becomes observable and governable without reducing authorship to a prompt.",
-    href: "https://anvil-custom-records.vercel.app/",
-    external: true,
-    icon: Sparkles,
-  },
-  {
-    title: "Voice Foundry",
-    tag: "Voice + continuity",
-    body: "A private voice-first recorder and story vault that preserves original audio, editable transcripts, corrections, vocabulary, and transferable context.",
-    auditFit: "Demonstrates that continuity is infrastructure: original source, corrected derivative, and decision history remain connected.",
-    href: "/voice-foundry",
-    icon: Network,
-  },
-  {
-    title: "NULLWORKS Company Structure",
-    tag: "Digital factory map",
-    body: "A public visual of Mason as final Human Authority, the AI Operator interface, executive functions, specialist cells, review gates, telemetry, and client boundaries.",
-    auditFit: "Makes the operating company around AI workers visible instead of leaving it inside the founder's head.",
-    href: "/nullworks-company-structure-oisa.svg",
-    external: true,
-    icon: Boxes,
-  },
-];
-
-const loop = [
-  ["Observe", "Walk the real work with the person closest to the outcome and preserve the failures, workarounds, environmental constraints, and prior attempts."],
-  ["Map", "Name the intended outcome, actors, tools, evidence, handoffs, authority, exception paths, and consequence owner."],
-  ["Diagnose", "Determine whether the constraint is workflow, software, AI, data, physical conditions, governance, organization design, or some collision between them."],
-  ["Prototype", "Build the smallest intervention that can change the outcome—sometimes software, sometimes an operating rule, sometimes a seven-dollar umbrella."],
-  ["Validate + transfer", "Test with the people who know the work, measure what changed, preserve the receipt, and leave Human Authority in control."],
-];
-
-function PublicCard({ item }: { item: PublicLink }) {
-  const Icon = item.icon;
-  return (
-    <article className={styles.mapCard}>
-      <div className={styles.mapCardTop}>
-        <div className={styles.cardIcon}><Icon size={21} /></div>
-        <div className={styles.systemTag}>{item.tag}</div>
-      </div>
-      <h3 className={styles.cardTitle}>{item.title}</h3>
-      <p className={styles.cardBody}>{item.body}</p>
-      <div className={styles.auditFit}>
-        <strong>OISA connection</strong>
-        <span>{item.auditFit}</span>
-      </div>
-      <a
-        href={item.href}
-        target={item.external ? "_blank" : undefined}
-        rel={item.external ? "noreferrer" : undefined}
-        className={styles.inlineLink}
-      >
-        Open {item.external ? "public system" : "page"}
-        {item.external ? <ExternalLink size={15} /> : <ArrowRight size={15} />}
-      </a>
-    </article>
-  );
-}
 
 export default function HomePage() {
-  return (
-    <main className={styles.page}>
-      <div className={styles.shell}>
-        <header className={styles.header}>
-          <a href="/" className={styles.brand}>
-            <div className={styles.brandMark}>NW</div>
-            <div>
-              <div className={styles.brandEyebrow}>NULLWORKS · OPERATIONAL TRANSFORMATION</div>
-              <div className={styles.brandName}>Mason Perry · Founder / OISA</div>
-            </div>
-          </a>
+  return <main className={styles.page}>
+    <div className={styles.shell}>
+      <nav className={styles.nav}>
+        <a className={styles.brand} href="/">NULLWORKS<span>AI ARCHITECTURE · GOVERNED OPERATIONAL INTELLIGENCE</span></a>
+        <div className={styles.links}><a href="/architecture">Architecture</a><a href="/products">Systems</a><a href="/proof">Proof</a><a href="/research">Research</a><a href="/japan">Japan</a><a href="/company">Company</a></div>
+      </nav>
 
-          <div className={styles.headerActions}>
-            <a href="/operating-map" className={styles.headerLink}>
-              <Boxes size={15} /> Page Index
-            </a>
-            <a href="/ai-audit" className={styles.headerLink}>
-              <ShieldCheck size={15} /> AI Audit
-            </a>
-            <a href="mailto:masoncalcolsol@gmail.com?subject=NULLWORKS%20Operating%20Model%20Conversation" className={styles.headerPrimary}>
-              <Mail size={15} /> Contact Mason
-            </a>
-          </div>
-        </header>
+      <section className={styles.hero}>
+        <div>
+          <div className={styles.eyebrow}>NULLWORKS · CONSEQUENTIAL SYSTEMS</div>
+          <h1 className={styles.title}>Intelligence is easy. Giving it a safe place to work is the hard part.</h1>
+          <p className={styles.lead}>NULLWORKS finds where organizational intent and real execution have drifted apart, then designs and builds governable systems that reconnect humans, AI, software, evidence, authority, and physical operations.</p>
+          <div className={styles.actions}><a className={styles.primary} href="/architecture">See the architecture</a><a className={styles.secondary} href="/proof">Inspect the proof</a></div>
+        </div>
+        <aside className={styles.side}><strong>One company. Multiple doors.</strong><br/><br/>We do not sell a model. We build the architecture through which intelligence is permitted to interact with consequential systems. Human authority remains final.</aside>
+      </section>
 
-        <section className={styles.hero}>
-          <div className={styles.heroCopy}>
-            <div className={styles.eyebrow}>
-              <Workflow size={15} /> Operational transformation for the AI era
-            </div>
+      <div className={styles.band}>REQUEST → IDENTITY → AUTHORITY → INTENT → POLICY → PLAN → SAFE EXECUTION → TELEMETRY → VERIFICATION → RECEIPT</div>
 
-            <h1 className={styles.heroTitle}>I find where intent and execution have drifted apart—and build the operating system that reconnects them.</h1>
+      <section className={styles.section}>
+        <div className={styles.sectionHeader}><div className={styles.kicker}>What NULLWORKS actually does</div><h2 className={styles.h2}>Start with the work. Find the break. Build only what changes the outcome.</h2><p className={styles.body}>The intervention may be software, AI, an operating rule, a physical change, or a new architecture around all four. The tool is not the achievement. The working system is.</p></div>
+        <div className={styles.grid}>{capabilities.map(([label,title,body,href]) => <a className={styles.card} href={href} key={title}><div className={styles.cardLabel}>{label}</div><h3>{title}</h3><p>{body}</p></a>)}</div>
+      </section>
 
-            <p className={styles.heroLead}>
-              NULLWORKS enters one high-friction workflow, learns how the work really happens, identifies where intent, authority, evidence, and execution have separated, and prototypes a governable human-AI operating system around it.
-            </p>
+      <section className={styles.section}>
+        <div className={styles.statement}><strong>AI is one worker inside the system.</strong><p>Models can investigate, organize, retrieve, compare, draft, test, and recommend. Consequential action belongs inside explicit authority, evidence, review, exception, recovery, and stop-the-line boundaries.</p></div>
+        <div className={styles.process}>{["OBSERVE","MAP","DIAGNOSE","PROTOTYPE","VALIDATE","TRANSFER","RECEIPT"].map(x=><div className={styles.step} key={x}>{x}</div>)}</div>
+      </section>
 
-            <p className={styles.heroBody}>
-              The strongest fit is an organization where operational failure is expensive and people are already compensating for broken handoffs, outdated procedures, hidden workarounds, or missing context. AI is one worker inside the system. Human authority remains final.
-            </p>
+      <section className={styles.section}>
+        <div className={styles.sectionHeader}><div className={styles.kicker}>Audience routes</div><h2 className={styles.h2}>The same company, viewed from the problem you are trying to solve.</h2></div>
+        <div className={styles.grid}>
+          <a className={styles.card} href="/japan"><div className={styles.cardLabel}>Japan / JETRO</div><h3>Partnership + infrastructure</h3><p>Governed AI, robotics, industrial systems, infrastructure, interoperability, and concrete applications for Japan.</p></a>
+          <a className={styles.card} href="/ober-nolte"><div className={styles.cardLabel}>Ober Nolte</div><h3>The two-minute route</h3><p>What NULLWORKS is, what has been built, why it matters, and a bounded path into deeper questions.</p></a>
+          <a className={styles.card} href="/ai-audit"><div className={styles.cardLabel}>Operational entry point</div><h3>Start with one workflow</h3><p>Use the existing interactive triage to locate authority, access, data, evidence, recovery, and continuity gaps.</p></a>
+        </div>
+      </section>
 
-            <div className={styles.heroActions}>
-              <a href="/executive-brief" className={styles.primaryButton}>
-                Read the 20-second executive brief <ArrowRight size={17} />
-              </a>
-              <a href="/ai-audit" className={styles.secondaryButton}>
-                Start with one workflow <ShieldCheck size={17} />
-              </a>
-            </div>
-
-            <div className={styles.proofRow}>
-              <div className={styles.proof}><strong>Learn the real work</strong><span>Walk one consequential workflow with the people closest to the outcome.</span></div>
-              <div className={styles.proof}><strong>Reconnect the system</strong><span>Map where intent, authority, evidence, and execution have drifted apart.</span></div>
-              <div className={styles.proof}><strong>Prove before scaling</strong><span>Prototype the smallest intervention, preserve the receipt, and measure what changed.</span></div>
-            </div>
-          </div>
-        </section>
-
-        <section className={styles.thesis}>
-          <div className={styles.thesisIntro}>
-            <div className={styles.darkEyebrow}>What this portfolio proves</div>
-            <h2 className={styles.thesisTitle}>The applications are proof vehicles. The reusable factory is the product.</h2>
-          </div>
-          <div className={styles.thesisBody}>
-            <p>
-              A software portfolio asks what was coded. This operating map asks what was broken, why it mattered, what evidence was preserved, which intervention changed the outcome, and who retained authority when the system became consequential.
-            </p>
-            <blockquote className={styles.quote}>The tool is not the achievement. The working system is.</blockquote>
-            <a href="/nullworks-company-structure-oisa.svg" target="_blank" rel="noreferrer" className={styles.goldButton}>
-              View the digital company structure <ExternalLink size={16} />
-            </a>
-          </div>
-        </section>
-
-        <section id="start" className={styles.section}>
-          <div className={styles.sectionHeader}>
-            <div>
-              <div className={styles.sectionEyebrow}>01 // Role → product → deployment → proof</div>
-              <h2 className={styles.sectionTitle}>Understand what NULLWORKS actually is.</h2>
-              <p className={styles.sectionBody}>Begin with the real-world operating problem, then move through the OISA role, OI SUITe product, work-cell deployments, and field receipts.</p>
-            </div>
-          </div>
-          <div className={styles.mapGrid}>
-            {foundations.map((item) => <PublicCard item={item} key={item.title} />)}
-          </div>
-        </section>
-
-        <section className={styles.loopSection}>
-          <div className={styles.loopHeader}>
-            <div className={styles.darkEyebrow}>02 // The OISA operating loop</div>
-            <h2 className={styles.loopTitle}>From real workflow to measurable change.</h2>
-            <p className={styles.loopLead}>The domains differ. The systems method stays recognizable.</p>
-          </div>
-          <div className={styles.loopSteps}>
-            {loop.map(([title, body], index) => (
-              <article key={title} className={styles.loopCard}>
-                <div className={styles.loopNumber}>{String(index + 1).padStart(2, "0")}</div>
-                <h3>{title}</h3>
-                <p>{body}</p>
-              </article>
-            ))}
-          </div>
-        </section>
-
-        <section className={styles.section}>
-          <div className={styles.sectionHeader}>
-            <div>
-              <div className={styles.sectionEyebrow}>03 // OI work cells and field receipts</div>
-              <h2 className={styles.sectionTitle}>Different domains. The same operating architecture.</h2>
-              <p className={styles.sectionBody}>Each public system tests a different failure boundary while preserving the same core pattern: messy input, source evidence, authority, human review, exceptions, recovery, and measurable output.</p>
-            </div>
-          </div>
-          <div className={styles.mapGrid}>
-            {systems.map((item) => <PublicCard item={item} key={item.title} />)}
-          </div>
-        </section>
-
-        <section className={styles.twoColumn}>
-          <article className={styles.lightCard}>
-            <div className={styles.cardIcon}><ShieldCheck size={23} /></div>
-            <h2 className={styles.bigCardTitle}>Human authority remains final.</h2>
-            <p className={styles.bigCardBody}>AI may investigate, organize, retrieve, compare, draft, test, and recommend. Consequential action remains with the accountable human. Sources, uncertainty, permissions, review state, and stop-the-line controls should be visible by design.</p>
-          </article>
-          <article className={styles.warmCard}>
-            <div className={styles.cardIcon}><Gauge size={23} /></div>
-            <h2 className={styles.bigCardTitle}>The audit is allowed to say: do less.</h2>
-            <p className={styles.bigCardBody}>The smallest correct intervention may be a workflow correction, a clear owner, a physical shelter, a lightweight prototype, a fractional OISA, or a full operating-model reset. More AI is not the default answer.</p>
-          </article>
-        </section>
-
-        <section className={styles.cta}>
-          <div className={styles.ctaIcon}><GitBranch size={25} /></div>
-          <h2 className={styles.ctaTitle}>Bring one painful workflow and one person who knows the truth.</h2>
-          <p className={styles.ctaBody}>We will start with the intended outcome, walk the actual work, preserve what has already been tried, find the constraint, and determine the smallest next test worth running.</p>
-          <div className={styles.ctaActions}>
-            <a href="/ai-audit" className={styles.primaryButton}>Open the AI Operating Model Audit <ArrowRight size={17} /></a>
-            <a href="/operating-map" className={styles.secondaryButton}><Boxes size={16} /> Browse every public page</a>
-            <a href="https://github.com/masoncalcolsol-creator" target="_blank" rel="noreferrer" className={styles.secondaryButton}><GitBranch size={16} /> GitHub receipts</a>
-          </div>
-        </section>
-
-        <footer className={styles.footer}>
-          <div><strong>NULLWORKS</strong> — Building the operating company around AI workers.</div>
-          <div>Founder: Mason Perry · Forward-Deployed Operational Architect · OISA · Polymath² · Phrononaut by disposition.</div>
-        </footer>
-      </div>
-    </main>
-  );
+      <footer className={styles.footer}><span>NULLWORKS · nullworks.systems</span><span>Architecture before automation. Evidence before claims. Human authority remains final.</span></footer>
+    </div>
+  </main>;
 }
