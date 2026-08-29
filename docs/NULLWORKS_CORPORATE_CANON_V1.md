@@ -66,12 +66,12 @@ Purpose: establish NULLWORKS as a real software and systems architecture company
 
 Purpose: institutional credibility, partnership, Japan-relevant applications, AI/robotics/infrastructure, governed autonomy, rural/industrial opportunity, and evidence. Relationship-first rather than immediate sales-first.
 
-### Jay Obernolte / external red-team route
-`nullworks.systems/ober-nolte`
+### External blind red-team routes
+External reviewers use opaque, identity-neutral routes under `/review/`. Reviewer names must never appear in URL paths, slugs, query parameters, or other public routing identifiers.
 
-Jay Obernolte is an external reviewer/audience member, not NULLWORKS personnel, collaborator, adviser, partner, or representative. No public or private NULLWORKS surface may imply endorsement, employment, partnership, government relationship, or participation by his office unless such a relationship is independently established and explicitly approved for publication.
+The pilot route is an implementation of the NULLWORKS Blind Red-Team Transfer Protocol. Phase one deliberately withholds the broader NULLWORKS architecture and the secondary transfer hypothesis. The reviewer receives Continuity Calculus 3.0 cold and is asked to attack it. The first-pass response is preserved before discussion. Phase two reveals that the unassisted handoff was also being examined as a continuity-transfer event, asks whether that transfer worked, and only then opens the wider NULLWORKS evidence system.
 
-The Obernolte route is the pilot implementation of the NULLWORKS Blind Red-Team Transfer Protocol. Phase one deliberately withholds the broader NULLWORKS architecture and the secondary transfer hypothesis. Jay receives Continuity Calculus 3.0 cold and is asked to attack it. His first-pass response is preserved before discussion. Phase two reveals that the unassisted handoff was also being examined as a continuity-transfer event, asks for his assessment of whether that transfer worked, and only then opens the wider NULLWORKS evidence system.
+External reviewers are audience members, not NULLWORKS personnel, collaborators, advisers, partners, or representatives. No NULLWORKS surface may imply endorsement, employment, partnership, government relationship, or participation by a reviewer's employer or office unless independently established and explicitly approved for publication.
 
 The protocol is reviewer-agnostic. Future reviewer routes reuse the shared protocol components and change reviewer configuration rather than cloning the architecture.
 
@@ -92,8 +92,8 @@ Both route back to `nullworks.systems`. External reviewers are not company profi
 - `/proof` Case studies, tests, receipts, and field evidence
 - `/research` Research and doctrine
 - `/japan` JETRO / Japan partnership route
-- `/ober-nolte` controlled CC3 blind red-team route
-- `/ober-nolte/reveal` post-first-pass reveal and deep-dive route
+- `/review/<opaque-id>` controlled blind red-team route
+- `/review/<opaque-id>/reveal` post-first-pass reveal and deep-dive route
 - `/company` Legal identity, people, company structure
 - `/contact` Contact routes
 
@@ -109,6 +109,7 @@ Existing deeper pages remain available where useful but should be normalized ben
 6. Never publish unverified legal/entity details, customer claims, employer-confidential information, invented biographies, or implied external endorsements.
 7. Every audience-specific page derives from this canon.
 8. A blind-review route must not leak explanatory material that contaminates the cold phase.
+9. Reviewer identity is configuration, never URL architecture. Reviewer names must not appear in paths, slugs, or query parameters.
 
 ## Domain and infrastructure receipt
 
@@ -120,4 +121,4 @@ The existing assurance-centric `/nullworks` page is not deleted. Its strongest m
 
 ## Source-of-truth rule
 
-Change this canon first when corporate identity, terminology, architecture, product naming, audience positioning, or public company facts change. Then derive website, LinkedIn, JETRO, Obernolte, decks, one-pagers, and profiles from the updated canon.
+Change this canon first when corporate identity, terminology, architecture, product naming, audience positioning, or public company facts change. Then derive website, LinkedIn, JETRO, reviewer routes, decks, one-pagers, and profiles from the updated canon.
