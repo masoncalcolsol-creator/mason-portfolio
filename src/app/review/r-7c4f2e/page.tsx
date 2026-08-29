@@ -8,7 +8,7 @@ export default function Page(){return <BlindRedTeamReview
   firstName="Jay"
   artifactName="Continuity Calculus 3.1 — Longitudinal Continuity and Valid Succession"
   artifactVersion="3.1 locked review release · 29 August 2026"
-  artifactUrl="https://drive.google.com/file/d/1geg4QQruYXdTaNlA4s1OOSldDGVSqZjQ/preview"
+  artifactUrl="/artifact/cc3-1"
   responseEmail="masoncalcolsol@gmail.com"
   responseSubject="CC3.1 — First-pass red team"
 />;}
