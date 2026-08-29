@@ -102,7 +102,6 @@ Useful history and experiments that remain addressable but are not corporate nav
 - `/living-interface`
 - `/living-signals`
 - `/forest`
-- `/live-learning-forest`
 - `/signal-codex`
 - `/linkedin-codex`
 - `/linked-out`
@@ -114,7 +113,6 @@ Useful history and experiments that remain addressable but are not corporate nav
 - `/intent-gate`
 - `/operating-map`
 - `/operational-systems`
-- `/digital-employees`
 - `/digital-workforce`
 - `/second-shift-ai`
 - `/wisdom-mining`
@@ -126,7 +124,6 @@ Useful history and experiments that remain addressable but are not corporate nav
 - `/kaironull-map`
 - `/oisa`
 - `/oisa-category`
-- `/oi`
 
 Archive/lab routes may later be promoted after review.
 
@@ -163,15 +160,21 @@ Routes are not deleted merely because their names look obsolete. Retirement requ
 - `/nullworks` → permanent redirect to `/`. The corporate root supersedes the earlier assurance-narrowed company landing page.
 - `/tac-ops` → permanent redirect to `/ori-tac-ops`. The ORI route is the richer controlled field-system presentation.
 - `/jp` → permanent redirect to `/japan`. `/jp` had no institutional landing page; its surviving nested laboratory content remains separately addressable.
+- `/oi` → permanent redirect to `/field-notes`. The old route already functioned only as a field-notes shortcut; configuration now owns the alias explicitly.
+- `/live-learning-forest` → permanent redirect to `/forest`. The old page was already an alias; `/forest` is the substantive laboratory application with its own layout, lexicon, nursery, health and receipt surfaces.
+- `/digital-employees` → permanent redirect to `/digital-workforce` for the collection root. The older namespace currently contains a surviving nested `/digital-employees/rivet` artifact, so the namespace is not deleted and nested evidence remains addressable.
 
-### Still requiring reconciliation
+### Deliberately kept distinct after review
 
-- `/oisa` / `/oisa-category` / `/oi`
-- `/assurance` / `/assurance-index` / `/assurance-matrix`
-- `/digital-employees` / `/digital-workforce`
-- `/forest` / `/live-learning-forest`
+- `/oisa` — substantive legacy operating-layer presentation. Preserve as laboratory/history while the newer corporate architecture is established.
+- `/oisa-category` — field-definition artifact for the proposed Operational Intelligence Systems Architect role. It explicitly labels itself an emerging category and therefore remains evidence/history rather than canonical company identity.
+- `/assurance` — commercial service offering and engagement scope.
+- `/assurance-index` — evidence/catalog product. Not a duplicate of the service page.
+- `/assurance-matrix` — evidence/control research surface. Not a duplicate of the service page.
+- `/digital-workforce` — canonical laboratory directory for the digital workforce collection.
+- `/forest` — canonical laboratory application for the Forest family.
 
-Do not delete these until redirect targets and evidence preservation are explicit.
+No further redirects should be added among these distinct surfaces merely because their names are related.
 
 ## Global Navigation v1
 
