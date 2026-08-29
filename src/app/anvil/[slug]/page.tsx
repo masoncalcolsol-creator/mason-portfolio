@@ -3,6 +3,9 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import AnvilShell from "../AnvilShell";
 import { getProject, projects } from "../catalog";
+import NanWisdomPlayer from "../../nan-wisdom/page";
+import NonOperaItalicaPlayer from "../../non-opera-italica/page";
+import VexLikesSexPlayer from "../../9v-vex-likes-sex/page";
 
 export function generateStaticParams() { return projects.map(({ slug }) => ({ slug })); }
 
@@ -16,6 +19,13 @@ export default async function AnvilProjectPage({ params }: { params: Promise<{ s
   const { slug } = await params;
   const project = getProject(slug);
   if (!project) notFound();
+
+  // Preserve the full listening-room implementations where they already exist.
+  // The canonical ANVIL route is the stable URL; the player remains the project experience.
+  if (slug === "nan-wisdom") return <AnvilShell accent={project.accent}><NanWisdomPlayer /></AnvilShell>;
+  if (slug === "non-opera-italica") return <AnvilShell accent={project.accent}><NonOperaItalicaPlayer /></AnvilShell>;
+  if (slug === "9-volt") return <AnvilShell accent={project.accent}><VexLikesSexPlayer /></AnvilShell>;
+
   const index = projects.findIndex((item) => item.slug === slug);
   const prev = projects[(index - 1 + projects.length) % projects.length];
   const next = projects[(index + 1) % projects.length];
