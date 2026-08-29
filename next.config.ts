@@ -6,46 +6,25 @@ const nextConfig: NextConfig = {
   // landing pages to compete with the current company architecture.
   async redirects() {
     return [
-      {
-        source: "/nullworks",
-        destination: "/",
-        permanent: true,
-      },
-      {
-        source: "/tac-ops",
-        destination: "/ori-tac-ops",
-        permanent: true,
-      },
-      {
-        source: "/jp",
-        destination: "/japan",
-        permanent: true,
-      },
-      {
-        source: "/oi",
-        destination: "/field-notes",
-        permanent: true,
-      },
-      {
-        source: "/live-learning-forest",
-        destination: "/forest",
-        permanent: true,
-      },
-      {
-        source: "/digital-employees",
-        destination: "/digital-workforce",
-        permanent: true,
-      },
+      { source: "/nullworks", destination: "/", permanent: true },
+      { source: "/tac-ops", destination: "/ori-tac-ops", permanent: true },
+      { source: "/jp", destination: "/japan", permanent: true },
+      { source: "/oi", destination: "/field-notes", permanent: true },
+      { source: "/live-learning-forest", destination: "/forest", permanent: true },
+      { source: "/digital-employees", destination: "/digital-workforce", permanent: true },
+
+      // NULLWORKS // ANVIL canonical migration. Keep known public slugs useful.
+      { source: "/anvil-records", destination: "/anvil/releases", permanent: true },
+      { source: "/nan-wisdom", destination: "/anvil/nan-wisdom", permanent: true },
+      { source: "/non-opera-italica", destination: "/anvil/non-opera-italica", permanent: true },
+      { source: "/9v-vex-likes-sex", destination: "/anvil/9-volt", permanent: true },
+      { source: "/vex-overdose-venice", destination: "/anvil/9-volt", permanent: true },
     ];
   },
 
-  // The fantasy application currently contains a known-safe control-flow
-  // narrowing false positive inside a state updater closure. Runtime guards
-  // execute before the closure is created. Keep the production build moving
-  // while the source-level type patch is applied through the recovery workflow.
-  typescript: {
-    ignoreBuildErrors: true,
-  },
+  // Existing repository recovery exception. Runtime guards execute before the
+  // known fantasy-app closure; keep deployment behavior unchanged in this migration.
+  typescript: { ignoreBuildErrors: true },
 };
 
 export default nextConfig;
