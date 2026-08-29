@@ -1,7 +1,7 @@
 import AnvilShell from "../AnvilShell";
 import ListeningPage from "../ListeningPage";
 
-const base="/media/anvil/nan-wisdom";
+const base="https://foveyfclihpsnwhfchib.supabase.co/storage/v1/object/public/anvil-media/nan-wisdom";
 const tracks=[
 {n:1,title:"MIND YOUR MANNERS",src:`${base}/01-mind-your-manners.mp3`,dur:"2:40",note:"Manners are how you show people they matter."},
 {n:2,title:"MAKE YOUR BED",src:`${base}/02-make-your-bed.mp3`,dur:"3:03",note:"Start the day with one small job already done."},
