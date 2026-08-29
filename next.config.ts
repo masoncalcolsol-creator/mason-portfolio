@@ -21,6 +21,21 @@ const nextConfig: NextConfig = {
         destination: "/japan",
         permanent: true,
       },
+      {
+        source: "/oi",
+        destination: "/field-notes",
+        permanent: true,
+      },
+      {
+        source: "/live-learning-forest",
+        destination: "/forest",
+        permanent: true,
+      },
+      {
+        source: "/digital-employees",
+        destination: "/digital-workforce",
+        permanent: true,
+      },
     ];
   },
 
