@@ -5,7 +5,11 @@ import { usePathname } from 'next/navigation';
 export default function PublicQuickNav() {
   const pathname = usePathname();
 
-  if (pathname?.startsWith('/pmar') || pathname?.startsWith('/stallworks')) return null;
+  if (
+    pathname?.startsWith('/pmar') ||
+    pathname?.startsWith('/stallworks') ||
+    pathname?.startsWith('/review')
+  ) return null;
 
   return (
     <nav className="nw-public-quicknav print:hidden" aria-label="NULLWORKS quick navigation">
