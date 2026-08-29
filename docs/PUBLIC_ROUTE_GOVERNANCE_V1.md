@@ -71,7 +71,6 @@ Research pages are evidence. They are not automatically corporate landing pages.
 Purpose-built entry routes. They inherit corporate truth but may have audience-specific sequencing.
 
 - `/japan`
-- `/jp`
 - `/executive-brief`
 - `/operation-moonshot`
 - `/kintsugi`
@@ -122,7 +121,6 @@ Useful history and experiments that remain addressable but are not corporate nav
 - `/toyota-wisdom-mining`
 - `/toyota-bridge`
 - `/chainsaw`
-- `/tac-ops`
 - `/about-ori-tac-ops`
 - `/kaironull-assurance`
 - `/kaironull-map`
@@ -160,11 +158,14 @@ Long term these should receive their own domain/project boundary where appropria
 
 Routes are not deleted merely because their names look obsolete. Retirement requires checking inbound links, functionality, evidence value, and whether another route is canonical.
 
-Likely reconciliation candidates include:
+### Reconciled 2026-08-29
 
-- `/nullworks` — earlier assurance-narrowed company landing page; corporate `/` is now canonical
-- `/tac-ops` vs `/ori-tac-ops`
-- `/japan` vs `/jp`
+- `/nullworks` → permanent redirect to `/`. The corporate root supersedes the earlier assurance-narrowed company landing page.
+- `/tac-ops` → permanent redirect to `/ori-tac-ops`. The ORI route is the richer controlled field-system presentation.
+- `/jp` → permanent redirect to `/japan`. `/jp` had no institutional landing page; its surviving nested laboratory content remains separately addressable.
+
+### Still requiring reconciliation
+
 - `/oisa` / `/oisa-category` / `/oi`
 - `/assurance` / `/assurance-index` / `/assurance-matrix`
 - `/digital-employees` / `/digital-workforce`
