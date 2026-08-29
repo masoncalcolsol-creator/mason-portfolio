@@ -1,6 +1,5 @@
 import AnvilShell from "../AnvilShell";
 import ListeningPage from "../ListeningPage";
-
 const base="https://foveyfclihpsnwhfchib.supabase.co/storage/v1/object/public/anvil-media/nan-wisdom";
 const tracks=[
 {n:1,title:"MIND YOUR MANNERS",src:`${base}/01-mind-your-manners.mp3`,dur:"2:40",note:"Manners are how you show people they matter."},
@@ -14,5 +13,4 @@ const tracks=[
 {n:9,title:"READ SOMETHING",src:`${base}/09-read-something.mp3`,dur:"3:36",note:"Curiosity starts wherever you decide to open something."},
 {n:10,title:"WHERE'S YOUR JUMPER?",src:`${base}/10-wheres-your-jumper.mp3`,dur:"3:40",note:"Put your things away and tomorrow-you will be grateful."},
 ];
-
-export default function Page(){return <AnvilShell accent="#f4a8bf"><ListeningPage title="NAN WISDOM" eyebrow="VOLUME ONE // FAMILY MUSIC" description="Ten songs. Ten useful bits of common sense. One very old London grandmother with absolutely no patience for nonsense." accent="#f4a8bf" background="linear-gradient(180deg,#111722,#0d1119 55%,#090b10)" tracks={tracks} footer="GOOD BEATS. GOOD LAUGHS. GOOD SENSE. // NULLWORKS // ANVIL // 2026"/></AnvilShell>}
+export default function Page(){return <AnvilShell accent="#f4a8bf"><ListeningPage coverSrc={`${base}/cover.png`} title="NAN WISDOM" eyebrow="VOLUME ONE // FAMILY MUSIC" description="Ten songs. Ten useful bits of common sense. One very old London grandmother with absolutely no patience for nonsense." accent="#f4a8bf" background="linear-gradient(180deg,#111722,#0d1119 55%,#090b10)" tracks={tracks} footer="GOOD BEATS. GOOD LAUGHS. GOOD SENSE. // NULLWORKS // ANVIL // 2026"/></AnvilShell>}
