@@ -75,7 +75,7 @@ export default function WisdomMiningPage() {
             <h1>Mine the wisdom before it disappears.</h1>
             <p className="lead">Human experience is a finite, living operational resource. Every retirement, transfer, illness, and death can remove context that no database ever captured.</p>
             <p className="body">NULLWORKS is exploring a respectful way to preserve lived operational experience as source-attributed, reviewable, correctable context for future people and human-AI systems. Not to replace experts. To keep their judgment, pain, failures, exceptions, teaching stories, and hard-earned lessons from vanishing.</p>
-            <div className="actions"><a className="button primary" href="#question">Explore the question</a><a className="button secondary" href="mailto:masoncalcolsol@gmail.com?subject=Operational%20Wisdom%20Mining%20Research">Share a perspective</a></div>
+            <div className="actions"><a className="button primary" href="#question">Explore the question</a><a className="button secondary" href="mailto:nullworks.neuraxis@gmail.com?subject=Operational%20Wisdom%20Mining%20Research">Share a perspective</a></div>
           </div>
           <div className="panel">
             <div className="panelLabel">The continuity gap</div>
@@ -134,7 +134,7 @@ export default function WisdomMiningPage() {
           <div className="sectionLabel">07 // The routing hypothesis</div>
           <div className="ask">
             <div><h2>A lesson may be useless here and monumental somewhere else.</h2><p className="body">Preservation is only half the problem. Operational Intelligence must eventually route a verified story to the future person, team, failure mode, or decision that gives it value. The artifact, its context, and the recipient form the useful unit.</p></div>
-            <div className="panel"><div className="panelLabel">No pitch. No confidential request.</div><h3>Challenge the hypothesis.</h3><p>What knowledge disappears? What cannot be captured in documents? Which failures teach the most? What would make a digital system trustworthy? What must never be delegated to AI?</p><div className="actions"><a className="button primary" href="mailto:masoncalcolsol@gmail.com?subject=Perspective%20on%20Operational%20Wisdom%20Mining">Share your perspective</a></div></div>
+            <div className="panel"><div className="panelLabel">No pitch. No confidential request.</div><h3>Challenge the hypothesis.</h3><p>What knowledge disappears? What cannot be captured in documents? Which failures teach the most? What would make a digital system trustworthy? What must never be delegated to AI?</p><div className="actions"><a className="button primary" href="mailto:nullworks.neuraxis@gmail.com?subject=Perspective%20on%20Operational%20Wisdom%20Mining">Share your perspective</a></div></div>
           </div>
         </section>
 
