@@ -10,18 +10,27 @@ export default function sitemap(): MetadataRoute.Sitemap {
     "/proof",
     "/research",
     "/company",
+    "/contact",
     "/japan",
     "/ai-audit",
     "/triage",
     "/assurance",
     "/pricing",
     "/continuity-calculus",
+    "/ciris-proof",
+    "/architecture-lineage",
+    "/operational-relativity",
+    "/outcome-first-operational-fuzzing",
+    "/software-recency-bias",
+    "/model-agnostic-transplant",
+    "/control-coverage",
+    "/assurance-index",
   ];
 
   return routes.map((route) => ({
     url: `${base}${route}`,
     lastModified: new Date(),
     changeFrequency: route === "" ? "weekly" : "monthly",
-    priority: route === "" ? 1 : 0.7,
+    priority: route === "" ? 1 : route === "/architecture" || route === "/products" || route === "/proof" ? 0.85 : 0.7,
   }));
 }
