@@ -2,7 +2,7 @@
 
 import { useRef, useState } from "react";
 
-export type ListeningTrack = { n:number; title:string; id:string; dur:string; note?:string };
+export type ListeningTrack = { n:number; title:string; id?:string; src?:string; dur:string; note?:string };
 
 export default function ListeningPage({
   title,
@@ -37,7 +37,7 @@ export default function ListeningPage({
       </header>
 
       <div style={{display:"grid",gap:12,marginTop:18}}>
-        {tracks.map((t,i)=><article key={t.id} style={{display:"grid",gridTemplateColumns:"72px 1fr",gap:13,background:active===i?"#ffffff10":"#ffffff08",border:`1px solid ${active===i?accent+"88":"#ffffff14"}`,borderRadius:18,padding:12}}>
+        {tracks.map((t,i)=><article key={t.src ?? t.id ?? t.title} style={{display:"grid",gridTemplateColumns:"72px 1fr",gap:13,background:active===i?"#ffffff10":"#ffffff08",border:`1px solid ${active===i?accent+"88":"#ffffff14"}`,borderRadius:18,padding:12}}>
           <div aria-hidden style={{width:72,height:72,borderRadius:14,display:"grid",placeItems:"center",background:`linear-gradient(145deg,${accent}33,#0008)`,border:`1px solid ${accent}66`,color:accent,fontWeight:950,fontSize:24,letterSpacing:-1}}>{String(t.n).padStart(2,"0")}</div>
           <div style={{minWidth:0}}>
             <div style={{display:"flex",justifyContent:"space-between",gap:8,alignItems:"baseline"}}>
@@ -51,7 +51,7 @@ export default function ListeningPage({
               onEnded={()=>{if(i<tracks.length-1){const next=refs.current[i+1];if(next){next.play();setActive(i+1)}}}}
               controls
               preload="metadata"
-              src={`/api/audio/${t.id}`}
+              src={t.src ?? `/api/audio/${t.id}`}
               style={{width:"100%",height:38,marginTop:9}}
             />
           </div>
