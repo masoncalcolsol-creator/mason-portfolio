@@ -12,14 +12,21 @@ const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
 const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://mason-portfolio-main.vercel.app"),
-  title: { default: "Mason Perry | Operational Intelligence Systems Architect", template: "%s | Mason Perry" },
-  description: "Founder of NULLWORKS. I design human-readable Operational Intelligence systems that coordinate experts, AI workers, workflows, evidence, authority, continuity, and telemetry.",
+  metadataBase: new URL("https://nullworks.systems"),
+  title: {
+    default: "NULLWORKS | AI Architecture for Consequential Systems",
+    template: "%s | NULLWORKS",
+  },
+  description:
+    "NULLWORKS designs governed software and operational architecture connecting humans, AI, applications, evidence, authority, and physical systems.",
+  alternates: { canonical: "/" },
   openGraph: {
-    title: "Mason Perry | Operational Intelligence Systems Architect",
-    description: "Human-centered AI orchestration, OI SUITes, workflow compression, and forward-deployed applied-AI systems.",
+    title: "NULLWORKS | AI Architecture for Consequential Systems",
+    description:
+      "Governed software and operational architecture for consequential human-AI systems.",
     type: "website",
-    url: "https://mason-portfolio-main.vercel.app",
+    url: "https://nullworks.systems",
+    siteName: "NULLWORKS",
   },
 };
 
