@@ -5,18 +5,22 @@ import { usePathname } from 'next/navigation';
 export default function PublicQuickNav() {
   const pathname = usePathname();
 
+  // Private/reviewer and field-operation surfaces must not inherit corporate navigation.
   if (
     pathname?.startsWith('/pmar') ||
     pathname?.startsWith('/stallworks') ||
-    pathname?.startsWith('/review')
+    pathname?.startsWith('/review') ||
+    pathname?.startsWith('/private') ||
+    pathname?.startsWith('/workroom')
   ) return null;
 
   return (
-    <nav className="nw-public-quicknav print:hidden" aria-label="NULLWORKS quick navigation">
-      <a href="/triage">Triage</a>
-      <a href="/assurance">Services</a>
-      <a href="/pricing">Pricing</a>
-      <a href="mailto:nullworks.neuraxis@gmail.com?subject=NULLWORKS%20Inquiry">Contact</a>
+    <nav className="nw-public-quicknav print:hidden" aria-label="NULLWORKS corporate navigation">
+      <a href="/architecture">Architecture</a>
+      <a href="/products">Systems</a>
+      <a href="/proof">Proof</a>
+      <a href="/research">Research</a>
+      <a href="/company">Company</a>
     </nav>
   );
 }
