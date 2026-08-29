@@ -5,13 +5,15 @@ import { usePathname } from 'next/navigation';
 export default function PublicQuickNav() {
   const pathname = usePathname();
 
-  // Private/reviewer and field-operation surfaces must not inherit corporate navigation.
+  // Private/reviewer, field-operation, and ANVIL creative surfaces must not inherit
+  // the corporate conversion/navigation bar. ANVIL owns its own minimal navigation.
   if (
     pathname?.startsWith('/pmar') ||
     pathname?.startsWith('/stallworks') ||
     pathname?.startsWith('/review') ||
     pathname?.startsWith('/private') ||
-    pathname?.startsWith('/workroom')
+    pathname?.startsWith('/workroom') ||
+    pathname?.startsWith('/anvil')
   ) return null;
 
   return (
