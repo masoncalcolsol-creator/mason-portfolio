@@ -11,7 +11,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
     "/research",
     "/company",
     "/japan",
-    "/nullworks",
     "/ai-audit",
     "/triage",
     "/assurance",
