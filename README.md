@@ -4,7 +4,9 @@ This repository is the public presentation, field-note, and demonstration layer 
 
 Production site:
 
-`https://mason-portfolio-main.vercel.app`
+`https://nullworks.systems`
+
+Do not publish the Vercel project aliases (`mason-portfolio-main.vercel.app` and related `*.vercel.app` hosts). Those are deployment infrastructure. Public traffic belongs on `nullworks.systems`.
 
 ## Public-by-intent boundary
 
