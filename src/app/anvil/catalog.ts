@@ -115,6 +115,18 @@ export const projects: AnvilProject[] = [
     texture: "MUD / BRASS / ENGINE NOISE",
     facts: ["Balkan alt-metal / ska", "Motion and endurance", "Racing and boating", "Community, memorial and mischief"],
   },
+  {
+    slug: "silt-serpent",
+    name: "SILT SERPENT",
+    kicker: "FIELD RELEASE / OBJECT-LED SONG",
+    summary: "An identity that starts from a physical object and forges a complete release around it: cover, lyrics, story, and a song people can actually hear.",
+    status: "FIELD RELEASE",
+    accent: "#c4a574",
+    accent2: "#5c3d2e",
+    texture: "SMOKE / LEATHER / COPPER LIGHT",
+    facts: ["Object-led composition", "Field Release 001: NICARAGUAN", "Custom song as a normal custom product", "Cover, lyrics, story and master kept together"],
+    works: ["NICARAGUAN"],
+  },
 ];
 
 export const metaPages = [
