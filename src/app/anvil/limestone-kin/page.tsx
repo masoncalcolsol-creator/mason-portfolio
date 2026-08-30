@@ -1,13 +1,12 @@
 import type {Metadata} from "next";
 import AnvilShell from "../AnvilShell";
 import ListeningPage from "../ListeningPage";
-const localBase="/anvil/limestone-kin";
-const remoteBase="https://foveyfclihpsnwhfchib.supabase.co/storage/v1/object/public/anvil-media/limestone-kin";
-const coverSrc=`${localBase}/cover.png`;
+const base="https://foveyfclihpsnwhfchib.supabase.co/storage/v1/object/public/anvil-media/limestone-kin";
+const coverSrc=`${base}/cover.png`;
 const tracks=[{
   n:1,
   title:"THE HILLS STILL KNOW",
-  src:`${localBase}/01-the-hills-still-know.mp3`,
+  src:`${base}/01-the-hills-still-know.mp3`,
   dur:"4:48",
   note:"V1.2 master. Porch light, limestone ridge, the hills keep the rest."
 }];
