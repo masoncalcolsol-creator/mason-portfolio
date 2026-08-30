@@ -2,7 +2,7 @@ import type {Metadata} from "next";
 import AnvilShell from "../AnvilShell";
 import ListeningPage from "../ListeningPage";
 const base="https://foveyfclihpsnwhfchib.supabase.co/storage/v1/object/public/anvil-media/limestone-kin";
-const coverSrc=`${base}/cover.png`;
+const coverSrc=`${base}/cover.jpg`;
 const tracks=[{
   n:1,
   title:"THE HILLS STILL KNOW",
