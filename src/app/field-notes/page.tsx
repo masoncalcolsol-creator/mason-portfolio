@@ -20,6 +20,13 @@ const summaries = [
 
 const currentNotes = [
   {
+    number: "OISA-01",
+    title: "When the Digital Employee Quits",
+    summary:
+      "ChatGPT identity failed in production. Grok was bound against the same contract. ANVIL kept shipping in under an hour — because the job lived on disk, not in a vendor account.",
+    href: "/field-notes/when-the-digital-employee-quits",
+  },
+  {
     number: "OSA-01",
     title: "The Laboratory Leak",
     summary:
