@@ -2,7 +2,6 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
 const CANONICAL_HOST = "nullworks.systems";
-const CANONICAL_ORIGIN = `https://${CANONICAL_HOST}`;
 
 const LEARN_IT_LOUD_ART =
   "https://raw.githubusercontent.com/masoncalcolsol-creator/mason-portfolio/main/public/learn-it-loud/big-ditch-energy-slothers.svg";
@@ -19,8 +18,12 @@ function isLocalHost(host: string): boolean {
 
 function shouldRedirectToCanonical(request: NextRequest): boolean {
   const host = hostname(request);
-  if (!host || host === CANONICAL_HOST || host === `www.${CANONICAL_HOST}` || isLocalHost(host)) {
+  if (!host || host === CANONICAL_HOST || isLocalHost(host)) {
     return false;
+  }
+
+  if (host === `www.${CANONICAL_HOST}`) {
+    return true;
   }
 
   // Preview deployments stay addressable for review. Production aliases must not
@@ -29,11 +32,7 @@ function shouldRedirectToCanonical(request: NextRequest): boolean {
     return false;
   }
 
-  return (
-    host.endsWith(".vercel.app") ||
-    host.includes("mason-portfolio") ||
-    host === `www.${CANONICAL_HOST}`
-  );
+  return host.endsWith(".vercel.app") || host.includes("mason-portfolio");
 }
 
 export function middleware(request: NextRequest) {
