@@ -127,6 +127,18 @@ export const projects: AnvilProject[] = [
     facts: ["Object-led composition", "Field Release 001: NICARAGUAN", "Custom song as a normal custom product", "Cover, lyrics, story and master kept together"],
     works: ["NICARAGUAN"],
   },
+  {
+    slug: "limestone-kin",
+    name: "LIMESTONE KIN",
+    kicker: "HILL-COUNTRY NIGHT FOLK / ROCK",
+    summary: "Porch-light songs from limestone country: church on the ridge, two guitars on the boards, and the hills keeping what the town forgot.",
+    status: "ACTIVE ARTIST",
+    accent: "#c4a36a",
+    accent2: "#3d4a5c",
+    texture: "LIMESTONE / LANTERN / PORCH WOOD",
+    facts: ["Night hill-country identity", "Church-on-the-ridge visual contract", "Acoustic and electric in the same room", "The hills remember what people drop"],
+    works: ["THE HILLS STILL KNOW"],
+  },
 ];
 
 export const metaPages = [
