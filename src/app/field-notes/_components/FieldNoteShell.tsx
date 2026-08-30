@@ -22,15 +22,17 @@ export function FieldNoteShell({
   source,
   standalone = false,
   standaloneLabel = "Standalone field case",
+  heroImage,
 }: {
   number: number;
   eyebrow: string;
   title: string;
   deck: string;
   children: ReactNode;
-  source?: { label: string; href: string };
+  source?: { label: string; href: string; download?: boolean };
   standalone?: boolean;
   standaloneLabel?: string;
+  heroImage?: { src: string; alt: string };
 }) {
   const currentIndex = OI_SERIES.findIndex((item) => item.number === number);
   const previous = !standalone && currentIndex > 0 ? OI_SERIES[currentIndex - 1] : null;
@@ -52,6 +54,32 @@ export function FieldNoteShell({
             <Mail size={14} /> Contact Mason
           </a>
         </header>
+
+        {heroImage ? (
+          <figure
+            style={{
+              margin: "18px 0 0",
+              overflow: "hidden",
+              border: "1px solid rgba(216, 181, 106, 0.27)",
+              borderRadius: 34,
+              background: "#05070b",
+              boxShadow: "0 36px 120px rgba(0, 0, 0, 0.42)",
+            }}
+          >
+            <img
+              src={heroImage.src}
+              alt={heroImage.alt}
+              style={{
+                display: "block",
+                width: "100%",
+                height: "auto",
+                maxHeight: "min(82vh, 980px)",
+                objectFit: "cover",
+                objectPosition: "center top",
+              }}
+            />
+          </figure>
+        ) : null}
 
         <section className={styles.articleHero}>
           <div className={styles.heroMonogram} aria-hidden="true">NW</div>
@@ -88,7 +116,7 @@ export function FieldNoteShell({
             </div>
 
             {source ? (
-              <a href={source.href} target="_blank" rel="noreferrer" className={styles.sourceLink}>
+              <a href={source.href} className={styles.sourceLink} download={source.download !== false}>
                 {source.label} <ExternalLink size={14} />
               </a>
             ) : null}

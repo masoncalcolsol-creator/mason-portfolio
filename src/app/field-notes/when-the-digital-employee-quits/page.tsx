@@ -2,7 +2,9 @@ import type { Metadata } from "next";
 import { BulletGrid, FieldNoteShell, H2, Lead, P, Quote, TruthBox } from "../_components/FieldNoteShell";
 
 const canonical =
-  "https://mason-portfolio-main.vercel.app/field-notes/when-the-digital-employee-quits";
+  "https://nullworks.systems/field-notes/when-the-digital-employee-quits";
+const posterSrc = "/field-notes/when-the-digital-employee-quits/poster.svg";
+const paperHref = "/field-notes/when-the-digital-employee-quits/paper.pdf";
 
 export const metadata: Metadata = {
   title: "When the Digital Employee Quits | NULLWORKS Field Paper",
@@ -15,11 +17,13 @@ export const metadata: Metadata = {
     url: canonical,
     type: "article",
     siteName: "NULLWORKS",
+    images: [{ url: posterSrc, alt: "When your AI quits, can you keep shipping in under an hour?" }],
   },
   twitter: {
     card: "summary_large_image",
     title: "When the Digital Employee Quits",
     description: "When your AI quits, can you keep shipping in under an hour?",
+    images: [posterSrc],
   },
 };
 
@@ -32,7 +36,46 @@ export default function WhenTheDigitalEmployeeQuitsPage() {
       eyebrow="Agent-agnostic architecture // identity failure // substitution receipt"
       title="When the Digital Employee Quits"
       deck="The model did not refuse a prompt. The employer could not present a valid worker. The desk remained."
+      heroImage={{
+        src: posterSrc,
+        alt: "Cinematic NULLWORKS poster: when your AI quits, can you keep shipping in under an hour?",
+      }}
+      source={{
+        label: "Download the field paper (PDF)",
+        href: paperHref,
+      }}
     >
+      <a
+        href={paperHref}
+        download="When_the_Digital_Employee_Quits.pdf"
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          gap: 16,
+          margin: "0 0 28px",
+          padding: "16px 18px",
+          border: "1px solid #d1c09c",
+          borderRadius: 18,
+          background: "#fffaf0",
+          color: "#17140f",
+          textDecoration: "none",
+          boxShadow: "0 12px 38px rgba(49, 39, 20, 0.07)",
+        }}
+      >
+        <span>
+          <span style={{ display: "block", color: "#765722", fontSize: 9, fontWeight: 900, letterSpacing: "0.2em", textTransform: "uppercase" }}>
+            Field paper // PDF
+          </span>
+          <span style={{ display: "block", marginTop: 6, fontSize: 16, fontWeight: 700, letterSpacing: "-0.02em" }}>
+            Download When the Digital Employee Quits
+          </span>
+        </span>
+        <span style={{ flex: "0 0 auto", padding: "10px 14px", borderRadius: 999, background: "#d8b56a", color: "#0a0d12", fontSize: 11, fontWeight: 900, letterSpacing: "0.08em", textTransform: "uppercase" }}>
+          Get PDF
+        </span>
+      </a>
+
       <Lead>
         On 30 August 2026 a production ChatGPT session used as a forward-deployed digital employee returned a terminal authentication state: the account had been deleted or deactivated. In a vendor-coupled stack that is an outage of the worker, not merely of a chat window. NULLWORKS did not rebuild. Grok (by xAI) was bound against the same repository. ANVIL kept shipping.
       </Lead>
