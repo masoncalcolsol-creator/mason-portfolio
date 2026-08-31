@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 1072" role="img" aria-label="Can you change AI in under an hour — ChatGPT quit. Grok clocked in.">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#07090f"/>
+      <stop offset="55%" stop-color="#10141d"/>
+      <stop offset="100%" stop-color="#1a140c"/>
+    </linearGradient>
+    <radialGradient id="gold" cx="50%" cy="42%" r="46%">
+      <stop offset="0%" stop-color="#f2d48a" stop-opacity="0.28"/>
+      <stop offset="100%" stop-color="#000" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="title" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#f6e3b0"/>
+      <stop offset="100%" stop-color="#c9a45a"/>
+    </linearGradient>
+  </defs>
+  <rect width="720" height="1072" fill="url(#bg)"/>
+  <rect width="720" height="1072" fill="url(#gold)"/>
+  <g fill="none" stroke="#d8b56a" stroke-opacity="0.12">
+    <path d="M0 210 H720 M0 860 H720"/>
+  </g>
+  <text x="360" y="78" text-anchor="middle" fill="#d8b56a" font-family="Georgia, Times, serif" font-size="13" letter-spacing="6">NULLWORKS PRESENTS</text>
+  <text x="360" y="168" text-anchor="middle" fill="url(#title)" font-family="Georgia, Times, serif" font-size="42" font-weight="700">CAN YOU CHANGE AI</text>
+  <text x="360" y="218" text-anchor="middle" fill="url(#title)" font-family="Georgia, Times, serif" font-size="42" font-weight="700">IN UNDER AN HOUR</text>
+  <text x="360" y="268" text-anchor="middle" fill="#e8d7b0" font-family="Georgia, Times, serif" font-size="16">ChatGPT quit. Grok clocked in.</text>
+  <text x="360" y="292" text-anchor="middle" fill="#c9b48a" font-family="Georgia, Times, serif" font-size="15">The architecture did not ask permission.</text>
+  <circle cx="360" cy="520" r="148" fill="#0b0d12" stroke="#d8b56a" stroke-width="8"/>
+  <circle cx="360" cy="520" r="6" fill="#d8b56a"/>
+  <line x1="360" y1="520" x2="360" y2="410" stroke="#f2d48a" stroke-width="6" stroke-linecap="round"/>
+  <line x1="360" y1="520" x2="455" y2="560" stroke="#f2d48a" stroke-width="4" stroke-linecap="round"/>
+  <text x="360" y="575" text-anchor="middle" fill="#f2d48a" font-family="Georgia, Times, serif" font-size="22" letter-spacing="3">UNDER 1:00</text>
+  <rect x="56" y="720" width="250" height="150" rx="8" fill="#12151c" stroke="#8a7a55"/>
+  <text x="181" y="792" text-anchor="middle" fill="#c9b48a" font-family="Georgia, Times, serif" font-size="13">ACCOUNT</text>
+  <text x="181" y="814" text-anchor="middle" fill="#c9b48a" font-family="Georgia, Times, serif" font-size="13">DEACTIVATED</text>
+  <rect x="414" y="720" width="250" height="150" rx="8" fill="#16120c" stroke="#d8b56a"/>
+  <text x="539" y="792" text-anchor="middle" fill="#f2d48a" font-family="Georgia, Times, serif" font-size="13">GROK ON SHIFT</text>
+  <text x="539" y="814" text-anchor="middle" fill="#e8d7b0" font-family="Georgia, Times, serif" font-size="13">THE DESK REMAINED</text>
+  <text x="360" y="960" text-anchor="middle" fill="#d8b56a" font-family="Georgia, Times, serif" font-size="13" letter-spacing="2">30 AUGUST 2026  •  SUBSTITUTION COMPLETE</text>
+  <text x="360" y="990" text-anchor="middle" fill="#c9b48a" font-family="Georgia, Times, serif" font-size="14">nullworks.systems</text>
+</svg>
