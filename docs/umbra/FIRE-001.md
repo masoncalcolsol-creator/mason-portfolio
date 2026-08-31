@@ -1,7 +1,7 @@
 # UMBRA FIRE-001 // Interior Recon Scout
 
 Status: CANONICAL PILOT SPEC v0.1
-Lineage: Eye of Kilrogg + HALO + Remote Eye V3
+Lineage: Field Eye + HALO + Remote Eye V3
 Dependency: FIRE-002 Threshold Relay, FIRE-003 Mobile Roost
 Companion outdoor layer: UAS-001 (does not replace this spec)
 
@@ -17,7 +17,7 @@ The scout answers only these questions:
 - What access is blocked?
 - What conditions will the first team meet (heat, smoke, openings, stairs, large furniture)?
 
-The aircraft is another governed Kilrogg eye. It is not a privileged controller and it does not authorize entry.
+The aircraft is another governed Field Eye. It is not a privileged controller and it does not authorize entry.
 
 ## Initial architecture
 
@@ -72,7 +72,7 @@ The scout maps only what it can verify: walls, openings, stairs, large furniture
 
 ## Progressive autonomy ladder
 
-1. Human remote pilot flies; UMBRA records WOULD_FLY guidance and Kilrogg overlays.
+1. Human remote pilot flies; UMBRA records WOULD_FLY guidance and Field Eye overlays.
 2. UMBRA generates bounded room-to-room waypoints; qualified operator remains responsible and can intervene.
 3. Controlled automated launch / short-room recon / recovery on a burn building or closed course.
 4. AHJ-approved operational use under incident command.
