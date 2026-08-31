@@ -68,7 +68,7 @@ Combined demonstration thesis:
 
 ### UMBRA FIRE-001 / 002 / 003
 
-Kilrogg interior fire recon.
+Field Eye interior fire recon.
 
 Objective: use an authorized interior scout, a threshold relay with a recommendation light, and optional mobile roosts as an independent observation mesh before and during structure entry, under incident command, with HALO wireframe to the SCBA and receipts for every light change.
 
@@ -76,7 +76,7 @@ Combined demonstration thesis:
 
 > ONE STRUCTURE / ONE THRESHOLD / ONE SCOUT / ONE MESH / ONE RECEIPT
 
-Related: Eye of Kilrogg, HALO, Remote Eye V3. Outdoor corridor observation remains UAS-001.
+Related: Field Eye, HALO, Remote Eye V3. Outdoor corridor observation remains UAS-001.
 
 ## Build sequence
 
