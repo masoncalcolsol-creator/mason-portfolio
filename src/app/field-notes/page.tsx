@@ -20,6 +20,13 @@ const summaries = [
 
 const currentNotes = [
   {
+    number: "OISA-00",
+    title: "Locked Out of Our Own Company",
+    summary:
+      "The Jason sandbox and Front Gate lockout forced the interior onto disk. Twenty-two days later ChatGPT quit. Grok clocked in under an hour.",
+    href: "/field-notes/front-gate-lockout",
+  },
+  {
     number: "OISA-01",
     title: "When the Digital Employee Quits",
     summary:
