@@ -1,6 +1,6 @@
 # UMBRA / Field Eye naming
 
-Use these names in all new specs, decks, emails, and partner materials.
+Use these names in all specs, decks, emails, and partner materials.
 
 | Name | Role |
 | --- | --- |
@@ -14,6 +14,6 @@ Use these names in all new specs, decks, emails, and partner materials.
 | Threshold | FIRE-002 door / entry-plane relay |
 | Roost | FIRE-003 mobile dock |
 
-Do not use retired informal nicknames, including Eye of Kilrogg, Kilrogg, Killrog, or other game-derived titles, in public, partner, fire-program, or Nathan-facing materials.
+Field Eye is the only public name for the sensing companion.
 
-Historical emails and older PDFs may still contain the retired name. Do not propagate it forward. When a document is rebuilt, replace the name with Field Eye.
+Retired informal nicknames stay internal. Do not use them in public, partner, fire-program, or Nathan-facing materials. When an older document is rebuilt, replace the nickname with Field Eye and do not carry the old title forward.
