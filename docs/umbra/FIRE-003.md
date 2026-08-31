@@ -1,7 +1,7 @@
 # UMBRA FIRE-003 // Mobile Roost
 
 Status: CANONICAL PILOT SPEC v0.1
-Lineage: Eye of Kilrogg
+Lineage: Field Eye
 Dependency: FIRE-001 Interior Recon Scout
 Peer: FIRE-002 Threshold Relay
 
