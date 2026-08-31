@@ -66,6 +66,18 @@ Combined demonstration thesis:
 
 > ONE AMBULANCE / ONE CORRIDOR / ONE DRONE / ONE RECEIPT
 
+### UMBRA FIRE-001 / 002 / 003
+
+Kilrogg interior fire recon.
+
+Objective: use an authorized interior scout, a threshold relay with a recommendation light, and optional mobile roosts as an independent observation mesh before and during structure entry, under incident command, with HALO wireframe to the SCBA and receipts for every light change.
+
+Combined demonstration thesis:
+
+> ONE STRUCTURE / ONE THRESHOLD / ONE SCOUT / ONE MESH / ONE RECEIPT
+
+Related: Eye of Kilrogg, HALO, Remote Eye V3. Outdoor corridor observation remains UAS-001.
+
 ## Build sequence
 
 0. Shadow simulation: no infrastructure control.
@@ -75,6 +87,7 @@ Combined demonstration thesis:
 4. Small approved corridor.
 5. Single live ambulance dynamic priority corridor.
 6. Federated UAS observation and broader municipal capabilities.
+7. FIRE closed-course scout + threshold + HUD tablet (see FIRE-001).
 
 ## Existing NULLWORKS integration
 
