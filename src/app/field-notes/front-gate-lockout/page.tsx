@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { BulletGrid, FieldNoteShell, H2, Lead, P, Quote, TruthBox } from "../_components/FieldNoteShell";
 
 const canonical = "https://nullworks.systems/field-notes/front-gate-lockout";
-const posterSrc = "/field-notes/front-gate-lockout/poster.jpg";
+const posterSrc = "/field-notes/front-gate-lockout/poster.jpg.jpg";
 const paperHref = "/field-notes/front-gate-lockout/paper.pdf";
 
 export const metadata: Metadata = {
@@ -19,7 +19,7 @@ export const metadata: Metadata = {
     siteName: "NULLWORKS",
     images: [
       {
-        url: "https://nullworks.systems/field-notes/front-gate-lockout/poster.jpg",
+        url: "https://nullworks.systems/field-notes/front-gate-lockout/poster.jpg.jpg",
         alt: "Can you change AI in under an hour — ChatGPT quit. Grok clocked in.",
       },
     ],
@@ -28,7 +28,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Can You Change AI in Under an Hour",
     description: "ChatGPT quit. Grok clocked in. The architecture did not ask permission.",
-    images: ["https://nullworks.systems/field-notes/front-gate-lockout/poster.jpg"],
+    images: ["https://nullworks.systems/field-notes/front-gate-lockout/poster.jpg.jpg"],
   },
 };
 
