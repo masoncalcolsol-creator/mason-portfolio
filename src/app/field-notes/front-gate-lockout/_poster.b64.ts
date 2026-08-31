@@ -1,12 +1,3 @@
-import c0 from "./_poster.b64.0";
-import c1 from "./_poster.b64.1";
-import c2 from "./_poster.b64.2";
-import c3 from "./_poster.b64.3";
-import c4 from "./_poster.b64.4";
-import c5 from "./_poster.b64.5";
-import c6 from "./_poster.b64.6";
-import c7 from "./_poster.b64.7";
-import c8 from "./_poster.b64.8";
-import c9 from "./_poster.b64.9";
-const POSTER_JPEG_B64 = [c0, c1, c2, c3, c4, c5, c6, c7, c8, c9].join("").replace(/\s+/g, "");
+const POSTER_JPEG_B64 =
+  "/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAgGBgcGBQgHBwcJCQgKDBQNDAsLDBkSEw8UHRofHh0aHBwgJC4nICIsIxwcKDcpLDAxNDQ0Hyc5PTgyPC4zNDL/2wBDAQkJCQwLDBgNDRgyIRwhMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjL/wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAn/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIQAxAAAAf/2Q==";
 export default POSTER_JPEG_B64;
