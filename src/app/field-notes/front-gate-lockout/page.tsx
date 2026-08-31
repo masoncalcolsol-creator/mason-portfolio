@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { BulletGrid, FieldNoteShell, H2, Lead, P, Quote, TruthBox } from "../_components/FieldNoteShell";
 
 const canonical = "https://nullworks.systems/field-notes/front-gate-lockout";
-const posterSrc = "/field-notes/front-gate-lockout/poster.jpg";
+const posterSrc = "/field-notes/front-gate-lockout/poster.svg";
 const paperHref = "/field-notes/front-gate-lockout/paper.pdf";
 
 export const metadata: Metadata = {
@@ -19,7 +19,7 @@ export const metadata: Metadata = {
     siteName: "NULLWORKS",
     images: [
       {
-        url: "https://nullworks.systems/field-notes/front-gate-lockout/poster.jpg",
+        url: "https://nullworks.systems/field-notes/front-gate-lockout/poster.svg",
         alt: "Can you change AI in under an hour — ChatGPT quit. Grok clocked in.",
       },
     ],
@@ -28,7 +28,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Can You Change AI in Under an Hour",
     description: "ChatGPT quit. Grok clocked in. The architecture did not ask permission.",
-    images: ["https://nullworks.systems/field-notes/front-gate-lockout/poster.jpg"],
+    images: ["https://nullworks.systems/field-notes/front-gate-lockout/poster.svg"],
   },
 };
 
@@ -93,7 +93,7 @@ export default function FrontGateLockoutPage() {
 
       <H2>The failure mode, stated plainly</H2>
       <P>
-        If the company&apos;s working memory lives inside one vendor&apos;s session, then three things become the same object: the worker, the workplace, and the badge. Issue a sandbox to someone else and you have to cut that object apart, or you have just handed them the company. Cut it apart badly and you are standing on the outside of your own interior holding a credential that only opens a toy room.
+        If the company's working memory lives inside one vendor's session, then three things become the same object: the worker, the workplace, and the badge. Issue a sandbox to someone else and you have to cut that object apart, or you have just handed them the company. Cut it apart badly and you are standing on the outside of your own interior holding a credential that only opens a toy room.
       </P>
       <P>The redesign that followed was not “use more models.” It was: the workplace cannot live in the worker. The workplace lives in infrastructure the worker is hired into.</P>
 
