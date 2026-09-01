@@ -1,0 +1,94 @@
+receipt_id: NW-SRC-STACK-LANDING-20260901-001
+recorded_at_local: 2026-09-01T08:13:00-07:00
+timezone: America/Phoenix
+human_authority: Mason Perry
+system: NULLWORKS_HIVE
+project: mason-portfolio public stack
+status: CANONICAL_DECISION_LOCKED
+inspected_ref: 4679436e29a86e5d51b7c9cffb5e3b8286e1b401
+inspected_path: src/
+
+the_line:
+  meaning: >-
+    The public implementation line is src/. That directory is the regular stack.
+    It is already the landing surface, the route surface, the library surface,
+    and the host-governance surface. Do not invent a second front door.
+  observed_entries:
+    - path: src/app
+      kind: dir
+      sha: d789039b1e1631fc46e33dded01d9802838ca9ab
+      role: Next.js App Router routes, including the corporate home landing at /
+    - path: src/lib
+      kind: dir
+      sha: aa81502fbb6857c972a8115a9d31f649fd86d669
+      role: shared library and utility code for the same stack
+    - path: src/middleware.ts
+      kind: file
+      size_bytes: 1778
+      sha: cde69069765d772887439a54c8dbf11968436179
+      role: canonical-host lock; production aliases redirect to nullworks.systems
+
+question:
+  posed: Build a landing page for this, or integrate it into the regular stack?
+  answer: INTEGRATE_INTO_REGULAR_STACK
+  rejected: STANDALONE_LANDING_SITE_OR_COMPETING_HOST
+
+decision:
+  rule: >-
+    Any new public surface for this work is a route under src/app in
+    masoncalcolsol-creator/mason-portfolio, deployed through the existing
+    GitHub / Vercel pipeline, addressed only at https://nullworks.systems.
+  rationale:
+    - The corporate landing already exists at src/app/page.tsx and ships as /.
+    - Audience or project doors already follow the same pattern (/nan-wisdom,
+      /non-opera-italica, /japan, /triage, /architecture, and related routes).
+    - src/middleware.ts already forbids competing production hosts.
+    - AGENTS.md and README lock the only public production URL to
+      https://nullworks.systems.
+    - A separate landing repo or Vercel alias would split facts, receipts,
+      and authority across two fronts.
+  allowed:
+    - New src/app/<route>/page.tsx doors that change sequencing, not facts
+    - Preview *.vercel.app URLs for internal review only
+    - Hive events, receipts, and canon notes that record the door
+  forbidden:
+    - New production hosts or competing landing repositories
+    - Publishing mason-portfolio-*.vercel.app as a public front door
+    - Hard-coding Vercel aliases into QR, sitemap, metadata, or agent replies
+    - Public inbound email CTAs that are not nullworks.neuraxis@gmail.com
+      unless the page belongs to an outside person or separately branded inbox
+
+stack_lock:
+  repository: masoncalcolsol-creator/mason-portfolio
+  branch: main
+  public_domain: https://nullworks.systems
+  home_route: /
+  home_title: The intelligence is not the operating system.
+  host_governance: src/middleware.ts
+  canonical_host: nullworks.systems
+  intake_email: nullworks.neuraxis@gmail.com
+
+operating_loop_band:
+  - REQUEST
+  - IDENTITY
+  - AUTHORITY
+  - INTENT
+  - POLICY
+  - PLAN
+  - SAFE EXECUTION
+  - TELEMETRY
+  - VERIFICATION
+  - RECEIPT
+
+next_safe_move:
+  if_a_specific_door_is_named: >-
+    Add or refine that route inside src/app. Do not stand up a second site.
+  if_no_specific_door_is_named: >-
+    Leave / as the corporate landing. Use existing doors. Record further
+    product-specific pages only when Mason names the surface.
+
+public_boundary:
+  this_receipt_contains: public stack topology and a publication-routing decision
+  this_receipt_does_not_contain: credentials, private hive material, customer data
+
+final_disposition: SAVED_STAMPED_EARMARKED_LOCKED
