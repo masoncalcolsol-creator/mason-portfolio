@@ -1,0 +1,38 @@
+receipt_id: NW-ARCH-SRC-LINE-20260901-001
+recorded_at_local: 2026-09-01T08:25:00-07:00
+timezone: America/Phoenix
+human_authority: Mason Perry
+system: NULLWORKS_HIVE
+project: PUBLIC_ARCHITECTURE_SURFACE
+status: SAVED_STAMPED_EARMARKED_LOCKED
+
+question: Where should the src stack line be made public?
+answer: Refine existing /architecture. Do not create a second landing site.
+
+surface:
+  route: /architecture
+  tier: 1_CORPORATE
+  host: https://nullworks.systems/architecture
+  repository: masoncalcolsol-creator/mason-portfolio
+  implementation: src/app/architecture/page.tsx
+
+locked_stack_line:
+  - path: src/app
+    meaning: routes are doors; existence is not corporate navigation
+  - path: src/lib
+    meaning: shared truth used by those routes
+  - path: src/middleware.ts
+    meaning: production host lock to nullworks.systems
+
+not_done:
+  - no new repository
+  - no competing production host
+  - no replacement of corporate home at /
+  - no promotion of laboratory or ANVIL routes into the identity bar
+
+related:
+  - hive/events/2026-09-01T08-13-00-07-00_src_stack_landing_vs_integrate.yaml
+  - hive/canon/landing-vs-regular-stack-2026-09-01.md
+  - docs/PUBLIC_ROUTE_GOVERNANCE_V1.md
+
+final_disposition: SAVED_STAMPED_EARMARKED_LOCKED
