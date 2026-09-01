@@ -1,0 +1,45 @@
+receipt_id: NW-THREAD-HANDOFF-SRC-ARCH-20260901-001
+recorded_at_local: 2026-09-01T08:28:00-07:00
+timezone: America/Phoenix
+human_authority: Mason Perry
+system: NULLWORKS_HIVE
+project: SRC_STACK_LINE_PUBLIC_ARCHITECTURE
+status: SAVED_STAMPED_EARMARKED_LOCKED
+purpose: Full thread upload so a later agent or conversation can continue without the original chat.
+
+thread_arc:
+  - inspected src/ line: app, lib, middleware.ts
+  - asked landing page vs regular stack
+  - locked integrate into regular stack
+  - asked where it belongs
+  - locked /architecture, not a new site, not /
+  - asked which surface makes the most sense
+  - locked /architecture as Tier 1 corporate explanation of the stack line
+  - refined src/app/architecture/page.tsx
+  - requested full hive upload for cross-thread continuity
+
+commits_this_thread:
+  - sha: 7cbd2c35d0c8d4b8cc1d8fb205a886936084aa63
+    meaning: first decision receipts for landing vs stack
+  - sha: ee74f842ed1ab585d61a8298bddccfcbdd958056
+    meaning: architecture page refine plus event
+
+canonical_packet:
+  - hive/canon/2026-09-01-src-stack-architecture-thread-handoff.md
+  - hive/canon/landing-vs-regular-stack-2026-09-01.md
+  - hive/events/2026-09-01T08-13-00-07-00_src_stack_landing_vs_integrate.yaml
+  - hive/events/2026-09-01T08-25-00-07-00_architecture_src_stack_line.yaml
+  - this file
+
+public_surface:
+  route: /architecture
+  url: https://nullworks.systems/architecture
+  implementation: src/app/architecture/page.tsx
+  corporate_home_unchanged: /
+
+read_first_for_next_thread:
+  - hive/canon/2026-09-01-src-stack-architecture-thread-handoff.md
+  - docs/PUBLIC_ROUTE_GOVERNANCE_V1.md
+  - AGENTS.md
+
+final_disposition: SAVED_STAMPED_EARMARKED_LOCKED
