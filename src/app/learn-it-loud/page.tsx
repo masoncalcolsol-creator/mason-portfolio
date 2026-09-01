@@ -22,10 +22,39 @@ import {
 } from "lucide-react";
 import styles from "./page.module.css";
 
+const mediaBase =
+  "https://foveyfclihpsnwhfchib.supabase.co/storage/v1/object/public/anvil-media/learn-it-loud";
+const coverSrc = `${mediaBase}/cover.jpg`;
+const trackSrc = `${mediaBase}/01-big-ditch-energy.mp3`;
+
 export const metadata: Metadata = {
-  title: "Learn It Loud | A 30-Minute Music Learning Lab",
+  title: "Learn It Loud — Big Ditch Energy",
   description:
-    "A proposed classroom pilot where students create, compare, and discuss curriculum-grounded songs in genres they already care about.",
+    "A proposed 30-minute classroom pilot where students create, compare, and discuss curriculum-grounded songs. Proof vehicle: Big Ditch Energy, a Panama Canal ska demo.",
+  alternates: { canonical: "/learn-it-loud" },
+  openGraph: {
+    title: "Learn It Loud — Big Ditch Energy",
+    description:
+      "Classroom music-learning pilot. Students remix the lesson. The proof vehicle is Big Ditch Energy, a Panama Canal ska song.",
+    url: "https://nullworks.systems/learn-it-loud",
+    siteName: "NULLWORKS",
+    type: "website",
+    images: [
+      {
+        url: coverSrc,
+        width: 1400,
+        height: 1400,
+        alt: "Big Ditch Energy — Learn It Loud album cover",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Learn It Loud — Big Ditch Energy",
+    description:
+      "A 30-minute classroom music lab. Proof vehicle: Panama Canal ska demo.",
+    images: [coverSrc],
+  },
 };
 
 const subjectExamples = [
@@ -87,7 +116,7 @@ export default function LearnItLoudPage() {
           </div>
 
           <aside className={styles.slothCard}>
-            <div className={styles.slothFace} aria-hidden="true">🦥</div>
+            <div className={styles.slothFace} aria-hidden="true">🐿️</div>
             <p className={styles.slothLabel}>MR. SLOTH’S FIELD NOTE</p>
             <blockquote>
               The music is not the lesson wrapped in decoration. The act of choosing, comparing, and explaining the music becomes part of the learning loop.
@@ -114,17 +143,20 @@ export default function LearnItLoudPage() {
             </p>
           </div>
           <div className={styles.playerCard}>
+            <img
+              className={styles.albumArt}
+              src={coverSrc}
+              alt="Big Ditch Energy album cover — Panama Canal lock under a gold sun"
+            />
             <div className={styles.playerHeader}>
               <span><Music2 size={18} /> CLASSROOM DEMO</span>
-              <small>Panama Canal · ska-inspired</small>
+              <small>Panama Canal · ska · 3:35</small>
             </div>
-            <a
-              href="https://suno.com/s/hUAYoK5UBjL1Wgaa"
-              target="_blank"
-              rel="noreferrer"
-              className={styles.playButton}
-            >
-              <Play size={18} /> Play Big Ditch Energy
+            <audio className={styles.nativePlayer} controls preload="metadata" src={trackSrc}>
+              Your browser does not play audio.
+            </audio>
+            <a href={trackSrc} download className={styles.playButton}>
+              Download Big Ditch Energy
             </a>
           </div>
         </section>
@@ -263,7 +295,7 @@ export default function LearnItLoudPage() {
           </div>
           <div className={styles.invitationButtons}>
             <a href="/" className={styles.primaryButton}>Open Mason’s portfolio <ArrowRight size={17} /></a>
-            <a href="https://suno.com/s/hUAYoK5UBjL1Wgaa" target="_blank" rel="noreferrer" className={styles.secondaryButton}>Hear Big Ditch Energy <Play size={17} /></a>
+            <a href="#demo" className={styles.secondaryButton}>Hear Big Ditch Energy <Play size={17} /></a>
           </div>
         </section>
 
