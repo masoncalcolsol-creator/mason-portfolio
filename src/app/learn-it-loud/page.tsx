@@ -24,7 +24,7 @@ import styles from "./page.module.css";
 
 const mediaBase =
   "https://foveyfclihpsnwhfchib.supabase.co/storage/v1/object/public/anvil-media/learn-it-loud";
-const coverSrc = `${mediaBase}/cover.jpg`;
+const coverSrc = `${mediaBase}/cover.jpg?v=2`;
 const trackSrc = `${mediaBase}/01-big-ditch-energy.mp3`;
 
 export const metadata: Metadata = {
@@ -44,7 +44,7 @@ export const metadata: Metadata = {
         url: coverSrc,
         width: 1400,
         height: 1400,
-        alt: "Big Ditch Energy — Learn It Loud album cover",
+        alt: "Big Ditch Energy — Mr. Sloth in a Panama Canal lock",
       },
     ],
   },
@@ -146,7 +146,7 @@ export default function LearnItLoudPage() {
             <img
               className={styles.albumArt}
               src={coverSrc}
-              alt="Big Ditch Energy album cover — Panama Canal lock under a gold sun"
+              alt="Big Ditch Energy album cover — Mr. Sloth standing in a Panama Canal lock as a cargo ship rises"
             />
             <div className={styles.playerHeader}>
               <span><Music2 size={18} /> CLASSROOM DEMO</span>
