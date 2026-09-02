@@ -22,8 +22,8 @@ export const metadata:Metadata={
     url:"https://nullworks.systems/anvil/non-opera-italica-nox",
     siteName:"NULLWORKS // ANVIL",
     type:"music.album",
-    images:[{url:`${base}/cover.jpg`,width:1024,height:1024,alt:"NOX ACCIPIT"}]
+    images:[{url:`${base}/poster.jpg`,width:1152,height:1712,alt:"NOX ACCIPIT teatro poster"}]
   },
-  twitter:{card:"summary_large_image",title:"NOX ACCIPIT",description:"NON OPERA ITALICA night cycle. Eight movements.",images:[`${base}/cover.jpg`]}
+  twitter:{card:"summary_large_image",title:"NOX ACCIPIT",description:"NON OPERA ITALICA night cycle. Eight movements.",images:[`${base}/poster.jpg`]}
 };
-export default function Page(){return <AnvilShell accent="#c4b48a"><ListeningPage title="NOX ACCIPIT" eyebrow="CARNIFICINA // NON OPERA ITALICA NOX" description="Night cycle. Eight movements. Latin. Pipe organ and low orchestra. Day dies over the works. The people enter. The moon takes flesh and does not look. Labor continues without a witness. Night remains." accent="#c4b48a" background="linear-gradient(180deg,#07060a,#080706 52%,#030303)" coverSrc={`${base}/cover.jpg`} tracks={tracks} footer="NOX ORITUR. LUNA ACCIPIT. ET NOX MANET. // NULLWORKS // ANVIL"/></AnvilShell>}
+export default function Page(){return <AnvilShell accent="#c4b48a"><ListeningPage title="NOX ACCIPIT" eyebrow="CARNIFICINA // NON OPERA ITALICA NOX" description="Night cycle. Eight movements. Latin. Pipe organ and low orchestra. Day dies over the works. The people enter. The moon takes flesh and does not look. Labor continues without a witness. Night remains." accent="#c4b48a" background="linear-gradient(180deg,#07060a,#080706 52%,#030303)" coverSrc={`${base}/poster.jpg`} coverKind="poster" tracks={tracks} footer="NOX ORITUR. LUNA ACCIPIT. ET NOX MANET. // NULLWORKS // ANVIL"/></AnvilShell>}
