@@ -2,6 +2,39 @@ import AnvilShell from "../AnvilShell";
 import ListeningPage from "../ListeningPage";
 import AlbumSwitch from "../AlbumSwitch";
 import { getArtistAlbums } from "../catalog";
-const tracks=[
-{n:1,title:"TERRA RESPIRAT",id:"b66f0d59-359a-4ad1-a762-607731d5e87e",dur:"3:20"},{n:2,title:"FERRUM IN MONTE",id:"b54a3b96-40f9-42e3-837e-f50d3930c120",dur:"2:44"},{n:3,title:"SILVA CADIT",id:"ecac1a7e-d27d-487d-ad27-a21e6311b6a6",dur:"2:44"},{n:4,title:"FLUMEN CAPTUM",id:"12baab79-8c17-4594-9ba4-5e05a6f89820",dur:"2:13"},{n:5,title:"FUMUS SUPER URBEM",id:"69553b1e-c738-4c61-8d73-0e0a918227f2",dur:"3:35"},{n:6,title:"HOMO MORBUS",id:"7a88807f-2564-493b-a40f-41d1533847d9",dur:"2:59"},{n:7,title:"TERRA SUB PONDERE",id:"1ed26a6e-9d18-410d-b290-d6dc267668fb",dur:"3:59"},{n:8,title:"CARO MACHINAE",id:"cc1f0478-4e00-48dc-8a86-c8a52f33c411",dur:"5:04"},{n:9,title:"LUX SINE SOLE",id:"9e054a4a-18b2-4f57-b987-db7512a63836",dur:"3:33"},{n:10,title:"ULTIMA TURBA",id:"9f5d8518-349f-4ce2-b329-8bab945eb6b6",dur:"3:28"},{n:11,title:"TERRA MEMINIT",id:"4e0717af-2fe4-42a6-a506-2f7bfb6fbe26",dur:"3:21"},{n:12,title:"TERRA MANET",id:"4e564049-60fe-45a1-8c75-8cb889879419",dur:"3:18"}];
-export default function Page(){return <AnvilShell accent="#90b49b"><AlbumSwitch albums={getArtistAlbums("non-opera-italica")} current="non-opera-italica"/><ListeningPage title="NON OPERA ITALICA" eyebrow="CARNIFICINA // INDUSTRIAL DOOM OPERA" description="A Latin-language industrial doom opera for CARNIFICINA, pipe organ and low orchestra. Twelve movements, presented in canonical sequence." accent="#90b49b" background="linear-gradient(180deg,#090b09,#080908 50%,#050505)" tracks={tracks} footer="TERRA RESPIRAT. TERRA MEMINIT. TERRA MANET. // NULLWORKS // ANVIL"/></AnvilShell>}
+
+const poster = "https://foveyfclihpsnwhfchib.supabase.co/storage/v1/object/public/anvil-media/non-opera-italica/cover";
+
+const tracks = [
+  { n: 1, title: "TERRA RESPIRAT", id: "b66f0d59-359a-4ad1-a762-607731d5e87e", dur: "3:20" },
+  { n: 2, title: "FERRUM IN MONTE", id: "b54a3b96-40f9-42e3-837e-f50d3930c120", dur: "2:44" },
+  { n: 3, title: "SILVA CADIT", id: "ecac1a7e-d27d-487d-ad27-a21e6311b6a6", dur: "2:44" },
+  { n: 4, title: "FLUMEN CAPTUM", id: "12baab79-8c17-4594-9ba4-5e05a6f89820", dur: "2:13" },
+  { n: 5, title: "FUMUS SUPER URBEM", id: "69553b1e-c738-4c61-8d73-0e0a918227f2", dur: "3:35" },
+  { n: 6, title: "HOMO MORBUS", id: "7a88807f-2564-493b-a40f-41d1533847d9", dur: "2:59" },
+  { n: 7, title: "TERRA SUB PONDERE", id: "1ed26a6e-9d18-410d-b290-d6dc267668fb", dur: "3:59" },
+  { n: 8, title: "CARO MACHINAE", id: "cc1f0478-4e00-48dc-8a86-c8a52f33c411", dur: "5:04" },
+  { n: 9, title: "LUX SINE SOLE", id: "9e054a4a-18b2-4f57-b987-db7512a63836", dur: "3:33" },
+  { n: 10, title: "ULTIMA TURBA", id: "9f5d8518-349f-4ce2-b329-8bab945eb6b6", dur: "3:28" },
+  { n: 11, title: "TERRA MEMINIT", id: "4e0717af-2fe4-42a6-a506-2f7bfb6fbe26", dur: "3:21" },
+  { n: 12, title: "TERRA MANET", id: "4e564049-60fe-45a1-8c75-8cb889879419", dur: "3:18" },
+];
+
+export default function Page() {
+  return (
+    <AnvilShell accent="#90b49b">
+      <AlbumSwitch albums={getArtistAlbums("non-opera-italica")} current="non-opera-italica" />
+      <ListeningPage
+        title="NON OPERA ITALICA"
+        eyebrow="CARNIFICINA // INDUSTRIAL DOOM OPERA"
+        description="A Latin-language industrial doom opera for CARNIFICINA, pipe organ and low orchestra. Twelve movements, presented in canonical sequence."
+        accent="#90b49b"
+        background="linear-gradient(180deg,#090b09,#080908 50%,#050505)"
+        coverSrc={poster}
+        coverKind="poster"
+        tracks={tracks}
+        footer="TERRA RESPIRAT. TERRA MEMINIT. TERRA MANET. // NULLWORKS // ANVIL"
+      />
+    </AnvilShell>
+  );
+}
