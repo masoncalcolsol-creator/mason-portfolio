@@ -24,6 +24,6 @@ export const metadata:Metadata={
     type:"music.album",
     images:[{url:`${base}/cover.jpg`,width:1024,height:1024,alt:"NOX ACCIPIT"}]
   },
-  twitter:{card:"summary_large_image",title:"NOX ACCIPIT",description:"NON OPERA ITALICA night cycle. Eight movements.",images:[`${base}/cover.jpg"]}
+  twitter:{card:"summary_large_image",title:"NOX ACCIPIT",description:"NON OPERA ITALICA night cycle. Eight movements.",images:[`${base}/cover.jpg`]}
 };
 export default function Page(){return <AnvilShell accent="#c4b48a"><ListeningPage title="NOX ACCIPIT" eyebrow="CARNIFICINA // NON OPERA ITALICA NOX" description="Night cycle. Eight movements. Latin. Pipe organ and low orchestra. Day dies over the works. The people enter. The moon takes flesh and does not look. Labor continues without a witness. Night remains." accent="#c4b48a" background="linear-gradient(180deg,#07060a,#080706 52%,#030303)" coverSrc={`${base}/cover.jpg`} tracks={tracks} footer="NOX ORITUR. LUNA ACCIPIT. ET NOX MANET. // NULLWORKS // ANVIL"/></AnvilShell>}
