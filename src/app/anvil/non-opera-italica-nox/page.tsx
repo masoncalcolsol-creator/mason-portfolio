@@ -1,6 +1,8 @@
 import type {Metadata} from "next";
 import AnvilShell from "../AnvilShell";
 import ListeningPage from "../ListeningPage";
+import AlbumSwitch from "../AlbumSwitch";
+import { getArtistAlbums } from "../catalog";
 const base="https://foveyfclihpsnwhfchib.supabase.co/storage/v1/object/public/anvil-media/non-opera-italica-nox";
 const tracks=[
 {n:1,title:"NOX ORITUR",src:`${base}/01-nox-oritur.mp3`,dur:"4:04"},
@@ -26,4 +28,4 @@ export const metadata:Metadata={
   },
   twitter:{card:"summary_large_image",title:"NOX ACCIPIT",description:"NON OPERA ITALICA night cycle. Eight movements.",images:[`${base}/poster.jpg`]}
 };
-export default function Page(){return <AnvilShell accent="#c4b48a"><ListeningPage title="NOX ACCIPIT" eyebrow="CARNIFICINA // NON OPERA ITALICA NOX" description="Night cycle. Eight movements. Latin. Pipe organ and low orchestra. Day dies over the works. The people enter. The moon takes flesh and does not look. Labor continues without a witness. Night remains." accent="#c4b48a" background="linear-gradient(180deg,#07060a,#080706 52%,#030303)" coverSrc={`${base}/poster.jpg`} coverKind="poster" tracks={tracks} footer="NOX ORITUR. LUNA ACCIPIT. ET NOX MANET. // NULLWORKS // ANVIL"/></AnvilShell>}
+export default function Page(){return <AnvilShell accent="#c4b48a"><AlbumSwitch albums={getArtistAlbums("non-opera-italica")} current="non-opera-italica-nox"/><ListeningPage title="NOX ACCIPIT" eyebrow="CARNIFICINA // NON OPERA ITALICA NOX" description="Night cycle. Eight movements. Latin. Pipe organ and low orchestra. Day dies over the works. The people enter. The moon takes flesh and does not look. Labor continues without a witness. Night remains." accent="#c4b48a" background="linear-gradient(180deg,#07060a,#080706 52%,#030303)" coverSrc={`${base}/poster.jpg`} coverKind="poster" tracks={tracks} footer="NOX ORITUR. LUNA ACCIPIT. ET NOX MANET. // NULLWORKS // ANVIL"/></AnvilShell>}

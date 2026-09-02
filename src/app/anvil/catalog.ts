@@ -1,3 +1,9 @@
+export type AnvilAlbum = {
+  slug: string;
+  title: string;
+  note: string;
+};
+
 export type AnvilProject = {
   slug: string;
   name: string;
@@ -9,6 +15,7 @@ export type AnvilProject = {
   texture: string;
   facts: string[];
   works?: string[];
+  albums?: AnvilAlbum[];
 };
 
 export const projects: AnvilProject[] = [
@@ -80,6 +87,10 @@ export const projects: AnvilProject[] = [
     texture: "IRON / STEAM / STONE",
     facts: ["Lead voice: CARNIFICINA", "Extremely low dramatic contralto", "No modern electronic foundation", "Industrialization told as physical orchestral weight"],
     works: ["TERRA RESPIRAT", "CARO MACHINAE", "TERRA MANET", "NOX ACCIPIT"],
+    albums: [
+      { slug: "non-opera-italica", title: "NON OPERA ITALICA", note: "Original twelve-movement industrial cycle" },
+      { slug: "non-opera-italica-nox", title: "NOX ACCIPIT", note: "Night cycle. Eight movements." },
+    ],
   },
   {
     slug: "non-opera-italica-nox",
@@ -162,4 +173,10 @@ export const metaPages = [
 
 export function getProject(slug: string) {
   return projects.find((project) => project.slug === slug);
+}
+
+export function getArtistAlbums(slug: string) {
+  const project = getProject(slug);
+  if (project?.albums?.length) return project.albums;
+  return project ? [{ slug: project.slug, title: project.name, note: project.kicker }] : [];
 }
