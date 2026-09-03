@@ -2,7 +2,7 @@
 
 import { QRCodeSVG } from 'qrcode.react';
 
-const tags = Array.from({ length: 50 }, (_, i) => `PM-${String(i + 1).padStart(6, '0')}`);
+const tags = Array.from({ length: 60 }, (_, i) => `PM-${String(i + 1).padStart(6, '0')}`);
 const base = 'https://mason-portfolio-main.vercel.app/pmar/t';
 
 function MarkerLabel({ tag }: { tag: string }) {
@@ -23,14 +23,14 @@ export default function PMARBatchPrintPage() {
     <main className="pmars-batch-page min-h-screen bg-slate-950 p-5 text-white">
       <section className="screen-only mx-auto max-w-md">
         <div className="text-xs font-black tracking-[.25em] text-cyan-400">PMARS DEPLOYMENT KIT</div>
-        <h1 className="mt-2 text-3xl font-black">50-Label Brother Batch</h1>
-        <p className="mt-2 text-sm text-slate-400">All 50 markers are already rendered in this page before Android opens the print service. No last-second React state swap for the phone to ignore.</p>
-        <button onClick={() => window.print()} className="mt-5 w-full rounded-xl bg-cyan-400 px-4 py-4 text-lg font-black text-slate-950">PRINT ALL 50 LABELS</button>
+        <h1 className="mt-2 text-3xl font-black">60-Label Brother Batch</h1>
+        <p className="mt-2 text-sm text-slate-400">All 60 markers are already rendered in this page before Android opens the print service. No last-second React state swap for the phone to ignore.</p>
+        <button onClick={() => window.print()} className="mt-5 w-full rounded-xl bg-cyan-400 px-4 py-4 text-lg font-black text-slate-950">PRINT ALL 60 LABELS</button>
         <a href="/pmar/print" className="mt-3 block rounded-xl border border-slate-600 px-4 py-3 text-center font-bold">BACK TO SINGLE LABELS</a>
-        <p className="mt-4 text-xs text-slate-500">Expected Android print preview: 50 pages at 1.1 in x 3.5 in. Page 1 = PM-000001. Page 50 = PM-000050.</p>
+        <p className="mt-4 text-xs text-slate-500">Expected Android print preview: 60 pages at 1.1 in x 3.5 in. Page 1 = PM-000001. Page 60 = PM-000060.</p>
       </section>
 
-      <section className="batch-labels" aria-label="PMARS labels PM-000001 through PM-000050">
+      <section className="batch-labels" aria-label="PMARS labels PM-000001 through PM-000060">
         {tags.map((tag) => <MarkerLabel key={tag} tag={tag} />)}
       </section>
 
