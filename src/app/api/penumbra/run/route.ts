@@ -55,7 +55,15 @@ function modelAttempts(model: string) {
     return [model, "openai/gpt-5.5", "openai/gpt-5.4", "openai/gpt-4.1"];
   }
   if (model.startsWith("anthropic/")) {
-    return [model, "anthropic/claude-sonnet-4.6", "anthropic/claude-sonnet-4", "anthropic/claude-haiku-4.5", "anthropic/claude-3-haiku"];
+    return [
+      model,
+      "anthropic/claude-sonnet-5",
+      "anthropic/claude-opus-5",
+      "anthropic/claude-sonnet-4.6",
+      "anthropic/claude-sonnet-4",
+      "anthropic/claude-haiku-4.5",
+      "anthropic/claude-3-haiku",
+    ];
   }
   return [model];
 }
@@ -112,23 +120,7 @@ async function callAnthropicMessagesOnce(
   model: string,
   system: string,
   messages: ReturnType<typeof toGatewayMessages>,
-  onlyProvider?: "anthropic" | "bedrock" | "vertex",
 ) {
-  const requestBody: Record<string, unknown> = {
-    model,
-    system,
-    max_tokens: 1200,
-    messages,
-  };
-
-  if (onlyProvider) {
-    requestBody.providerOptions = {
-      gateway: {
-        only: [onlyProvider],
-      },
-    };
-  }
-
   const response = await fetch("https://ai-gateway.vercel.sh/v1/messages", {
     method: "POST",
     headers: {
@@ -136,7 +128,12 @@ async function callAnthropicMessagesOnce(
       "Content-Type": "application/json",
       "anthropic-version": "2023-06-01",
     },
-    body: JSON.stringify(requestBody),
+    body: JSON.stringify({
+      model,
+      system,
+      max_tokens: 1200,
+      messages,
+    }),
     cache: "no-store",
   });
 
@@ -152,10 +149,13 @@ async function callAnthropicMessagesOnce(
 
   if (!text) throw new Error("200 Claude returned no text content");
 
+  const routedProvider = payload?.provider_metadata?.gateway?.routing?.provider;
+
   return {
     text,
     model: typeof payload?.model === "string" ? payload.model : model,
     usage: payload?.usage || null,
+    provider: typeof routedProvider === "string" ? routedProvider : "anthropic",
   };
 }
 
@@ -167,17 +167,14 @@ async function callPaidGateway(model: string, system: string, messages: ReturnTy
   const failures: string[] = [];
 
   if (model.startsWith("anthropic/")) {
-    const providerAttempts: Array<"anthropic" | "bedrock" | "vertex"> = ["anthropic", "bedrock", "vertex"];
     for (const candidate of attempts) {
-      for (const provider of providerAttempts) {
-        try {
-          return await callAnthropicMessagesOnce(apiKey, candidate, system, messages, provider);
-        } catch (error) {
-          failures.push(`${candidate} via ${provider}: ${error instanceof Error ? error.message : String(error)}`);
-        }
+      try {
+        return await callAnthropicMessagesOnce(apiKey, candidate, system, messages);
+      } catch (error) {
+        failures.push(`${candidate}: ${error instanceof Error ? error.message : String(error)}`);
       }
     }
-    throw new Error(`ALL CLAUDE MODEL/PROVIDER ATTEMPTS FAILED | ${failures.join(" | ")}`);
+    throw new Error(`ALL CLAUDE MODEL ATTEMPTS FAILED | ${failures.join(" | ")}`);
   }
 
   for (const candidate of attempts) {
@@ -217,6 +214,7 @@ Keep this workroom response concise enough for other workers to inspect.`;
     seatName: worker.seatName,
     requestedModel: worker.model,
     actualModel: result.model || requestedResolvedModel,
+    actualProvider: (result as any).provider || (result.model || requestedResolvedModel).split("/")[0],
     content: result.text,
     usage: result.usage,
   };
@@ -253,7 +251,7 @@ export async function POST(req: NextRequest) {
             actor_type: "ai",
             seat_id: result.seatId,
             seat_name: result.seatName,
-            provider: result.actualModel.split("/")[0],
+            provider: result.actualProvider,
             model: result.actualModel,
             content: result.content,
             run_id: runId,
@@ -294,7 +292,7 @@ export async function POST(req: NextRequest) {
       runId,
       results,
       appendedEvents,
-      runMode: "shared_append_only_two_pass_paid_gateway_explicit_same_vendor_retry_anthropic_native",
+      runMode: "shared_append_only_two_pass_paid_gateway_explicit_same_vendor_retry_anthropic_native_unpinned",
       passes: 2,
       gatewayAuth: "AI_GATEWAY_API_KEY",
       authority: "HUMAN_AUTHORITY_REQUIRED_FOR_EXTERNAL_ACTIONS",
