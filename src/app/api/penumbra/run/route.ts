@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from "next/server";
-import { generateText } from "ai";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -50,6 +49,48 @@ function rosterText(workers: Worker[]) {
   return workers.map((w, i) => `${i + 1}. ${w.name} — ${w.seatName} — ${resolveModel(w.model)}`).join("\n");
 }
 
+async function callPaidGateway(model: string, system: string, messages: ReturnType<typeof toGatewayMessages>) {
+  const apiKey = process.env.AI_GATEWAY_API_KEY;
+  if (!apiKey) {
+    throw new Error("AI_GATEWAY_API_KEY is not configured for this deployment.");
+  }
+
+  const response = await fetch("https://ai-gateway.vercel.sh/v1/chat/completions", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${apiKey}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      model,
+      messages: [
+        { role: "system", content: system },
+        ...messages,
+      ],
+      max_tokens: 900,
+      stream: false,
+    }),
+    cache: "no-store",
+  });
+
+  const payload = await response.json().catch(() => null);
+  if (!response.ok) {
+    const message = payload?.error?.message || payload?.error || payload?.message || `AI Gateway request failed (${response.status})`;
+    throw new Error(typeof message === "string" ? message : JSON.stringify(message));
+  }
+
+  const text = payload?.choices?.[0]?.message?.content;
+  if (typeof text !== "string" || !text.trim()) {
+    throw new Error("Worker returned no text content");
+  }
+
+  return {
+    text: text.trim(),
+    model: typeof payload?.model === "string" ? payload.model : model,
+    usage: payload?.usage || null,
+  };
+}
+
 async function runWorker(worker: Worker, thread: ThreadEvent[], workers: Worker[], phase: "proposal" | "challenge") {
   const system = `You are ${worker.name}, an AI occupant of the NULLWORKS PENUMBRA workroom seat "${worker.seatName}". You are one worker among humans and other AI workers in a shared room governed by UMBRA.
 
@@ -64,24 +105,18 @@ ${phase === "proposal"
 
 Keep this workroom response concise enough for other workers to inspect.`;
 
-  const resolvedModel = resolveModel(worker.model);
-  const result = await generateText({
-    model: resolvedModel,
-    system,
-    messages: toGatewayMessages(thread),
-    maxOutputTokens: 900,
-  });
+  const requestedResolvedModel = resolveModel(worker.model);
+  const result = await callPaidGateway(requestedResolvedModel, system, toGatewayMessages(thread));
 
-  if (!result.text?.trim()) throw new Error("Worker returned no text content");
   return {
     workerId: worker.id,
     name: worker.name,
     seatId: worker.seatId,
     seatName: worker.seatName,
     requestedModel: worker.model,
-    actualModel: resolvedModel,
-    content: result.text.trim(),
-    usage: result.usage || null,
+    actualModel: result.model || requestedResolvedModel,
+    content: result.text,
+    usage: result.usage,
   };
 }
 
@@ -103,9 +138,6 @@ export async function POST(req: NextRequest) {
     const results: any[] = [];
     let sequence = 0;
 
-    // Two ordered passes. Pass 1 builds shared claims. Pass 2 guarantees every
-    // surviving worker has seen the complete first-pass output from every other
-    // surviving worker before it responds again.
     for (const phase of ["proposal", "challenge"] as const) {
       for (const worker of workers) {
         try {
@@ -148,8 +180,9 @@ export async function POST(req: NextRequest) {
       runId,
       results,
       appendedEvents,
-      runMode: "shared_append_only_two_pass",
+      runMode: "shared_append_only_two_pass_paid_gateway",
       passes: 2,
+      gatewayAuth: "AI_GATEWAY_API_KEY",
       authority: "HUMAN_AUTHORITY_REQUIRED_FOR_EXTERNAL_ACTIONS",
     });
   } catch (error) {
