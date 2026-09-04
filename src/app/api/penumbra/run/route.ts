@@ -19,6 +19,11 @@ type Worker = {
   model: string;
 };
 
+function resolveModel(model: string) {
+  if (model === "xai/grok-4") return "spacexai/grok-4.6";
+  return model;
+}
+
 function toGatewayMessages(thread: ThreadEvent[]) {
   return thread.slice(-24).map((event) => ({
     role: event.actor_type === "ai" ? "assistant" : "user",
@@ -30,6 +35,7 @@ function toGatewayMessages(thread: ThreadEvent[]) {
 
 async function runWorker(worker: Worker, thread: ThreadEvent[], apiKey: string) {
   const system = `You are ${worker.name}, an AI occupant of the NULLWORKS PENUMBRA workroom seat "${worker.seatName}". You are one worker among humans and other AI workers in a shared room governed by UMBRA. Read the shared thread, distinguish other workers' statements from facts, challenge or extend them when useful, and answer the latest human task from the perspective of your seat. Do not claim Human Authority. Do not execute or imply external actions. Keep provenance clear and do not pretend another worker's work is yours.`;
+  const resolvedModel = resolveModel(worker.model);
 
   const response = await fetch("https://ai-gateway.vercel.sh/v1/chat/completions", {
     method: "POST",
@@ -40,7 +46,7 @@ async function runWorker(worker: Worker, thread: ThreadEvent[], apiKey: string) 
       "x-title": "NULLWORKS PENUMBRA Workroom",
     },
     body: JSON.stringify({
-      model: worker.model,
+      model: resolvedModel,
       messages: [{ role: "system", content: system }, ...toGatewayMessages(thread)],
       stream: false,
     }),
@@ -60,7 +66,7 @@ async function runWorker(worker: Worker, thread: ThreadEvent[], apiKey: string) 
     seatId: worker.seatId,
     seatName: worker.seatName,
     requestedModel: worker.model,
-    actualModel: data?.model || worker.model,
+    actualModel: data?.model || resolvedModel,
     content: content.trim(),
     usage: data?.usage || null,
   };
