@@ -50,30 +50,31 @@ function rosterText(workers: Worker[]) {
   return workers.map((w, i) => `${i + 1}. ${w.name} — ${w.seatName} — ${resolveModel(w.model)}`).join("\n");
 }
 
-function gatewayOptions(model: string) {
+function gatewayRouting(model: string) {
   if (model.startsWith("openai/")) {
     return {
       order: ["openai", "azure"],
-      models: [model, "openai/gpt-5.5", "openai/gpt-5.4"],
+      fallbacks: ["openai/gpt-5.5", "openai/gpt-5.4"],
     };
   }
 
   if (model.startsWith("anthropic/")) {
     return {
       order: ["anthropic", "vertex"],
-      models: [model, "anthropic/claude-sonnet-4", "anthropic/claude-haiku-4.5"],
+      fallbacks: ["anthropic/claude-sonnet-4", "anthropic/claude-haiku-4.5"],
     };
   }
 
   if (model.startsWith("spacexai/")) {
     return {
       order: ["spacexai"],
-      models: [model],
+      fallbacks: [] as string[],
     };
   }
 
   return {
-    models: [model],
+    order: [] as string[],
+    fallbacks: [] as string[],
   };
 }
 
@@ -83,7 +84,24 @@ async function callPaidGateway(model: string, system: string, messages: ReturnTy
     throw new Error("AI_GATEWAY_API_KEY is not configured for this deployment.");
   }
 
-  const routing = gatewayOptions(model);
+  const routing = gatewayRouting(model);
+  const requestBody: Record<string, unknown> = {
+    model,
+    messages: [
+      { role: "system", content: system },
+      ...messages,
+    ],
+    stream: false,
+  };
+
+  if (routing.fallbacks.length) requestBody.models = routing.fallbacks;
+  if (routing.order.length) {
+    requestBody.providerOptions = {
+      gateway: {
+        order: routing.order,
+      },
+    };
+  }
 
   const response = await fetch("https://ai-gateway.vercel.sh/v1/chat/completions", {
     method: "POST",
@@ -91,17 +109,7 @@ async function callPaidGateway(model: string, system: string, messages: ReturnTy
       Authorization: `Bearer ${apiKey}`,
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({
-      model,
-      messages: [
-        { role: "system", content: system },
-        ...messages,
-      ],
-      stream: false,
-      providerOptions: {
-        gateway: routing,
-      },
-    }),
+    body: JSON.stringify(requestBody),
     cache: "no-store",
   });
 
