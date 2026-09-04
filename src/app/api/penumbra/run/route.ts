@@ -17,6 +17,7 @@ type ThreadEvent = {
   run_id?: string;
   phase?: string;
   sequence?: number;
+  status?: "ok" | "error";
 };
 
 type Worker = {
@@ -40,7 +41,7 @@ function toGatewayMessages(thread: ThreadEvent[]) {
   return thread.slice(-40).map((event) => ({
     role: event.actor_type === "ai" ? "assistant" as const : "user" as const,
     content: event.actor_type === "ai"
-      ? `[${event.actor_name || "AI"} · ${event.seat_name || "seat"}${event.model ? ` · ${event.model}` : ""}${event.phase ? ` · ${event.phase}` : ""}]\n${event.content}`
+      ? `[${event.actor_name || "AI"} · ${event.seat_name || "seat"}${event.model ? ` · ${event.model}` : ""}${event.phase ? ` · ${event.phase}` : ""}${event.status === "error" ? " · ERROR" : ""}]\n${event.content}`
       : `[${event.actor_name || "Human"} · ${event.seat_name || "Human Authority"}]\n${event.content}`,
   }));
 }
@@ -67,7 +68,6 @@ async function callPaidGateway(model: string, system: string, messages: ReturnTy
         { role: "system", content: system },
         ...messages,
       ],
-      max_tokens: 900,
       stream: false,
     }),
     cache: "no-store",
@@ -97,6 +97,8 @@ async function runWorker(worker: Worker, thread: ThreadEvent[], workers: Worker[
 ACTIVE AI ROSTER:\n${rosterText(workers)}
 
 The thread below is the canonical append-only room log available for this run. Statements from other workers are not facts merely because they are in the log. Preserve provenance, challenge or extend other workers when useful, and never pretend another worker's work is yours. Human Authority remains final and AI agreement never authorizes external action.
+
+Worker failure events are also part of the canonical log. Treat them as operational evidence about a seat/provider invocation, not as a substantive claim from that worker.
 
 Current phase: ${phase.toUpperCase()}.
 ${phase === "proposal"
@@ -157,19 +159,43 @@ export async function POST(req: NextRequest) {
             run_id: runId,
             phase,
             sequence,
+            status: "ok",
           };
           workingLog.push(event);
           results.push({ ok: true, phase, sequence, event, ...result });
         } catch (error) {
+          sequence += 1;
+          const resolvedModel = resolveModel(worker.model);
+          const errorMessage = error instanceof Error ? error.message : String(error);
+          const failureEvent: ThreadEvent = {
+            id: uid("evt"),
+            ts: new Date().toISOString(),
+            actor_id: worker.id,
+            actor_name: worker.name,
+            actor_type: "ai",
+            seat_id: worker.seatId,
+            seat_name: worker.seatName,
+            provider: resolvedModel.split("/")[0],
+            model: resolvedModel,
+            content: `WORKER INVOCATION FAILED: ${errorMessage}`,
+            run_id: runId,
+            phase,
+            sequence,
+            status: "error",
+          };
+          workingLog.push(failureEvent);
           results.push({
             ok: false,
             phase,
+            sequence,
+            event: failureEvent,
             workerId: worker.id,
             name: worker.name,
             seatId: worker.seatId,
             seatName: worker.seatName,
             requestedModel: worker.model,
-            error: error instanceof Error ? error.message : String(error),
+            actualModel: resolvedModel,
+            error: errorMessage,
           });
         }
       }
@@ -180,7 +206,7 @@ export async function POST(req: NextRequest) {
       runId,
       results,
       appendedEvents,
-      runMode: "shared_append_only_two_pass_paid_gateway",
+      runMode: "shared_append_only_two_pass_paid_gateway_failure_evidence",
       passes: 2,
       gatewayAuth: "AI_GATEWAY_API_KEY",
       authority: "HUMAN_AUTHORITY_REQUIRED_FOR_EXTERNAL_ACTIONS",
