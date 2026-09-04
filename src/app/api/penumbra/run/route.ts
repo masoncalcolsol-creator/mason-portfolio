@@ -55,19 +55,18 @@ function modelAttempts(model: string) {
     return [model, "openai/gpt-5.5", "openai/gpt-5.4", "openai/gpt-4.1"];
   }
   if (model.startsWith("anthropic/")) {
-    return [model, "anthropic/claude-sonnet-4.6", "anthropic/claude-sonnet-4", "anthropic/claude-haiku-4.5"];
+    return [model, "anthropic/claude-sonnet-4.6", "anthropic/claude-sonnet-4", "anthropic/claude-haiku-4.5", "anthropic/claude-3-haiku"];
   }
   return [model];
 }
 
 function providerOrder(model: string) {
   if (model.startsWith("openai/")) return ["openai", "azure"];
-  if (model.startsWith("anthropic/")) return ["anthropic", "vertex"];
   if (model.startsWith("spacexai/")) return ["spacexai"];
   return [] as string[];
 }
 
-async function callGatewayOnce(
+async function callChatCompletionsOnce(
   apiKey: string,
   model: string,
   system: string,
@@ -80,9 +79,7 @@ async function callGatewayOnce(
     stream: false,
   };
 
-  if (order.length) {
-    requestBody.providerOptions = { gateway: { order } };
-  }
+  if (order.length) requestBody.providerOptions = { gateway: { order } };
 
   const response = await fetch("https://ai-gateway.vercel.sh/v1/chat/completions", {
     method: "POST",
@@ -101,12 +98,62 @@ async function callGatewayOnce(
   }
 
   const text = payload?.choices?.[0]?.message?.content;
-  if (typeof text !== "string" || !text.trim()) {
-    throw new Error("200 Worker returned no text content");
-  }
+  if (typeof text !== "string" || !text.trim()) throw new Error("200 Worker returned no text content");
 
   return {
     text: text.trim(),
+    model: typeof payload?.model === "string" ? payload.model : model,
+    usage: payload?.usage || null,
+  };
+}
+
+async function callAnthropicMessagesOnce(
+  apiKey: string,
+  model: string,
+  system: string,
+  messages: ReturnType<typeof toGatewayMessages>,
+  onlyProvider?: "anthropic" | "bedrock" | "vertex",
+) {
+  const requestBody: Record<string, unknown> = {
+    model,
+    system,
+    max_tokens: 1200,
+    messages,
+  };
+
+  if (onlyProvider) {
+    requestBody.providerOptions = {
+      gateway: {
+        only: [onlyProvider],
+      },
+    };
+  }
+
+  const response = await fetch("https://ai-gateway.vercel.sh/v1/messages", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${apiKey}`,
+      "Content-Type": "application/json",
+      "anthropic-version": "2023-06-01",
+    },
+    body: JSON.stringify(requestBody),
+    cache: "no-store",
+  });
+
+  const payload = await response.json().catch(() => null);
+  if (!response.ok) {
+    const message = payload?.error?.message || payload?.error || payload?.message || `Anthropic Gateway request failed (${response.status})`;
+    throw new Error(`${response.status} ${typeof message === "string" ? message : JSON.stringify(message)}`);
+  }
+
+  const text = Array.isArray(payload?.content)
+    ? payload.content.filter((b: any) => b?.type === "text" && typeof b?.text === "string").map((b: any) => b.text).join("\n").trim()
+    : "";
+
+  if (!text) throw new Error("200 Claude returned no text content");
+
+  return {
+    text,
     model: typeof payload?.model === "string" ? payload.model : model,
     usage: payload?.usage || null,
   };
@@ -119,9 +166,23 @@ async function callPaidGateway(model: string, system: string, messages: ReturnTy
   const attempts = [...new Set(modelAttempts(model))];
   const failures: string[] = [];
 
+  if (model.startsWith("anthropic/")) {
+    const providerAttempts: Array<"anthropic" | "bedrock" | "vertex"> = ["anthropic", "bedrock", "vertex"];
+    for (const candidate of attempts) {
+      for (const provider of providerAttempts) {
+        try {
+          return await callAnthropicMessagesOnce(apiKey, candidate, system, messages, provider);
+        } catch (error) {
+          failures.push(`${candidate} via ${provider}: ${error instanceof Error ? error.message : String(error)}`);
+        }
+      }
+    }
+    throw new Error(`ALL CLAUDE MODEL/PROVIDER ATTEMPTS FAILED | ${failures.join(" | ")}`);
+  }
+
   for (const candidate of attempts) {
     try {
-      return await callGatewayOnce(apiKey, candidate, system, messages);
+      return await callChatCompletionsOnce(apiKey, candidate, system, messages);
     } catch (error) {
       failures.push(`${candidate}: ${error instanceof Error ? error.message : String(error)}`);
     }
@@ -233,7 +294,7 @@ export async function POST(req: NextRequest) {
       runId,
       results,
       appendedEvents,
-      runMode: "shared_append_only_two_pass_paid_gateway_explicit_same_vendor_retry",
+      runMode: "shared_append_only_two_pass_paid_gateway_explicit_same_vendor_retry_anthropic_native",
       passes: 2,
       gatewayAuth: "AI_GATEWAY_API_KEY",
       authority: "HUMAN_AUTHORITY_REQUIRED_FOR_EXTERNAL_ACTIONS",
