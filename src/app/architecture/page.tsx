@@ -68,7 +68,7 @@ export default function Page() {
         </section>
 
         <div className={styles.band}>
-          src/app → ROUTES · src/lib → SHARED TRUTH · src/middleware.ts → nullworks.systems
+          UMBRA → GOVERNED OPERATIONS · PENUMBRA → HUMAN SUPERVISION · UMBRA NETWORK → FEDERATION
         </div>
 
         <section className={styles.section}>
@@ -87,6 +87,36 @@ export default function Page() {
                 The human-facing layer that makes state, evidence, uncertainty, permissions, review,
                 exceptions, and stop-the-line controls legible to the accountable person.
               </p>
+            </div>
+          </div>
+        </section>
+
+        <section className={styles.section}>
+          <div className={styles.sectionHeader}>
+            <div className={styles.kicker}>Domain instantiation</div>
+            <h2 className={styles.h2}>The architecture stays. The operating world changes.</h2>
+            <p className={styles.body}>
+              NULLWORKS can apply the same governed architecture to different physical and digital
+              domains without renaming the architecture for each project.
+            </p>
+          </div>
+          <div className={styles.two}>
+            <div className={styles.panel}>
+              <h3>NOXWORKS</h3>
+              <p>
+                The NULLWORKS lunar instantiated prototype lab: the home for lunar systems,
+                lunar prototypes, terrestrial analogs that directly serve lunar programs, and
+                future Moon-instantiated operational experimentation.
+              </p>
+            </div>
+            <div className={styles.panel}>
+              <h3>PORTUS LUNARIS</h3>
+              <p>
+                The lunar spaceport program developed through NOXWORKS. PORTUS is the port-operations
+                layer inside that program; UMBRA remains the underlying governed architecture and
+                PENUMBRA remains the human supervisory interface.
+              </p>
+              <p><a className={styles.route} href="/portus-lunaris">Open PORTUS LUNARIS →</a></p>
             </div>
           </div>
         </section>
