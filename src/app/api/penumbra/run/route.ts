@@ -50,57 +50,38 @@ function rosterText(workers: Worker[]) {
   return workers.map((w, i) => `${i + 1}. ${w.name} — ${w.seatName} — ${resolveModel(w.model)}`).join("\n");
 }
 
-function gatewayRouting(model: string) {
+function modelAttempts(model: string) {
   if (model.startsWith("openai/")) {
-    return {
-      order: ["openai", "azure"],
-      fallbacks: ["openai/gpt-5.5", "openai/gpt-5.4"],
-    };
+    return [model, "openai/gpt-5.5", "openai/gpt-5.4", "openai/gpt-4.1"];
   }
-
   if (model.startsWith("anthropic/")) {
-    return {
-      order: ["anthropic", "vertex"],
-      fallbacks: ["anthropic/claude-sonnet-4", "anthropic/claude-haiku-4.5"],
-    };
+    return [model, "anthropic/claude-sonnet-4.6", "anthropic/claude-sonnet-4", "anthropic/claude-haiku-4.5"];
   }
-
-  if (model.startsWith("spacexai/")) {
-    return {
-      order: ["spacexai"],
-      fallbacks: [] as string[],
-    };
-  }
-
-  return {
-    order: [] as string[],
-    fallbacks: [] as string[],
-  };
+  return [model];
 }
 
-async function callPaidGateway(model: string, system: string, messages: ReturnType<typeof toGatewayMessages>) {
-  const apiKey = process.env.AI_GATEWAY_API_KEY;
-  if (!apiKey) {
-    throw new Error("AI_GATEWAY_API_KEY is not configured for this deployment.");
-  }
+function providerOrder(model: string) {
+  if (model.startsWith("openai/")) return ["openai", "azure"];
+  if (model.startsWith("anthropic/")) return ["anthropic", "vertex"];
+  if (model.startsWith("spacexai/")) return ["spacexai"];
+  return [] as string[];
+}
 
-  const routing = gatewayRouting(model);
+async function callGatewayOnce(
+  apiKey: string,
+  model: string,
+  system: string,
+  messages: ReturnType<typeof toGatewayMessages>,
+) {
+  const order = providerOrder(model);
   const requestBody: Record<string, unknown> = {
     model,
-    messages: [
-      { role: "system", content: system },
-      ...messages,
-    ],
+    messages: [{ role: "system", content: system }, ...messages],
     stream: false,
   };
 
-  if (routing.fallbacks.length) requestBody.models = routing.fallbacks;
-  if (routing.order.length) {
-    requestBody.providerOptions = {
-      gateway: {
-        order: routing.order,
-      },
-    };
+  if (order.length) {
+    requestBody.providerOptions = { gateway: { order } };
   }
 
   const response = await fetch("https://ai-gateway.vercel.sh/v1/chat/completions", {
@@ -116,12 +97,12 @@ async function callPaidGateway(model: string, system: string, messages: ReturnTy
   const payload = await response.json().catch(() => null);
   if (!response.ok) {
     const message = payload?.error?.message || payload?.error || payload?.message || `AI Gateway request failed (${response.status})`;
-    throw new Error(typeof message === "string" ? message : JSON.stringify(message));
+    throw new Error(`${response.status} ${typeof message === "string" ? message : JSON.stringify(message)}`);
   }
 
   const text = payload?.choices?.[0]?.message?.content;
   if (typeof text !== "string" || !text.trim()) {
-    throw new Error("Worker returned no text content");
+    throw new Error("200 Worker returned no text content");
   }
 
   return {
@@ -129,6 +110,24 @@ async function callPaidGateway(model: string, system: string, messages: ReturnTy
     model: typeof payload?.model === "string" ? payload.model : model,
     usage: payload?.usage || null,
   };
+}
+
+async function callPaidGateway(model: string, system: string, messages: ReturnType<typeof toGatewayMessages>) {
+  const apiKey = process.env.AI_GATEWAY_API_KEY;
+  if (!apiKey) throw new Error("AI_GATEWAY_API_KEY is not configured for this deployment.");
+
+  const attempts = [...new Set(modelAttempts(model))];
+  const failures: string[] = [];
+
+  for (const candidate of attempts) {
+    try {
+      return await callGatewayOnce(apiKey, candidate, system, messages);
+    } catch (error) {
+      failures.push(`${candidate}: ${error instanceof Error ? error.message : String(error)}`);
+    }
+  }
+
+  throw new Error(`ALL SAME-VENDOR MODEL ATTEMPTS FAILED | ${failures.join(" | ")}`);
 }
 
 async function runWorker(worker: Worker, thread: ThreadEvent[], workers: Worker[], phase: "proposal" | "challenge") {
@@ -224,19 +223,7 @@ export async function POST(req: NextRequest) {
             status: "error",
           };
           workingLog.push(failureEvent);
-          results.push({
-            ok: false,
-            phase,
-            sequence,
-            event: failureEvent,
-            workerId: worker.id,
-            name: worker.name,
-            seatId: worker.seatId,
-            seatName: worker.seatName,
-            requestedModel: worker.model,
-            actualModel: resolvedModel,
-            error: errorMessage,
-          });
+          results.push({ ok: false, phase, sequence, event: failureEvent, workerId: worker.id, name: worker.name, seatId: worker.seatId, seatName: worker.seatName, requestedModel: worker.model, actualModel: resolvedModel, error: errorMessage });
         }
       }
     }
@@ -246,7 +233,7 @@ export async function POST(req: NextRequest) {
       runId,
       results,
       appendedEvents,
-      runMode: "shared_append_only_two_pass_paid_gateway_same_vendor_failover",
+      runMode: "shared_append_only_two_pass_paid_gateway_explicit_same_vendor_retry",
       passes: 2,
       gatewayAuth: "AI_GATEWAY_API_KEY",
       authority: "HUMAN_AUTHORITY_REQUIRED_FOR_EXTERNAL_ACTIONS",
