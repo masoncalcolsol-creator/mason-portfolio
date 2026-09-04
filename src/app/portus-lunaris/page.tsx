@@ -7,15 +7,55 @@ export const metadata: Metadata = {
 };
 
 const systems = [
-  ["ARGUS", "Reconnaissance", "Autonomous terrain, pit and subsurface reconnaissance; mapping, ranging, thermal and environmental characterization before permanent occupation."],
-  ["LANTERN", "Navigation + communications", "Local references, communications, machine-readable location and operational state without depending on terrestrial navigation infrastructure."],
-  ["VESTA", "Power + thermal", "Continuous surface power, electrical distribution, thermal management and dust-control research for long-duration industrial operation."],
-  ["FORGE", "Local materials", "Excavate, classify and process lunar material into useful construction and resource streams, reducing dependence on imported bulk mass."],
-  ["PAVIS", "Landing infrastructure", "Reusable landing and launch surfaces, blast-management zones, hardstand, roads, berms and progressive surface expansion."],
-  ["PORTUS", "Operating layer", "The supervisory architecture joining robots, energy, construction, logistics, telemetry, evidence, failure handling and Human Authority."],
+  {
+    name: "ARGUS",
+    title: "Reconnaissance",
+    short: "Map the unknown before we decide what belongs there.",
+    includes: ["Surface terrain and pit reconnaissance", "Rim and anchor-zone mapping", "Tethered cave / throat exploration", "LiDAR, ranging and photogrammetry", "Thermal, radiation and communications measurements", "Subsurface geometry and access qualification"],
+    decision: "ARGUS does not assume the cavern is a habitat, industrial bay or reactor site. It measures what is actually there, builds the map, and gives the rest of PORTUS evidence for deciding the best use later."
+  },
+  {
+    name: "LANTERN",
+    title: "Navigation + communications",
+    short: "Give machines and people a shared local reference system.",
+    includes: ["Surveyed local reference points", "Machine-readable location and state", "Surface and subsurface communications relays", "Operational beacons and landmarks", "Local grid and route references", "Degraded-comms operating support"],
+    decision: "LANTERN turns a place with no terrestrial GPS infrastructure into an operating environment where every asset can know where it is, what it is connected to and how to report its state."
+  },
+  {
+    name: "VESTA",
+    title: "Power + thermal",
+    short: "Provide continuous power and get waste heat safely back to space.",
+    includes: ["Surface power generation architecture", "Electrical distribution", "Power conversion and isolation", "Thermal transport and rejection", "Radiator-field architecture", "Dust-control experiments"],
+    decision: "VESTA is kept separate from the pit-preservation decision. A reactor does not go underground because the hole looks convenient; it goes where later evidence shows the total safety, thermal, maintenance and preservation case is strongest."
+  },
+  {
+    name: "FORGE",
+    title: "Local materials",
+    short: "Turn lunar material into useful infrastructure.",
+    includes: ["Excavation and material handling", "Regolith / basalt classification", "Oxygen and material-processing research", "Construction-material production", "Feedstock handling and quality control", "Progressive local manufacturing"],
+    decision: "FORGE reduces the amount of bulk construction mass that has to be carried from Earth and creates the material stream used to expand the port."
+  },
+  {
+    name: "PAVIS",
+    title: "Landing infrastructure",
+    short: "Make arrival repeatable instead of disposable.",
+    includes: ["Reusable landing and launch surfaces", "Blast and ejecta management", "Hardstand and equipment pads", "Roads and logistics corridors", "Berms and protective earthworks", "Inspection, repair and progressive expansion"],
+    decision: "PAVIS treats plume, dust and missed-landing consequences as zoning problems. The goal is repeatable cargo traffic without sacrificing the infrastructure the port is trying to build."
+  },
+  {
+    name: "PORTUS",
+    title: "Operating layer",
+    short: "Make the separate systems behave like one port.",
+    includes: ["Mission and work coordination", "Robot and equipment state", "Energy and logistics orchestration", "Telemetry and evidence", "Failure handling and recovery", "Human Authority and decision boundaries", "Multi-vendor interface control"],
+    decision: "PORTUS is the layer that lets the worker change while the operating architecture stays intact. Robots, power systems and suppliers can be replaced without rebuilding the entire port around one vendor."
+  }
 ];
 
 const ladder = ["Terrestrial analog", "Orbital + site evidence", "ARGUS pathfinder", "Pit / subsurface reconnaissance", "LANTERN deployment", "FORGE demonstration", "PAVIS landing surface", "VESTA continuous power", "Integrated PORTUS operations", "Repeated cargo + published interfaces"];
+
+const detailStyle = {border:"1px solid #293638", background:"#0b1618", borderRadius:18, overflow:"hidden", minHeight:0} as const;
+const summaryStyle = {cursor:"pointer", padding:"22px 24px", listStyle:"none"} as const;
+const listStyle = {margin:"16px 0 0", paddingLeft:20, color:"#aebbb6", lineHeight:1.7} as const;
 
 export default function PortusLunarisPage(){
   return <main className={styles.page}><div className={styles.shell}>
@@ -27,9 +67,9 @@ export default function PortusLunarisPage(){
 
     <section className={styles.section}><div className={styles.statement}><strong>The port is the system.</strong><p>No single reactor, robot, cave or landing pad is the Moonport. PORTUS LUNARIS is an integrated infrastructure architecture intended to let different machines, suppliers, missions and eventually people operate through shared services and explicit interfaces.</p></div></section>
 
-    <section className={styles.section} id="architecture"><div className={styles.sectionHeader}><div className={styles.kicker}>Six-system architecture</div><h2 className={styles.h2}>Build the infrastructure before depending on it.</h2><p className={styles.body}>Each system can be developed and tested independently, then integrated into a common operating architecture. The design favors multi-vendor and international components rather than dependence on a single supplier.</p></div><div className={styles.grid}>{systems.map(([name,title,body])=><div className={styles.card} key={name}><div className={styles.cardLabel}>{name}</div><h3>{title}</h3><p>{body}</p></div>)}</div></section>
+    <section className={styles.section} id="architecture"><div className={styles.sectionHeader}><div className={styles.kicker}>Six-system architecture</div><h2 className={styles.h2}>We do not know what we do not know until we map it.</h2><p className={styles.body}>Each system has a job, an evidence boundary and a decision it is responsible for informing. Tap any system to open it.</p></div><div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(280px,1fr))",gap:14}}>{systems.map((s)=><details key={s.name} style={detailStyle}><summary style={summaryStyle}><div className={styles.cardLabel}>{s.name}</div><h3 style={{fontSize:22,margin:"26px 0 8px"}}>{s.title}</h3><p style={{margin:0,color:"#9eaca7",lineHeight:1.55}}>{s.short}</p><div style={{marginTop:18,fontSize:12,letterSpacing:'.12em',textTransform:'uppercase',color:'#c9d3cf'}}>Tap to expand +</div></summary><div style={{padding:"0 24px 24px",borderTop:"1px solid #293638"}}><div style={{marginTop:20,fontSize:12,letterSpacing:'.14em',textTransform:'uppercase',color:'#82918b'}}>Includes</div><ul style={listStyle}>{s.includes.map(x=><li key={x}>{x}</li>)}</ul><div style={{marginTop:22,fontSize:12,letterSpacing:'.14em',textTransform:'uppercase',color:'#82918b'}}>Why it matters</div><p style={{color:'#c9d3cf',lineHeight:1.7}}>{s.decision}</p></div></details>)}</div></section>
 
-    <section className={styles.section} id="site"><div className={styles.two}><div className={styles.panel}><div className={styles.kicker}>Working site candidate</div><h3>Mare Tranquillitatis</h3><p>PORT-T currently centers engineering research on the Mare Tranquillitatis Pit region at approximately 8.3355°N, 33.222°E. The pit is a confirmed lunar skylight/collapse feature and a compelling reconnaissance target.</p><p>Subsurface geometry, structural competence, accessibility and suitability for protected operations remain engineering questions—not assumptions.</p></div><div className={styles.panel}><div className={styles.kicker}>Preservation law</div><h3>Map first. Build second.</h3><p><strong>Nothing irreversible goes down the throat until ARGUS has mapped the throat.</strong></p><p>The pit and possible connected subsurface volume are treated as potentially high-value future infrastructure. Heavy industrial use, permanent occupation and irreversible alteration wait for characterization.</p></div></div></section>
+    <section className={styles.section} id="site"><div className={styles.sectionHeader}><div className={styles.kicker}>Working site candidate</div><h2 className={styles.h2}>Mare Tranquillitatis Pit.</h2><p className={styles.body}>PORT-T currently centers engineering research on the Mare Tranquillitatis Pit region at approximately 8.3355°N, 33.222°E.</p></div><div style={{border:'1px solid #293638',borderRadius:20,overflow:'hidden',background:'#0b1618',marginBottom:18}}><img src="/portus-lunaris/mtp-pit.jpg" alt="Mare Tranquillitatis Pit, LROC NAC view" style={{display:'block',width:'100%',height:'auto'}}/><div style={{padding:'16px 20px',color:'#9eaca7',fontSize:13,lineHeight:1.6}}>Mare Tranquillitatis Pit · LROC NAC view recovered from the PORT-T visual evidence capture. This image shows the observed pit geometry; it does not prove the size or suitability of any connected subsurface cavern.</div></div><div className={styles.two}><div className={styles.panel}><h3>What we know now</h3><p>The pit is a confirmed lunar skylight/collapse feature with a large opening, steep walls, overhang/recess geometry and visible interior floor sectors. It is already worth serious reconnaissance.</p><p>What we do not yet know is just as important: full subsurface geometry, roof thickness, continuity, structural competence, access difficulty and best long-term use.</p></div><div className={styles.panel}><div className={styles.kicker}>Preservation law</div><h3>Map first. Build second.</h3><p><strong>Nothing irreversible goes down the throat until ARGUS has mapped the throat.</strong></p><p>ARGUS goes in to answer the question before PORTUS assigns the answer. If the volume is best for people, protect it. If it is best for equipment, use it. If it is unsafe or low-value, build outward and keep the port moving.</p></div></div></section>
 
     <section className={styles.section}><div className={styles.sectionHeader}><div className={styles.kicker}>Autonomy by necessity</div><h2 className={styles.h2}>The machines must be able to work when Earth cannot drive them.</h2><p className={styles.body}>PORTUS LUNARIS is being designed around autonomous local operation under communications delay, interruption and uncertain terrain. Earth supplies objectives and bounded supervisory direction; local systems must sense, act, preserve evidence, fail safely and recover without pretending a distant operator is sitting in the cab.</p></div></section>
 
