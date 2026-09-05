@@ -39,7 +39,12 @@ export default function PortfolioThemeShell({ children }: { children: ReactNode 
             "linear-gradient(rgba(2,8,6,.56),rgba(2,8,6,.56)),radial-gradient(circle at 50% 18%,rgba(68,112,76,.075),transparent 31%),radial-gradient(circle at 50% 82%,rgba(38,77,49,.045),transparent 38%)",
         }}
       />
-      <div className="relative z-[3] min-h-screen">{children}</div>
+      <div className="portfolio-theme-content relative z-[3] min-h-screen">{children}</div>
+      <style jsx global>{`
+        .portfolio-theme-content > main {
+          background-color: transparent !important;
+        }
+      `}</style>
     </div>
   );
 }
