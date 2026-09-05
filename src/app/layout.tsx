@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import AnvilGhostScroll from "./components/AnvilGhostScroll";
 import PublicQuickNav from "./components/PublicQuickNav";
 import PublicLinkNormalizer from "./components/PublicLinkNormalizer";
+import PortfolioThemeShell from "./PortfolioThemeShell";
 import "./globals.css";
 import "./oisa.css";
 import "./landing-fixes.css";
@@ -36,7 +37,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
       <body className="min-h-full flex flex-col">
         <AnvilGhostScroll />
         <PublicLinkNormalizer />
-        {children}
+        <PortfolioThemeShell>{children}</PortfolioThemeShell>
         <PublicQuickNav />
       </body>
     </html>
