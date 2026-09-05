@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import styles from "./corporate.module.css";
-import OscilloscopeBackground from "./receipt-wallet/OscilloscopeBackground";
 
 export const metadata: Metadata = {
   title: "NULLWORKS | AI Architecture for Consequential Systems",
@@ -22,8 +21,6 @@ const doors = [
 
 export default function HomePage() {
   return <main className={styles.page}>
-    <OscilloscopeBackground />
-    <div className={styles.scopeWash} aria-hidden="true" />
     <div className={styles.shell}>
       <nav className={styles.nav}>
         <a className={styles.brand} href="/">NULLWORKS<span>AI ARCHITECTURE · GOVERNED OPERATIONAL INTELLIGENCE</span></a>
