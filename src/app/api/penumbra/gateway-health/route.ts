@@ -61,8 +61,29 @@ async function discoverGatewayKeyId() {
 
 export async function GET() {
   const apiKey = process.env.AI_GATEWAY_API_KEY;
+  const explicitKeyIdRaw = process.env.AI_GATEWAY_API_KEY_ID;
+  const explicitKeyIdTrimmed = explicitKeyIdRaw?.trim() || "";
+
+  const envProbe = {
+    gatewayKeyPresent: !!apiKey,
+    gatewayKeyIdPresent: explicitKeyIdTrimmed.length > 0,
+    gatewayKeyIdLength: explicitKeyIdTrimmed.length,
+    gatewayKeyIdPrefixLooksValid: explicitKeyIdTrimmed.length > 0 && /^[A-Za-z0-9_-]+$/.test(explicitKeyIdTrimmed),
+    vercelTokenPresent: !!process.env.VERCEL_TOKEN,
+    vercelOidcTokenPresent: !!process.env.VERCEL_OIDC_TOKEN,
+    note: "Presence/shape only. No secret or key ID value is returned.",
+  };
+
   if (!apiKey) {
-    return NextResponse.json({ checkedAt: new Date().toISOString(), authenticated: false, keyConfigured: false, classification: "NO_GATEWAY_KEY", credits: null, quota: null }, { status: 503 });
+    return NextResponse.json({
+      checkedAt: new Date().toISOString(),
+      authenticated: false,
+      keyConfigured: false,
+      classification: "NO_GATEWAY_KEY",
+      credits: null,
+      quota: null,
+      envProbe,
+    }, { status: 503 });
   }
 
   const credits = await readJson("https://ai-gateway.vercel.sh/v1/credits", apiKey);
@@ -90,6 +111,7 @@ export async function GET() {
     authenticated: credits.ok,
     keyConfigured: true,
     classification,
+    envProbe,
     credits: {
       ok: credits.ok,
       status: credits.status,
