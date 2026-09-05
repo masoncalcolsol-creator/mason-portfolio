@@ -8,7 +8,8 @@ type Health = {
   keyConfigured?: boolean;
   classification?: string;
   credits?: { ok?: boolean; status?: number; balance?: number | null; totalUsed?: number | null; error?: any } | null;
-  quota?: { ok?: boolean; status?: number; keyIdConfigured?: boolean; raw?: any; error?: any; note?: string | null } | null;
+  keyDiscovery?: { resolved?: boolean; source?: string; controlStatus?: number | null; candidateCount?: number; selectedName?: string | null } | null;
+  quota?: { ok?: boolean; status?: number; keySpecific?: boolean; raw?: any; error?: any; note?: string | null } | null;
 };
 
 function money(v: number | null | undefined) {
@@ -34,7 +35,7 @@ export default function GatewayHealth() {
 
   useEffect(() => { check(); }, []);
 
-  const healthy = health?.classification === "AUTHENTICATED_PAID_CREDITS_AVAILABLE";
+  const healthy = health?.classification === "AUTHENTICATED_PAID_CREDITS_AVAILABLE" || health?.classification === "PAID_CREDITS_AND_KEY_QUOTA_HEALTHY";
   const box: React.CSSProperties = {
     width: "min(1280px, calc(100% - 28px))",
     margin: "14px auto 0",
@@ -59,8 +60,10 @@ export default function GatewayHealth() {
       <div><div style={{fontSize:10,opacity:.6,textTransform:"uppercase"}}>Gateway balance</div><strong>{money(health.credits?.balance)}</strong></div>
       <div><div style={{fontSize:10,opacity:.6,textTransform:"uppercase"}}>Lifetime used</div><strong>{money(health.credits?.totalUsed)}</strong></div>
       <div><div style={{fontSize:10,opacity:.6,textTransform:"uppercase"}}>Credits endpoint</div><strong>{health.credits?.status ?? "—"}</strong></div>
-      <div><div style={{fontSize:10,opacity:.6,textTransform:"uppercase"}}>Quota endpoint</div><strong>{health.quota?.status ?? "—"}</strong></div>
+      <div><div style={{fontSize:10,opacity:.6,textTransform:"uppercase"}}>Key resolved</div><strong>{health.keyDiscovery?.resolved?"YES":"NO"}</strong></div>
+      <div><div style={{fontSize:10,opacity:.6,textTransform:"uppercase"}}>Key quota</div><strong>{health.quota?.keySpecific ? `${health.quota?.status ?? "—"} · SPECIFIC` : `${health.quota?.status ?? "—"} · DEFAULT`}</strong></div>
     </div>}
+    {health?.keyDiscovery && <div style={{fontSize:11,lineHeight:1.5,marginTop:9,opacity:.72}}>Key discovery: {health.keyDiscovery.source || "unknown"}{health.keyDiscovery.selectedName ? ` · ${health.keyDiscovery.selectedName}` : ""}{typeof health.keyDiscovery.candidateCount === "number" ? ` · ${health.keyDiscovery.candidateCount} candidate(s)` : ""}</div>}
     {health?.credits?.error && <div style={{fontSize:11,lineHeight:1.5,marginTop:10,opacity:.8}}>Credits error: {typeof health.credits.error === "string" ? health.credits.error : JSON.stringify(health.credits.error)}</div>}
     {health?.quota?.note && <div style={{fontSize:11,lineHeight:1.5,marginTop:8,opacity:.65}}>{health.quota.note}</div>}
   </section>;
