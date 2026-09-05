@@ -10,8 +10,11 @@ function canonicalizePublicHref(href: string): string {
   try {
     const url = new URL(href, CANONICAL_ORIGIN);
     const host = url.hostname.toLowerCase();
+
+    // Canonicalize only NULLWORKS-owned aliases/legacy portfolio hosts.
+    // Intentionally preserve external Vercel apps such as LegalFlow, LenderFlow,
+    // PAPERGOBLIN, and other deployed proof vehicles on their own origins.
     if (
-      host.endsWith(".vercel.app") ||
       host.includes("mason-portfolio") ||
       host === "www.nullworks.systems"
     ) {
