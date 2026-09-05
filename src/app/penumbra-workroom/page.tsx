@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import WorkroomClient from "./WorkroomClient";
+import GatewayHealth from "./GatewayHealth";
 
 export const metadata: Metadata = {
   title: "PENUMBRA Workroom | NULLWORKS",
@@ -7,5 +8,5 @@ export const metadata: Metadata = {
 };
 
 export default function PenumbraWorkroomPage() {
-  return <WorkroomClient />;
+  return <><GatewayHealth /><WorkroomClient /></>;
 }
