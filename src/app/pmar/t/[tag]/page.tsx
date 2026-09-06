@@ -15,8 +15,14 @@ type Row = {
   last_scanned_at: string;
 };
 
-const card =
-  'rounded-2xl border border-white/10 bg-black/75 p-4 shadow-xl backdrop-blur-md';
+const bubble: React.CSSProperties = {
+  background: 'rgba(2, 8, 6, 0.88)',
+  border: '1px solid rgba(255,255,255,0.14)',
+  borderRadius: 18,
+  boxShadow: '0 18px 40px rgba(0,0,0,0.45)',
+  backdropFilter: 'blur(14px)',
+  WebkitBackdropFilter: 'blur(14px)',
+};
 
 export default function PMARTagPage() {
   const params = useParams<{ tag: string }>();
@@ -105,114 +111,69 @@ export default function PMARTagPage() {
     }
   }
 
-  if (!loaded) {
-    return <main className="relative min-h-screen bg-transparent" />;
-  }
+  if (!loaded) return <main style={{ minHeight: '100vh' }} />;
 
   const inService = binding?.status === 'IN SERVICE';
 
   return (
-    <main className="relative min-h-screen bg-transparent px-5 py-8 text-white">
+    <main style={{ position: 'relative', minHeight: '100vh', padding: '32px 20px', color: '#fff' }}>
       <div
         aria-hidden="true"
-        className="pointer-events-none fixed inset-0 z-0 bg-black/25"
+        style={{ position: 'fixed', inset: 0, pointerEvents: 'none', background: 'rgba(0,0,0,0.28)', zIndex: 0 }}
       />
-      <div className="relative z-10 mx-auto max-w-md space-y-4">
-        <header className={card}>
-          <div className="text-xs font-black tracking-[.28em] text-emerald-400">
-            PMARS LIVE
-          </div>
-          <h1 className="mt-2 text-4xl font-black text-white">
-            {tag || 'UNKNOWN TAG'}
-          </h1>
+      <div style={{ position: 'relative', zIndex: 3, maxWidth: 440, margin: '0 auto', display: 'grid', gap: 16 }}>
+        <header style={{ ...bubble, padding: 16 }}>
+          <div style={{ fontSize: 12, fontWeight: 900, letterSpacing: '0.28em', color: '#4ade80' }}>PMARS LIVE</div>
+          <h1 style={{ margin: '8px 0 0', fontSize: 36, fontWeight: 900 }}>{tag || 'UNKNOWN TAG'}</h1>
         </header>
 
         {error && (
-          <div className={`${card} border-red-500/40 bg-red-950/80 text-sm font-bold text-red-100`}>
-            {error}
-          </div>
+          <div style={{ ...bubble, padding: 16, borderColor: 'rgba(248,113,113,0.45)', color: '#fecaca' }}>{error}</div>
         )}
 
         {!binding ? (
-          <section className={`${card} p-6`}>
-            <div className="text-xs font-bold tracking-[.2em] text-emerald-400">
-              NEW TRIANGLE
-            </div>
-            <h2 className="mt-2 text-3xl font-black text-white">
-              What did you put this on?
-            </h2>
-            <p className="mt-2 text-sm text-white/60">
-              Pair this marker once. The record will then be shared across every device.
-            </p>
-            <label className="mt-6 block text-sm font-bold text-white/50">Asset ID</label>
-            <input
-              value={alias}
-              onChange={(e) => setAlias(e.target.value)}
-              placeholder="PJ53"
-              className="mt-2 w-full rounded-2xl border border-white/15 bg-black/50 p-4 text-xl font-black text-white placeholder:text-white/30"
-            />
-            <label className="mt-4 block text-sm font-bold text-white/50">Type</label>
-            <input
-              value={kind}
-              onChange={(e) => setKind(e.target.value)}
-              placeholder="Toyota pallet jack"
-              className="mt-2 w-full rounded-2xl border border-white/15 bg-black/50 p-4 text-white placeholder:text-white/30"
-            />
-            <label className="mt-4 block text-sm font-bold text-white/50">Displayed hours</label>
-            <input
-              inputMode="decimal"
-              value={hours}
-              onChange={(e) => setHours(e.target.value)}
-              placeholder="1624"
-              className="mt-2 w-full rounded-2xl border border-white/15 bg-black/50 p-4 text-xl text-white placeholder:text-white/30"
-            />
-            <button
-              disabled={busy}
-              onClick={bind}
-              className="mt-6 w-full rounded-2xl border border-emerald-400/30 bg-emerald-500 py-5 text-lg font-black text-black disabled:opacity-50"
-            >
+          <section style={{ ...bubble, padding: 24 }}>
+            <div style={{ fontSize: 12, fontWeight: 800, letterSpacing: '0.2em', color: '#4ade80' }}>NEW TRIANGLE</div>
+            <h2 style={{ margin: '8px 0 0', fontSize: 28, fontWeight: 900 }}>What did you put this on?</h2>
+            <p style={{ marginTop: 8, color: 'rgba(255,255,255,0.62)' }}>Pair this marker once. The record will then be shared across every device.</p>
+            <label style={{ display: 'block', marginTop: 24, color: 'rgba(255,255,255,0.55)', fontWeight: 700 }}>Asset ID</label>
+            <input value={alias} onChange={(e) => setAlias(e.target.value)} placeholder="PJ53" style={{ ...bubble, width: '100%', marginTop: 8, padding: 16, fontSize: 20, fontWeight: 900, color: '#fff' }} />
+            <label style={{ display: 'block', marginTop: 16, color: 'rgba(255,255,255,0.55)', fontWeight: 700 }}>Type</label>
+            <input value={kind} onChange={(e) => setKind(e.target.value)} placeholder="Toyota pallet jack" style={{ ...bubble, width: '100%', marginTop: 8, padding: 16, color: '#fff' }} />
+            <label style={{ display: 'block', marginTop: 16, color: 'rgba(255,255,255,0.55)', fontWeight: 700 }}>Displayed hours</label>
+            <input inputMode="decimal" value={hours} onChange={(e) => setHours(e.target.value)} placeholder="1624" style={{ ...bubble, width: '100%', marginTop: 8, padding: 16, fontSize: 20, color: '#fff' }} />
+            <button disabled={busy} onClick={bind} style={{ width: '100%', marginTop: 24, padding: 20, borderRadius: 16, border: 0, background: '#22c55e', color: '#052e16', fontWeight: 900, fontSize: 18 }}>
               {busy ? 'PAIRING...' : 'PAIR THIS TRIANGLE'}
             </button>
           </section>
         ) : (
-          <section className={`${card} p-6`}>
-            <div className="text-xs font-bold tracking-[.2em] text-white/50">YOU SCANNED</div>
-            <h2 className="mt-1 text-5xl font-black text-white">{binding.alias}</h2>
-            <p className="mt-1 text-white/55">{binding.kind}</p>
-            <button
-              disabled={busy}
-              onClick={toggleStatus}
-              className={`mt-6 w-full rounded-2xl border p-5 text-left text-xl font-black ${
-                inService
-                  ? 'border-emerald-400/40 bg-emerald-500 text-black'
-                  : 'border-red-400/40 bg-red-600 text-white'
-              }`}
-            >
+          <section style={{ ...bubble, padding: 24 }}>
+            <div style={{ fontSize: 12, fontWeight: 800, letterSpacing: '0.2em', color: 'rgba(255,255,255,0.5)' }}>YOU SCANNED</div>
+            <h2 style={{ margin: '4px 0 0', fontSize: 48, fontWeight: 900 }}>{binding.alias}</h2>
+            <p style={{ marginTop: 4, color: 'rgba(255,255,255,0.58)' }}>{binding.kind}</p>
+            <button disabled={busy} onClick={toggleStatus} style={{ width: '100%', marginTop: 24, padding: 20, borderRadius: 16, border: 0, fontWeight: 900, fontSize: 20, textAlign: 'left', background: inService ? '#22c55e' : '#dc2626', color: inService ? '#052e16' : '#fff' }}>
               {binding.status}
             </button>
             {binding.displayed_hours !== null && (
-              <div className="mt-4 flex justify-between border-b border-white/10 py-4 text-white">
-                <span className="text-white/50">Displayed hours</span>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 16, padding: '16px 0', borderBottom: '1px solid rgba(255,255,255,0.12)' }}>
+                <span style={{ color: 'rgba(255,255,255,0.5)' }}>Displayed hours</span>
                 <strong>{binding.displayed_hours}</strong>
               </div>
             )}
-            <div className="flex justify-between border-b border-white/10 py-4 text-sm text-white">
-              <span className="text-white/50">PMARS point</span>
+            <div style={{ display: 'flex', justifyContent: 'space-between', padding: '16px 0', borderBottom: '1px solid rgba(255,255,255,0.12)', fontSize: 14 }}>
+              <span style={{ color: 'rgba(255,255,255,0.5)' }}>PMARS point</span>
               <strong>{tag}</strong>
             </div>
-            <p className={`${card} mt-5 text-sm font-bold text-emerald-200`}>
+            <p style={{ ...bubble, marginTop: 20, padding: 16, color: '#bbf7d0', fontWeight: 700 }}>
               LIVE SHARED RECORD · changes persist across devices.
             </p>
           </section>
         )}
 
-        <a
-          href="/pmar/overview"
-          className={`${card} block text-center text-sm font-black text-emerald-300`}
-        >
+        <a href="/pmar/overview" style={{ ...bubble, display: 'block', padding: 16, textAlign: 'center', color: '#86efac', fontWeight: 900, textDecoration: 'none' }}>
           OPEN MAINTENANCE OVERVIEW
         </a>
-        <p className={`${card} py-3 text-center text-xs font-bold tracking-[.16em] text-white/55`}>
+        <p style={{ ...bubble, padding: '12px 16px', textAlign: 'center', letterSpacing: '0.16em', fontSize: 12, fontWeight: 800, color: 'rgba(255,255,255,0.55)' }}>
           FIND BLUE. SCAN BLUE.
         </p>
       </div>
